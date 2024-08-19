@@ -1,9 +1,22 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     Stack<PlayerState> currentState = new Stack<PlayerState>();
+    
+    #region Components
+    
+    [HideInInspector] public Rigidbody rb;
+    public PlayerData playerData;
+    
+    #endregion
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
 
     // Start is called before the first frame update
     void Start()
