@@ -547,7 +547,7 @@ GameObject:
   - component: {fileID: 845412125}
   - component: {fileID: 845412128}
   - component: {fileID: 845412129}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -668,7 +668,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &845412129
 MonoBehaviour:
@@ -705,10 +705,10 @@ MonoBehaviour:
   moveInput: {x: 0, y: 0}
   lastPressedJumpTime: 0
   groundCheckPoint: {fileID: 1977220826}
-  groundCheckSize: {x: 0.49, y: 0.03, z: 0.49}
+  groundCheckSize: {x: 0.49, y: 0.3, z: 0.49}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
 --- !u!1 &958863406
 GameObject:
   m_ObjectHideFlags: 0
@@ -826,11 +826,11 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  camera:
-    m_Name: Camera
+  cameraMove:
+    m_Name: Camera Move
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: a8a3503c-aa59-4325-bf35-56d00fb703de
+    m_Id: b576059c-422c-419c-bfec-3ca448ab5a4d
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -862,7 +862,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1977220826}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: GroundCheckPoint
   m_TagString: Untagged
   m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
