@@ -10,7 +10,7 @@ public class InputManager : MonoBehaviour
     #region Input Actions Instances
     private PlayerInputActions playerInputActions;
     public InputAction movement;
-    public InputAction camera;
+    public InputAction cameraMove;
     public InputAction jump;
     public InputAction lockOn;
     #endregion
@@ -29,7 +29,7 @@ public class InputManager : MonoBehaviour
         
         playerInputActions = new PlayerInputActions();
         movement = playerInputActions.Player.Move;
-        camera = playerInputActions.Player.Camera;
+        cameraMove = playerInputActions.Player.Camera;
         jump = playerInputActions.Player.Jump;
         lockOn = playerInputActions.Player.LockOn;
         

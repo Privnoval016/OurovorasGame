@@ -109,6 +109,24 @@ public static class MathUtil
                 return new Vector3(vec.x, 0, vec.y);
         }
     }
+    
+    /**
+     * Converts a Vector3 to a Vector2, with the option to ignore a specific axis
+     * @param vec: The Vector2 to convert
+     * @param axisToIgnore: The axis to ignore when converting
+     */
+    public static Vector2 ToVector2(this Vector3 vec, char axisToIgnore = 'y')
+    {
+        switch (axisToIgnore)
+        {
+            case 'x':
+                return new Vector2(vec.y, vec.z);
+            case 'z':
+                return new Vector2(vec.x, vec.y);
+            default:
+                return new Vector2(vec.x, vec.z);
+        }
+    }
 
     /**
      * Converts a Vector2Int to a Vector3Int, with the option to ignore a specific axis
