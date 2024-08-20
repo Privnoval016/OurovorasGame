@@ -23,9 +23,7 @@ public class PlayerMoving : State
 	    #endregion
 	    
 	    pc.moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
-
-	    Debug.Log(InputManager.Instance.movement.ReadValue<Vector2>());
-
+	    
 	    if (Physics2D.OverlapBox(pc.groundCheckPoint.position, pc.groundCheckSize, 0, pc.groundLayer))
 	    {
 		    pc.lastOnGroundTime = pc.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
@@ -102,7 +100,7 @@ public class PlayerMoving : State
 		
 		Vector2 speedDiff = targetSpeed - MathUtil.ToVector2(pc.rb.velocity);
 		
-		Vector2 movementForce = speedDiff * accelRate;
+		Vector3 movementForce = MathUtil.ToVector3(speedDiff * accelRate);
 		
 		pc.rb.AddForce(movementForce, ForceMode.Force);
 	}
@@ -120,7 +118,7 @@ public class PlayerMoving : State
 		if (pc.rb.velocity.y < 0)
 			force -= pc.rb.velocity.y;
 
-		pc.rb.AddForce(Vector2.up * force, ForceMode.Impulse);
+		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
 		#endregion
 	}
     

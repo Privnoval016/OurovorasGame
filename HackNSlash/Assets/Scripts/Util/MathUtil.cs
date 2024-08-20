@@ -97,7 +97,7 @@ public static class MathUtil
      * @param vec: The Vector2 to convert
      * @param axisToIgnore: The axis to ignore when converting
      */
-    public static Vector3 ToVector3(this Vector2Int vec, char axisToIgnore = 'y')
+    public static Vector3 ToVector3(this Vector2 vec, char axisToIgnore = 'y')
     {
         switch (axisToIgnore)
         {
