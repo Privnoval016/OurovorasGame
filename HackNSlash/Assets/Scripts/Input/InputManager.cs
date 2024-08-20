@@ -33,7 +33,7 @@ public class InputManager : MonoBehaviour
         jump = playerInputActions.Player.Jump;
         lockOn = playerInputActions.Player.LockOn;
         
-        playerInputActions.Enable();
+        playerInputActions.Player.Enable();
     }
     
 }
