@@ -24,38 +24,15 @@ public class PlayerMoving : State
 	    
 	    pc.moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
 	    
-	    if (Physics2D.OverlapBox(pc.groundCheckPoint.position, pc.groundCheckSize, 0, pc.groundLayer))
-	    {
-		    pc.lastOnGroundTime = pc.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
-	    }
-	    
-	    if (pc.IsJumping && pc.rb.velocity.y < 0)
-	    {
-		    pc.IsJumping = false;
+	    CheckJump();
 
-		    pc.isJumpFalling = true;
-	    }
-
-	    if (pc.lastOnGroundTime > 0 && !pc.IsJumping)
-	    {
-		    pc.isJumpCut = false;
-
-		    pc.isJumpFalling = false;
-	    }
-	    
-	    if (pc.CanJump && pc.lastPressedJumpTime > 0)
-	    {
-		    pc.IsJumping = true;
-		    pc.isJumpCut = false;
-		    pc.isJumpFalling = false;
-		    Jump();
-	    }
-
+	    CalculateGravity();
     }
 
     public override void OnFixedUpdate()
     {
         Run(1);
+        ApplyGravity();
     }
 
     public override void OnExit()
@@ -76,20 +53,59 @@ public class PlayerMoving : State
     
     #endregion
     
+    #region Gravity Methods
+
+    private void CalculateGravity()
+    {
+	    if (pc.IsJumping && Mathf.Abs(pc.rb.velocity.y) < pc.playerData.jumpHangTimeThreshold)
+	    {
+		    SetGravityScale(pc.playerData.gravityScale * pc.playerData.jumpHangGravityMult);
+	    }
+	    else if (pc.rb.velocity.y < 0)
+	    {
+		    //Higher gravity if falling
+		    SetGravityScale(pc.playerData.gravityScale * pc.playerData.fallGravityMult);
+		    //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
+		    pc.rb.velocity = new Vector2(pc.rb.velocity.x, Mathf.Max(pc.rb.velocity.y, -pc.playerData.maxFallSpeed));
+	    }
+	    else
+	    {
+		    //Default gravity if standing on a platform or moving upwards
+		    SetGravityScale(pc.playerData.gravityScale);
+	    }
+    }
+    
+    private void SetGravityScale(float scale)
+    {
+	    pc.gravityScale = scale;
+    }
+    
+    private void ApplyGravity()
+	{
+		Vector3 gravity = pc.globalGravity * pc.gravityScale * Vector3.up;
+		pc.rb.AddForce(gravity, ForceMode.Acceleration);
+	}
+    
+    #endregion
+    
     #region Movement Methods
     
     private void Run(float lerpAmount)
-	{
-		Vector2 targetSpeed = pc.moveInput * pc.playerData.runMaxSpeed;
-		targetSpeed = Vector2.Lerp(pc.rb.velocity, targetSpeed, lerpAmount);
+    {
+	    Transform cam = Camera.main.transform;
+	    Vector3 moveDirection = pc.moveInput.x * MathUtil.ZeroVector3Axis(cam.right).normalized + 
+	                            pc.moveInput.y * MathUtil.ZeroVector3Axis(cam.forward).normalized;
+		
+	    Vector3 targetSpeed = moveDirection * pc.playerData.runMaxSpeed;
+		targetSpeed = Vector3.Lerp(pc.rb.velocity, targetSpeed, lerpAmount);
 
 
 		float accelRate;
 		if (pc.lastOnGroundTime > 0)
-			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.playerData.runAccelAmount : pc.playerData.runDeccelAmount;
+			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.playerData.runAccelAmount : pc.playerData.runDecelAmount;
 		else
 			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.playerData.runAccelAmount * pc.playerData.accelInAir : 
-															pc.playerData.runDeccelAmount * pc.playerData.deccelInAir;
+															pc.playerData.runDecelAmount * pc.playerData.decelInAir;
 		
 		
 		if ((pc.IsJumping || pc.isJumpFalling) && Mathf.Abs(pc.rb.velocity.y) < pc.playerData.jumpHangTimeThreshold)
@@ -98,12 +114,43 @@ public class PlayerMoving : State
 			targetSpeed *= pc.playerData.jumpHangMaxSpeedMult;
 		}
 		
-		Vector2 speedDiff = targetSpeed - MathUtil.ToVector2(pc.rb.velocity);
+		Vector3 speedDiff = targetSpeed - pc.rb.velocity;
 		
-		Vector3 movementForce = MathUtil.ToVector3(speedDiff * accelRate);
+		Vector3 movementForce = speedDiff * accelRate;
 		
 		pc.rb.AddForce(movementForce, ForceMode.Force);
 	}
+    
+    #endregion
+    
+    #region Jump Methods
+
+    private void CheckJump()
+    {
+	    if (Physics.CheckBox(pc.groundCheckPoint.position, pc.groundCheckSize, Quaternion.identity, pc.groundLayer))
+	    {
+		    pc.lastOnGroundTime = pc.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
+	    }
+	    
+	    if (pc.IsJumping && pc.rb.velocity.y < 0)
+	    {
+		    pc.IsJumping = false;
+
+		    pc.isJumpFalling = true;
+	    }
+
+	    if (pc.lastOnGroundTime > 0 && !pc.IsJumping)
+	    {
+		    pc.isJumpFalling = false;
+	    }
+	    
+	    if (pc.CanJump && pc.lastPressedJumpTime > 0)
+	    {
+		    pc.IsJumping = true;
+		    pc.isJumpFalling = false;
+		    Jump();
+	    }
+    }
     
 	private void Jump()
 	{

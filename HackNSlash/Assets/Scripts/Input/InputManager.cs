@@ -13,6 +13,7 @@ public class InputManager : MonoBehaviour
     public InputAction cameraMove;
     public InputAction jump;
     public InputAction lockOn;
+    public InputAction retarget;
     #endregion
     
     
@@ -32,6 +33,7 @@ public class InputManager : MonoBehaviour
         cameraMove = playerInputActions.Player.Camera;
         jump = playerInputActions.Player.Jump;
         lockOn = playerInputActions.Player.LockOn;
+        retarget = playerInputActions.Player.Retarget;
         
         playerInputActions.Player.Enable();
     }
