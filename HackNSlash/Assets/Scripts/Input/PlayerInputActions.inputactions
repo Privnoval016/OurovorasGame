@@ -67,6 +67,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Retarget",
+                    "type": "Button",
+                    "id": "d3df60c0-e15d-49fc-8f47-0cf776461921",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -171,6 +180,17 @@
                 },
                 {
                     "name": "",
+                    "id": "76112055-87cd-4032-a26a-8bf068f6a97c",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LockOn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "4afb6b01-1552-4303-bc2f-fd971e3a043c",
                     "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
@@ -221,6 +241,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Camera",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "140e087d-3119-4f79-ae68-b71dc22204ce",
+                    "path": "<Gamepad>/leftStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Retarget",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b52389b9-8325-4aa8-87c6-b9d68a02e5a4",
+                    "path": "<Keyboard>/leftMeta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Retarget",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

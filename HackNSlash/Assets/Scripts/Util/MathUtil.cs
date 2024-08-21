@@ -109,6 +109,24 @@ public static class MathUtil
                 return new Vector3(vec.x, 0, vec.y);
         }
     }
+
+    /**
+     * Sets a specific axis of a Vector3 to 0
+     * @param vec: The Vector3 to zero an axis of
+     * @param axisToZero: The axis to zero
+     */
+    public static Vector3 ZeroVector3Axis(this Vector3 vec, char axisToZero = 'y')
+    {
+        switch (axisToZero)
+        {
+            case 'x':
+                return new Vector3(0, vec.y, vec.z);
+            case 'z':
+                return new Vector3(vec.x, vec.y, 0);
+            default:
+                return new Vector3(vec.x, 0, vec.z);
+        }
+    }
     
     /**
      * Converts a Vector3 to a Vector2, with the option to ignore a specific axis

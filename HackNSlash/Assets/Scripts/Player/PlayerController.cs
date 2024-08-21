@@ -19,23 +19,25 @@ public class PlayerController : MonoBehaviour
     
     #region STATE PARAMETERS
 
-    public bool IsJumping;
+    [HideInInspector] public bool IsJumping;
 
     //Timers (also all fields, could be private and a method returning a bool could be used)
-    public float lastOnGroundTime;
+    [HideInInspector] public float lastOnGroundTime;
 
     //Jump
-    public bool isJumpCut;
-    public bool isJumpFalling;
+    [HideInInspector] public bool isJumpFalling;
     
     public bool CanJump => lastOnGroundTime > 0 && !IsJumping;
+
+    public float globalGravity = -9.81f;
+    [HideInInspector] public float gravityScale;
 
     #endregion
     
     #region INPUT PARAMETERS
-    public Vector2 moveInput;
+    [HideInInspector] public Vector2 moveInput;
 
-    public float lastPressedJumpTime;
+    [HideInInspector] public float lastPressedJumpTime;
     #endregion
     
     #region CHECK PARAMETERS
@@ -54,6 +56,10 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void Start()
