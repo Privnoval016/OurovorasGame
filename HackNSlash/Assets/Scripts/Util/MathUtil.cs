@@ -44,6 +44,26 @@ public static class MathUtil
             return PerpendicularClockwise(vector);
         return PerpendicularCounterClockwise(vector);
     }
+    
+    /**
+     * Gets the vector at the midpoint of two vectors
+     * @param a: The first vector
+     * @param b: The second vector
+     */
+    public static Vector3 Midpoint(this Vector3 a, Vector3 b)
+    {
+        return (a + b) / 2;
+    }
+    
+    /**
+     * Gets the vector at the midpoint of two vectors
+     * @param a: The first vector
+     * @param b: The second vector
+     */
+    public static Vector2 Midpoint(this Vector2 a, Vector2 b)
+    {
+        return (a + b) / 2;
+    }
 
     
     /*

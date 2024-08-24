@@ -39,6 +39,11 @@ public class PlayerData : ScriptableObject
 	public float jumpTimeToApex; //Time between applying the jump force and reaching the desired jump height. These values also control the player's gravity and jump force.
 	[HideInInspector] public float jumpForce; //The actual force applied (upwards) to the player when they jump.
 
+	[Header("Double Jump")]
+	public float doubleJumpTimeToApex; //Time between applying the double jump force and reaching the desired jump height. These values also control the player's gravity and jump force.
+	[HideInInspector] public float doubleJumpForce; //The actual force applied (upwards) to the player when they double jump.
+	[FormerlySerializedAs("doubleJumpCooldown")] public float doubleJumpWaitDuration; //Time between double jumps
+	
 	[Header("Both Jumps")]
 	[Range(0f, 1)] public float jumpHangGravityMult; //Reduces gravity while close to the apex (desired max height) of the jump
 	public float jumpHangTimeThreshold; //Speeds (close to 0) where the player will experience extra "jump hang". The player's velocity.y is closest to 0 at the jump's apex (think of the gradient of a parabola or quadratic function)
@@ -69,6 +74,8 @@ public class PlayerData : ScriptableObject
 
 		//Calculate jumpForce using the formula (initialJumpVelocity = gravity * timeToJumpApex)
 		jumpForce = Mathf.Abs(gravityStrength) * jumpTimeToApex;
+		
+		doubleJumpForce = Mathf.Abs(gravityStrength) * doubleJumpTimeToApex;
 
 		#region Variable Ranges
 		runAcceleration = Mathf.Clamp(runAcceleration, 0.01f, runMaxSpeed);

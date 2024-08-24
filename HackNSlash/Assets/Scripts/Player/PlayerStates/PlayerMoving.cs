@@ -20,6 +20,10 @@ public class PlayerMoving : State
     {
 	    #region Timers
 	    pc.lastOnGroundTime -= Time.deltaTime;
+	    pc.lastPressedJumpTime -= Time.deltaTime;
+	    
+	    if (pc.lastOnGroundTime > 0)
+			pc.lastDoubleJumpTime += Time.deltaTime;
 	    #endregion
 	    
 	    pc.moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
@@ -46,10 +50,14 @@ public class PlayerMoving : State
     #region Input Callbacks
     
     private void OnJumpAction(InputAction.CallbackContext context)
-	{
-		Debug.Log("Jump Pressed");
+    {
+	    if (!pc.isDoubleJumpUsed)
+	    {
+		    pc.isDoubleJumpTriggered = true;
+	    }
+	    
 	    pc.lastPressedJumpTime = pc.playerData.jumpInputBufferTime;
-	}
+    }
     
     #endregion
     
@@ -57,7 +65,7 @@ public class PlayerMoving : State
 
     private void CalculateGravity()
     {
-	    if (pc.IsJumping && Mathf.Abs(pc.rb.velocity.y) < pc.playerData.jumpHangTimeThreshold)
+	    if (pc.isJumping && Mathf.Abs(pc.rb.velocity.y) < pc.playerData.jumpHangTimeThreshold)
 	    {
 		    SetGravityScale(pc.playerData.gravityScale * pc.playerData.jumpHangGravityMult);
 	    }
@@ -108,13 +116,13 @@ public class PlayerMoving : State
 															pc.playerData.runDecelAmount * pc.playerData.decelInAir;
 		
 		
-		if ((pc.IsJumping || pc.isJumpFalling) && Mathf.Abs(pc.rb.velocity.y) < pc.playerData.jumpHangTimeThreshold)
+		if ((pc.isJumping || pc.isJumpFalling) && Mathf.Abs(pc.rb.velocity.y) < pc.playerData.jumpHangTimeThreshold)
 		{
 			accelRate *= pc.playerData.jumpHangAccelerationMult;
 			targetSpeed *= pc.playerData.jumpHangMaxSpeedMult;
 		}
 		
-		Vector3 speedDiff = targetSpeed - pc.rb.velocity;
+		Vector3 speedDiff = targetSpeed - MathUtil.ZeroVector3Axis(pc.rb.velocity);
 		
 		Vector3 movementForce = speedDiff * accelRate;
 		
@@ -127,28 +135,43 @@ public class PlayerMoving : State
 
     private void CheckJump()
     {
-	    if (Physics.CheckBox(pc.groundCheckPoint.position, pc.groundCheckSize, Quaternion.identity, pc.groundLayer))
+	    if (pc.IsGrounded)
 	    {
 		    pc.lastOnGroundTime = pc.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
+		    pc.lastDoubleJumpTime = 0;
+		    pc.isDoubleJumpUsed = false;
 	    }
-	    
-	    if (pc.IsJumping && pc.rb.velocity.y < 0)
-	    {
-		    pc.IsJumping = false;
 
+	    if (pc.isJumping || pc.isJumpFalling)
+	    {
+		    pc.lastDoubleJumpTime += Time.deltaTime;
+	    }
+
+	    if (pc.isJumping && pc.rb.velocity.y < 0)
+	    {
+		    pc.isJumping = false;
 		    pc.isJumpFalling = true;
 	    }
 
-	    if (pc.lastOnGroundTime > 0 && !pc.IsJumping)
+	    if (pc.CanJump)
 	    {
 		    pc.isJumpFalling = false;
+		    
+		    if (pc.lastPressedJumpTime > 0)
+		    {
+			    pc.isJumping = true;
+			    pc.isDoubleJumpUsed = false;
+
+			    Jump();
+		    }
 	    }
-	    
-	    if (pc.CanJump && pc.lastPressedJumpTime > 0)
+
+		if (pc.isDoubleJumpTriggered && pc.lastDoubleJumpTime > pc.playerData.doubleJumpWaitDuration)
 	    {
-		    pc.IsJumping = true;
-		    pc.isJumpFalling = false;
-		    Jump();
+		    pc.isDoubleJumpTriggered = false;
+		    pc.isDoubleJumpUsed = true;
+		    
+		    DoubleJump();
 	    }
     }
     
@@ -161,10 +184,26 @@ public class PlayerMoving : State
 		#region Perform Jump
 		//We increase the force applied if we are falling
 		//This means we'll always feel like we jump the same amount 
-		float force = pc.playerData.jumpForce;
+		float force = pc.playerData.jumpForce; 
 		if (pc.rb.velocity.y < 0)
 			force -= pc.rb.velocity.y;
+		
+		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+		#endregion
+	}
 
+	private void DoubleJump()
+	{
+		pc.lastPressedJumpTime = 0;
+		pc.lastOnGroundTime = 0;
+		pc.lastDoubleJumpTime = 0;
+		
+		#region Perform Double Jump
+		
+		float force = pc.playerData.doubleJumpForce;
+		
+		pc.rb.velocity = MathUtil.ZeroVector3Axis(pc.rb.velocity);
+		
 		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
 		#endregion
 	}
