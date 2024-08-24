@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(StateController))]
@@ -19,15 +20,16 @@ public class PlayerController : MonoBehaviour
     
     #region STATE PARAMETERS
 
-    [HideInInspector] public bool IsJumping;
-
     //Timers (also all fields, could be private and a method returning a bool could be used)
     [HideInInspector] public float lastOnGroundTime;
+    [HideInInspector] public float lastDoubleJumpTime;
 
     //Jump
+    [HideInInspector] public bool isJumping;
     [HideInInspector] public bool isJumpFalling;
+    [FormerlySerializedAs("isDoubleJumping")] [HideInInspector] public bool isDoubleJumpTriggered;
+    [HideInInspector] public bool isDoubleJumpUsed = true;
     
-    public bool CanJump => lastOnGroundTime > 0 && !IsJumping;
 
     public float globalGravity = -9.81f;
     [HideInInspector] public float gravityScale;
@@ -44,7 +46,12 @@ public class PlayerController : MonoBehaviour
     [Header("Checks")] 
     [SerializeField] public Transform groundCheckPoint;
     [SerializeField] public Vector3 groundCheckSize = new Vector3(0.49f, 0.3f, 0.49f);
+
+    public bool IsGrounded =>
+        Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
     #endregion
+
+    public bool CanJump => lastOnGroundTime > 0 || !isJumping;
 
     #region LAYERS & TAGS
 
