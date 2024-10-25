@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 24509b68885bea642903854c0aca7414
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/04_Run/01_Run/11_Run_Fast/Run_Fast_End.anim
+  uploadId: 630545

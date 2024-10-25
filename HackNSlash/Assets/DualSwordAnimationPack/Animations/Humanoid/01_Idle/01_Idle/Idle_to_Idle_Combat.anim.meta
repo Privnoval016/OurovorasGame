@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e24c4e2506fda4b4f886bcc03e7c080d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/01_Idle/01_Idle/Idle_to_Idle_Combat.anim
+  uploadId: 630545

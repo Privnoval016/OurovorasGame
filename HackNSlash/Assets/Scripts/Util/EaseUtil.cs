@@ -81,15 +81,6 @@ public static class EaseUtil
     {
         return Mathf.Pow(-4 * x * (x - 1), power);
     }
-
-    public static float BezierEase(float t, float controlX)
-    {
-        if (controlX == 0.5f) //denominator of full equation is 0 if control = 0.5
-            return 1 - 4 * (t - 0.5f).Squared();
-
-        //derived this from the bezier curve algorithm, not entirely sure how it works but it does
-        float radicand = Mathf.Sqrt(controlX * (controlX - 2 * t) + t);
-        return 4 * (radicand + controlX * (2 * t - 1) - t) / (1 - 2 * controlX).Squared();
-    }
+    
     #endregion
 }

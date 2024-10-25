@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0d74cdc60c890c746bed76fbd534bdb8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/05_Jump/02_Jump_Combat/05_Jump_Combat_R_90/Jump_Combat_to_Run_R_90.anim
+  uploadId: 630545

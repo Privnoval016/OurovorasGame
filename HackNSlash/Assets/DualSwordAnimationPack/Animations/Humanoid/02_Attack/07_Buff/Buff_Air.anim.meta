@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8c9d3d26c44b2654699103e666abb6b5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/02_Attack/07_Buff/Buff_Air.anim
+  uploadId: 630545

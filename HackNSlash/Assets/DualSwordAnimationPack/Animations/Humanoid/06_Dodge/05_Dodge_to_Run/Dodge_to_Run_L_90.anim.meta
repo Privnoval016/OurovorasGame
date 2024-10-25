@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c0a172e93a91c814a8ca5d4e8978164d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/06_Dodge/05_Dodge_to_Run/Dodge_to_Run_L_90.anim
+  uploadId: 630545

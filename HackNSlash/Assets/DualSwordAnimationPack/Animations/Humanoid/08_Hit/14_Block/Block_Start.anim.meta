@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5ab72e65726cc2940b5d51bb92b0bae8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/08_Hit/14_Block/Block_Start.anim
+  uploadId: 630545

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Cinemachine;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,28 +14,31 @@ public class CameraController : MonoBehaviour
     #region Inspector Settings
 
     [Header("Camera Movement Settings")] 
-    [SerializeField] private float maxZoomFOV = 70;
-    [SerializeField] private float minZoomFOV = 40;
+    
     [SerializeField] private float orbitRadiusChangeMultiplier = 1;
+    
     [SerializeField] private float baseXSensitivity = 300;
     [SerializeField] private float baseYSensitivity = 2;
+    
     [SerializeField, Range(0, 5)] private float xSensitivityMultiplier = 1;
     [SerializeField, Range(0, 5)] private float ySensitivityMultiplier = 1;
+    
     [SerializeField] private bool invertX;
     [SerializeField] private bool invertY;
     
     [Header("Target Settings")]
+    
+    [SerializeField] private Transform cameraContainer;
     [SerializeField] private GameObject defaultCamera;
     [SerializeField] private GameObject player;
     [SerializeField] private Transform playerFollowTarget;
-
-    private CinemachineFreeLook playerCamera;
+    
+    private CinemachineOrbitalFollow playerCamera;
+    private CinemachineInputAxisController playerInputAxisController;
     private CinemachineTargetGroup currentTargetGroup;
     private CinemachineBrain camBrain;
     
     private PlayerController playerController;
-
-    private float[] originalOrbitRadii;
 
     private float destroyDelay = 0.2f;
 
@@ -67,23 +70,19 @@ public class CameraController : MonoBehaviour
         
         InputManager.Instance.lockOn.performed += OnLockOnAction;
         InputManager.Instance.lockOn.canceled += OnLockOnAction;
-        
         InputManager.Instance.retarget.performed += OnRetargetAction;
         
         defaultCamera.SetActive(false);
         
-        Instantiate(defaultCamera, transform).transform.GetChild(0).TryGetComponent(out playerCamera);
+        Instantiate(defaultCamera, cameraContainer).transform.GetChild(0).TryGetComponent(out playerCamera);
+        defaultCamera.transform.GetChild(0).TryGetComponent(out playerInputAxisController);
         playerCamera.transform.parent.GetChild(1).TryGetComponent(out currentTargetGroup);
+        
         
         playerCamera.transform.parent.gameObject.SetActive(true);
         
         targetedEnemy = playerFollowTarget.gameObject;
         
-        originalOrbitRadii = new float[playerCamera.m_Orbits.Length];
-        for (int i = 0; i < playerCamera.m_Orbits.Length; i++)
-        {
-            originalOrbitRadii[i] = playerCamera.m_Orbits[i].m_Radius;
-        }
     }
 
     void Update()
@@ -124,26 +123,13 @@ public class CameraController : MonoBehaviour
    
     private void SetMovementSettings()
     {
-        playerCamera.m_XAxis.m_MaxSpeed = baseXSensitivity * xSensitivityMultiplier;
-        playerCamera.m_YAxis.m_MaxSpeed = baseYSensitivity * ySensitivityMultiplier;
-        playerCamera.m_XAxis.m_InvertInput = invertX;
-        playerCamera.m_YAxis.m_InvertInput = invertY;
 
         float radiusIncrease = Math.Max(GetViewportOutOfBounds(targetedEnemy.transform.position),
             GetViewportOutOfBounds(playerFollowTarget.position));
 
-        targetRadiusMultiplier = 1 + radiusIncrease;
-        
-        print (playerCamera.m_Orbits[0].m_Radius + " " + playerCamera.m_Orbits[1].m_Radius + " " + playerCamera.m_Orbits[2].m_Radius);
-        
-        for (int i = 0; i < playerCamera.m_Orbits.Length; i++)
-        {
-            //playerCamera.m_Orbits[i].m_Radius = Mathf.Lerp(playerCamera.m_Orbits[i].m_Radius, 
-                //originalOrbitRadii[i] * targetRadiusMultiplier, Time.deltaTime * orbitRadiusChangeMultiplier);
-                
-            playerCamera.m_Orbits[i].m_Radius = originalOrbitRadii[i] * targetRadiusMultiplier;
-            playerCamera.m_Orbits[i].m_Radius = Mathf.Clamp(playerCamera.m_Orbits[i].m_Radius, originalOrbitRadii[i], 100);
-        }
+        targetRadiusMultiplier = 1 + radiusIncrease + 0.1f;
+
+        playerCamera.RadialAxis.Value = targetRadiusMultiplier;
     }
     
     private void CheckForLockOnTarget()
@@ -194,31 +180,27 @@ public class CameraController : MonoBehaviour
         }
         
         isLockedOn = targetedEnemy != playerFollowTarget.gameObject;
+        
 
-
-        if (currentTargetGroup.m_Targets[1].target == targetedEnemy.transform)
+        if (currentTargetGroup.Targets[1].Object == targetedEnemy.transform)
         {
             return;
         }
         
-        CinemachineFreeLook oldCamera = playerCamera;
-        Instantiate(defaultCamera, transform).transform.GetChild(0).TryGetComponent(out playerCamera);
+        
+        CinemachineOrbitalFollow oldCamera = playerCamera;
+        Instantiate(defaultCamera, cameraContainer).transform.GetChild(0).TryGetComponent(out playerCamera);
+        defaultCamera.transform.GetChild(0).TryGetComponent(out playerInputAxisController);
+        
         playerCamera.transform.parent.GetChild(1).TryGetComponent(out currentTargetGroup);
-        currentTargetGroup.m_Targets[1].target = targetedEnemy.transform;
+        currentTargetGroup.Targets[1].Object = targetedEnemy.transform;
         
         playerCamera.transform.parent.gameObject.SetActive(true);
-        
-        StartCoroutine(RemoveCamera(oldCamera, destroyDelay));
 
+        Destroy(oldCamera.transform.parent.gameObject, destroyDelay);
 
     }
     
-    private IEnumerator RemoveCamera(CinemachineFreeLook toDestroy, float delay)
-    {
-        toDestroy.transform.parent.gameObject.SetActive(false);
-        yield return new WaitForSeconds(delay);
-        Destroy(toDestroy.transform.parent.gameObject);
-    }
     
     private bool IsOnScreen(Vector3 position)
     {

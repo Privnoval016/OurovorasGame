@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a61a97d7beaad5346817b2007d599834
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/04_Run/02_Run_Combat/06_Run_Combat_B_180/Run_Combat_B_180_Loop.anim
+  uploadId: 630545

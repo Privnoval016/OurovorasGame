@@ -22,13 +22,14 @@ public class PlayerController : MonoBehaviour
 
     //Timers (also all fields, could be private and a method returning a bool could be used)
     [HideInInspector] public float lastOnGroundTime;
-    [HideInInspector] public float lastDoubleJumpTime;
+     public float lastDoubleJumpTime;
+    [HideInInspector] public float lastPressedJumpTime;
 
     //Jump
     [HideInInspector] public bool isJumping;
     [HideInInspector] public bool isJumpFalling;
-    [FormerlySerializedAs("isDoubleJumping")] [HideInInspector] public bool isDoubleJumpTriggered;
-    [HideInInspector] public bool isDoubleJumpUsed = true;
+     public bool isDoubleJumpTriggered;
+    public bool isDoubleJumpUsed = true;
     
 
     public float globalGravity = -9.81f;
@@ -39,7 +40,7 @@ public class PlayerController : MonoBehaviour
     #region INPUT PARAMETERS
     [HideInInspector] public Vector2 moveInput;
 
-    [HideInInspector] public float lastPressedJumpTime;
+    
     #endregion
     
     #region CHECK PARAMETERS
@@ -49,9 +50,13 @@ public class PlayerController : MonoBehaviour
 
     public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
+    
+    
+    public bool CanJump => lastOnGroundTime > 0 || !isJumping;
+    public bool CanDoubleJump => lastDoubleJumpTime > playerData.doubleJumpWaitDuration 
+                                 && !isDoubleJumpUsed;
     #endregion
 
-    public bool CanJump => lastOnGroundTime > 0 || !isJumping;
 
     #region LAYERS & TAGS
 
