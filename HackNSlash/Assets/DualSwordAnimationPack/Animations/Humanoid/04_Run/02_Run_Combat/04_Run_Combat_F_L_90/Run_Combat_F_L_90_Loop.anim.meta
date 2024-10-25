@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 979a8c842d75be140bf85f7331016b58
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/04_Run/02_Run_Combat/04_Run_Combat_F_L_90/Run_Combat_F_L_90_Loop.anim
+  uploadId: 630545

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8a4d852a30f550f4b8eb694a52c8d582
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/01_Idle/04_Offset_Idle_Combat/Idle_Combat_Up_L.anim
+  uploadId: 630545

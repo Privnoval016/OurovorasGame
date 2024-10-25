@@ -112,11 +112,7 @@ public static class MathUtil
     
     #region Conversion
     
-    /**
-     * Converts a Vector2 to a Vector3, with the option to ignore a specific axis
-     * @param vec: The Vector2 to convert
-     * @param axisToIgnore: The axis to ignore when converting
-     */
+
     public static Vector3 ToVector3(this Vector2 vec, char axisToIgnore = 'y')
     {
         switch (axisToIgnore)
@@ -130,11 +126,7 @@ public static class MathUtil
         }
     }
 
-    /**
-     * Sets a specific axis of a Vector3 to 0
-     * @param vec: The Vector3 to zero an axis of
-     * @param axisToZero: The axis to zero
-     */
+
     public static Vector3 ZeroVector3Axis(this Vector3 vec, char axisToZero = 'y')
     {
         switch (axisToZero)

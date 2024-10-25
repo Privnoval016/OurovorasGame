@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0cbbef8f054724149b888a1a3f6a8b6d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/03_Walk/02_Walk_Combat/04_Walk_Combat_F_L_90/Walk_Combat_Start_F_L_90.anim
+  uploadId: 630545

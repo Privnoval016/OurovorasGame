@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b503bea7bcfdc164a87b66acc733e086
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/02_Attack/08_Attack_Speed/02_Attack_Speed_Air/Attack_Speed_Air_End.anim
+  uploadId: 630545

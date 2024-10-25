@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6afdb47161257a844a9b47484d0c064b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/04_Run/02_Run_Combat/01_Run_Combat_F_0/Run_Combat_F_0_End.anim
+  uploadId: 630545

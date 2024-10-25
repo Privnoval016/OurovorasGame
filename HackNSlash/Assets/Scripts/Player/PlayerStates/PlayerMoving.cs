@@ -56,7 +56,8 @@ public class PlayerMoving : State
 		    pc.isDoubleJumpTriggered = true;
 	    }
 	    
-	    pc.lastPressedJumpTime = pc.playerData.jumpInputBufferTime;
+	    else if (pc.lastOnGroundTime > 0)
+		    pc.lastPressedJumpTime = pc.playerData.jumpInputBufferTime;
     }
     
     #endregion
@@ -65,16 +66,16 @@ public class PlayerMoving : State
 
     private void CalculateGravity()
     {
-	    if (pc.isJumping && Mathf.Abs(pc.rb.velocity.y) < pc.playerData.jumpHangTimeThreshold)
+	    if (pc.isJumping && Mathf.Abs(pc.rb.linearVelocity.y) < pc.playerData.jumpHangTimeThreshold)
 	    {
 		    SetGravityScale(pc.playerData.gravityScale * pc.playerData.jumpHangGravityMult);
 	    }
-	    else if (pc.rb.velocity.y < 0)
+	    else if (pc.rb.linearVelocity.y < 0)
 	    {
 		    //Higher gravity if falling
 		    SetGravityScale(pc.playerData.gravityScale * pc.playerData.fallGravityMult);
 		    //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
-		    pc.rb.velocity = new Vector2(pc.rb.velocity.x, Mathf.Max(pc.rb.velocity.y, -pc.playerData.maxFallSpeed));
+		    pc.rb.linearVelocity = new Vector2(pc.rb.linearVelocity.x, Mathf.Max(pc.rb.linearVelocity.y, -pc.playerData.maxFallSpeed));
 	    }
 	    else
 	    {
@@ -105,7 +106,7 @@ public class PlayerMoving : State
 	                            pc.moveInput.y * MathUtil.ZeroVector3Axis(cam.forward).normalized;
 		
 	    Vector3 targetSpeed = moveDirection * pc.playerData.runMaxSpeed;
-		targetSpeed = Vector3.Lerp(pc.rb.velocity, targetSpeed, lerpAmount);
+		targetSpeed = Vector3.Lerp(pc.rb.linearVelocity, targetSpeed, lerpAmount);
 
 
 		float accelRate;
@@ -116,13 +117,13 @@ public class PlayerMoving : State
 															pc.playerData.runDecelAmount * pc.playerData.decelInAir;
 		
 		
-		if ((pc.isJumping || pc.isJumpFalling) && Mathf.Abs(pc.rb.velocity.y) < pc.playerData.jumpHangTimeThreshold)
+		if ((pc.isJumping || pc.isJumpFalling) && Mathf.Abs(pc.rb.linearVelocity.y) < pc.playerData.jumpHangTimeThreshold)
 		{
 			accelRate *= pc.playerData.jumpHangAccelerationMult;
 			targetSpeed *= pc.playerData.jumpHangMaxSpeedMult;
 		}
 		
-		Vector3 speedDiff = targetSpeed - MathUtil.ZeroVector3Axis(pc.rb.velocity);
+		Vector3 speedDiff = targetSpeed - MathUtil.ZeroVector3Axis(pc.rb.linearVelocity);
 		
 		Vector3 movementForce = speedDiff * accelRate;
 		
@@ -140,14 +141,15 @@ public class PlayerMoving : State
 		    pc.lastOnGroundTime = pc.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
 		    pc.lastDoubleJumpTime = 0;
 		    pc.isDoubleJumpUsed = false;
+		    pc.isDoubleJumpTriggered = false;
 	    }
 
-	    if (pc.isJumping || pc.isJumpFalling)
+	    if (!pc.isDoubleJumpTriggered && (pc.isJumping || pc.isJumpFalling))
 	    {
 		    pc.lastDoubleJumpTime += Time.deltaTime;
 	    }
 
-	    if (pc.isJumping && pc.rb.velocity.y < 0)
+	    if (pc.isJumping && pc.rb.linearVelocity.y < 0)
 	    {
 		    pc.isJumping = false;
 		    pc.isJumpFalling = true;
@@ -160,16 +162,15 @@ public class PlayerMoving : State
 		    if (pc.lastPressedJumpTime > 0)
 		    {
 			    pc.isJumping = true;
-			    pc.isDoubleJumpUsed = false;
 
 			    Jump();
 		    }
 	    }
 
-		if (pc.isDoubleJumpTriggered && pc.lastDoubleJumpTime > pc.playerData.doubleJumpWaitDuration)
+		if (pc.CanDoubleJump && pc.isDoubleJumpTriggered)
 	    {
-		    pc.isDoubleJumpTriggered = false;
 		    pc.isDoubleJumpUsed = true;
+		    pc.isDoubleJumpTriggered = false;
 		    
 		    DoubleJump();
 	    }
@@ -177,6 +178,7 @@ public class PlayerMoving : State
     
 	private void Jump()
 	{
+		Debug.Log("Jumping");
 		//Ensures we can't call Jump multiple times from one press
 		pc.lastPressedJumpTime = 0;
 		pc.lastOnGroundTime = 0;
@@ -185,8 +187,8 @@ public class PlayerMoving : State
 		//We increase the force applied if we are falling
 		//This means we'll always feel like we jump the same amount 
 		float force = pc.playerData.jumpForce; 
-		if (pc.rb.velocity.y < 0)
-			force -= pc.rb.velocity.y;
+		if (pc.rb.linearVelocity.y < 0)
+			force -= pc.rb.linearVelocity.y;
 		
 		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
 		#endregion
@@ -194,15 +196,14 @@ public class PlayerMoving : State
 
 	private void DoubleJump()
 	{
-		pc.lastPressedJumpTime = 0;
-		pc.lastOnGroundTime = 0;
+		Debug.Log("Double Jumping");
 		pc.lastDoubleJumpTime = 0;
 		
 		#region Perform Double Jump
 		
 		float force = pc.playerData.doubleJumpForce;
 		
-		pc.rb.velocity = MathUtil.ZeroVector3Axis(pc.rb.velocity);
+		pc.rb.linearVelocity = MathUtil.ZeroVector3Axis(pc.rb.linearVelocity);
 		
 		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
 		#endregion
