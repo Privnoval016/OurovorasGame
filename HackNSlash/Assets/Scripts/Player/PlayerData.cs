@@ -16,6 +16,9 @@ public class PlayerData : ScriptableObject
 	[Header("Run")]
 	[Tooltip("Target speed we want the player to reach.")] public float runMaxSpeed;
 	
+	[Tooltip("Target sprinting speed we want the player to reach.")] public float sprintMaxSpeed;
+	[Tooltip("Time until beginning to sprint.")] public float sprintBuildupLength;
+	
 	[Tooltip("The speed at which our player accelerates to max speed, can be set to runMaxSpeed for instant acceleration down to 0 for none at all")]
 	public float runAcceleration;
 	
@@ -58,6 +61,9 @@ public class PlayerData : ScriptableObject
 	
 	[Header("Lock On")]
 	public float lockOnRange;
+
+	[Header("Attacks")] 
+	[Tooltip("Time before you break combo")] public float comboBreakTime; 
 
 	//Unity Callback, called when the inspector updates
     private void OnValidate()
