@@ -54,7 +54,7 @@
                     "name": "LightAttack",
                     "type": "Button",
                     "id": "1782898e-bbb8-421d-bfee-8febf3065305",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -213,8 +213,30 @@
                 },
                 {
                     "name": "",
+                    "id": "effc567d-e9fa-41f4-b06e-f30d31f5e9ae",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LightAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "d0056e50-de58-4695-90a4-4fb93c2c2234",
                     "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HeavyAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "17220576-22ae-44bf-b029-31e845eeff64",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

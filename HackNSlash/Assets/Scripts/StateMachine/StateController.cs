@@ -45,7 +45,7 @@ public class StateController : MonoBehaviour
         RemoveTop();
     }
 
-    public void RemoveTop()
+    private void RemoveTop()
     {
         if (currentState.Count > 0 && !currentState.Peek().doNotRemove)
         {
@@ -54,7 +54,7 @@ public class StateController : MonoBehaviour
         }
     }
 
-    public void AddNewState(State newState)
+    private void AddNewState(State newState)
     {
         currentState.Push(newState);
         currentState.Peek().OnStateEnter(this);

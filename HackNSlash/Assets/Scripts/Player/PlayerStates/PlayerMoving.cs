@@ -1,12 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Playables;
 
 public class PlayerMoving : State
 {
 	private PlayerController pc;
+
+	private enum WalkingAnimStates
+	{
+		Idle,
+		Walking,
+		Targeting,
+		Sprinting,
+		Falling,
+		Jumping,
+		DoubleJumping,
+		Standby
+	}
+	
+	private WalkingAnimStates animState;
 	
     #region State Methods
     
@@ -14,6 +25,8 @@ public class PlayerMoving : State
     {
 	    pc = (PlayerController) sc.parent;
 	    InputManager.Instance.jump.performed += OnJumpAction;
+	    
+	    SwitchAnimState(WalkingAnimStates.Idle);
     }
 
     public override void OnUpdate()
@@ -24,6 +37,17 @@ public class PlayerMoving : State
 	    
 	    if (pc.lastOnGroundTime > 0)
 			pc.lastDoubleJumpTime += Time.deltaTime;
+
+	    if (pc.IsWalking && !pc.cam.isLockedOn)
+	    {
+		    pc.walkingTime += Time.deltaTime;
+	    }
+	    else
+	    {
+		    pc.walkingTime = 0;
+	    }
+
+	    
 	    #endregion
 	    
 	    pc.moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
@@ -31,6 +55,8 @@ public class PlayerMoving : State
 	    CheckJump();
 
 	    CalculateGravity();
+	    
+	    UpdateAnimation();
     }
 
     public override void OnFixedUpdate()
@@ -41,7 +67,7 @@ public class PlayerMoving : State
 
     public override void OnExit()
     {
-        
+	    InputManager.Instance.jump.performed -= OnJumpAction;
     }
     
     #endregion
@@ -51,13 +77,15 @@ public class PlayerMoving : State
     
     private void OnJumpAction(InputAction.CallbackContext context)
     {
-	    if (!pc.isDoubleJumpUsed)
+	    if (pc.lastOnGroundTime > 0)
+	    {
+		    pc.lastPressedJumpTime = pc.playerData.jumpInputBufferTime;
+	    }
+	    
+	    else if (pc.attackData.doubleJumpEnabled && !pc.isDoubleJumpUsed)
 	    {
 		    pc.isDoubleJumpTriggered = true;
 	    }
-	    
-	    else if (pc.lastOnGroundTime > 0)
-		    pc.lastPressedJumpTime = pc.playerData.jumpInputBufferTime;
     }
     
     #endregion
@@ -101,11 +129,12 @@ public class PlayerMoving : State
     
     private void Run(float lerpAmount)
     {
-	    Transform cam = Camera.main.transform;
-	    Vector3 moveDirection = pc.moveInput.x * MathUtil.ZeroVector3Axis(cam.right).normalized + 
+	    
+	    Transform cam = pc.cam.transform;
+	    pc.moveDirection = pc.moveInput.x * MathUtil.ZeroVector3Axis(cam.right).normalized + 
 	                            pc.moveInput.y * MathUtil.ZeroVector3Axis(cam.forward).normalized;
 		
-	    Vector3 targetSpeed = moveDirection * pc.playerData.runMaxSpeed;
+	    Vector3 targetSpeed = pc.moveDirection * (pc.IsSprinting ? pc.playerData.sprintMaxSpeed : pc.playerData.runMaxSpeed);
 		targetSpeed = Vector3.Lerp(pc.rb.linearVelocity, targetSpeed, lerpAmount);
 
 
@@ -128,6 +157,8 @@ public class PlayerMoving : State
 		Vector3 movementForce = speedDiff * accelRate;
 		
 		pc.rb.AddForce(movementForce, ForceMode.Force);
+		
+		TurnToLook();
 	}
     
     #endregion
@@ -136,6 +167,7 @@ public class PlayerMoving : State
 
     private void CheckJump()
     {
+	    
 	    if (pc.IsGrounded)
 	    {
 		    pc.lastOnGroundTime = pc.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
@@ -148,18 +180,13 @@ public class PlayerMoving : State
 	    {
 		    pc.lastDoubleJumpTime += Time.deltaTime;
 	    }
-
-	    if (pc.isJumping && pc.rb.linearVelocity.y < 0)
-	    {
-		    pc.isJumping = false;
-		    pc.isJumpFalling = true;
-	    }
+	    
 
 	    if (pc.CanJump)
 	    {
 		    pc.isJumpFalling = false;
 		    
-		    if (pc.lastPressedJumpTime > 0)
+		    if (pc.IsJumpTriggered)
 		    {
 			    pc.isJumping = true;
 
@@ -174,12 +201,17 @@ public class PlayerMoving : State
 		    
 		    DoubleJump();
 	    }
+		
+	    if (pc.rb.linearVelocity.y < 0 && pc.isJumping)
+	    {
+		    pc.isJumping = false;
+		    pc.isJumpFalling = true;
+	    }
     }
     
 	private void Jump()
 	{
 		Debug.Log("Jumping");
-		//Ensures we can't call Jump multiple times from one press
 		pc.lastPressedJumpTime = 0;
 		pc.lastOnGroundTime = 0;
 
@@ -207,6 +239,109 @@ public class PlayerMoving : State
 		
 		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
 		#endregion
+	}
+    
+    #endregion
+    
+    #region Look Methods
+
+    private void TurnToLook()
+    {
+	    if (!pc.IsWalking) return;
+	    
+	    if (!pc.cam.isLockedOn)
+	    {
+		    pc.transform.rotation =
+			    EaseUtil.DampQuaternion(pc.transform.rotation, Quaternion.LookRotation(pc.moveDirection), 5f, 0.1f);
+	    }
+	    else
+	    {
+		    Vector3 lookDir = MathUtil.ZeroVector3Axis(pc.cam.targetedEnemy.transform.position - pc.transform.position);
+
+		    pc.transform.rotation =
+			    EaseUtil.DampQuaternion(pc.transform.rotation, Quaternion.LookRotation(lookDir), 5f, 0.1f);
+	    }
+    }
+    
+    #endregion
+    
+    #region Animation Methods
+
+    private void UpdateAnimation()
+    {
+	    
+	    WalkingAnimStates newState = WalkingAnimStates.Idle;
+
+	    if (pc.IsGrounded && !pc.IsWalking) newState = WalkingAnimStates.Idle;
+	    else if (pc.isDoubleJumpUsed) newState = WalkingAnimStates.DoubleJumping;
+	    else if (pc.IsPerformingJump) newState = WalkingAnimStates.Jumping;
+	    else if (!pc.IsGrounded) newState = WalkingAnimStates.Falling;
+	    else if (pc.cam.isLockedOn && pc.IsWalking) newState = WalkingAnimStates.Targeting;
+	    else if (pc.IsSprinting) newState = WalkingAnimStates.Sprinting;
+	    else if (pc.IsWalking) newState = WalkingAnimStates.Walking;
+	    
+	    SwitchAnimState(newState);
+	    
+	    Debug.Log(animState);
+    }
+    
+    private void SwitchAnimState(WalkingAnimStates newState)
+	{
+		if (animState == newState) return;
+		
+	    switch (newState)
+	    {
+		    case WalkingAnimStates.Idle:
+			    
+			    pc.animancer.SetTrigger(Animator.StringToHash("Exit"));
+			    
+			    break;
+		    
+		    case WalkingAnimStates.Walking:
+			    
+			    pc.animancer.CrossFade(Animator.StringToHash("WalkEntry"), 0.01f);
+			    
+			    break;
+		    
+		    case WalkingAnimStates.Targeting:
+
+			    if (animState == WalkingAnimStates.Idle)
+			    {
+				    pc.animancer.CrossFade(Animator.StringToHash("TargetedWalkEntry"), 0.01f);
+			    }
+			    else
+			    {
+				    pc.animancer.CrossFade(Animator.StringToHash("TargetedWalkLoop"), 0.01f);
+			    }
+			    
+			    break;
+		    case WalkingAnimStates.Sprinting:
+			    
+			    pc.animancer.CrossFade(Animator.StringToHash("SprintLoop"), 0.25f);
+			    
+			    break;
+		    case WalkingAnimStates.Falling:
+			    
+			    if (animState != WalkingAnimStates.Jumping && animState != WalkingAnimStates.DoubleJumping)
+					pc.animancer.CrossFade(Animator.StringToHash("FallingLoop"), 0.01f);
+			    break;
+		    case WalkingAnimStates.Jumping:
+			    pc.animancer.CrossFade(Animator.StringToHash("JumpAction"), 0.01f);
+			    break;
+		    case WalkingAnimStates.DoubleJumping:
+			    if (animState == WalkingAnimStates.Targeting)
+			    {
+				    pc.animancer.CrossFade(Animator.StringToHash("DoubleJumpTarget"), 0.01f);
+			    }
+			    else
+			    {
+				    pc.animancer.CrossFade(Animator.StringToHash("DoubleJump"), 0.01f);
+			    }
+
+			    break;
+	    }
+	    
+	    animState = newState;
 	}
     
     #endregion
