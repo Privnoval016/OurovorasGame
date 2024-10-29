@@ -20,7 +20,7 @@ public class AttackConfig : ScriptableObject
     
     public Attack[] midairAttacks; // priority 1
     
-    public Attack[] otherAttacks; // priority 2
+    public Attack[] specialAttacks; // priority 2
     
 }
 

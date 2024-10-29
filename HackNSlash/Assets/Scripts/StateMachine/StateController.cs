@@ -37,12 +37,22 @@ public class StateController : MonoBehaviour
 
     public void Interrupt(State newState)
     {
+        currentState.Peek().OnInterrupt();
         AddNewState(newState);
     }
 
     public void ResumePrevious()
     {
         RemoveTop();
+        if (currentState.Count > 0)
+        {
+            currentState.Peek().OnResume();
+        }
+    }
+    
+    public State GetCurrentState()
+    {
+        return currentState.Peek();
     }
 
     private void RemoveTop()

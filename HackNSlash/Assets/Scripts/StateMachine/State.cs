@@ -32,6 +32,16 @@ public abstract class State
     {
 
     }
+    
+    public virtual void OnInterrupt()
+    {
+        
+    }
+    
+    public virtual void OnResume()
+    {
+
+    }
 
     public virtual void OnTriggerEnter(Collider other)
     {

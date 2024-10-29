@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,7 +23,11 @@ public class InputManager : MonoBehaviour
     public InputAction heavyAttack;
     #endregion
     
-    public Dictionary<KeyBind,InputAction> KeyMap = new Dictionary<KeyBind, InputAction>();
+    public Dictionary<KeyBind, InputAction> KeyMap = new Dictionary<KeyBind, InputAction>();
+    
+    // dictionary to check for some condition with the keybind
+    public Dictionary<KeyBind, Func<InputAction, bool>> KeyBindActions = new Dictionary<KeyBind, Func<InputAction, bool>>();
+    
     void Awake()
     {
         if (Instance == null)
@@ -47,14 +52,18 @@ public class InputManager : MonoBehaviour
         lockOn = playerInputActions.Player.LockOn;
         KeyMap.Add(KeyBind.LockOn, lockOn);
         
+        KeyBindActions.Add(KeyBind.LockOn, (action) => action.WasPerformedThisFrame());
+        
         retarget = playerInputActions.Player.Retarget;
         
         
         lightAttack = playerInputActions.Player.LightAttack;
         KeyMap.Add(KeyBind.LightAttack, lightAttack);
+        KeyBindActions.Add(KeyBind.LightAttack, (action) => action.triggered);
         
         heavyAttack = playerInputActions.Player.HeavyAttack;
         KeyMap.Add(KeyBind.HeavyAttack, heavyAttack);
+        KeyBindActions.Add(KeyBind.HeavyAttack, (action) => action.triggered);
         
         
         playerInputActions.Player.Enable();

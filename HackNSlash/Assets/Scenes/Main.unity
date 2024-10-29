@@ -680,6 +680,7 @@ GameObject:
   - component: {fileID: 845412125}
   - component: {fileID: 845412128}
   - component: {fileID: 845412129}
+  - component: {fileID: 845412131}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -853,9 +854,32 @@ MonoBehaviour:
   groundCheckPoint: {fileID: 1977220826}
   groundCheckSize: {x: 0.4, y: 0.01, z: 0.4}
   comboIndex: 0
+  canAttack: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!95 &845412131
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 845412123}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &958863406
 GameObject:
   m_ObjectHideFlags: 0
@@ -1107,6 +1131,20 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
+--- !u!114 &1210943192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748173663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bb9852087f39824f9647d710481937e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _Animator: {fileID: 1210943189}
+  _Target: {fileID: 845412128}
 --- !u!1001 &1271382256
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1243,6 +1281,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1210943191}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e23414181b12ff34fbc1e78c8be0d32d,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1210943192}
   m_SourcePrefab: {fileID: 100100000, guid: e23414181b12ff34fbc1e78c8be0d32d, type: 3}
 --- !u!1 &1399572578
 GameObject:
