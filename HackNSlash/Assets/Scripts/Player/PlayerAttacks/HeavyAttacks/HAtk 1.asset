@@ -9,11 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9511eb3e05fd744dd8935cc182356346, type: 3}
-  m_Name: Standard
+  m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
+  m_Name: HAtk 1
   m_EditorClassIdentifier: 
-  doubleJumpEnabled: 1
-  lightComboAttacks: []
-  heavyComboAttacks: []
-  midairAttacks: []
-  otherAttacks: []
+  isEnabled: 1
+  keyBinds: 02000000
+  inputDirection: {x: 0, y: 0}
+  isMidair: 0
+  attackClip: {fileID: 7400000, guid: c42d7580b8809b049bfbbdb2cf9077d2, type: 2}
+  damage: 0
+  attackCoolDown: 0.8

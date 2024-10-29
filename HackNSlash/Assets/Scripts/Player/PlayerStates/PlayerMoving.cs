@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -24,7 +25,12 @@ public class PlayerMoving : State
     public override void OnEnter()
     {
 	    pc = (PlayerController) sc.parent;
+	    doNotRemove = true;
+	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
+	    
+	    pc.canAttack = true;
+	    pc.comboIndex = -1;
 	    
 	    SwitchAnimState(WalkingAnimStates.Idle);
     }
@@ -38,7 +44,7 @@ public class PlayerMoving : State
 	    if (pc.lastOnGroundTime > 0)
 			pc.lastDoubleJumpTime += Time.deltaTime;
 
-	    if (pc.IsWalking && !pc.cam.isLockedOn)
+	    if (pc.IsWalking && !pc.cam.isLockedOn && MathUtil.ZeroVector3Axis(pc.rb.linearVelocity).magnitude > 0.01f && pc.moveInput.magnitude > 0.95f)
 	    {
 		    pc.walkingTime += Time.deltaTime;
 	    }
@@ -50,8 +56,6 @@ public class PlayerMoving : State
 	    
 	    #endregion
 	    
-	    pc.moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
-	    
 	    CheckJump();
 
 	    CalculateGravity();
@@ -62,14 +66,25 @@ public class PlayerMoving : State
     public override void OnFixedUpdate()
     {
         Run(1);
-        ApplyGravity();
     }
 
     public override void OnExit()
     {
 	    InputManager.Instance.jump.performed -= OnJumpAction;
     }
-    
+
+    public override void OnInterrupt()
+    {
+	    pc.isDoubleJumpUsed = false;
+	    animState = WalkingAnimStates.Standby;
+    }
+
+    public override void OnResume()
+    {
+	    animState = WalkingAnimStates.Standby;
+	    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling, false);
+    }
+
     #endregion
     
     
@@ -77,6 +92,10 @@ public class PlayerMoving : State
     
     private void OnJumpAction(InputAction.CallbackContext context)
     {
+	    if (!pc.canAttack) return;
+	    
+	    if (sc.GetCurrentState() is PlayerAttacking) sc.ResumePrevious();
+	    
 	    if (pc.lastOnGroundTime > 0)
 	    {
 		    pc.lastPressedJumpTime = pc.playerData.jumpInputBufferTime;
@@ -117,12 +136,6 @@ public class PlayerMoving : State
 	    pc.gravityScale = scale;
     }
     
-    private void ApplyGravity()
-	{
-		Vector3 gravity = pc.globalGravity * pc.gravityScale * Vector3.up;
-		pc.rb.AddForce(gravity, ForceMode.Acceleration);
-	}
-    
     #endregion
     
     #region Movement Methods
@@ -136,6 +149,15 @@ public class PlayerMoving : State
 		
 	    Vector3 targetSpeed = pc.moveDirection * (pc.IsSprinting ? pc.playerData.sprintMaxSpeed : pc.playerData.runMaxSpeed);
 		targetSpeed = Vector3.Lerp(pc.rb.linearVelocity, targetSpeed, lerpAmount);
+		
+		if (animState is WalkingAnimStates.Walking or WalkingAnimStates.Targeting)
+		{
+			pc.animancer.speed = targetSpeed.magnitude / pc.playerData.runMaxSpeed;
+		}
+		else
+		{
+			pc.animancer.speed = 1;
+		}
 
 
 		float accelRate;
@@ -275,7 +297,7 @@ public class PlayerMoving : State
 	    if (pc.IsGrounded && !pc.IsWalking) newState = WalkingAnimStates.Idle;
 	    else if (pc.isDoubleJumpUsed) newState = WalkingAnimStates.DoubleJumping;
 	    else if (pc.IsPerformingJump) newState = WalkingAnimStates.Jumping;
-	    else if (!pc.IsGrounded) newState = WalkingAnimStates.Falling;
+	    else if (pc.IsMidair) newState = WalkingAnimStates.Falling;
 	    else if (pc.cam.isLockedOn && pc.IsWalking) newState = WalkingAnimStates.Targeting;
 	    else if (pc.IsSprinting) newState = WalkingAnimStates.Sprinting;
 	    else if (pc.IsWalking) newState = WalkingAnimStates.Walking;
@@ -285,9 +307,9 @@ public class PlayerMoving : State
 	    Debug.Log(animState);
     }
     
-    private void SwitchAnimState(WalkingAnimStates newState)
+    private void SwitchAnimState(WalkingAnimStates newState, bool uniqueUpdateOnly = true)
 	{
-		if (animState == newState) return;
+		if (uniqueUpdateOnly && animState == newState) return;
 		
 	    switch (newState)
 	    {
@@ -299,7 +321,7 @@ public class PlayerMoving : State
 		    
 		    case WalkingAnimStates.Walking:
 			    
-			    pc.animancer.CrossFade(Animator.StringToHash("WalkEntry"), 0.01f);
+			    SafeCrossFade(Animator.StringToHash("WalkEntry"), 0.01f);
 			    
 			    break;
 		    
@@ -307,41 +329,53 @@ public class PlayerMoving : State
 
 			    if (animState == WalkingAnimStates.Idle)
 			    {
-				    pc.animancer.CrossFade(Animator.StringToHash("TargetedWalkEntry"), 0.01f);
+				    SafeCrossFade(Animator.StringToHash("TargetedWalkEntry"), 0.01f);
 			    }
 			    else
 			    {
-				    pc.animancer.CrossFade(Animator.StringToHash("TargetedWalkLoop"), 0.01f);
+				    SafeCrossFade(Animator.StringToHash("TargetedWalkLoop"), 0.01f);
 			    }
 			    
 			    break;
 		    case WalkingAnimStates.Sprinting:
 			    
-			    pc.animancer.CrossFade(Animator.StringToHash("SprintLoop"), 0.25f);
+			    SafeCrossFade(Animator.StringToHash("SprintLoop"), 0.25f);
 			    
 			    break;
 		    case WalkingAnimStates.Falling:
 			    
 			    if (animState != WalkingAnimStates.Jumping && animState != WalkingAnimStates.DoubleJumping)
-					pc.animancer.CrossFade(Animator.StringToHash("FallingLoop"), 0.01f);
+				    SafeCrossFade(Animator.StringToHash("FallingLoop"), 0.01f);
 			    break;
 		    case WalkingAnimStates.Jumping:
-			    pc.animancer.CrossFade(Animator.StringToHash("JumpAction"), 0.01f);
+			    SafeCrossFade(Animator.StringToHash("JumpAction"), 0.01f);
 			    break;
 		    case WalkingAnimStates.DoubleJumping:
 			    if (animState == WalkingAnimStates.Targeting)
 			    {
-				    pc.animancer.CrossFade(Animator.StringToHash("DoubleJumpTarget"), 0.01f);
+				    SafeCrossFade(Animator.StringToHash("DoubleJumpTarget"), 0.01f);
 			    }
 			    else
 			    {
-				    pc.animancer.CrossFade(Animator.StringToHash("DoubleJump"), 0.01f);
+				    SafeCrossFade(Animator.StringToHash("DoubleJump"), 0.01f);
 			    }
 
 			    break;
 	    }
 	    
 	    animState = newState;
+	}
+    
+    private void SafeCrossFade(int stateNameHash, float fadeDuration = -1F, int layer = -1, float normalizedTime = Single.NegativeInfinity)
+	{
+	    if (pc.animancer.IsPlaying(stateNameHash)) return;
+	    
+	    pc.animancer.CrossFade(stateNameHash, fadeDuration, layer, normalizedTime);
+	}
+    
+    public void EnterStandby()
+	{
+	    SwitchAnimState(WalkingAnimStates.Standby);
 	}
     
     #endregion

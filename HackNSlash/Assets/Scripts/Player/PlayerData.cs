@@ -63,7 +63,7 @@ public class PlayerData : ScriptableObject
 	public float lockOnRange;
 
 	[Header("Attacks")] 
-	[Tooltip("Time before you break combo")] public float comboBreakTime; 
+	[Tooltip("Time before you break combo")] public float midairAttackGravityMult;
 
 	//Unity Callback, called when the inspector updates
     private void OnValidate()

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9511eb3e05fd744dd8935cc182356346, type: 3}
+  m_Name: Standard
+  m_EditorClassIdentifier: 
+  doubleJumpEnabled: 1
+  lightComboAttacks:
+  - {fileID: 11400000, guid: 7f611990a4c07f443bd778e7c12d1f65, type: 2}
+  - {fileID: 11400000, guid: 5a8aee660a8ed13478113d2e8d9dcf88, type: 2}
+  - {fileID: 11400000, guid: ac138aa6d44a347498c504c8cfba18fd, type: 2}
+  - {fileID: 11400000, guid: 0cd63598015d1c34b918fdfa9706e1d8, type: 2}
+  heavyComboAttacks:
+  - {fileID: 11400000, guid: baabe31c666811744bdbf9a9b2821935, type: 2}
+  - {fileID: 11400000, guid: 43315435d8823ec459fee7aa753bb78f, type: 2}
+  - {fileID: 11400000, guid: 6b8203980fc2baf4fb55433405aa4e0c, type: 2}
+  - {fileID: 11400000, guid: 5dc74631a82fb9e4aba5a1d0b0def479, type: 2}
+  midairAttacks:
+  - {fileID: 11400000, guid: cca959ef9f66dff40971bae6e0bb23dc, type: 2}
+  - {fileID: 11400000, guid: 5d1bf1100f403ef46bbef808161486bb, type: 2}
+  - {fileID: 11400000, guid: 256983c425a4c80448ff0a764b936f96, type: 2}
+  - {fileID: 11400000, guid: 9bb4be9573875ed48a7043b5bae428a4, type: 2}
+  specialAttacks:
+  - {fileID: 11400000, guid: 8ddd1452f470cf84e9fd02dd3e112c6d, type: 2}

@@ -1,9 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "ScriptableObjects/Attack")]
 public class Attack : ScriptableObject
 {
-    [Header("Details")]
+    [Header("Requirements")]
     public bool isEnabled;
     
     [Space(5)]
@@ -19,4 +20,6 @@ public class Attack : ScriptableObject
     [Header("Stats")]
     
     public float damage;
+    
+    public float attackCoolDown;
 }

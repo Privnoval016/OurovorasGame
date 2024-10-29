@@ -39,4 +39,4 @@ MonoBehaviour:
   coyoteTime: 0.2
   jumpInputBufferTime: 0.1
   lockOnRange: 40
-  comboBreakTime: 0
+  midairAttackGravityMult: 0.5

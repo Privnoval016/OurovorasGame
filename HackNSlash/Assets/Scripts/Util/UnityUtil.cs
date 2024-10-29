@@ -258,6 +258,18 @@ public static class UnityUtil
         characterController.transform.position = newPosition;
         characterController.enabled = true;
     }
+    
+    public static void RemoveAllDelegateListeners(this Delegate delegateObject)
+    {
+        if (delegateObject == null)
+            return;
+
+        foreach (Delegate d in delegateObject.GetInvocationList())
+        {
+            delegateObject = Delegate.Remove(delegateObject, d);
+        }
+    }
+    
     #endregion
 
     #region Sprite Atlases
