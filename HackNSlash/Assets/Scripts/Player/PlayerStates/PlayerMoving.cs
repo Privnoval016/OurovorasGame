@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using ExtensionUtils;
 
 public class PlayerMoving : State
 {
@@ -44,7 +45,7 @@ public class PlayerMoving : State
 	    if (pc.lastOnGroundTime > 0)
 			pc.lastDoubleJumpTime += Time.deltaTime;
 
-	    if (pc.IsWalking && !pc.cam.isLockedOn && MathUtil.ZeroVector3Axis(pc.rb.linearVelocity).magnitude > 0.01f && pc.moveInput.magnitude > 0.95f)
+	    if (pc.IsWalking && !pc.cam.isLockedOn && pc.rb.linearVelocity.ZeroVector3Axis().magnitude > 0.01f && pc.moveInput.magnitude > 0.95f)
 	    {
 		    pc.walkingTime += Time.deltaTime;
 	    }
@@ -144,8 +145,8 @@ public class PlayerMoving : State
     {
 	    
 	    Transform cam = pc.cam.transform;
-	    pc.moveDirection = pc.moveInput.x * MathUtil.ZeroVector3Axis(cam.right).normalized + 
-	                            pc.moveInput.y * MathUtil.ZeroVector3Axis(cam.forward).normalized;
+	    pc.moveDirection = pc.moveInput.x * cam.right.ZeroVector3Axis().normalized + 
+	                            pc.moveInput.y * cam.forward.ZeroVector3Axis().normalized;
 		
 	    Vector3 targetSpeed = pc.moveDirection * (pc.IsSprinting ? pc.playerData.sprintMaxSpeed : pc.playerData.runMaxSpeed);
 		targetSpeed = Vector3.Lerp(pc.rb.linearVelocity, targetSpeed, lerpAmount);
@@ -174,7 +175,7 @@ public class PlayerMoving : State
 			targetSpeed *= pc.playerData.jumpHangMaxSpeedMult;
 		}
 		
-		Vector3 speedDiff = targetSpeed - MathUtil.ZeroVector3Axis(pc.rb.linearVelocity);
+		Vector3 speedDiff = targetSpeed - pc.rb.linearVelocity.ZeroVector3Axis();
 		
 		Vector3 movementForce = speedDiff * accelRate;
 		
@@ -257,7 +258,7 @@ public class PlayerMoving : State
 		
 		float force = pc.playerData.doubleJumpForce;
 		
-		pc.rb.linearVelocity = MathUtil.ZeroVector3Axis(pc.rb.linearVelocity);
+		pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
 		
 		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
 		#endregion
@@ -278,7 +279,7 @@ public class PlayerMoving : State
 	    }
 	    else
 	    {
-		    Vector3 lookDir = MathUtil.ZeroVector3Axis(pc.cam.targetedEnemy.transform.position - pc.transform.position);
+		    Vector3 lookDir = (pc.cam.targetedEnemy.transform.position - pc.transform.position).ZeroVector3Axis();
 
 		    pc.transform.rotation =
 			    EaseUtil.DampQuaternion(pc.transform.rotation, Quaternion.LookRotation(lookDir), 5f, 0.1f);

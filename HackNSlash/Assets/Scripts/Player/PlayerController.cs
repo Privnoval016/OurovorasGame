@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public bool canAttack;
 
-    public Dictionary<KeyBind, Func<bool>> KeyMap;
+    private Dictionary<KeyBind, Func<bool>> KeyMap;
 
     #endregion
     

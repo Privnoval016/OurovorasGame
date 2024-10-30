@@ -1,90 +1,99 @@
 using System;
 using UnityEngine;
 
-public static class RandomUtil
+namespace ExtensionUtils
 {
-    #region UnityEngine.Random wrappers
-    public static float RandomRange(float min, float max)
+    public static class RandomUtil
     {
-        return UnityEngine.Random.Range(min, max);
-    }
+        #region UnityEngine.Random wrappers
 
-    public static int RandomRange(int min, int max)
-    {
-        return UnityEngine.Random.Range(min, max + 1);
-    }
+        public static float RandomRange(float min, float max)
+        {
+            return UnityEngine.Random.Range(min, max);
+        }
 
-    public static int RandomRangeExclusive(int min, int max)
-    {
-        return UnityEngine.Random.Range(min, max);
-    }
-    #endregion
+        public static int RandomRange(int min, int max)
+        {
+            return UnityEngine.Random.Range(min, max + 1);
+        }
 
-    #region System.Random extensions
-    public static float NextFloat(this System.Random random)
-    {
-        return (float)random.NextDouble();
-    }
+        public static int RandomRangeExclusive(int min, int max)
+        {
+            return UnityEngine.Random.Range(min, max);
+        }
 
-    public static int Range(this System.Random random, int min, int max)
-    {
-        return random.RangeExclusive(min, max + 1);
-    }
+        #endregion
 
-    public static float Range(this System.Random random, float min, float max)
-    {
-        return min + random.NextFloat() * (max - min);
-    }
+        #region System.Random extensions
 
-    public static int RangeExclusive(this System.Random random, int min, int max)
-    {
-        return min + (int)(random.NextDouble() * (max - min));
-    }
+        public static float NextFloat(this System.Random random)
+        {
+            return (float)random.NextDouble();
+        }
 
-    public static int Range(this Unity.Mathematics.Random random, int min, int max)
-    {
-        return random.RangeExclusive(min, max + 1);
-    }
+        public static int Range(this System.Random random, int min, int max)
+        {
+            return random.RangeExclusive(min, max + 1);
+        }
 
-    public static int RangeExclusive(this Unity.Mathematics.Random random, int min, int max)
-    {
-        return min + (int)(random.NextDouble() * (max - min));
-    }
+        public static float Range(this System.Random random, float min, float max)
+        {
+            return min + random.NextFloat() * (max - min);
+        }
 
-    public static uint NextUInt(this System.Random random)
-    {
-        byte[] bytes = new byte[4];
-        random.NextBytes(bytes);
-        return BitConverter.ToUInt32(bytes);
-    }
-    #endregion
+        public static int RangeExclusive(this System.Random random, int min, int max)
+        {
+            return min + (int)(random.NextDouble() * (max - min));
+        }
 
-    #region New Random Functions
-    public static int RandomSign()
-    {
-        return RandomBool(0.5f) ? 1 : -1;
-    }
+        public static int Range(this Unity.Mathematics.Random random, int min, int max)
+        {
+            return random.RangeExclusive(min, max + 1);
+        }
 
-    public static bool RandomBool(float weight = 0.5f)
-    {
-        return RandomUFloat() < weight;
-    }
+        public static int RangeExclusive(this Unity.Mathematics.Random random, int min, int max)
+        {
+            return min + (int)(random.NextDouble() * (max - min));
+        }
 
-    public static float RandomFloat()
-    {
-        return RandomRange(-1f, 1f);
-    }
+        public static uint NextUInt(this System.Random random)
+        {
+            byte[] bytes = new byte[4];
+            random.NextBytes(bytes);
+            return BitConverter.ToUInt32(bytes);
+        }
 
-    public static float RandomUFloat()
-    {
-        return RandomRange(0f, 1f);
-    }
+        #endregion
 
-    public static Vector2 RandomVector2Circular()
-    {
-        float angle = RandomUFloat() * 360;
-        float distance = Mathf.Sqrt(RandomUFloat());
-        return Vector2.up.Rotate(angle) * distance;
+        #region New Random Functions
+
+        public static int RandomSign()
+        {
+            return RandomBool(0.5f) ? 1 : -1;
+        }
+
+        public static bool RandomBool(float weight = 0.5f)
+        {
+            return RandomUFloat() < weight;
+        }
+
+        public static float RandomFloat()
+        {
+            return RandomRange(-1f, 1f);
+        }
+
+        public static float RandomUFloat()
+        {
+            return RandomRange(0f, 1f);
+        }
+
+        public static Vector2 RandomVector2Circular()
+        {
+            float angle = RandomUFloat() * 360;
+            float distance = Mathf.Sqrt(RandomUFloat());
+            return Vector2.up.Rotate(angle) * distance;
+        }
+
+        #endregion
     }
-    #endregion
 }
