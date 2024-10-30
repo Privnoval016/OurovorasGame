@@ -23,10 +23,7 @@ public class InputManager : MonoBehaviour
     public InputAction heavyAttack;
     #endregion
     
-    public Dictionary<KeyBind, InputAction> KeyMap = new Dictionary<KeyBind, InputAction>();
-    
-    // dictionary to check for some condition with the keybind
-    public Dictionary<KeyBind, Func<InputAction, bool>> KeyBindActions = new Dictionary<KeyBind, Func<InputAction, bool>>();
+    public Dictionary<KeyBind, Func<bool>> KeyMap = new Dictionary<KeyBind, Func<bool>>();
     
     void Awake()
     {
@@ -50,20 +47,19 @@ public class InputManager : MonoBehaviour
         
         
         lockOn = playerInputActions.Player.LockOn;
-        KeyMap.Add(KeyBind.LockOn, lockOn);
-        
-        KeyBindActions.Add(KeyBind.LockOn, (action) => action.WasPerformedThisFrame());
+        KeyMap.Add(KeyBind.LockOn, () => Camera.main.GetComponent<CameraController>().isLockedOn);
         
         retarget = playerInputActions.Player.Retarget;
         
         
         lightAttack = playerInputActions.Player.LightAttack;
-        KeyMap.Add(KeyBind.LightAttack, lightAttack);
-        KeyBindActions.Add(KeyBind.LightAttack, (action) => action.triggered);
+        KeyMap.Add(KeyBind.LightAttack, () => lightAttack.triggered);
         
         heavyAttack = playerInputActions.Player.HeavyAttack;
-        KeyMap.Add(KeyBind.HeavyAttack, heavyAttack);
-        KeyBindActions.Add(KeyBind.HeavyAttack, (action) => action.triggered);
+        KeyMap.Add(KeyBind.HeavyAttack, () => heavyAttack.triggered);
+        
+        KeyMap.Add(KeyBind.AnyAttack, () => lightAttack.triggered || heavyAttack.triggered);
+        
         
         
         playerInputActions.Player.Enable();
@@ -74,5 +70,6 @@ public enum KeyBind
 {
     LockOn,
     LightAttack,
-    HeavyAttack
+    HeavyAttack,
+    AnyAttack
 }

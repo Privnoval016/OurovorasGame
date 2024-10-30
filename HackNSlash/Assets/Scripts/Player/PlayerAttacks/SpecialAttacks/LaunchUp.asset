@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LaunchUp
   m_EditorClassIdentifier: 
   isEnabled: 0
-  keyBinds: 0000000001000000
+  keyBinds: 0000000003000000
   inputDirection: {x: 0, y: -1}
   isMidair: 0
   attackClip: {fileID: 7400000, guid: a7db9dfc2e29ae144a3d91d57e50ce4f, type: 2}

@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public bool canAttack;
 
-    public Dictionary<KeyBind, InputAction> KeyMap;
+    public Dictionary<KeyBind, Func<bool>> KeyMap;
 
     #endregion
     
@@ -127,7 +127,6 @@ public class PlayerController : MonoBehaviour
         moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
         
         UpdateAnimatorState();
-        //Debug.Log("x: " + moveInput.x + " z: " + moveInput.y);
     }
     
     private void FixedUpdate()
@@ -146,18 +145,7 @@ public class PlayerController : MonoBehaviour
         // check for midair attack then run, check for other attack then run, check for basic attacks then run
         // interrupts moving with the specific attack
         
-        #region Midair Combo Attacks
-        
-        if (IsMidair)
-        {
-            comboIndex = comboIndex >= attackData.midairAttacks.Length - 1 ? 0 : comboIndex + 1;
-            BeginAttack(attackData.midairAttacks[comboIndex]);
-
-            return;
-        }
-        
-        #endregion
-        
+                
         #region Special Attacks
 
         foreach (Attack attack in attackData.specialAttacks)
@@ -170,8 +158,8 @@ public class PlayerController : MonoBehaviour
             
             foreach (KeyBind keyBind in attack.keyBinds)
             {
-                print (keyBind + " " + KeyMap[keyBind].triggered);
-                if (!KeyMap[keyBind].triggered) goto NextAttack;
+                print (keyBind + " " + KeyMap[keyBind]());
+                if (!KeyMap[keyBind]()) goto NextAttack;
             }
             
             
@@ -183,12 +171,25 @@ public class PlayerController : MonoBehaviour
         }
         
         #endregion
+
+
         
+        #region Midair Combo Attacks
+        
+        if (IsMidair)
+        {
+            comboIndex = comboIndex >= attackData.midairAttacks.Length - 1 ? 0 : comboIndex + 1;
+            BeginAttack(attackData.midairAttacks[comboIndex]);
+
+            return;
+        }
+        
+        #endregion
         
         #region Regular Combo Attacks
    
         comboIndex = comboIndex >= attackData.lightComboAttacks.Length - 1 ? 0 : comboIndex + 1;
-        BeginAttack(KeyMap[KeyBind.LightAttack].triggered ? attackData.lightComboAttacks[comboIndex] : 
+        BeginAttack(KeyMap[KeyBind.LightAttack]() ? attackData.lightComboAttacks[comboIndex] : 
                                                             attackData.heavyComboAttacks[comboIndex]);
         #endregion
         
@@ -203,7 +204,7 @@ public class PlayerController : MonoBehaviour
         animancer.SetFloat(Animator.StringToHash("moveX"), moveInput.normalized.x, 0.1f, Time.deltaTime);
         animancer.SetFloat(Animator.StringToHash("moveZ"), moveInput.normalized.y, 0.1f, Time.deltaTime);
     }
-    
+
     #endregion
     
     #region Attack Methods

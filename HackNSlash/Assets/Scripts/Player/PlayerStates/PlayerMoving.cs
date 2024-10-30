@@ -25,7 +25,7 @@ public class PlayerMoving : State
     public override void OnEnter()
     {
 	    pc = (PlayerController) sc.parent;
-	    doNotRemove = true;
+	    //doNotRemove = true;
 	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
 	    
@@ -293,9 +293,9 @@ public class PlayerMoving : State
     {
 	    
 	    WalkingAnimStates newState = WalkingAnimStates.Idle;
-
-	    if (pc.IsGrounded && !pc.IsWalking) newState = WalkingAnimStates.Idle;
-	    else if (pc.isDoubleJumpUsed) newState = WalkingAnimStates.DoubleJumping;
+	    
+	    //if (pc.IsGrounded && !pc.IsWalking) newState = WalkingAnimStates.Idle;
+	    if (pc.isDoubleJumpUsed) newState = WalkingAnimStates.DoubleJumping;
 	    else if (pc.IsPerformingJump) newState = WalkingAnimStates.Jumping;
 	    else if (pc.IsMidair) newState = WalkingAnimStates.Falling;
 	    else if (pc.cam.isLockedOn && pc.IsWalking) newState = WalkingAnimStates.Targeting;
@@ -321,20 +321,13 @@ public class PlayerMoving : State
 		    
 		    case WalkingAnimStates.Walking:
 			    
-			    SafeCrossFade(Animator.StringToHash("WalkEntry"), 0.01f);
+			    SafeCrossFade(Animator.StringToHash("WalkLoop"), 0.01f);
 			    
 			    break;
 		    
 		    case WalkingAnimStates.Targeting:
-
-			    if (animState == WalkingAnimStates.Idle)
-			    {
-				    SafeCrossFade(Animator.StringToHash("TargetedWalkEntry"), 0.01f);
-			    }
-			    else
-			    {
-				    SafeCrossFade(Animator.StringToHash("TargetedWalkLoop"), 0.01f);
-			    }
+			    
+				SafeCrossFade(Animator.StringToHash("TargetedWalkLoop"), 0.01f);
 			    
 			    break;
 		    case WalkingAnimStates.Sprinting:
@@ -344,7 +337,7 @@ public class PlayerMoving : State
 			    break;
 		    case WalkingAnimStates.Falling:
 			    
-			    if (animState != WalkingAnimStates.Jumping && animState != WalkingAnimStates.DoubleJumping)
+			    //if (animState != WalkingAnimStates.Jumping && animState != WalkingAnimStates.DoubleJumping)
 				    SafeCrossFade(Animator.StringToHash("FallingLoop"), 0.01f);
 			    break;
 		    case WalkingAnimStates.Jumping:
