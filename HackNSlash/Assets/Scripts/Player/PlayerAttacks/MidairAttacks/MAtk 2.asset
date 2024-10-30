@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MAtk 2
   m_EditorClassIdentifier: 
   isEnabled: 1
-  keyBinds: 
+  keyBinds: 03000000
   inputDirection: {x: 0, y: 0}
   isMidair: 1
   attackClip: {fileID: 7400000, guid: da34096c41fc9934eba81ef7353b97f7, type: 2}
