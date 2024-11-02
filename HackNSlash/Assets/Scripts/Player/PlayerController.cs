@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public CameraController cam;
     
     public HybridAnimancerComponent animancer;
+    public RedirectRootMotionToRigidbody rootMotion;
     
     #endregion
     
@@ -107,9 +108,8 @@ public class PlayerController : MonoBehaviour
         
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        
-        InputManager.Instance.lightAttack.performed += OnAttackAction;
-        InputManager.Instance.heavyAttack.performed += OnAttackAction;
+
+        animancer.TryGetComponent(out rootMotion);
         
         KeyMap = InputManager.Instance.KeyMap;
     }
@@ -126,6 +126,9 @@ public class PlayerController : MonoBehaviour
     {
         moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
         
+        CheckAttackAction();
+        
+        
         UpdateAnimatorState();
     }
     
@@ -138,7 +141,7 @@ public class PlayerController : MonoBehaviour
 
     #region Input Callbacks
     
-    private void OnAttackAction(InputAction.CallbackContext context)
+    private void CheckAttackAction()
     {
         if (!canAttack) return;
         
@@ -176,7 +179,7 @@ public class PlayerController : MonoBehaviour
         
         #region Midair Combo Attacks
         
-        if (IsMidair)
+        if (IsMidair && KeyMap[KeyBind.AnyAttack]())
         {
             comboIndex = comboIndex >= attackData.midairAttacks.Length - 1 ? 0 : comboIndex + 1;
             BeginAttack(attackData.midairAttacks[comboIndex]);
@@ -188,9 +191,13 @@ public class PlayerController : MonoBehaviour
         
         #region Regular Combo Attacks
    
-        comboIndex = comboIndex >= attackData.lightComboAttacks.Length - 1 ? 0 : comboIndex + 1;
-        BeginAttack(KeyMap[KeyBind.LightAttack]() ? attackData.lightComboAttacks[comboIndex] : 
-                                                            attackData.heavyComboAttacks[comboIndex]);
+        if (KeyMap[KeyBind.AnyAttack]())
+        {
+            comboIndex = comboIndex >= attackData.lightComboAttacks.Length - 1 ? 0 : comboIndex + 1;
+            BeginAttack(KeyMap[KeyBind.LightAttack]() ? attackData.lightComboAttacks[comboIndex] : 
+                                                                attackData.heavyComboAttacks[comboIndex]);
+        }
+        
         #endregion
         
     }

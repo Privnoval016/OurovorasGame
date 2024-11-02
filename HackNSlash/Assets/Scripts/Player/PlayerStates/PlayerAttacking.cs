@@ -2,6 +2,7 @@ using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using OnActionCallbacks;
 
 public class PlayerAttacking : State
 {
@@ -21,7 +22,8 @@ public class PlayerAttacking : State
     public override void OnEnter()
     {
         pc = (PlayerController) sc.parent;
-        pc.animancer.applyRootMotion = true;
+        pc.animancer.applyRootMotion = attack.applyRootMotion;
+        pc.rootMotion.enabled = attack.applyRootMotion;
         pc.rb.linearVelocity = Vector3.zero;
         SetAttackGravity();
         LaunchAttack();
@@ -52,6 +54,7 @@ public class PlayerAttacking : State
     public override void OnExit()
     {
         pc.animancer.applyRootMotion = false;
+        pc.rootMotion.enabled = false;
     }
     
     #endregion
@@ -67,9 +70,19 @@ public class PlayerAttacking : State
     {
         pc.canAttack = false;
         attackEndTime = attack.attackClip.length;
+        Debug.Log(attackEndTime);
         attackCoolDownTime = attack.attackCoolDown;
+
+        if (attack.attackClip != null)
+        {
+            pc.animancer.Play(attack.attackClip, 0.25f);
+        }
+        else if (attack.attackNameToHash != "")
+        {
+            pc.animancer.CrossFade(Animator.StringToHash(attack.attackNameToHash), 0.25f);
+        }
         
-        pc.animancer.Play(attack.attackClip, 0.25f);
+        pc.InvokeOnAttack(attack);
     }
 
     private void SetAttackGravity(bool midAttack = true)

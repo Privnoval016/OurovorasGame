@@ -67,7 +67,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""Dodge"",
                     ""type"": ""Button"",
                     ""id"": ""5b10e93f-5969-450d-81af-d5c5973f0026"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -94,7 +94,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""Retarget"",
                     ""type"": ""Button"",
                     ""id"": ""d3df60c0-e15d-49fc-8f47-0cf776461921"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -215,6 +215,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""4afb6b01-1552-4303-bc2f-fd971e3a043c"",
                     ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dodge"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""233d94c9-eff6-4b00-b444-34b899083824"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

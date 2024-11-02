@@ -52,7 +52,11 @@ public class PlayerData : ScriptableObject
 	public float jumpHangTimeThreshold; //Speeds (close to 0) where the player will experience extra "jump hang". The player's velocity.y is closest to 0 at the jump's apex (think of the gradient of a parabola or quadratic function)
 	[Space(0.5f)]
 	public float jumpHangAccelerationMult; 
-	public float jumpHangMaxSpeedMult; 				
+	public float jumpHangMaxSpeedMult; 			
+	
+	[Header("Dash")]
+	
+	public float dashSpeed;
 	
 
     [Header("Assists")]
