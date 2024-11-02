@@ -10,12 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
-  m_Name: GroundDash
+  m_Name: GroundDashLight
   m_EditorClassIdentifier: 
   isEnabled: 1
-  keyBinds: 0000000003000000
+  keyBinds: 0000000001000000
   inputDirection: {x: 0, y: 1}
   isMidair: 0
-  attackClip: {fileID: 7400000, guid: 22f08f08956c96844b73e6bb0e0c6db0, type: 2}
+  applyRootMotion: 0
+  attackClip: {fileID: 7400000, guid: 68fe4b76649b32845a85cea331f34a60, type: 2}
+  onAttackAction: 1
   damage: 0
   attackCoolDown: 0.8

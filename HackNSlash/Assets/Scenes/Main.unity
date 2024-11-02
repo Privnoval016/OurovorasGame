@@ -839,6 +839,7 @@ MonoBehaviour:
   attackData: {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
   cam: {fileID: 0}
   animancer: {fileID: 1210943191}
+  rootMotion: {fileID: 0}
   lastOnGroundTime: 0
   lastDoubleJumpTime: 0
   lastPressedJumpTime: 0
@@ -1138,7 +1139,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 748173663}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8bb9852087f39824f9647d710481937e, type: 3}
   m_Name: 
@@ -1353,6 +1354,15 @@ MonoBehaviour:
     m_Type: 0
     m_ExpectedControlType: 
     m_Id: 3c3d8aeb-dbfb-47ad-8d6e-6bae9a7b8a16
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  dodge:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 7d276121-25d1-4441-b770-4835b7c3b3bc
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []

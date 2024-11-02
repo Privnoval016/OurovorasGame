@@ -16,6 +16,8 @@ MonoBehaviour:
   keyBinds: 02000000
   inputDirection: {x: 0, y: 0}
   isMidair: 0
+  applyRootMotion: 1
   attackClip: {fileID: 7400000, guid: ddc0d56beaac6b240b66b2a2aa0602a0, type: 2}
+  onAttackAction: 0
   damage: 0
-  attackCoolDown: 1.1
+  attackCoolDown: 0.9
