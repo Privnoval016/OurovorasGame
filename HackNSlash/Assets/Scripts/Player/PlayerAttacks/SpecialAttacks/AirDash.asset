@@ -13,11 +13,17 @@ MonoBehaviour:
   m_Name: AirDash
   m_EditorClassIdentifier: 
   isEnabled: 1
-  keyBinds: 0000000003000000
+  isLockedOn: 1
+  keyBinds: 05000000
   inputDirection: {x: 0, y: 1}
+  applyTargetDirection: 1
   isMidair: 1
   applyRootMotion: 0
-  attackClip: {fileID: 7400000, guid: 222f4d7587990dd4ba07f2453c229216, type: 2}
+  attackClips:
+  - {fileID: 7400000, guid: 222f4d7587990dd4ba07f2453c229216, type: 2}
+  attackNameToHash: 
+  playFirstClipOnly: 0
+  exitCondition: 0
   onAttackAction: 1
   damage: 0
-  attackCoolDown: 0.8
+  attackCoolDown: 0.5

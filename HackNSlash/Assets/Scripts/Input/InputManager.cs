@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using OnActionCallbacks;
@@ -23,10 +24,17 @@ public class InputManager : MonoBehaviour
 
     public InputAction lightAttack;
     public InputAction heavyAttack;
+
+    private bool lightAttacking, heavyAttacking;
+    private float lightAttackHoldTime, heavyAttackHoldTime;
+    private float AnyAttackHoldTime => Mathf.Max(lightAttackHoldTime, heavyAttackHoldTime);
+    
     #endregion
-    
-    public Dictionary<KeyBind, Func<bool>> KeyMap = new Dictionary<KeyBind, Func<bool>>();
-    
+
+    public readonly Dictionary<KeyBind, Func<bool>> KeyMap = new();
+
+    public float holdTime = 0.4f;
+
     void Awake()
     {
         if (Instance == null)
@@ -38,49 +46,65 @@ public class InputManager : MonoBehaviour
             Destroy(gameObject);
         }
         
+        KeyMap.Add(KeyBind.None, () => true);
+
         playerInputActions = new PlayerInputActions();
         movement = playerInputActions.Player.Move;
-        
-        
+
+
         cameraMove = playerInputActions.Player.Camera;
-        
-        
+
+
         jump = playerInputActions.Player.Jump;
-        
+
         dodge = playerInputActions.Player.Dodge;
         KeyMap.Add(KeyBind.Dodge, () => dodge.triggered);
-        
-        
+
+
         lockOn = playerInputActions.Player.LockOn;
-        KeyMap.Add(KeyBind.LockOn, () => Camera.main.GetComponent<CameraController>().isLockedOn);
-        
+
         retarget = playerInputActions.Player.Retarget;
-        
-        
+
+
         lightAttack = playerInputActions.Player.LightAttack;
+        lightAttack.performed += ctx => lightAttacking = true;
+        lightAttack.canceled += ctx => lightAttacking = false;
         KeyMap.Add(KeyBind.LightAttack, () => lightAttack.triggered);
-        KeyMap.Add(KeyBind.LightAttackHold, () => lightAttack.ReadValue<float>() > 0);
+        KeyMap.Add(KeyBind.LightAttackHold, () => lightAttackHoldTime > holdTime);
         
         heavyAttack = playerInputActions.Player.HeavyAttack;
+        heavyAttack.performed += ctx => heavyAttacking = true;
+        heavyAttack.canceled += ctx => heavyAttacking = false;
         KeyMap.Add(KeyBind.HeavyAttack, () => heavyAttack.triggered);
-        KeyMap.Add(KeyBind.HeavyAttackHold, () => heavyAttack.ReadValue<float>() > 0);
+        KeyMap.Add(KeyBind.HeavyAttackHold, () => heavyAttackHoldTime > holdTime);
         
         KeyMap.Add(KeyBind.AnyAttack, () => lightAttack.triggered || heavyAttack.triggered);
+        KeyMap.Add(KeyBind.AnyAttackHold, () => AnyAttackHoldTime > holdTime);
+        
         
         
         ActionEvents.AddOnAttackMethods();
         
         playerInputActions.Player.Enable();
     }
+    
+    void Update()
+    {
+        lightAttackHoldTime = lightAttacking ? lightAttackHoldTime + Time.deltaTime : 0;
+        heavyAttackHoldTime = heavyAttacking ? heavyAttackHoldTime + Time.deltaTime : 0;
+    }
 }
+
+
 
 public enum KeyBind
 {
-    LockOn,
+    None,
     LightAttack,
     LightAttackHold,
     HeavyAttack,
     HeavyAttackHold,
     AnyAttack,
+    AnyAttackHold,
     Dodge
 }

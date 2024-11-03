@@ -82,8 +82,13 @@ public class PlayerMoving : State
 
     public override void OnResume()
     {
-	    animState = WalkingAnimStates.Standby;
-	    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling, false);
+	    Debug.Log("Resuming");
+	    pc.comboIndex = -1;
+	    
+	    if (pc.IsMidair) pc.CrossFadeAnimation(Animator.StringToHash("FallingLoop"), 0.01f);
+	    else pc.CrossFadeAnimation(Animator.StringToHash("Idle"), 0.01f);
+	    
+	    TurnToLook();
     }
 
     #endregion
@@ -279,7 +284,7 @@ public class PlayerMoving : State
 	    }
 	    else
 	    {
-		    Vector3 lookDir = (pc.cam.targetedEnemy.transform.position - pc.transform.position).ZeroVector3Axis();
+		    Vector3 lookDir = pc.cam.LockOnDirection.ZeroVector3Axis();
 
 		    pc.transform.rotation =
 			    EaseUtil.DampQuaternion(pc.transform.rotation, Quaternion.LookRotation(lookDir), 5f, 0.1f);
@@ -293,10 +298,10 @@ public class PlayerMoving : State
     private void UpdateAnimation()
     {
 	    
-	    WalkingAnimStates newState = WalkingAnimStates.Idle;
+	    WalkingAnimStates newState = WalkingAnimStates.Standby;
 	    
-	    //if (pc.IsGrounded && !pc.IsWalking) newState = WalkingAnimStates.Idle;
-	    if (pc.isDoubleJumpUsed) newState = WalkingAnimStates.DoubleJumping;
+	    if (pc.IsGrounded && !pc.IsWalking) newState = WalkingAnimStates.Idle;
+	    else if (pc.isDoubleJumpUsed) newState = WalkingAnimStates.DoubleJumping;
 	    else if (pc.IsPerformingJump) newState = WalkingAnimStates.Jumping;
 	    else if (pc.IsMidair) newState = WalkingAnimStates.Falling;
 	    else if (pc.cam.isLockedOn && pc.IsWalking) newState = WalkingAnimStates.Targeting;
@@ -305,7 +310,6 @@ public class PlayerMoving : State
 	    
 	    SwitchAnimState(newState);
 	    
-	    Debug.Log(animState);
     }
     
     private void SwitchAnimState(WalkingAnimStates newState, bool uniqueUpdateOnly = true)
@@ -315,43 +319,37 @@ public class PlayerMoving : State
 	    switch (newState)
 	    {
 		    case WalkingAnimStates.Idle:
-			    
 			    pc.animancer.SetTrigger(Animator.StringToHash("Exit"));
-			    
 			    break;
 		    
 		    case WalkingAnimStates.Walking:
-			    
-			    SafeCrossFade(Animator.StringToHash("WalkLoop"), 0.01f);
-			    
+			    pc.CrossFadeAnimation(Animator.StringToHash("WalkLoop"), 0.01f);
 			    break;
 		    
 		    case WalkingAnimStates.Targeting:
-			    
-				SafeCrossFade(Animator.StringToHash("TargetedWalkLoop"), 0.01f);
-			    
+			    pc.CrossFadeAnimation(Animator.StringToHash("TargetedWalkLoop"), 0.01f);
 			    break;
+		    
 		    case WalkingAnimStates.Sprinting:
-			    
-			    SafeCrossFade(Animator.StringToHash("SprintLoop"), 0.25f);
-			    
+			    pc.CrossFadeAnimation(Animator.StringToHash("SprintLoop"), 0.25f);
 			    break;
+		    
 		    case WalkingAnimStates.Falling:
-			    
-			    //if (animState != WalkingAnimStates.Jumping && animState != WalkingAnimStates.DoubleJumping)
-				    SafeCrossFade(Animator.StringToHash("FallingLoop"), 0.01f);
+			    pc.CrossFadeAnimation(Animator.StringToHash("FallingLoop"), 0.01f);
 			    break;
+		    
 		    case WalkingAnimStates.Jumping:
-			    SafeCrossFade(Animator.StringToHash("JumpAction"), 0.01f);
+			    pc.CrossFadeAnimation(Animator.StringToHash("JumpAction"), 0.01f);
 			    break;
+		    
 		    case WalkingAnimStates.DoubleJumping:
 			    if (animState == WalkingAnimStates.Targeting)
 			    {
-				    SafeCrossFade(Animator.StringToHash("DoubleJumpTarget"), 0.01f);
+				    pc.CrossFadeAnimation(Animator.StringToHash("DoubleJumpTarget"), 0.01f);
 			    }
 			    else
 			    {
-				    SafeCrossFade(Animator.StringToHash("DoubleJump"), 0.01f);
+				    pc.CrossFadeAnimation(Animator.StringToHash("DoubleJump"), 0.01f);
 			    }
 
 			    break;
@@ -360,12 +358,7 @@ public class PlayerMoving : State
 	    animState = newState;
 	}
     
-    private void SafeCrossFade(int stateNameHash, float fadeDuration = -1F, int layer = -1, float normalizedTime = Single.NegativeInfinity)
-	{
-	    if (pc.animancer.IsPlaying(stateNameHash)) return;
-	    
-	    pc.animancer.CrossFade(stateNameHash, fadeDuration, layer, normalizedTime);
-	}
+    
     
     public void EnterStandby()
 	{

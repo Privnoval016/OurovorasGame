@@ -36,6 +36,7 @@ MonoBehaviour:
   jumpHangTimeThreshold: 0
   jumpHangAccelerationMult: 1.88
   jumpHangMaxSpeedMult: 1
+  dashForce: 50
   coyoteTime: 0.2
   jumpInputBufferTime: 0.1
   lockOnRange: 40

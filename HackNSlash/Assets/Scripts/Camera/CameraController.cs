@@ -50,6 +50,7 @@ public class CameraController : MonoBehaviour
 
     public bool isLockedOn, lockOnTriggered;
     public GameObject targetedEnemy;
+    public Vector3 LockOnDirection => targetedEnemy.transform.position - playerFollowTarget.position;
     
     #endregion
 

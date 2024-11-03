@@ -1403,6 +1403,7 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+  holdTime: 0.4
 --- !u!1 &1577365917
 GameObject:
   m_ObjectHideFlags: 0
@@ -1591,14 +1592,14 @@ MonoBehaviour:
   Radius: 10.21
   Orbits:
     Top:
-      Radius: 8
-      Height: 5.25
+      Radius: 14.1
+      Height: 7.62
     Center:
       Radius: 13.4
       Height: 3.7
     Bottom:
       Radius: 7.44
-      Height: -0.73
+      Height: -1.06
     SplineCurvature: 0.25
   RecenteringTarget: 2
   HorizontalAxis:
@@ -1673,7 +1674,7 @@ MonoBehaviour:
       Curvature: {x: 2, y: 11}
       BarrelClipping: 0.25
       Anamorphism: 0
-  BlendHint: 0
+  BlendHint: 8
 --- !u!1 &1647286671
 GameObject:
   m_ObjectHideFlags: 0

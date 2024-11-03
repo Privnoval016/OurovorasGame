@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Animancer;
+using ExtensionUtils;
+using OnActionCallbacks;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -84,7 +87,7 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public bool canAttack;
 
-    private Dictionary<KeyBind, Func<bool>> KeyMap;
+    public Dictionary<KeyBind, Func<bool>> KeyMap;
 
     #endregion
     
@@ -127,8 +130,7 @@ public class PlayerController : MonoBehaviour
         moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
         
         CheckAttackAction();
-        
-        
+
         UpdateAnimatorState();
     }
     
@@ -139,38 +141,64 @@ public class PlayerController : MonoBehaviour
     
     #endregion
 
-    #region Input Callbacks
     
+    #region Animator Methods
+
+    private void UpdateAnimatorState()
+    {
+        animancer.SetFloat(Animator.StringToHash("moveX"), (transform.rotation * moveInput.normalized).x, 0.1f, Time.deltaTime);
+        animancer.SetFloat(Animator.StringToHash("moveZ"), (transform.rotation * moveInput.normalized).y, 0.1f, Time.deltaTime);
+    }
+    
+    public void PlayAnimationClip(AnimationClip clip, float fadeDuration = -1F, FadeMode mode = FadeMode.FixedSpeed)
+    {
+        if (animancer.IsPlaying(clip)) return;
+
+        animancer.Play(clip, fadeDuration, mode);
+    }
+    
+    public void CrossFadeAnimation(int stateNameHash, float fadeDuration = -1F, int layer = -1, float normalizedTime = Single.NegativeInfinity)
+    {
+        if (animancer.IsPlaying(stateNameHash)) return;
+	    
+        animancer.CrossFade(stateNameHash, fadeDuration, layer, normalizedTime);
+    }
+    
+    public void StopCurrentAnimation()
+    {
+        animancer.Stop();
+    }
+
+    #endregion
+    
+    #region Attack Methods
+
     private void CheckAttackAction()
     {
         if (!canAttack) return;
-        
-        // check for midair attack then run, check for other attack then run, check for basic attacks then run
-        // interrupts moving with the specific attack
-        
                 
         #region Special Attacks
 
         foreach (Attack attack in attackData.specialAttacks)
         {
+            if (attack.isLockedOn && !cam.isLockedOn) continue;
             if (attack.isMidair != IsMidair) continue;
             
+            Vector2 direction = attack.applyTargetDirection ? transform.rotation * moveInput : moveInput;
             
             if (attack.inputDirection.normalized != Vector2.zero && 
-                Vector2.Dot(attack.inputDirection.normalized, moveInput.normalized) < 0.91f) continue;
+                Vector2.Dot(attack.inputDirection.normalized, direction.normalized) < 0.91f) continue;
             
-            foreach (KeyBind keyBind in attack.keyBinds)
-            {
-                print (keyBind + " " + KeyMap[keyBind]());
-                if (!KeyMap[keyBind]()) goto NextAttack;
-            }
+            if (!attack.keyBinds.Any(k => KeyMap[k]())) continue;
             
+            KeyBind[] holdKeys = attack.keyBinds.GetHoldVersion();
             
+            if (holdKeys.Length > 0 && stateController.GetCurrentState() is PlayerAttacking 
+                                    && ((PlayerAttacking) stateController.GetCurrentState()).attack == attack)
+                continue;
             
             BeginAttack(attack);
             return;
-            
-            NextAttack: ;
         }
         
         #endregion
@@ -201,21 +229,7 @@ public class PlayerController : MonoBehaviour
         #endregion
         
     }
-
-    #endregion
-    
-    #region Animator Methods
-
-    private void UpdateAnimatorState()
-    {
-        animancer.SetFloat(Animator.StringToHash("moveX"), moveInput.normalized.x, 0.1f, Time.deltaTime);
-        animancer.SetFloat(Animator.StringToHash("moveZ"), moveInput.normalized.y, 0.1f, Time.deltaTime);
-    }
-
-    #endregion
-    
-    #region Attack Methods
-
+        
     private void BeginAttack(Attack attack)
     {
         if (stateController.GetCurrentState() is PlayerMoving)
@@ -231,13 +245,14 @@ public class PlayerController : MonoBehaviour
 
     #endregion
     
-    #region Gravity Methods
+    #region General Methods
     
     private void ApplyGravity()
     {
         Vector3 gravity = globalGravity * gravityScale * Vector3.up;
         rb.AddForce(gravity, ForceMode.Acceleration);
     }
+    
     
     #endregion
 }
