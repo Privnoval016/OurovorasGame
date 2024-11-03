@@ -3,11 +3,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using OnActionCallbacks;
+using System.Collections;
+using System.Linq;
 
 public class PlayerAttacking : State
 {
     private PlayerController pc;
-    private Attack attack;
+    public Attack attack;
 
     private float attackCoolDownTime;
     private float attackEndTime;
@@ -45,6 +47,19 @@ public class PlayerAttacking : State
             pc.canAttack = true;
             sc.ResumePrevious();
         }
+        
+        if (attack.exitCondition == ExitConditions.AttackRelease)
+        {
+            attackEndTime = 10;
+            KeyBind[] holdKeys = attack.keyBinds.GetHoldVersion();
+            
+            
+            if (!holdKeys.Any(k => pc.KeyMap[k]()))
+            {
+                pc.canAttack = true;
+                sc.ResumePrevious();
+            }
+        }
     }
 
     public override void OnFixedUpdate()
@@ -69,13 +84,25 @@ public class PlayerAttacking : State
     private void LaunchAttack()
     {
         pc.canAttack = false;
-        attackEndTime = attack.attackClip.length;
-        Debug.Log(attackEndTime);
         attackCoolDownTime = attack.attackCoolDown;
 
-        if (attack.attackClip != null)
+        if (attack.playFirstClipOnly)
         {
-            pc.animancer.Play(attack.attackClip, 0.25f);
+            attackEndTime = attack.attackClips[0].length;
+            pc.PlayAnimationClip(attack.attackClips[0], 0.01f);
+            pc.InvokeOnAttack(attack);
+            return;
+        }
+        
+        attackEndTime = 0;
+        foreach (var clip in attack.attackClips)
+        {
+            attackEndTime += clip.length;
+        }
+        
+        if (attack.attackClips.Length > 0)
+        {
+            pc.StartCoroutine(AttackWithClip());
         }
         else if (attack.attackNameToHash != "")
         {
@@ -83,6 +110,15 @@ public class PlayerAttacking : State
         }
         
         pc.InvokeOnAttack(attack);
+    }
+    
+    private IEnumerator AttackWithClip()
+    {
+        foreach (var clip in attack.attackClips)
+        {
+            pc.PlayAnimationClip(clip, 0.25f);
+            yield return new WaitForSeconds(clip.length);
+        }
     }
 
     private void SetAttackGravity(bool midAttack = true)

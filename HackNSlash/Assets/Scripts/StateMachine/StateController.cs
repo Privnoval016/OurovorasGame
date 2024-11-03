@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,12 +5,6 @@ public class StateController : MonoBehaviour
 {
     Stack<State> currentState = new Stack<State>();
     [HideInInspector] public MonoBehaviour parent;
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     void Update()
     {
@@ -72,10 +65,8 @@ public class StateController : MonoBehaviour
 
     public void ClearStates()
     {
-        //Clear all states, except the doNotRemove at the bottom
         while (currentState.Count > 0 && !currentState.Peek().doNotRemove)
         {
-            //Call exit, or just close it all down?
             currentState.Pop();
         }
     }

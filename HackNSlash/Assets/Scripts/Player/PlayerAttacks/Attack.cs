@@ -8,20 +8,26 @@ public class Attack : ScriptableObject
 {
     [Header("Requirements")]
     public bool isEnabled;
+
+    [Space(5)] 
     
-    [Space(5)]
+    public bool isLockedOn = false;
     
     public KeyBind[] keyBinds;
     public Vector2 inputDirection;
+    public bool applyTargetDirection = true;
     public bool isMidair;
     public bool applyRootMotion = true;
     
-    [Space(5)]
+    [Header("Animation")]
     
-    public AnimationClip attackClip;
+    public AnimationClip[] attackClips;
 
     public string attackNameToHash;
 
+    public bool playFirstClipOnly;
+    
+    public ExitConditions exitCondition = ExitConditions.AnimationEnd;
 
     [FormerlySerializedAs("onAttackMethod")] [Header("Events")] 
     public OnAttackActions onAttackAction = OnAttackActions.None;
@@ -31,4 +37,10 @@ public class Attack : ScriptableObject
     public float damage;
     
     public float attackCoolDown;
+}
+
+public enum ExitConditions
+{
+    AnimationEnd,
+    AttackRelease
 }

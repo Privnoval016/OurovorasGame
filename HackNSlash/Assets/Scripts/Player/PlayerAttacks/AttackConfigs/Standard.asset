@@ -26,10 +26,12 @@ MonoBehaviour:
   midairAttacks:
   - {fileID: 11400000, guid: cca959ef9f66dff40971bae6e0bb23dc, type: 2}
   - {fileID: 11400000, guid: 5d1bf1100f403ef46bbef808161486bb, type: 2}
-  - {fileID: 11400000, guid: 256983c425a4c80448ff0a764b936f96, type: 2}
   - {fileID: 11400000, guid: 9bb4be9573875ed48a7043b5bae428a4, type: 2}
+  - {fileID: 11400000, guid: 256983c425a4c80448ff0a764b936f96, type: 2}
   specialAttacks:
   - {fileID: 11400000, guid: 8ddd1452f470cf84e9fd02dd3e112c6d, type: 2}
-  - {fileID: 11400000, guid: 6d5b4b5e6ee8e413ebcf66a768cc7105, type: 2}
   - {fileID: 11400000, guid: ad565a90574fe4c05b00d0eda6d89b63, type: 2}
+  - {fileID: 11400000, guid: 6d5b4b5e6ee8e413ebcf66a768cc7105, type: 2}
   - {fileID: 11400000, guid: e066ee6eb132d4e799f3c6c2d178323b, type: 2}
+  - {fileID: 11400000, guid: 1ca78521a5c1693429e77d7d6b46b7db, type: 2}
+  - {fileID: 11400000, guid: 37cc0303a06b1cc4ea5d3ccdb57b37ea, type: 2}

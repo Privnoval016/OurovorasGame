@@ -10,17 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
-  m_Name: LAtk 3
+  m_Name: PlungeAttack
   m_EditorClassIdentifier: 
   isEnabled: 1
-  keyBinds: 01000000
-  inputDirection: {x: 0, y: 0}
+  isLockedOn: 1
+  keyBinds: 05000000
+  inputDirection: {x: 0, y: -1}
   applyTargetDirection: 0
-  isMidair: 0
-  applyRootMotion: 1
+  isMidair: 1
+  applyRootMotion: 0
   attackClips:
-  - {fileID: 7400000, guid: 8309644312683fb4e821da16c7189e68, type: 2}
+  - {fileID: 7400000, guid: 0c9cf6ddf468f6e428dc5cd3b5457d3a, type: 2}
+  - {fileID: 7400000, guid: b32ccc886a9635542966c261569ff780, type: 2}
   attackNameToHash: 
-  onAttackAction: 0
+  playFirstClipOnly: 0
+  exitCondition: 0
+  onAttackAction: 3
   damage: 0
-  attackCoolDown: 0.4
+  attackCoolDown: 0.5

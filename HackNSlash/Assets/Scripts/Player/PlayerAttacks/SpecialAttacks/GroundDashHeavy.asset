@@ -13,11 +13,17 @@ MonoBehaviour:
   m_Name: GroundDashHeavy
   m_EditorClassIdentifier: 
   isEnabled: 1
-  keyBinds: 0000000002000000
+  isLockedOn: 1
+  keyBinds: 03000000
   inputDirection: {x: 0, y: 1}
+  applyTargetDirection: 1
   isMidair: 0
   applyRootMotion: 0
-  attackClip: {fileID: 7400000, guid: 22f08f08956c96844b73e6bb0e0c6db0, type: 2}
+  attackClips:
+  - {fileID: 7400000, guid: 22f08f08956c96844b73e6bb0e0c6db0, type: 2}
+  attackNameToHash: 
+  playFirstClipOnly: 0
+  exitCondition: 0
   onAttackAction: 1
   damage: 0
-  attackCoolDown: 0.8
+  attackCoolDown: 0.5

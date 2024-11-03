@@ -56,7 +56,7 @@ public class PlayerData : ScriptableObject
 	
 	[Header("Dash")]
 	
-	public float dashSpeed;
+	public float dashForce;
 	
 
     [Header("Assists")]
