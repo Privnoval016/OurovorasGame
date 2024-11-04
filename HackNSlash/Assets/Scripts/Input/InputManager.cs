@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using OnActionCallbacks;
 
 public class InputManager : MonoBehaviour
 {
@@ -81,9 +80,6 @@ public class InputManager : MonoBehaviour
         KeyMap.Add(KeyBind.AnyAttack, () => lightAttack.triggered || heavyAttack.triggered);
         KeyMap.Add(KeyBind.AnyAttackHold, () => AnyAttackHoldTime > holdTime);
         
-        
-        
-        ActionEvents.AddOnAttackMethods();
         
         playerInputActions.Player.Enable();
     }

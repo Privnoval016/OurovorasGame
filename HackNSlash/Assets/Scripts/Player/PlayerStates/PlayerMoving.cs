@@ -209,7 +209,6 @@ public class PlayerMoving : State
 		    pc.lastDoubleJumpTime += Time.deltaTime;
 	    }
 	    
-
 	    if (pc.CanJump)
 	    {
 		    pc.isJumpFalling = false;

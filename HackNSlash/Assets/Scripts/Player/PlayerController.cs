@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Animancer;
 using ExtensionUtils;
-using OnActionCallbacks;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -173,6 +172,11 @@ public class PlayerController : MonoBehaviour
     
     #region Attack Methods
 
+    public void InvokeOnAttack(Attack a)
+    {
+        ActionEvents.OnAttackActionMap[a.onAttackAction](this, a);
+    }
+    
     private void CheckAttackAction()
     {
         if (!canAttack) return;
@@ -184,14 +188,14 @@ public class PlayerController : MonoBehaviour
             if (attack.isLockedOn && !cam.isLockedOn) continue;
             if (attack.isMidair != IsMidair) continue;
             
-            Vector2 direction = attack.applyTargetDirection ? transform.rotation * moveInput : moveInput;
+            Vector2 direction = attack.applyTargetDirection ? transform.rotation * attack.inputDirection : attack.inputDirection;
             
             if (attack.inputDirection.normalized != Vector2.zero && 
-                Vector2.Dot(attack.inputDirection.normalized, direction.normalized) < 0.91f) continue;
+                Vector2.Dot(moveInput.normalized, direction.normalized) < 0.91f) continue;
             
             if (!attack.keyBinds.Any(k => KeyMap[k]())) continue;
             
-            KeyBind[] holdKeys = attack.keyBinds.GetHoldVersion();
+            KeyBind[] holdKeys = ActionEvents.GetHoldVersion(attack.keyBinds);
             
             if (holdKeys.Length > 0 && stateController.GetCurrentState() is PlayerAttacking 
                                     && ((PlayerAttacking) stateController.GetCurrentState()).attack == attack)
