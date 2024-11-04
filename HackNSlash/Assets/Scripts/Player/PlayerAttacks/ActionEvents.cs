@@ -1,10 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using ExtensionUtils;
-using UnityEditor.PackageManager;
+using MEC;
 
 public enum OnAttackActions
 {
@@ -14,108 +13,150 @@ public enum OnAttackActions
     PlungeAttack
 }
 
-namespace OnActionCallbacks
+public class ActionEvents : MonoBehaviour
 {
-    public static class ActionEvents
+    public static ActionEvents Instance { get; private set; }
+    
+    public static Dictionary<OnAttackActions, Action<PlayerController, Attack>> OnAttackActionMap;
+    private static Dictionary<KeyBind, KeyBind> AttackToHoldAttackMap;
+
+    private void Awake()
     {
-        private static Dictionary<OnAttackActions, Action<PlayerController, Attack>> OnAttackActionMap;
-        private static Dictionary<KeyBind, KeyBind> AttackToHoldAttackMap;
-
-        #region OnAttack Instantaneous Actions
-
-        public static void AddOnAttackMethods()
+        if (Instance == null)
         {
-            OnAttackActionMap = new Dictionary<OnAttackActions, Action<PlayerController, Attack>>();
-            
-            OnAttackActionMap.Add(OnAttackActions.None, (pc, a) => { });
-
-            OnAttackActionMap.Add(OnAttackActions.DashToTarget, DashToTarget);
-            OnAttackActionMap.Add(OnAttackActions.LaunchUp, LaunchUp);
-            OnAttackActionMap.Add(OnAttackActions.PlungeAttack, PlungeAttack);
-            
-            
-            AttackToHoldAttackMap = new Dictionary<KeyBind, KeyBind>();
-            AttackToHoldAttackMap.Add(KeyBind.LightAttack, KeyBind.LightAttackHold);
-            AttackToHoldAttackMap.Add(KeyBind.HeavyAttack, KeyBind.HeavyAttackHold);
-            AttackToHoldAttackMap.Add(KeyBind.AnyAttack, KeyBind.AnyAttackHold);
+            Instance = this;
         }
-
-        private static void DashToTarget(this PlayerController pc, Attack a)
+        else
         {
-            GameObject target = pc.cam.targetedEnemy;
-
-            if (target != null)
-            {
-                Vector3 distance = target.transform.position - pc.transform.position;
-                
-                pc.transform.LookAt(target.transform);
-                
-                pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
-                
-                pc.rb.AddForce(distance.normalized * pc.playerData.dashForce, ForceMode.Impulse);
-            }
-        }
-
-        private static void LaunchUp(this PlayerController pc, Attack a)
-        {
-            pc.StartCoroutine(pc.BeginLaunchUp(a));
+            Destroy(gameObject);
         }
         
-        private static IEnumerator BeginLaunchUp(this PlayerController pc, Attack a)
-        {
-            KeyBind[] holdKeys = a.keyBinds.GetHoldVersion();
-            
-            yield return new WaitForSeconds(InputManager.Instance.holdTime);
-            
-            if (!holdKeys.Any(k => InputManager.Instance.KeyMap[k]())) yield break;
-            
-            pc.PlayAnimationClip(a.attackClips[1], 0.01f);
-            pc.rb.AddForce(Vector3.up * pc.playerData.jumpForce, ForceMode.Impulse);
-            
-        }
+        AddOnAttackMethods();
+    }
+    
+    
+    #region OnAttack Instantaneous Actions
+
+    private void AddOnAttackMethods()
+    {
+        if (OnAttackActionMap != null) return;
         
-        private static void PlungeAttack(this PlayerController pc, Attack a)
-        {
-            pc.StartCoroutine(pc.BeginPlungeAttack(a));
-        }
+        OnAttackActionMap = new Dictionary<OnAttackActions, Action<PlayerController, Attack>>();
         
-        private static IEnumerator BeginPlungeAttack(this PlayerController pc, Attack a)
-        {
-            yield return new WaitForSeconds(a.attackClips[0].length);
-            
-            pc.rb.AddForce(Vector3.down * pc.playerData.dashForce, ForceMode.Impulse);
-        }
+        OnAttackActionMap.Add(OnAttackActions.None, (pc, a) => { });
+
+        OnAttackActionMap.Add(OnAttackActions.DashToTarget, DashToTarget);
+        OnAttackActionMap.Add(OnAttackActions.LaunchUp, LaunchUp);
+        OnAttackActionMap.Add(OnAttackActions.PlungeAttack, PlungeAttack);
         
-        #endregion
+        
+        AttackToHoldAttackMap = new Dictionary<KeyBind, KeyBind>();
+        AttackToHoldAttackMap.Add(KeyBind.LightAttack, KeyBind.LightAttackHold);
+        AttackToHoldAttackMap.Add(KeyBind.HeavyAttack, KeyBind.HeavyAttackHold);
+        AttackToHoldAttackMap.Add(KeyBind.AnyAttack, KeyBind.AnyAttackHold);
+    }
+    
+    #endregion
 
+    #region Dash Attack
+    
+    [Header("Dash Attack")]
+    
+    [SerializeField] private float dashForce = 50;
 
-        public static void InvokeOnAttack(this PlayerController pc, Attack a)
+    private void DashToTarget(PlayerController pc, Attack a)
+    {
+        GameObject target = pc.cam.targetedEnemy;
+
+        if (target != null)
         {
-            OnAttackActionMap[a.onAttackAction](pc, a);
+            Vector3 distance = target.transform.position - pc.transform.position;
+            
+            pc.transform.LookAt(target.transform);
+            
+            pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
+            
+            pc.rb.AddForce(distance.normalized * dashForce, ForceMode.Impulse);
         }
+    }
+    
+    #endregion
 
-        public static KeyBind[] GetHoldVersion(this KeyBind[] keys)
-        {
-            HashSet<KeyBind> holdKeys = new();
-            
-            foreach (KeyBind key in keys)
-            {
-                if (AttackToHoldAttackMap.TryGetValue(key, out KeyBind holdKey))
-                {
-                    holdKeys.Add(holdKey);
-                }
-                
-                if (AttackToHoldAttackMap.ContainsValue(key))
-                {
-                    holdKeys.Add(key);
-                }
-            }
-            
-            return holdKeys.ToArray();
-            
-            
-        }
-
+    #region Launch Up Attack
+    
+    [Header("Launch Up Attack")]
+    
+    [SerializeField] private float launchUpForce = 50;
+    
+    private void LaunchUp(PlayerController pc, Attack a)
+    {
+        Timing.RunCoroutine(BeginLaunchUp(pc, a));
+    }
+    
+    private IEnumerator<float> BeginLaunchUp(PlayerController pc, Attack a)
+    {
+        KeyBind[] holdKeys = GetHoldVersion(a.keyBinds);
+        
+        yield return Timing.WaitForSeconds(InputManager.Instance.holdTime);
+        
+        if (!holdKeys.Any(k => InputManager.Instance.KeyMap[k]())) yield break;
+        
+        pc.PlayAnimationClip(a.attackClips[1], 0.01f);
+        pc.rb.AddForce(Vector3.up * launchUpForce, ForceMode.Impulse);
+        
+        yield return Timing.WaitUntilTrue(() => pc.canAttack);
+        
+        pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
+        pc.gravityScale = pc.playerData.gravityScale;
         
     }
+    
+    #endregion
+    
+    #region Plunge Attack
+    
+    [Header("Plunge Attack")]
+    
+    [SerializeField] private float plungeForce = 50;
+    
+    private void PlungeAttack(PlayerController pc, Attack a)
+    {
+        Timing.RunCoroutine(BeginPlungeAttack(pc, a));
+    }
+    
+    private IEnumerator<float> BeginPlungeAttack(PlayerController pc, Attack a)
+    {
+        yield return Timing.WaitForSeconds(a.attackClips[0].length);
+        
+        pc.rb.AddForce(Vector3.down * plungeForce, ForceMode.Impulse);
+    }
+    
+    #endregion
+    
+    #region Other Methods
+
+    public static KeyBind[] GetHoldVersion(KeyBind[] keys)
+    {
+        HashSet<KeyBind> holdKeys = new();
+        
+        foreach (KeyBind key in keys)
+        {
+            if (AttackToHoldAttackMap.TryGetValue(key, out KeyBind holdKey))
+            {
+                holdKeys.Add(holdKey);
+            }
+            
+            if (AttackToHoldAttackMap.ContainsValue(key))
+            {
+                holdKeys.Add(key);
+            }
+        }
+        
+        return holdKeys.ToArray();
+    }
+    
+    #endregion
+
+    
 }
+

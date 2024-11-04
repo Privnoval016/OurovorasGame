@@ -2,7 +2,6 @@ using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
-using OnActionCallbacks;
 using System.Collections;
 using System.Linq;
 
@@ -51,7 +50,7 @@ public class PlayerAttacking : State
         if (attack.exitCondition == ExitConditions.AttackRelease)
         {
             attackEndTime = 10;
-            KeyBind[] holdKeys = attack.keyBinds.GetHoldVersion();
+            KeyBind[] holdKeys = ActionEvents.GetHoldVersion(attack.keyBinds);
             
             
             if (!holdKeys.Any(k => pc.KeyMap[k]()))
@@ -123,6 +122,8 @@ public class PlayerAttacking : State
 
     private void SetAttackGravity(bool midAttack = true)
     {
+        if (!attack.isMidair) return;
+        
         if (midAttack)
         {
             pc.gravityScale = 0;
