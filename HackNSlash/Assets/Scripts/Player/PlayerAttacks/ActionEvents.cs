@@ -10,7 +10,8 @@ public enum OnAttackActions
     None,
     DashToTarget,
     LaunchUp,
-    PlungeAttack
+    PlungeAttack,
+    DodgeMove
 }
 
 public class ActionEvents : MonoBehaviour
@@ -48,9 +49,10 @@ public class ActionEvents : MonoBehaviour
         OnAttackActionMap.Add(OnAttackActions.DashToTarget, DashToTarget);
         OnAttackActionMap.Add(OnAttackActions.LaunchUp, LaunchUp);
         OnAttackActionMap.Add(OnAttackActions.PlungeAttack, PlungeAttack);
+        OnAttackActionMap.Add(OnAttackActions.DodgeMove, Dodge);
         
         
-        AttackToHoldAttackMap = new Dictionary<KeyBind, KeyBind>();
+        AttackToHoldAttackMap = new();
         AttackToHoldAttackMap.Add(KeyBind.LightAttack, KeyBind.LightAttackHold);
         AttackToHoldAttackMap.Add(KeyBind.HeavyAttack, KeyBind.HeavyAttackHold);
         AttackToHoldAttackMap.Add(KeyBind.AnyAttack, KeyBind.AnyAttackHold);
@@ -86,7 +88,7 @@ public class ActionEvents : MonoBehaviour
     
     [Header("Launch Up Attack")]
     
-    [SerializeField] private float launchUpForce = 50;
+    [SerializeField] private float launchUpHeightMultiplier = 1.5f;
     
     private void LaunchUp(PlayerController pc, Attack a)
     {
@@ -102,12 +104,18 @@ public class ActionEvents : MonoBehaviour
         if (!holdKeys.Any(k => InputManager.Instance.KeyMap[k]())) yield break;
         
         pc.PlayAnimationClip(a.attackClips[1], 0.01f);
-        pc.rb.AddForce(Vector3.up * launchUpForce, ForceMode.Impulse);
         
-        yield return Timing.WaitUntilTrue(() => pc.canAttack);
+        float gravityStrength = -(2 * pc.playerData.jumpHeight * launchUpHeightMultiplier) / 
+                                (pc.playerData.jumpTimeToApex * pc.playerData.jumpTimeToApex);
         
-        pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
-        pc.gravityScale = pc.playerData.gravityScale;
+        float jumpForce = Mathf.Abs(gravityStrength) * pc.playerData.jumpTimeToApex;
+
+        float force = jumpForce;
+        if (pc.rb.linearVelocity.y < 0)
+            force -= pc.rb.linearVelocity.y;
+		
+        pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+        pc.isJumping = true;
         
     }
     
@@ -131,6 +139,41 @@ public class ActionEvents : MonoBehaviour
         pc.rb.AddForce(Vector3.down * plungeForce, ForceMode.Impulse);
     }
     
+    #endregion
+
+    #region Dodge
+
+    [Header("Dodge")]
+    
+    [SerializeField] private float dodgeForce = 50;
+    [SerializeField] private float dodgeDistance = 5;
+    
+    private void Dodge(PlayerController pc, Attack a)
+    {
+        Debug.Log("Dodge");
+        Timing.RunCoroutine(BeginDodge(pc, a));
+    }
+
+    private IEnumerator<float> BeginDodge(PlayerController pc, Attack a)
+    {
+        // dodge in the direction of movement relative to the camera
+        Vector3 dodgeDirection = pc.moveDirection.ZeroVector3Axis();
+        
+        if (dodgeDirection == Vector3.zero)
+        {
+            dodgeDirection = pc.IsMidair ? Vector3.down : Vector3.up;
+        }
+        
+        pc.rb.AddForce(dodgeDirection * dodgeForce, ForceMode.Impulse);
+        
+        Debug.Log(dodgeDirection);
+        
+        yield return Timing.WaitForSeconds(dodgeDistance / dodgeForce);
+        
+        pc.rb.linearVelocity = Vector3.zero;
+    }
+    
+
     #endregion
     
     #region Other Methods
