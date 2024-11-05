@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using ExtensionUtils;
 
 [CreateAssetMenu(menuName = "ScriptableObjects/Attack")]
 public class Attack : ScriptableObject
@@ -16,7 +17,7 @@ public class Attack : ScriptableObject
     public KeyBind[] keyBinds;
     public Vector2 inputDirection;
     public bool applyTargetDirection = true;
-    public bool isMidair;
+    public NBool isMidair = NBool.False;
     public bool applyRootMotion = true;
     
     [Header("Animation")]

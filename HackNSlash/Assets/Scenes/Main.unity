@@ -655,10 +655,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashForce: 50
-  launchUpHeightMultiplier: 1.5
+  launchUpHeight: 2
+  launchUpTimeToApex: 0.1
   plungeForce: 50
-  dodgeForce: 50
-  dodgeDistance: 5
+  dodgeForce: 200
+  dodgeDistance: 200
 --- !u!1 &748173663 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: e23414181b12ff34fbc1e78c8be0d32d,

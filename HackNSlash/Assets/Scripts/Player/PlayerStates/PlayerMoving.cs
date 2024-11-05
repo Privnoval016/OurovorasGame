@@ -82,13 +82,12 @@ public class PlayerMoving : State
 
     public override void OnResume()
     {
-	    Debug.Log("Resuming");
 	    pc.comboIndex = -1;
 	    
 	    if (pc.IsMidair) pc.CrossFadeAnimation(Animator.StringToHash("FallingLoop"), 0.01f);
 	    else pc.CrossFadeAnimation(Animator.StringToHash("Idle"), 0.01f);
 	    
-	    TurnToLook();
+	    pc.TurnToLook();
     }
 
     #endregion
@@ -159,7 +158,7 @@ public class PlayerMoving : State
 		
 		pc.rb.AddForce(movementForce, ForceMode.Force);
 		
-		TurnToLook();
+		pc.TurnToLook();
 	}
     
     #endregion
@@ -243,27 +242,9 @@ public class PlayerMoving : State
     
     #endregion
     
-    #region Look Methods
-
-    private void TurnToLook()
-    {
-	    if (!pc.IsWalking) return;
-	    
-	    if (!pc.cam.isLockedOn)
-	    {
-		    pc.transform.rotation =
-			    EaseUtil.DampQuaternion(pc.transform.rotation, Quaternion.LookRotation(pc.moveDirection), 5f, 0.1f);
-	    }
-	    else
-	    {
-		    Vector3 lookDir = pc.cam.LockOnDirection.ZeroVector3Axis();
-
-		    pc.transform.rotation =
-			    EaseUtil.DampQuaternion(pc.transform.rotation, Quaternion.LookRotation(lookDir), 5f, 0.1f);
-	    }
-    }
     
-    #endregion
+
+    
     
     #region Animation Methods
 

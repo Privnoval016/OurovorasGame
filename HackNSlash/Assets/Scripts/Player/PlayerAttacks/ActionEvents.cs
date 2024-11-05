@@ -64,7 +64,7 @@ public class ActionEvents : MonoBehaviour
     
     [Header("Dash Attack")]
     
-    [SerializeField] private float dashForce = 50;
+    [SerializeField] private float dashForce;
 
     private void DashToTarget(PlayerController pc, Attack a)
     {
@@ -73,12 +73,15 @@ public class ActionEvents : MonoBehaviour
         if (target != null)
         {
             Vector3 distance = target.transform.position - pc.transform.position;
+            distance.Normalize();
             
             pc.transform.LookAt(target.transform);
             
             pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
             
-            pc.rb.AddForce(distance.normalized * dashForce, ForceMode.Impulse);
+            Debug.Log(distance);
+            
+            pc.rb.AddForce(distance * dashForce, ForceMode.Impulse);
         }
     }
     
@@ -88,7 +91,9 @@ public class ActionEvents : MonoBehaviour
     
     [Header("Launch Up Attack")]
     
-    [SerializeField] private float launchUpHeightMultiplier = 1.5f;
+    [SerializeField] private float launchUpHeight;
+
+    [SerializeField] private float launchUpTimeToApex;
     
     private void LaunchUp(PlayerController pc, Attack a)
     {
@@ -105,10 +110,10 @@ public class ActionEvents : MonoBehaviour
         
         pc.PlayAnimationClip(a.attackClips[1], 0.01f);
         
-        float gravityStrength = -(2 * pc.playerData.jumpHeight * launchUpHeightMultiplier) / 
-                                (pc.playerData.jumpTimeToApex * pc.playerData.jumpTimeToApex);
+        float gravityStrength = -(2 * launchUpHeight) / 
+                                (launchUpTimeToApex * launchUpTimeToApex);
         
-        float jumpForce = Mathf.Abs(gravityStrength) * pc.playerData.jumpTimeToApex;
+        float jumpForce = Mathf.Abs(gravityStrength) * launchUpTimeToApex;
 
         float force = jumpForce;
         if (pc.rb.linearVelocity.y < 0)
@@ -125,7 +130,7 @@ public class ActionEvents : MonoBehaviour
     
     [Header("Plunge Attack")]
     
-    [SerializeField] private float plungeForce = 50;
+    [SerializeField] private float plungeForce;
     
     private void PlungeAttack(PlayerController pc, Attack a)
     {
@@ -145,8 +150,8 @@ public class ActionEvents : MonoBehaviour
 
     [Header("Dodge")]
     
-    [SerializeField] private float dodgeForce = 50;
-    [SerializeField] private float dodgeDistance = 5;
+    [SerializeField] private float dodgeForce;
+    [SerializeField] private float dodgeDistance;
     
     private void Dodge(PlayerController pc, Attack a)
     {
@@ -157,7 +162,9 @@ public class ActionEvents : MonoBehaviour
     private IEnumerator<float> BeginDodge(PlayerController pc, Attack a)
     {
         // dodge in the direction of movement relative to the camera
-        Vector3 dodgeDirection = pc.moveDirection.ZeroVector3Axis();
+        Vector3 dodgeDirection = pc.moveDirection.ZeroVector3Axis().normalized;
+        
+        Vector3 startPosition = pc.transform.position;
         
         if (dodgeDirection == Vector3.zero)
         {
@@ -168,7 +175,7 @@ public class ActionEvents : MonoBehaviour
         
         Debug.Log(dodgeDirection);
         
-        yield return Timing.WaitForSeconds(dodgeDistance / dodgeForce);
+        yield return Timing.WaitUntilTrue(() => Vector3.Distance(startPosition, pc.transform.position) >= dodgeDistance);
         
         pc.rb.linearVelocity = Vector3.zero;
     }

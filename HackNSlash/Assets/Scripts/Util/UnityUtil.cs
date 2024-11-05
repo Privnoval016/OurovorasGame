@@ -390,5 +390,29 @@ namespace ExtensionUtils
             thread.Start();
             return thread;
         }
+        
+        public static bool IsTrue(this NBool nBool)
+        {
+            //returns true if nBool is True, false if nBool is False
+            
+            switch (nBool)
+            {
+                case NBool.True:
+                    return true;
+                case NBool.False:
+                    return false;
+                case NBool.Both:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
+    
+    public enum NBool
+    {
+        False,
+        True,
+        Both
     }
 }
