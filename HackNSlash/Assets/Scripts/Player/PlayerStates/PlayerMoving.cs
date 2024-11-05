@@ -58,8 +58,8 @@ public class PlayerMoving : State
 	    #endregion
 	    
 	    CheckJump();
-
-	    CalculateGravity();
+	    
+	    pc.CalculateGravity();
 	    
 	    UpdateAnimation();
     }
@@ -115,34 +115,7 @@ public class PlayerMoving : State
     
     #endregion
     
-    #region Gravity Methods
-
-    private void CalculateGravity()
-    {
-	    if (pc.isJumping && Mathf.Abs(pc.rb.linearVelocity.y) < pc.playerData.jumpHangTimeThreshold)
-	    {
-		    SetGravityScale(pc.playerData.gravityScale * pc.playerData.jumpHangGravityMult);
-	    }
-	    else if (pc.rb.linearVelocity.y < 0)
-	    {
-		    //Higher gravity if falling
-		    SetGravityScale(pc.playerData.gravityScale * pc.playerData.fallGravityMult);
-		    //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
-		    pc.rb.linearVelocity = new Vector2(pc.rb.linearVelocity.x, Mathf.Max(pc.rb.linearVelocity.y, -pc.playerData.maxFallSpeed));
-	    }
-	    else
-	    {
-		    //Default gravity if standing on a platform or moving upwards
-		    SetGravityScale(pc.playerData.gravityScale);
-	    }
-    }
     
-    private void SetGravityScale(float scale)
-    {
-	    pc.gravityScale = scale;
-    }
-    
-    #endregion
     
     #region Movement Methods
     

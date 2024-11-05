@@ -70,10 +70,12 @@ public class PlayerController : MonoBehaviour
     
     [HideInInspector] public Vector2 moveInput;
     [HideInInspector] public Vector3 moveDirection;
+    public Vector3 StandardizedMoveDir => moveInput.Rotate(-transform.forward.ToVector2().ToAngle()).SwapAxes();
     
     #endregion
     
     #region CHECK PARAMETERS
+   
     [Header("Checks")] 
     [SerializeField] public Transform groundCheckPoint;
     [SerializeField] public Vector3 groundCheckSize = new Vector3(0.49f, 0.3f, 0.49f);
@@ -145,8 +147,8 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateAnimatorState()
     {
-        animancer.SetFloat(Animator.StringToHash("moveX"), (transform.rotation * moveInput.normalized).x, 0.1f, Time.deltaTime);
-        animancer.SetFloat(Animator.StringToHash("moveZ"), (transform.rotation * moveInput.normalized).y, 0.1f, Time.deltaTime);
+        animancer.SetFloat(Animator.StringToHash("moveX"), (StandardizedMoveDir.normalized).x, 0.1f, Time.deltaTime);
+        animancer.SetFloat(Animator.StringToHash("moveZ"), (StandardizedMoveDir.normalized).y, 0.1f, Time.deltaTime);
     }
     
     public void PlayAnimationClip(AnimationClip clip, float fadeDuration = -1F, FadeMode mode = FadeMode.FixedSpeed)
@@ -179,6 +181,7 @@ public class PlayerController : MonoBehaviour
     
     private void CheckAttackAction()
     {
+        Debug.Log(KeyMap[KeyBind.Dodge]() + "sfsdf");
         if (!canAttack) return;
                 
         #region Special Attacks
@@ -187,11 +190,11 @@ public class PlayerController : MonoBehaviour
         {
             if (attack.isLockedOn && !cam.isLockedOn) continue;
             if (attack.isMidair != IsMidair) continue;
-            
-            Vector2 direction = attack.applyTargetDirection ? transform.rotation * attack.inputDirection : attack.inputDirection;
+
+            Vector2 direction = attack.applyTargetDirection ? StandardizedMoveDir : moveInput;
             
             if (attack.inputDirection.normalized != Vector2.zero && 
-                Vector2.Dot(moveInput.normalized, direction.normalized) < 0.91f) continue;
+                Vector2.Dot(direction.normalized, attack.inputDirection.normalized) < 0.92f) continue;
             
             if (!attack.keyBinds.Any(k => KeyMap[k]())) continue;
             
@@ -242,6 +245,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (stateController.GetCurrentState() is PlayerAttacking)
         {
+            Debug.Log(attack.keyBinds[0]);
             stateController.ChangeState(new PlayerAttacking(attack));
         }
 
@@ -250,6 +254,35 @@ public class PlayerController : MonoBehaviour
     #endregion
     
     #region General Methods
+    
+    #region Gravity Methods
+
+    public void CalculateGravity()
+    {
+        if (isJumping && Mathf.Abs(rb.linearVelocity.y) < playerData.jumpHangTimeThreshold)
+        {
+            SetGravityScale(playerData.gravityScale * playerData.jumpHangGravityMult);
+        }
+        else if (rb.linearVelocity.y < 0)
+        {
+            //Higher gravity if falling
+            SetGravityScale(playerData.gravityScale * playerData.fallGravityMult);
+            //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -playerData.maxFallSpeed));
+        }
+        else
+        {
+            //Default gravity if standing on a platform or moving upwards
+            SetGravityScale(playerData.gravityScale);
+        }
+    }
+    
+    public void SetGravityScale(float scale)
+    {
+        gravityScale = scale;
+    }
+    
+    #endregion
     
     private void ApplyGravity()
     {

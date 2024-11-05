@@ -2,8 +2,9 @@ using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using MEC;
 
 public class PlayerAttacking : State
 {
@@ -35,10 +36,11 @@ public class PlayerAttacking : State
         attackCoolDownTime -= Time.deltaTime;
         attackEndTime -= Time.deltaTime;
         
+        SetAttackGravity();
+        
         if (attackCoolDownTime < 0)
         {
             pc.canAttack = true;
-            SetAttackGravity(false);
         }
         
         if (attackEndTime < 0)
@@ -101,36 +103,32 @@ public class PlayerAttacking : State
         
         if (attack.attackClips.Length > 0)
         {
-            pc.StartCoroutine(AttackWithClip());
+            Timing.RunCoroutine(AttackWithClip());
         }
         else if (attack.attackNameToHash != "")
         {
-            pc.animancer.CrossFade(Animator.StringToHash(attack.attackNameToHash), 0.25f);
+            pc.CrossFadeAnimation(Animator.StringToHash(attack.attackNameToHash), 0.25f);
         }
         
         pc.InvokeOnAttack(attack);
     }
     
-    private IEnumerator AttackWithClip()
+    private IEnumerator<float> AttackWithClip()
     {
         foreach (var clip in attack.attackClips)
         {
             pc.PlayAnimationClip(clip, 0.25f);
-            yield return new WaitForSeconds(clip.length);
+            yield return Timing.WaitForSeconds(clip.length);
         }
     }
 
-    private void SetAttackGravity(bool midAttack = true)
+    private void SetAttackGravity()
     {
-        if (!attack.isMidair) return;
+        if (!attack.isMidair) pc.CalculateGravity();
         
-        if (midAttack)
-        {
-            pc.gravityScale = 0;
-            return;
-        }
+        else if (!pc.canAttack) pc.SetGravityScale(0);
         
-        pc.gravityScale = pc.playerData.midairAttackGravityMult;
+        else pc.gravityScale = pc.playerData.midairAttackGravityMult;
     }
 
     #endregion

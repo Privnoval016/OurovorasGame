@@ -655,8 +655,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashForce: 50
-  launchUpForce: 100
+  launchUpHeightMultiplier: 1.5
   plungeForce: 50
+  dodgeForce: 50
+  dodgeDistance: 5
 --- !u!1 &748173663 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: e23414181b12ff34fbc1e78c8be0d32d,
@@ -1406,7 +1408,7 @@ MonoBehaviour:
     m_SingletonActionBindings: []
     m_Flags: 0
   dodge:
-    m_Name: 
+    m_Name: Dodge
     m_Type: 0
     m_ExpectedControlType: 
     m_Id: 7d276121-25d1-4441-b770-4835b7c3b3bc
@@ -1433,7 +1435,7 @@ MonoBehaviour:
     m_SingletonActionBindings: []
     m_Flags: 0
   lightAttack:
-    m_Name: 
+    m_Name: Light Attack
     m_Type: 0
     m_ExpectedControlType: 
     m_Id: 93fea409-e1f1-4080-a883-2b53f9b72102
@@ -1442,7 +1444,7 @@ MonoBehaviour:
     m_SingletonActionBindings: []
     m_Flags: 0
   heavyAttack:
-    m_Name: 
+    m_Name: Heavy Attack
     m_Type: 0
     m_ExpectedControlType: 
     m_Id: 7b036315-cc91-41fe-8e40-2822d7c060a4
