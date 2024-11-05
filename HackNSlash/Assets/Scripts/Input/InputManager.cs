@@ -89,6 +89,12 @@ public class InputManager : MonoBehaviour
         lightAttackHoldTime = lightAttacking ? lightAttackHoldTime + Time.deltaTime : 0;
         heavyAttackHoldTime = heavyAttacking ? heavyAttackHoldTime + Time.deltaTime : 0;
     }
+
+    public void ReleaseHoldAttacks()
+    {
+        lightAttacking = false;
+        heavyAttacking = false;
+    }
 }
 
 

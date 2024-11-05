@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using System.Collections.Generic;
 using System.Linq;
+using ExtensionUtils;
 using MEC;
 
 public class PlayerAttacking : State
@@ -27,6 +28,7 @@ public class PlayerAttacking : State
         pc.animancer.applyRootMotion = attack.applyRootMotion;
         pc.rootMotion.enabled = attack.applyRootMotion;
         pc.rb.linearVelocity = Vector3.zero;
+        
         SetAttackGravity();
         LaunchAttack();
     }
@@ -37,6 +39,7 @@ public class PlayerAttacking : State
         attackEndTime -= Time.deltaTime;
         
         SetAttackGravity();
+        pc.TurnToLook();
         
         if (attackCoolDownTime < 0)
         {
@@ -124,10 +127,10 @@ public class PlayerAttacking : State
 
     private void SetAttackGravity()
     {
-        if (!attack.isMidair) pc.CalculateGravity();
-        
+        if (!attack.isMidair.IsTrue()) ; //pc.CalculateGravity();
+
         else if (!pc.canAttack) pc.SetGravityScale(0);
-        
+
         else pc.gravityScale = pc.playerData.midairAttackGravityMult;
     }
 

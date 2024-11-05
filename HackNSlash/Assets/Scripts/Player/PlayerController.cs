@@ -70,8 +70,8 @@ public class PlayerController : MonoBehaviour
     
     [HideInInspector] public Vector2 moveInput;
     [HideInInspector] public Vector3 moveDirection;
-    public Vector3 StandardizedMoveDir => moveInput.Rotate(-transform.forward.ToVector2().ToAngle()).SwapAxes();
-    
+
+    public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).Rotate(cam.transform.right.ToVector2().ToAngle());
     #endregion
     
     #region CHECK PARAMETERS
@@ -181,7 +181,6 @@ public class PlayerController : MonoBehaviour
     
     private void CheckAttackAction()
     {
-        Debug.Log(KeyMap[KeyBind.Dodge]() + "sfsdf");
         if (!canAttack) return;
                 
         #region Special Attacks
@@ -189,12 +188,13 @@ public class PlayerController : MonoBehaviour
         foreach (Attack attack in attackData.specialAttacks)
         {
             if (attack.isLockedOn && !cam.isLockedOn) continue;
-            if (attack.isMidair != IsMidair) continue;
+            
+            if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) continue;
 
             Vector2 direction = attack.applyTargetDirection ? StandardizedMoveDir : moveInput;
             
             if (attack.inputDirection.normalized != Vector2.zero && 
-                Vector2.Dot(direction.normalized, attack.inputDirection.normalized) < 0.92f) continue;
+                Vector2.Dot(direction.normalized, attack.inputDirection.normalized) < 0.69f) continue;
             
             if (!attack.keyBinds.Any(k => KeyMap[k]())) continue;
             
@@ -209,8 +209,6 @@ public class PlayerController : MonoBehaviour
         }
         
         #endregion
-
-
         
         #region Midair Combo Attacks
         
@@ -245,7 +243,6 @@ public class PlayerController : MonoBehaviour
         }
         else if (stateController.GetCurrentState() is PlayerAttacking)
         {
-            Debug.Log(attack.keyBinds[0]);
             stateController.ChangeState(new PlayerAttacking(attack));
         }
 
@@ -253,7 +250,6 @@ public class PlayerController : MonoBehaviour
 
     #endregion
     
-    #region General Methods
     
     #region Gravity Methods
 
@@ -282,14 +278,33 @@ public class PlayerController : MonoBehaviour
         gravityScale = scale;
     }
     
-    #endregion
-    
     private void ApplyGravity()
     {
         Vector3 gravity = globalGravity * gravityScale * Vector3.up;
         rb.AddForce(gravity, ForceMode.Acceleration);
     }
     
+    #endregion
+    
+    #region Look Methods
+    
+    public void TurnToLook()
+    {
+        if (!IsWalking) return;
+	    
+        if (!cam.isLockedOn)
+        {
+            transform.rotation =
+                EaseUtil.DampQuaternion(transform.rotation, Quaternion.LookRotation(moveDirection), 5f, 0.1f);
+        }
+        else
+        {
+            Vector3 lookDir = cam.LockOnDirection.ZeroVector3Axis();
+
+            transform.rotation =
+                EaseUtil.DampQuaternion(transform.rotation, Quaternion.LookRotation(lookDir), 5f, 0.1f);
+        }
+    }
     
     #endregion
 }
