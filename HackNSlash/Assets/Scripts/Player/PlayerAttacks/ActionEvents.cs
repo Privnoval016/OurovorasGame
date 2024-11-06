@@ -79,8 +79,6 @@ public class ActionEvents : MonoBehaviour
             
             pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
             
-            Debug.Log(distance);
-            
             pc.rb.AddForce(distance * dashForce, ForceMode.Impulse);
         }
     }

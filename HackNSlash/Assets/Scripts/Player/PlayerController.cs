@@ -204,6 +204,8 @@ public class PlayerController : MonoBehaviour
                                     && ((PlayerAttacking) stateController.GetCurrentState()).attack == attack)
                 continue;
             
+            if (holdKeys.Length == 0) InputManager.Instance.ReleaseHoldAttacks();
+            
             BeginAttack(attack);
             return;
         }
@@ -290,7 +292,7 @@ public class PlayerController : MonoBehaviour
     
     public void TurnToLook()
     {
-        if (!IsWalking) return;
+        if (!IsWalking && moveDirection.magnitude != 0) return;
 	    
         if (!cam.isLockedOn)
         {
