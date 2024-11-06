@@ -57,8 +57,7 @@ public class PlayerAttacking : State
             attackEndTime = 10;
             KeyBind[] holdKeys = ActionEvents.GetHoldVersion(attack.keyBinds);
             
-            
-            if (!holdKeys.Any(k => pc.KeyMap[k]()))
+            if (!holdKeys.Any(k => pc.KeyMap[k]()) || pc.moveInput.magnitude > 0.1f)
             {
                 pc.canAttack = true;
                 sc.ResumePrevious();
