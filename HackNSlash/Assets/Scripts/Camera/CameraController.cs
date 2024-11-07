@@ -144,7 +144,7 @@ public class CameraController : MonoBehaviour
         
         foreach (var c in collidersInRange)
         {
-            if (c.gameObject == targetedEnemy || !c.CompareTag("Enemy") || !IsOnScreen(c.transform.position))
+            if (c.gameObject == targetedEnemy || !c.TryGetComponent(out Targetable t) || !IsOnScreen(c.transform.position))
             {
                 continue;
             }
