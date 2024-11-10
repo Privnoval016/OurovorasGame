@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Animancer;
 using ExtensionUtils;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(StateController))]
@@ -91,11 +89,21 @@ public class PlayerController : MonoBehaviour
     public Dictionary<KeyBind, Func<bool>> KeyMap;
 
     #endregion
+
+    #region WEAPON PARAMETERS
+    
+    [Header("Weapons")]
+    public GameObject[] weapons;
+
+    public float itsCalledAuraBro = 2f;
+    #endregion
     
     #region LAYERS & TAGS
 
     [Header("Layers & Tags")] 
     [SerializeField] public LayerMask groundLayer;
+    
+    [SerializeField] public LayerMask enemyLayer;
     #endregion
 
     
@@ -115,7 +123,7 @@ public class PlayerController : MonoBehaviour
 
         animancer.TryGetComponent(out rootMotion);
         
-        KeyMap = InputManager.Instance.KeyMap;
+        KeyMap = InputManager.KeyMap;
     }
 
     private void Start()
@@ -198,7 +206,7 @@ public class PlayerController : MonoBehaviour
             
             if (!attack.keyBinds.Any(k => KeyMap[k]())) continue;
             
-            KeyBind[] holdKeys = ActionEvents.GetHoldVersion(attack.keyBinds);
+            KeyBind[] holdKeys = InputManager.GetHoldVersion(attack.keyBinds);
             
             if (holdKeys.Length > 0 && stateController.GetCurrentState() is PlayerAttacking 
                                     && ((PlayerAttacking) stateController.GetCurrentState()).attack == attack)
@@ -292,7 +300,7 @@ public class PlayerController : MonoBehaviour
     
     public void TurnToLook()
     {
-        if (!IsWalking && moveDirection.magnitude != 0) return;
+        if (!IsWalking || moveDirection.magnitude == 0) return;
 	    
         if (!cam.isLockedOn)
         {

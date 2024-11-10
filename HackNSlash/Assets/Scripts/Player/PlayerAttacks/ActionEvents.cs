@@ -19,7 +19,6 @@ public class ActionEvents : MonoBehaviour
     public static ActionEvents Instance { get; private set; }
     
     public static Dictionary<OnAttackActions, Action<PlayerController, Attack>> OnAttackActionMap;
-    private static Dictionary<KeyBind, KeyBind> AttackToHoldAttackMap;
 
     private void Awake()
     {
@@ -51,11 +50,6 @@ public class ActionEvents : MonoBehaviour
         OnAttackActionMap.Add(OnAttackActions.PlungeAttack, PlungeAttack);
         OnAttackActionMap.Add(OnAttackActions.DodgeMove, Dodge);
         
-        
-        AttackToHoldAttackMap = new();
-        AttackToHoldAttackMap.Add(KeyBind.LightAttack, KeyBind.LightAttackHold);
-        AttackToHoldAttackMap.Add(KeyBind.HeavyAttack, KeyBind.HeavyAttackHold);
-        AttackToHoldAttackMap.Add(KeyBind.AnyAttack, KeyBind.AnyAttackHold);
     }
     
     #endregion
@@ -100,11 +94,11 @@ public class ActionEvents : MonoBehaviour
     
     private IEnumerator<float> BeginLaunchUp(PlayerController pc, Attack a)
     {
-        KeyBind[] holdKeys = GetHoldVersion(a.keyBinds);
+        KeyBind[] holdKeys = InputManager.GetHoldVersion(a.keyBinds);
         
         yield return Timing.WaitForSeconds(InputManager.Instance.holdTime);
         
-        if (!holdKeys.Any(k => InputManager.Instance.KeyMap[k]())) yield break;
+        if (!holdKeys.Any(k => InputManager.KeyMap[k]())) yield break;
         
         pc.PlayAnimationClip(a.attackClips[1], 0.01f);
         
@@ -179,30 +173,6 @@ public class ActionEvents : MonoBehaviour
     }
     
 
-    #endregion
-    
-    #region Other Methods
-
-    public static KeyBind[] GetHoldVersion(KeyBind[] keys)
-    {
-        HashSet<KeyBind> holdKeys = new();
-        
-        foreach (KeyBind key in keys)
-        {
-            if (AttackToHoldAttackMap.TryGetValue(key, out KeyBind holdKey))
-            {
-                holdKeys.Add(holdKey);
-            }
-            
-            if (AttackToHoldAttackMap.ContainsValue(key))
-            {
-                holdKeys.Add(key);
-            }
-        }
-        
-        return holdKeys.ToArray();
-    }
-    
     #endregion
 
     

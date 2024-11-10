@@ -30,8 +30,9 @@ public class InputManager : MonoBehaviour
     
     #endregion
 
-    public readonly Dictionary<KeyBind, Func<bool>> KeyMap = new();
-
+    public static Dictionary<KeyBind, Func<bool>> KeyMap = new();
+    public static Dictionary<KeyBind, KeyBind> AttackToHoldAttackMap = new();
+    
     public float holdTime = 0.4f;
 
     void Awake()
@@ -84,6 +85,11 @@ public class InputManager : MonoBehaviour
         
         
         playerInputActions.Player.Enable();
+        
+        
+        AttackToHoldAttackMap.Add(KeyBind.LightAttack, KeyBind.LightAttackHold);
+        AttackToHoldAttackMap.Add(KeyBind.HeavyAttack, KeyBind.HeavyAttackHold);
+        AttackToHoldAttackMap.Add(KeyBind.AnyAttack, KeyBind.AnyAttackHold);
     }
     
     void Update()
@@ -97,6 +103,30 @@ public class InputManager : MonoBehaviour
         lightAttacking = false;
         heavyAttacking = false;
     }
+    
+    #region Other Methods
+
+    public static KeyBind[] GetHoldVersion(KeyBind[] keys)
+    {
+        HashSet<KeyBind> holdKeys = new();
+        
+        foreach (KeyBind key in keys)
+        {
+            if (AttackToHoldAttackMap.TryGetValue(key, out KeyBind holdKey))
+            {
+                holdKeys.Add(holdKey);
+            }
+            
+            if (AttackToHoldAttackMap.ContainsValue(key))
+            {
+                holdKeys.Add(key);
+            }
+        }
+        
+        return holdKeys.ToArray();
+    }
+    
+    #endregion
 }
 
 
