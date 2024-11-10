@@ -55,7 +55,7 @@ public class PlayerAttacking : State
         if (attack.exitCondition == ExitConditions.AttackRelease)
         {
             attackEndTime = 10;
-            KeyBind[] holdKeys = ActionEvents.GetHoldVersion(attack.keyBinds);
+            KeyBind[] holdKeys = InputManager.GetHoldVersion(attack.keyBinds);
             
             if (!holdKeys.Any(k => pc.KeyMap[k]()) || pc.moveInput.magnitude > 0.1f)
             {
@@ -133,5 +133,28 @@ public class PlayerAttacking : State
         else pc.gravityScale = pc.playerData.midairAttackGravityMult;
     }
 
+    #endregion
+    
+    #region Collision Methods
+    
+    public void CheckWeaponCollision()
+    {
+        HashSet<Collider> enemies = new();
+        
+        foreach (GameObject sword in pc.weapons)
+        {
+            sword.TryGetComponent(out Collider c);
+            
+            if (c == null) continue;
+            
+            Collider[] colliders = Physics.OverlapBox(c.bounds.center, c.bounds.extents, c.transform.rotation, pc.enemyLayer);
+            
+            enemies = enemies.Union(colliders).ToHashSet();
+        }
+
+        enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d));
+        enemies.RemoveWhere(e => Vector3.Dot(e.transform.position - pc.transform.position, pc.transform.forward) < 0.8f);
+    }
+    
     #endregion
 }
