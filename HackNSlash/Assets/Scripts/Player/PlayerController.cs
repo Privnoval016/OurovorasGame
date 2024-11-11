@@ -184,7 +184,7 @@ public class PlayerController : MonoBehaviour
 
     public void InvokeOnAttack(Attack a)
     {
-        ActionEvents.OnAttackActionMap[a.onAttackAction](this, a);
+        OnAttackEvents.OnAttackActionMap[a.onAttackAction](this, a);
     }
     
     private void CheckAttackAction()
