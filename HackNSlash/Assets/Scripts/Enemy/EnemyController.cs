@@ -1,24 +1,19 @@
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour, ITargetable, IDamageable
+public class EnemyController : IDamageable
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public override void OnStart()
     {
-        
+        base.OnStart();
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void OnUpdate()
     {
-        
+        base.OnUpdate();
     }
-    
-    public void OnHit(Attack a)
-    {
 
+    public override void OnFixedUpdate()
+    {
+        base.OnFixedUpdate();
     }
-    
-    public bool TookDamageThisAction { get; set; }
-    
 }

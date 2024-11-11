@@ -33,9 +33,13 @@ public class Attack : ScriptableObject
     [FormerlySerializedAs("onAttackMethod")] [Header("Events")] 
     public OnAttackActions onAttackAction = OnAttackActions.None;
     
+    public OnHitActions onHitAction = OnHitActions.BasicKnockBack;
+    
     [Header("Stats")]
     
     public float damage;
+
+    public float knockBackForce;
     
     public float attackCoolDown;
 }

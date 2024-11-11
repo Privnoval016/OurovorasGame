@@ -41,6 +41,8 @@ public class PlayerAttacking : State
         SetAttackGravity();
         pc.TurnToLook();
         
+        CheckWeaponCollision();
+        
         if (attackCoolDownTime < 0)
         {
             pc.canAttack = true;
@@ -139,21 +141,29 @@ public class PlayerAttacking : State
     
     public void CheckWeaponCollision()
     {
+        // TODO: only do so if weapon animation is playing
+        
+        
         HashSet<Collider> enemies = new();
         
         foreach (GameObject sword in pc.weapons)
         {
-            sword.TryGetComponent(out Collider c);
-            
-            if (c == null) continue;
+            if (!sword.TryGetComponent(out Collider c)) continue;
             
             Collider[] colliders = Physics.OverlapBox(c.bounds.center, c.bounds.extents, c.transform.rotation, pc.enemyLayer);
+            
             
             enemies = enemies.Union(colliders).ToHashSet();
         }
 
-        enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d));
-        enemies.RemoveWhere(e => Vector3.Dot(e.transform.position - pc.transform.position, pc.transform.forward) < 0.8f);
+        enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d) || d.tookDamageThisAction);
+        enemies.RemoveWhere(e => Mathf.Abs(Vector3.Dot(e.transform.position - pc.transform.position, pc.transform.forward)) < 0.8f);
+        
+        
+        foreach (Collider enemy in enemies)
+        {
+            enemy.GetComponent<IDamageable>().OnHit(pc, attack);
+        }
     }
     
     #endregion
