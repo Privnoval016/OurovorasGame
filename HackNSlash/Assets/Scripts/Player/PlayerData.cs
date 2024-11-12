@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-[CreateAssetMenu(menuName = "ScriptableObjects/PlayerData")]
+[CreateAssetMenu(menuName = "Player/PlayerData")]
 public class PlayerData : ScriptableObject
 {
 	[Header("Gravity")]
@@ -67,7 +67,7 @@ public class PlayerData : ScriptableObject
 	public float lockOnRange;
 
 	[Header("Attacks")] 
-	[Tooltip("Time before you break combo")] public float midairAttackGravityMult;
+	public float midairAttackGravityMult;
 
 	//Unity Callback, called when the inspector updates
     private void OnValidate()

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using ExtensionUtils;
 
-[CreateAssetMenu(menuName = "ScriptableObjects/Attack")]
+[CreateAssetMenu(menuName = "Player/Attack")]
 public class Attack : ScriptableObject
 {
     [Header("Requirements")]

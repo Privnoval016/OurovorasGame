@@ -6,8 +6,9 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    
     public GameObject player;
+    
+    public float globalGravity = -9.81f;
 
     private void Awake()
     {

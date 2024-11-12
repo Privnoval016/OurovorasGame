@@ -58,8 +58,7 @@ public class PlayerController : MonoBehaviour
         
     [HideInInspector] public bool isDoubleJumpUsed = true;
     
-
-    public float globalGravity = -9.81f;
+    
     [HideInInspector] public float gravityScale;
 
     #endregion
@@ -68,6 +67,9 @@ public class PlayerController : MonoBehaviour
     
     [HideInInspector] public Vector2 moveInput;
     [HideInInspector] public Vector3 moveDirection;
+    
+    [HideInInspector] public Vector3 velocity;
+    private Vector3 lastPosition;
 
     public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).Rotate(cam.transform.right.ToVector2().ToAngle());
     #endregion
@@ -155,6 +157,10 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateAnimatorState()
     {
+        velocity = (transform.position - lastPosition) / Time.deltaTime;
+        lastPosition = transform.position;
+        Debug.Log(velocity);
+        
         animancer.SetFloat(Animator.StringToHash("moveX"), (StandardizedMoveDir.normalized).x, 0.1f, Time.deltaTime);
         animancer.SetFloat(Animator.StringToHash("moveZ"), (StandardizedMoveDir.normalized).y, 0.1f, Time.deltaTime);
     }
@@ -274,7 +280,7 @@ public class PlayerController : MonoBehaviour
             //Higher gravity if falling
             SetGravityScale(playerData.gravityScale * playerData.fallGravityMult);
             //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -playerData.maxFallSpeed));
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -playerData.maxFallSpeed), rb.linearVelocity.z);
         }
         else
         {
@@ -290,7 +296,7 @@ public class PlayerController : MonoBehaviour
     
     private void ApplyGravity()
     {
-        Vector3 gravity = globalGravity * gravityScale * Vector3.up;
+        Vector3 gravity = GameManager.Instance.globalGravity * gravityScale * Vector3.up;
         rb.AddForce(gravity, ForceMode.Acceleration);
     }
     

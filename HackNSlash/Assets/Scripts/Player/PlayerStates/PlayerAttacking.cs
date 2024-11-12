@@ -141,7 +141,8 @@ public class PlayerAttacking : State
     
     public void CheckWeaponCollision()
     {
-        // TODO: only do so if weapon animation is playing
+        
+        if (pc.canAttack) return;
         
         
         HashSet<Collider> enemies = new();
