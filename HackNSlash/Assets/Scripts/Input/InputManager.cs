@@ -68,14 +68,12 @@ public class InputManager : MonoBehaviour
 
         lightAttack = playerInputActions.Player.LightAttack;
         lightAttack.performed += ctx => lightAttacking = true;
-        lightAttack.performed += ctx => print("Light Attack");
         lightAttack.canceled += ctx => lightAttacking = false;
         KeyMap.Add(KeyBind.LightAttack, () => lightAttack.triggered);
         KeyMap.Add(KeyBind.LightAttackHold, () => lightAttackHoldTime > holdTime);
         
         heavyAttack = playerInputActions.Player.HeavyAttack;
         heavyAttack.performed += ctx => heavyAttacking = true;
-        heavyAttack.performed += ctx => print("Heavy Attack");
         heavyAttack.canceled += ctx => heavyAttacking = false;
         KeyMap.Add(KeyBind.HeavyAttack, () => heavyAttack.triggered);
         KeyMap.Add(KeyBind.HeavyAttackHold, () => heavyAttackHoldTime > holdTime);

@@ -5,9 +5,11 @@ using Sirenix.OdinInspector;
 using MEC;
 using UnityEngine;
 
+
 public abstract class IDamageable : MonoBehaviour, ITargetable
 {
-    public bool tookDamageThisAction;
+    [HideInInspector] public bool tookDamageThisAction;
+    
 
     private void Start()
     {

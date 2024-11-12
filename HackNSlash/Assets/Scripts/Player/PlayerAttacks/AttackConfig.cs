@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "ScriptableObjects/AttackConfig")]
+[CreateAssetMenu(menuName = "Player/AttackConfig")]
 public class AttackConfig : ScriptableObject
 {
     [Header("Unlock Parameters")] 

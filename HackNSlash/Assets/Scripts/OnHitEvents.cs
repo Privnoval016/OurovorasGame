@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using MEC;
 
 public enum OnHitActions
 {
@@ -45,7 +46,7 @@ public class OnHitEvents : MonoBehaviour
         if (enemy.gameObject.TryGetComponent(out Rigidbody rb))
         {
             Vector3 direction = (enemy.transform.position - pc.transform.position).normalized;
-            rb.AddForce(direction * a.knockBackForce, ForceMode.Impulse);
+            rb.AddForce(direction * (a.knockBackForce), ForceMode.VelocityChange);
             
             Debug.Log("Basic Knockback");
         }
@@ -55,9 +56,34 @@ public class OnHitEvents : MonoBehaviour
     
     #region Launch Up
     
+    [Header("Launch Up Attack")]
+    
+    [SerializeField] private float launchUpHeight;
+
+    [SerializeField] private float launchUpTimeToApex;
+    
     private void LaunchUp(PlayerController pc, IDamageable enemy, Attack a)
     {
-        pc.rb.AddForce(Vector3.up * a.knockBackForce, ForceMode.Impulse);
+        Timing.RunCoroutine(BeginLaunchUp(pc, enemy, a));
+    }
+    
+    IEnumerator<float> BeginLaunchUp(PlayerController pc, IDamageable enemy, Attack a)
+    {
+        if (!enemy.gameObject.TryGetComponent(out Rigidbody rb)) yield break;
+        
+        yield return Timing.WaitUntilTrue(() => pc.canAttack);
+        
+        
+        float gravityStrength = -(2 * launchUpHeight) / 
+                                (launchUpTimeToApex * launchUpTimeToApex);
+        
+        float jumpForce = Mathf.Abs(gravityStrength) * launchUpTimeToApex;
+
+        float force = jumpForce;
+        if (rb.linearVelocity.y < 0)
+            force -= rb.linearVelocity.y;
+		
+        rb.AddForce(Vector3.up * force, ForceMode.Impulse);
     }
     
     #endregion
