@@ -23,8 +23,7 @@ public class Attack : ScriptableObject
     [Header("Animation")]
     
     public AnimationClip[] attackClips;
-
-    public string attackNameToHash;
+    
 
     public bool playFirstClipOnly;
     

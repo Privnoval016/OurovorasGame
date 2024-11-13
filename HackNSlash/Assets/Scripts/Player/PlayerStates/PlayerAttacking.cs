@@ -25,7 +25,7 @@ public class PlayerAttacking : State
     public override void OnEnter()
     {
         pc = (PlayerController) sc.parent;
-        pc.animancer.applyRootMotion = attack.applyRootMotion;
+        //pc.animancer.applyRootMotion = attack.applyRootMotion;
         pc.rootMotion.enabled = attack.applyRootMotion;
         pc.rb.linearVelocity = Vector3.zero;
         
@@ -73,7 +73,7 @@ public class PlayerAttacking : State
 
     public override void OnExit()
     {
-        pc.animancer.applyRootMotion = false;
+        //pc.animancer.applyRootMotion = false;
         pc.rootMotion.enabled = false;
     }
     
@@ -104,15 +104,9 @@ public class PlayerAttacking : State
         {
             attackEndTime += clip.length;
         }
-        
-        if (attack.attackClips.Length > 0)
-        {
-            Timing.RunCoroutine(AttackWithClip());
-        }
-        else if (attack.attackNameToHash != "")
-        {
-            pc.CrossFadeAnimation(Animator.StringToHash(attack.attackNameToHash), 0.25f);
-        }
+
+        Timing.RunCoroutine(AttackWithClip());
+
         
         pc.InvokeOnAttack(attack);
     }

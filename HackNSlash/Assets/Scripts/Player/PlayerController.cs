@@ -19,10 +19,12 @@ public class PlayerController : MonoBehaviour
     
     public PlayerData playerData;
     public AttackConfig attackData;
+    public MoveAnimData moveAnimData;
+    public StringAsset[] parameterNames;
     
     [HideInInspector] public CameraController cam;
     
-    public HybridAnimancerComponent animancer;
+    public AnimancerComponent animancer;
     public RedirectRootMotionToRigidbody rootMotion;
     
     #endregion
@@ -161,22 +163,32 @@ public class PlayerController : MonoBehaviour
         lastPosition = transform.position;
         Debug.Log(velocity);
         
-        animancer.SetFloat(Animator.StringToHash("moveX"), (StandardizedMoveDir.normalized).x, 0.1f, Time.deltaTime);
-        animancer.SetFloat(Animator.StringToHash("moveZ"), (StandardizedMoveDir.normalized).y, 0.1f, Time.deltaTime);
+        foreach (StringAsset parameterName in parameterNames)
+        {
+            Parameter<float> param = animancer.Parameters.GetOrCreate<float>(parameterName);
+            
+            if (parameterName == "moveX")
+            {
+                param.Value = (StandardizedMoveDir.normalized).x;
+            }
+            else if (parameterName == "moveZ")
+            {
+                param.Value = (StandardizedMoveDir.normalized).y;
+            }
+        }
+        
     }
     
-    public void PlayAnimationClip(AnimationClip clip, float fadeDuration = -1F, FadeMode mode = FadeMode.FixedSpeed)
+    public AnimancerState PlayAnimationClip(AnimationClip clip, float fadeDuration = -1F, FadeMode mode = FadeMode.FixedSpeed)
     {
-        if (animancer.IsPlaying(clip)) return;
+        if (animancer.IsPlaying(clip)) return null;
 
-        animancer.Play(clip, fadeDuration, mode);
+        return animancer.Play(clip, fadeDuration, mode);
     }
     
-    public void CrossFadeAnimation(int stateNameHash, float fadeDuration = -1F, int layer = -1, float normalizedTime = Single.NegativeInfinity)
+    public AnimancerState PlayAnimationClip(ITransition clip)
     {
-        if (animancer.IsPlaying(stateNameHash)) return;
-	    
-        animancer.CrossFade(stateNameHash, fadeDuration, layer, normalizedTime);
+        return animancer.Play(clip);
     }
     
     public void StopCurrentAnimation()
