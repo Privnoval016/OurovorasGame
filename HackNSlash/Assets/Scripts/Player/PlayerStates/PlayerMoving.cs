@@ -1,23 +1,13 @@
 using System;
+using Animancer;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using ExtensionUtils;
+using Object = System.Object;
 
 public class PlayerMoving : State
 {
 	private PlayerController pc;
-
-	private enum WalkingAnimStates
-	{
-		Idle,
-		Walking,
-		Targeting,
-		Sprinting,
-		Falling,
-		Jumping,
-		DoubleJumping,
-		Standby
-	}
 	
 	private WalkingAnimStates animState;
 	
@@ -33,6 +23,7 @@ public class PlayerMoving : State
 	    pc.canAttack = true;
 	    pc.comboIndex = -1;
 	    
+	    animState = WalkingAnimStates.Idle;
 	    SwitchAnimState(WalkingAnimStates.Idle);
     }
 
@@ -84,14 +75,13 @@ public class PlayerMoving : State
     {
 	    pc.comboIndex = -1;
 	    
-	    if (pc.IsMidair) pc.CrossFadeAnimation(Animator.StringToHash("FallingLoop"), 0.01f);
-	    else pc.CrossFadeAnimation(Animator.StringToHash("Idle"), 0.01f);
+	    animState = WalkingAnimStates.Idle;
+	    SwitchAnimState(WalkingAnimStates.Idle);
 	    
 	    pc.TurnToLook();
     }
 
     #endregion
-    
     
     #region Input Callbacks
     
@@ -114,8 +104,6 @@ public class PlayerMoving : State
     
     #endregion
     
-    
-    
     #region Movement Methods
     
     private void Run(float lerpAmount)
@@ -130,11 +118,11 @@ public class PlayerMoving : State
 		
 		if (animState is WalkingAnimStates.Walking or WalkingAnimStates.Targeting)
 		{
-			pc.animancer.speed = targetSpeed.magnitude / pc.playerData.runMaxSpeed;
+			//pc.animancer.speed = targetSpeed.magnitude / pc.playerData.runMaxSpeed;
 		}
 		else
 		{
-			pc.animancer.speed = 1;
+			//pc.animancer.speed = 1;
 		}
 
 
@@ -211,6 +199,9 @@ public class PlayerMoving : State
 	private void Jump()
 	{
 		Debug.Log("Jumping");
+
+		SwitchAnimState(WalkingAnimStates.Jumping);
+		
 		pc.lastPressedJumpTime = 0;
 		pc.lastOnGroundTime = 0;
 
@@ -228,6 +219,9 @@ public class PlayerMoving : State
 	private void DoubleJump()
 	{
 		Debug.Log("Double Jumping");
+		
+		SwitchAnimState(WalkingAnimStates.DoubleJumping);
+		
 		pc.lastDoubleJumpTime = 0;
 		
 		#region Perform Double Jump
@@ -243,74 +237,113 @@ public class PlayerMoving : State
     #endregion
     
     
-
-    
-    
     #region Animation Methods
 
     private void UpdateAnimation()
     {
-	    
-	    WalkingAnimStates newState = WalkingAnimStates.Standby;
-	    
-	    if (pc.IsGrounded && !pc.IsWalking) newState = WalkingAnimStates.Idle;
-	    else if (pc.isDoubleJumpUsed) newState = WalkingAnimStates.DoubleJumping;
-	    else if (pc.IsPerformingJump) newState = WalkingAnimStates.Jumping;
-	    else if (pc.IsMidair) newState = WalkingAnimStates.Falling;
-	    else if (pc.cam.isLockedOn && pc.IsWalking) newState = WalkingAnimStates.Targeting;
-	    else if (pc.IsSprinting) newState = WalkingAnimStates.Sprinting;
-	    else if (pc.IsWalking) newState = WalkingAnimStates.Walking;
-	    
-	    SwitchAnimState(newState);
-	    
-    }
-    
-    private void SwitchAnimState(WalkingAnimStates newState, bool uniqueUpdateOnly = true)
-	{
-		if (uniqueUpdateOnly && animState == newState) return;
-		
-	    switch (newState)
+	    switch (animState)
 	    {
 		    case WalkingAnimStates.Idle:
-			    pc.animancer.SetTrigger(Animator.StringToHash("Exit"));
+			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
+			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
+			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
+			    else if (pc.IsWalking) SwitchAnimState(WalkingAnimStates.Walking);
+
 			    break;
 		    
 		    case WalkingAnimStates.Walking:
-			    pc.CrossFadeAnimation(Animator.StringToHash("WalkLoop"), 0.01f);
-			    break;
-		    
-		    case WalkingAnimStates.Targeting:
-			    pc.CrossFadeAnimation(Animator.StringToHash("TargetedWalkLoop"), 0.01f);
+			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
+			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
+			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
+			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, true);
+
 			    break;
 		    
 		    case WalkingAnimStates.Sprinting:
-			    pc.CrossFadeAnimation(Animator.StringToHash("SprintLoop"), 0.25f);
+			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
+			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
+			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, true);
+			    else if (!pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Walking);
+
+			    break;
+		    
+		    case WalkingAnimStates.Targeting:
+			    if (!pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Walking);
+			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
+			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, true);
+
 			    break;
 		    
 		    case WalkingAnimStates.Falling:
-			    pc.CrossFadeAnimation(Animator.StringToHash("FallingLoop"), 0.01f);
+			    if (pc.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
+			    
 			    break;
 		    
 		    case WalkingAnimStates.Jumping:
-			    pc.CrossFadeAnimation(Animator.StringToHash("JumpAction"), 0.01f);
+			    if (!pc.isJumpFalling || pc.rb.linearVelocity.y > 0) break;
+			    
+			    if (pc.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
+			    else if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
+
 			    break;
 		    
 		    case WalkingAnimStates.DoubleJumping:
-			    if (animState == WalkingAnimStates.Targeting)
-			    {
-				    pc.CrossFadeAnimation(Animator.StringToHash("DoubleJumpTarget"), 0.01f);
-			    }
-			    else
-			    {
-				    pc.CrossFadeAnimation(Animator.StringToHash("DoubleJump"), 0.01f);
-			    }
+			    if (!pc.isJumpFalling || pc.rb.linearVelocity.y > 0) break;
+			    
+			    if (pc.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
+			    else if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
 
 			    break;
 	    }
 	    
-	    animState = newState;
-	}
+	    Debug.Log(animState);
+	    
+    }
     
+    private void SwitchAnimState(WalkingAnimStates newState, bool playExit = false)
+    {
+	    Object currentAnim = pc.moveAnimData._animStates[animState];
+	    Object nextAnim = pc.moveAnimData._animStates[newState];
+	    
+	    playExit = playExit && currentAnim is Loop;
+
+	    if (playExit)
+	    {
+		    Loop currentLoop = (Loop) currentAnim;
+		    
+		    if (nextAnim is Loop nextLoop)
+		    {
+			    ExitTimeAnimation(currentLoop.EndClip, nextLoop.LoopClip);
+		    }
+		    else
+		    {
+			    ExitTimeAnimation(currentLoop.EndClip, (ITransition) nextAnim);
+		    }
+	    }
+	    else if (nextAnim is Loop nextLoop)
+	    {
+		    pc.PlayAnimationClip(nextLoop.LoopClip);
+	    }
+	    else
+	    {
+		    pc.PlayAnimationClip((ITransition) nextAnim);
+	    }
+	    
+	    animState = newState;
+    }
+    
+    
+    private void ExitTimeAnimation(ITransition currentAnim, ITransition nextAnim, Action onExit = null)
+	{
+		AnimancerState state = pc.PlayAnimationClip(currentAnim);
+		state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
+	}
+	
+	void OnAnimExit(ITransition nextAnim, Action onExit = null)
+	{
+		pc.PlayAnimationClip(nextAnim);
+		onExit?.Invoke();
+	}
     
     
     public void EnterStandby()
