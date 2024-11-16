@@ -20,6 +20,7 @@ public class PlayerMoving : State
 	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
 	    
+	    
 	    pc.canAttack = true;
 	    pc.comboIndex = -1;
 	    
@@ -68,7 +69,6 @@ public class PlayerMoving : State
     public override void OnInterrupt()
     {
 	    pc.isDoubleJumpUsed = false;
-	    animState = WalkingAnimStates.Standby;
     }
 
     public override void OnResume()
@@ -77,6 +77,7 @@ public class PlayerMoving : State
 	    
 	    animState = WalkingAnimStates.Idle;
 	    SwitchAnimState(WalkingAnimStates.Idle);
+	    
 	    
 	    pc.TurnToLook();
     }
@@ -93,11 +94,13 @@ public class PlayerMoving : State
 	    
 	    if (pc.lastOnGroundTime > 0)
 	    {
+		    InputManager.Instance.ReleaseHoldAttacks();
 		    pc.lastPressedJumpTime = pc.playerData.jumpInputBufferTime;
 	    }
 	    
 	    else if (pc.attackData.doubleJumpEnabled && !pc.isDoubleJumpUsed)
 	    {
+		    InputManager.Instance.ReleaseHoldAttacks();
 		    pc.isDoubleJumpTriggered = true;
 	    }
     }
@@ -115,15 +118,6 @@ public class PlayerMoving : State
 		
 	    Vector3 targetSpeed = pc.moveDirection * (pc.IsSprinting ? pc.playerData.sprintMaxSpeed : pc.playerData.runMaxSpeed);
 		targetSpeed = Vector3.Lerp(pc.rb.linearVelocity, targetSpeed, lerpAmount);
-		
-		if (animState is WalkingAnimStates.Walking or WalkingAnimStates.Targeting)
-		{
-			//pc.animancer.speed = targetSpeed.magnitude / pc.playerData.runMaxSpeed;
-		}
-		else
-		{
-			//pc.animancer.speed = 1;
-		}
 
 
 		float accelRate;
@@ -220,7 +214,7 @@ public class PlayerMoving : State
 	{
 		Debug.Log("Double Jumping");
 		
-		SwitchAnimState(WalkingAnimStates.DoubleJumping);
+		SwitchAnimState(WalkingAnimStates.DoubleJumping, () => SwitchAnimState(WalkingAnimStates.Falling));
 		
 		pc.lastDoubleJumpTime = 0;
 		
@@ -245,7 +239,7 @@ public class PlayerMoving : State
 	    {
 		    case WalkingAnimStates.Idle:
 			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
+			    else if (pc.cam.isLockedOn && pc.IsWalking) SwitchAnimState(WalkingAnimStates.Targeting);
 			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
 			    else if (pc.IsWalking) SwitchAnimState(WalkingAnimStates.Walking);
 
@@ -255,23 +249,23 @@ public class PlayerMoving : State
 			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
 			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
 			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
-			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, true);
+			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
 
 			    break;
 		    
 		    case WalkingAnimStates.Sprinting:
 			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
 			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
-			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, true);
+			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
 			    else if (!pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Walking);
 
 			    break;
 		    
 		    case WalkingAnimStates.Targeting:
-			    if (!pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Walking);
+			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
+			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
+			    else if (!pc.cam.isLockedOn && !pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Walking);
 			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
-			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, true);
-
 			    break;
 		    
 		    case WalkingAnimStates.Falling:
@@ -288,19 +282,18 @@ public class PlayerMoving : State
 			    break;
 		    
 		    case WalkingAnimStates.DoubleJumping:
-			    if (!pc.isJumpFalling || pc.rb.linearVelocity.y > 0) break;
-			    
-			    if (pc.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
-			    else if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
+			    // if (pc.rb.linearVelocity.y > 0) break;
+			    //
+			    // if (pc.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
+			    // else if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
 
 			    break;
 	    }
 	    
-	    Debug.Log(animState);
-	    
+	    //Debug.Log(animState);
     }
     
-    private void SwitchAnimState(WalkingAnimStates newState, bool playExit = false)
+    private void SwitchAnimState(WalkingAnimStates newState, Action onExit = null, bool playExit = false)
     {
 	    Object currentAnim = pc.moveAnimData._animStates[animState];
 	    Object nextAnim = pc.moveAnimData._animStates[newState];
@@ -313,43 +306,38 @@ public class PlayerMoving : State
 		    
 		    if (nextAnim is Loop nextLoop)
 		    {
-			    ExitTimeAnimation(currentLoop.EndClip, nextLoop.LoopClip);
+			    ExitTimeAnimation(currentLoop.EndClip, nextLoop.LoopClip, onExit);
 		    }
 		    else
 		    {
-			    ExitTimeAnimation(currentLoop.EndClip, (ITransition) nextAnim);
+			    ExitTimeAnimation(currentLoop.EndClip, (ITransition) nextAnim, onExit);
 		    }
 	    }
 	    else if (nextAnim is Loop nextLoop)
 	    {
-		    pc.PlayAnimationClip(nextLoop.LoopClip);
+		    pc.PlayAnimation(nextLoop.LoopClip).Events(this).OnEnd ??= () => OnAnimExit(null, onExit);
 	    }
 	    else
 	    {
-		    pc.PlayAnimationClip((ITransition) nextAnim);
+		    pc.PlayAnimation((ITransition) nextAnim).Events(this).OnEnd ??= () => OnAnimExit(null, onExit);
 	    }
 	    
+	    InputManager.Instance.ReleaseHoldAttacks();
 	    animState = newState;
     }
     
-    
     private void ExitTimeAnimation(ITransition currentAnim, ITransition nextAnim, Action onExit = null)
 	{
-		AnimancerState state = pc.PlayAnimationClip(currentAnim);
+		AnimancerState state = pc.PlayAnimation(currentAnim);
 		state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
 	}
 	
 	void OnAnimExit(ITransition nextAnim, Action onExit = null)
 	{
-		pc.PlayAnimationClip(nextAnim);
+		if (nextAnim != null) pc.PlayAnimation(nextAnim);
 		onExit?.Invoke();
 	}
-    
-    
-    public void EnterStandby()
-	{
-	    SwitchAnimState(WalkingAnimStates.Standby);
-	}
+	
     
     #endregion
 }

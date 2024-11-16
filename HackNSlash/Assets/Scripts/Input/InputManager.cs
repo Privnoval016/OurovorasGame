@@ -33,7 +33,7 @@ public class InputManager : MonoBehaviour
     public static Dictionary<KeyBind, Func<bool>> KeyMap = new();
     public static Dictionary<KeyBind, KeyBind> AttackToHoldAttackMap = new();
     
-    public float holdTime = 0.4f;
+    public float holdTime;
 
     void Awake()
     {
@@ -70,16 +70,19 @@ public class InputManager : MonoBehaviour
         lightAttack.performed += ctx => lightAttacking = true;
         lightAttack.canceled += ctx => lightAttacking = false;
         KeyMap.Add(KeyBind.LightAttack, () => lightAttack.triggered);
-        KeyMap.Add(KeyBind.LightAttackHold, () => lightAttackHoldTime > holdTime);
+        KeyMap.Add(KeyBind.LightAttackTap, () => lightAttackHoldTime < holdTime && lightAttack.WasReleasedThisFrame());
+        KeyMap.Add(KeyBind.LightAttackHold, () => lightAttacking);
         
         heavyAttack = playerInputActions.Player.HeavyAttack;
         heavyAttack.performed += ctx => heavyAttacking = true;
         heavyAttack.canceled += ctx => heavyAttacking = false;
         KeyMap.Add(KeyBind.HeavyAttack, () => heavyAttack.triggered);
-        KeyMap.Add(KeyBind.HeavyAttackHold, () => heavyAttackHoldTime > holdTime);
+        KeyMap.Add(KeyBind.HeavyAttackTap, () => heavyAttackHoldTime < holdTime && heavyAttack.WasReleasedThisFrame());
+        KeyMap.Add(KeyBind.HeavyAttackHold, () => heavyAttacking);
         
-        KeyMap.Add(KeyBind.AnyAttack, () => lightAttack.triggered || heavyAttack.triggered);
-        KeyMap.Add(KeyBind.AnyAttackHold, () => AnyAttackHoldTime > holdTime);
+        KeyMap.Add(KeyBind.AnyAttack, () => KeyMap[KeyBind.LightAttack]() || KeyMap[KeyBind.HeavyAttack]());
+        KeyMap.Add(KeyBind.AnyAttackTap, () => KeyMap[KeyBind.LightAttackTap]() || KeyMap[KeyBind.HeavyAttackTap]());
+        KeyMap.Add(KeyBind.AnyAttackHold, () => lightAttacking || heavyAttacking);
         
         
         playerInputActions.Player.Enable();
@@ -138,5 +141,8 @@ public enum KeyBind
     HeavyAttackHold,
     AnyAttack,
     AnyAttackHold,
-    Dodge
+    Dodge,
+    LightAttackTap,
+    HeavyAttackTap,
+    AnyAttackTap
 }

@@ -49,8 +49,7 @@ public enum WalkingAnimStates
     Sprinting,
     Falling,
     Jumping,
-    DoubleJumping,
-    Standby
+    DoubleJumping
 }
 
 public abstract class Loop

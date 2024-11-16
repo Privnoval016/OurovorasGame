@@ -655,8 +655,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce89fdf6dcc8d534284d9f7ae3daddca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  launchUpHeight: 2
-  launchUpTimeToApex: 0.1
+  launchUpForce: 40
 --- !u!114 &478547447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -670,11 +669,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashForce: 50
-  launchUpHeight: 2
-  launchUpTimeToApex: 0.1
+  launchUpForce: 40
+  launchUpHoldTime: 0.4
   plungeForce: 50
-  dodgeForce: 50
   dodgeDistance: 7
+  dodgeTime: 0.2
 --- !u!1 &699939028 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6683074765048914119, guid: b0e4a338c52db4378bb3f6dcf19db215,
@@ -927,7 +926,7 @@ MonoBehaviour:
   weapons:
   - {fileID: 699939028}
   - {fileID: 1869093425}
-  itsCalledAuraBro: 2
+  itsCalledAuraBro: 5
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -1495,7 +1494,7 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  holdTime: 0.4
+  holdTime: 0.5
 --- !u!1 &1577365917
 GameObject:
   m_ObjectHideFlags: 0

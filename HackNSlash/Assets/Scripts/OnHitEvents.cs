@@ -55,12 +55,9 @@ public class OnHitEvents : MonoBehaviour
     #endregion
     
     #region Launch Up
-    
-    [Header("Launch Up Attack")]
-    
-    [SerializeField] private float launchUpHeight;
 
-    [SerializeField] private float launchUpTimeToApex;
+    [Header("Launch Up Attack")] 
+    [SerializeField] private float launchUpForce = 40f;
     
     private void LaunchUp(PlayerController pc, IDamageable enemy, Attack a)
     {
@@ -73,13 +70,10 @@ public class OnHitEvents : MonoBehaviour
         
         yield return Timing.WaitUntilTrue(() => pc.canAttack);
         
-        
-        float gravityStrength = -(2 * launchUpHeight) / 
-                                (launchUpTimeToApex * launchUpTimeToApex);
-        
-        float jumpForce = Mathf.Abs(gravityStrength) * launchUpTimeToApex;
 
-        float force = jumpForce;
+        float force = launchUpForce;
+        
+        Debug.Log(force + " b");
         if (rb.linearVelocity.y < 0)
             force -= rb.linearVelocity.y;
 		
