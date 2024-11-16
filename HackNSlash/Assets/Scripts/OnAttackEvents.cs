@@ -75,12 +75,11 @@ public class OnAttackEvents : MonoBehaviour
     #endregion
 
     #region Launch Up Attack
-    
-    [Header("Launch Up Attack")]
-    
-    [SerializeField] private float launchUpHeight;
 
-    [SerializeField] private float launchUpTimeToApex;
+    [Header("Launch Up Attack")] 
+    [SerializeField] private float launchUpForce = 40f;
+    
+    [SerializeField] private float launchUpHoldTime;
     
     private void LaunchUp(PlayerController pc, Attack a)
     {
@@ -91,18 +90,15 @@ public class OnAttackEvents : MonoBehaviour
     {
         KeyBind[] holdKeys = InputManager.GetHoldVersion(a.keyBinds);
         
-        yield return Timing.WaitForSeconds(InputManager.Instance.holdTime);
+        yield return Timing.WaitForSeconds(launchUpHoldTime);
         
         if (!holdKeys.Any(k => InputManager.KeyMap[k]())) yield break;
         
-        pc.PlayAnimationClip(a.attackClips[1], 0.01f);
-        
-        float gravityStrength = -(2 * launchUpHeight) / 
-                                (launchUpTimeToApex * launchUpTimeToApex);
-        
-        float jumpForce = Mathf.Abs(gravityStrength) * launchUpTimeToApex;
+        pc.PlayAnimation(a.attackClips[1], 0.01f);
 
-        float force = jumpForce;
+        float force = launchUpForce;
+
+        Debug.Log(force + " a");
         if (pc.rb.linearVelocity.y < 0)
             force -= pc.rb.linearVelocity.y;
 		
@@ -137,34 +133,21 @@ public class OnAttackEvents : MonoBehaviour
 
     [Header("Dodge")]
     
-    [SerializeField] private float dodgeForce;
     [SerializeField] private float dodgeDistance;
+    [SerializeField] private float dodgeTime = 0.2f;
     
     private void Dodge(PlayerController pc, Attack a)
     {
         Debug.Log("Dodge");
-        Timing.RunCoroutine(BeginDodge(pc, a));
-    }
-
-    private IEnumerator<float> BeginDodge(PlayerController pc, Attack a)
-    {
-        // dodge in the direction of movement relative to the camera
         Vector3 dodgeDirection = pc.moveDirection.ZeroVector3Axis().normalized;
-        
-        Vector3 startPosition = pc.transform.position;
         
         if (dodgeDirection == Vector3.zero)
         {
             dodgeDirection = pc.IsMidair ? Vector3.down : Vector3.up;
         }
         
-        pc.rb.AddForce(dodgeDirection * dodgeForce, ForceMode.Impulse);
-        
-        Debug.Log(dodgeDirection);
-        
-        yield return Timing.WaitUntilTrue(() => Vector3.Distance(startPosition, pc.transform.position) >= dodgeDistance);
-        
-        pc.rb.linearVelocity = Vector3.zero;
+
+        Timing.RunCoroutine(GameManager.TraverseDistanceInTime(pc.rb, dodgeDirection, dodgeDistance, dodgeTime), Segment.FixedUpdate);
     }
     
 

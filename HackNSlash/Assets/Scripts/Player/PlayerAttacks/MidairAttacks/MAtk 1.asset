@@ -13,14 +13,18 @@ MonoBehaviour:
   m_Name: MAtk 1
   m_EditorClassIdentifier: 
   isEnabled: 1
-  keyBinds: 03000000
+  isLockedOn: 0
+  keyBinds: 01000000
   inputDirection: {x: 0, y: 0}
   applyTargetDirection: 0
   isMidair: 1
   applyRootMotion: 1
   attackClips:
   - {fileID: 7400000, guid: 09764a204cdba644ab878277bed70833, type: 2}
-  attackNameToHash: 
+  playFirstClipOnly: 0
+  exitCondition: 0
   onAttackAction: 0
+  onHitAction: 0
   damage: 0
+  knockBackForce: 0
   attackCoolDown: 0.3

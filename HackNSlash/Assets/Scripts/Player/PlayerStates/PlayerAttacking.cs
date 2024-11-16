@@ -30,7 +30,9 @@ public class PlayerAttacking : State
         pc.rb.linearVelocity = Vector3.zero;
         
         SetAttackGravity();
-        LaunchAttack();
+
+        if (attack.attackTransitions.Length > 0) LaunchWithTransition();
+        else LaunchClipAttack();
     }
 
     public override void OnUpdate()
@@ -38,9 +40,10 @@ public class PlayerAttacking : State
         attackCoolDownTime -= Time.deltaTime;
         attackEndTime -= Time.deltaTime;
         
-        SetAttackGravity();
-        pc.TurnToLook();
+        if (InputManager.GetHoldVersion(attack.keyBinds).Length == 0) InputManager.Instance.ReleaseHoldAttacks();
         
+        SetAttackGravity();
+        TurnToLookOnAttack();
         CheckWeaponCollision();
         
         if (attackCoolDownTime < 0)
@@ -86,7 +89,7 @@ public class PlayerAttacking : State
 
     #region Attack Methods
 
-    private void LaunchAttack()
+    private void LaunchClipAttack()
     {
         pc.canAttack = false;
         attackCoolDownTime = attack.attackCoolDown;
@@ -94,7 +97,7 @@ public class PlayerAttacking : State
         if (attack.playFirstClipOnly)
         {
             attackEndTime = attack.attackClips[0].length;
-            pc.PlayAnimationClip(attack.attackClips[0], 0.01f);
+            pc.PlayAnimation(attack.attackClips[0], 0.01f);
             pc.InvokeOnAttack(attack);
             return;
         }
@@ -110,13 +113,47 @@ public class PlayerAttacking : State
         
         pc.InvokeOnAttack(attack);
     }
+
+    private void LaunchWithTransition()
+    {
+        pc.canAttack = false;
+        attackCoolDownTime = attack.attackCoolDown;
+        
+        if (attack.playFirstClipOnly)
+        {
+            attackEndTime = attack.attackTransitions[0].MaximumDuration;
+            pc.PlayAnimation(attack.attackTransitions[0]);
+            pc.InvokeOnAttack(attack);
+            return;
+        }
+        
+        attackEndTime = 0;
+        foreach (var clip in attack.attackTransitions)
+        {
+            attackEndTime += clip.MaximumDuration / clip.Speed;
+        }
+        Debug.Log(attackEndTime);
+        
+        Timing.RunCoroutine(AttackWithTransition());
+        
+        pc.InvokeOnAttack(attack);
+    }
     
     private IEnumerator<float> AttackWithClip()
     {
         foreach (var clip in attack.attackClips)
         {
-            pc.PlayAnimationClip(clip, 0.25f);
+            pc.PlayAnimation(clip, 0.25f);
             yield return Timing.WaitForSeconds(clip.length);
+        }
+    }
+    
+    private IEnumerator<float> AttackWithTransition()
+    {
+        foreach (var clip in attack.attackTransitions)
+        {
+            pc.PlayAnimation(clip);
+            yield return Timing.WaitForSeconds(clip.MaximumDuration / clip.Speed);
         }
     }
 
@@ -133,7 +170,7 @@ public class PlayerAttacking : State
     
     #region Collision Methods
     
-    public void CheckWeaponCollision()
+    private void CheckWeaponCollision()
     {
         
         if (pc.canAttack) return;
@@ -158,6 +195,28 @@ public class PlayerAttacking : State
         foreach (Collider enemy in enemies)
         {
             enemy.GetComponent<IDamageable>().OnHit(pc, attack);
+        }
+    }
+    
+    #endregion
+    
+    #region Rotation Methods
+    
+    private void TurnToLookOnAttack()
+    {
+       // Debug.Log(pc.NearestEnemy);
+        if (pc.NearestEnemy != null)
+        {
+            Vector3 lookDir = (pc.NearestEnemy.transform.position - pc.transform.position).ZeroVector3Axis();
+            
+            if (lookDir.magnitude < 0.5f) return;
+            
+            pc.transform.rotation =
+                EaseUtil.DampQuaternion(pc.transform.rotation, Quaternion.LookRotation(lookDir.normalized), 5f, 0.1f);
+        }
+        else
+        {
+            pc.TurnToLook();
         }
     }
     

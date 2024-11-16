@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Animancer;
 using ExtensionUtils;
+using MEC;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(StateController))]
@@ -92,6 +93,18 @@ public class PlayerController : MonoBehaviour
 
     public Dictionary<KeyBind, Func<bool>> KeyMap;
 
+    public GameObject NearestEnemy
+    {
+        get
+        {
+            return cam.isLockedOn ? cam.targetedEnemy :
+                Physics.OverlapSphere(transform.position, itsCalledAuraBro, enemyLayer).
+                    Where(e => 
+                        Vector3.Dot((e.transform.position - transform.position).normalized, transform.forward.normalized) > -0.72f)
+                    .OrderBy(e => Vector3.Distance(transform.position, e.transform.position)).FirstOrDefault()?.gameObject;
+        }
+    }
+
     #endregion
 
     #region WEAPON PARAMETERS
@@ -161,34 +174,39 @@ public class PlayerController : MonoBehaviour
     {
         velocity = (transform.position - lastPosition) / Time.deltaTime;
         lastPosition = transform.position;
-        Debug.Log(velocity);
         
         foreach (StringAsset parameterName in parameterNames)
         {
             Parameter<float> param = animancer.Parameters.GetOrCreate<float>(parameterName);
             
-            if (parameterName == "moveX")
+            if (parameterName == "MoveX")
             {
-                param.Value = (StandardizedMoveDir.normalized).x;
+                param.Value = EaseUtil.Damp(param.Value, StandardizedMoveDir.normalized.x, 2f, Time.deltaTime);
             }
-            else if (parameterName == "moveZ")
+            else if (parameterName == "MoveZ")
             {
-                param.Value = (StandardizedMoveDir.normalized).y;
+                param.Value = EaseUtil.Damp(param.Value, StandardizedMoveDir.normalized.y, 2f, Time.deltaTime);
             }
         }
         
     }
     
-    public AnimancerState PlayAnimationClip(AnimationClip clip, float fadeDuration = -1F, FadeMode mode = FadeMode.FixedSpeed)
+    public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, FadeMode mode = FadeMode.FixedSpeed)
     {
         if (animancer.IsPlaying(clip)) return null;
 
         return animancer.Play(clip, fadeDuration, mode);
     }
     
-    public AnimancerState PlayAnimationClip(ITransition clip)
+    public AnimancerState PlayAnimation(TransitionAsset clip)
     {
         return animancer.Play(clip);
+    }
+    
+    public AnimancerState PlayAnimation(ITransition clip)
+    {
+        AnimancerState state = animancer.Play(clip);
+        return state;
     }
     
     public void StopCurrentAnimation()
@@ -213,6 +231,8 @@ public class PlayerController : MonoBehaviour
 
         foreach (Attack attack in attackData.specialAttacks)
         {
+            if (!attack.isEnabled) continue;
+            
             if (attack.isLockedOn && !cam.isLockedOn) continue;
             
             if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) continue;
@@ -252,11 +272,15 @@ public class PlayerController : MonoBehaviour
         
         #region Regular Combo Attacks
    
-        if (KeyMap[KeyBind.AnyAttack]())
+        if (KeyMap[KeyBind.LightAttack]())
         {
             comboIndex = comboIndex >= attackData.lightComboAttacks.Length - 1 ? 0 : comboIndex + 1;
-            BeginAttack(KeyMap[KeyBind.LightAttack]() ? attackData.lightComboAttacks[comboIndex] : 
-                                                                attackData.heavyComboAttacks[comboIndex]);
+            BeginAttack(attackData.lightComboAttacks[comboIndex]);
+        }
+        else if (KeyMap[KeyBind.HeavyAttack]())
+        {
+            comboIndex = comboIndex >= attackData.heavyComboAttacks.Length - 1 ? 0 : comboIndex + 1;
+            BeginAttack(attackData.heavyComboAttacks[comboIndex]);
         }
         
         #endregion
@@ -265,6 +289,8 @@ public class PlayerController : MonoBehaviour
         
     private void BeginAttack(Attack attack)
     {
+        
+        
         if (stateController.GetCurrentState() is PlayerMoving)
         {
             stateController.Interrupt(new PlayerAttacking(attack));
@@ -328,6 +354,8 @@ public class PlayerController : MonoBehaviour
         else
         {
             Vector3 lookDir = cam.LockOnDirection.ZeroVector3Axis();
+            
+            if (lookDir.magnitude < 0.3f) return;
 
             transform.rotation =
                 EaseUtil.DampQuaternion(transform.rotation, Quaternion.LookRotation(lookDir), 5f, 0.1f);

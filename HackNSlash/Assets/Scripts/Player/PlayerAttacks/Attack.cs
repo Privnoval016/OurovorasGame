@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using ExtensionUtils;
+using Animancer;
 
 [CreateAssetMenu(menuName = "Player/Attack")]
 public class Attack : ScriptableObject
@@ -22,8 +23,8 @@ public class Attack : ScriptableObject
     
     [Header("Animation")]
     
+    public TransitionAsset[] attackTransitions;
     public AnimationClip[] attackClips;
-    
 
     public bool playFirstClipOnly;
     

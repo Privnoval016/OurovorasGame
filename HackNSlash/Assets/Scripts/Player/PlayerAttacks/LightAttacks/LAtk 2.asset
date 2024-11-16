@@ -21,7 +21,6 @@ MonoBehaviour:
   applyRootMotion: 1
   attackClips:
   - {fileID: 7400000, guid: 10449c97c1e154043b31e7685050bb89, type: 2}
-  attackNameToHash: 
   playFirstClipOnly: 0
   exitCondition: 0
   onAttackAction: 0

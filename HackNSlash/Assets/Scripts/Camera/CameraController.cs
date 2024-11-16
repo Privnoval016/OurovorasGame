@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using ExtensionUtils;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -50,7 +51,7 @@ public class CameraController : MonoBehaviour
 
     public bool isLockedOn, lockOnTriggered;
     public GameObject targetedEnemy;
-    public Vector3 LockOnDirection => targetedEnemy.transform.position - playerFollowTarget.position;
+    public Vector3 LockOnDirection => (targetedEnemy.transform.position - playerFollowTarget.position).ZeroVector3Axis().normalized;
     
     #endregion
 
