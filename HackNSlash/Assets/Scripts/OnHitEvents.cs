@@ -77,7 +77,7 @@ public class OnHitEvents : MonoBehaviour
         if (rb.linearVelocity.y < 0)
             force -= rb.linearVelocity.y;
 		
-        rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+        rb.AddForce(Vector3.up * force * rb.mass, ForceMode.Impulse);
     }
     
     #endregion

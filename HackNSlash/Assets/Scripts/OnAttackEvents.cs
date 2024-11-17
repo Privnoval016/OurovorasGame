@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Animancer;
 using ExtensionUtils;
 using MEC;
 using UnityEngine;
@@ -11,7 +12,8 @@ public enum OnAttackActions
     DashToTarget,
     LaunchUp,
     PlungeAttack,
-    DodgeMove
+    DodgeMove,
+    FloorDash
 }
 
 public class OnAttackEvents : MonoBehaviour
@@ -46,15 +48,14 @@ public class OnAttackEvents : MonoBehaviour
         OnAttackActionMap.Add(OnAttackActions.LaunchUp, LaunchUp);
         OnAttackActionMap.Add(OnAttackActions.PlungeAttack, PlungeAttack);
         OnAttackActionMap.Add(OnAttackActions.DodgeMove, Dodge);
+        OnAttackActionMap.Add(OnAttackActions.FloorDash, FloorDash);
         
     }
-
-    #region Dash Attack
     
-    [Header("Dash Attack")]
-    
-    [SerializeField] private float dashForce;
+    #region Air Dash
 
+    [SerializeField] private float dashForce = 50;
+    
     private void DashToTarget(PlayerController pc, Attack a)
     {
         GameObject target = pc.cam.targetedEnemy;
@@ -70,6 +71,87 @@ public class OnAttackEvents : MonoBehaviour
             
             pc.rb.AddForce(distance * dashForce, ForceMode.Impulse);
         }
+    }
+    
+    #endregion
+
+    #region Dash Attack
+    
+    [Header("Dash Attack")]
+    
+    [SerializeField] private float dashDistance;
+    [SerializeField] private float dashTime = 0.2f;
+    [SerializeField] private float dashTimeThreshold = 0.4f;
+
+    private void FloorDash(PlayerController pc, Attack a)
+    {
+        Timing.RunCoroutine(DashAttack(pc, a));
+    }
+
+    IEnumerator<float> DashAttack(PlayerController pc, Attack a)
+    {
+        GameObject target = pc.cam.targetedEnemy;
+        
+        if (target == null) yield break;
+        
+        
+        KeyBind[] releaseKeys = InputManager.GetReleaseVersion(a.keyBinds);
+        
+        float startTime = Time.time;
+        
+        yield return Timing.WaitUntilTrue(() => releaseKeys.Any(k => InputManager.KeyMap[k]()));
+        
+        float elapsedTime = Time.time - startTime;
+        
+        
+        pc.ExitTimeAnimation(a.attackClips[1], a.attackClips[2]);
+
+
+        Vector3 direction = (target.transform.position - pc.transform.position).WithY(Mathf.Min(target.transform.position.y, pc.transform.position.y));
+        pc.transform.LookAt(target.transform.position.WithY(pc.transform.position.y));
+        
+        float distance;
+        RaycastHit[] collidersInPath = null;
+
+        if (elapsedTime >= dashTimeThreshold)
+        {
+            distance = dashDistance * 2;
+
+            collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.col.radius, direction, distance * 1.2f, pc.enemyLayer);
+
+            foreach (var hit in collidersInPath)
+            {
+                Physics.IgnoreCollision(pc.col, hit.collider, true);
+            }
+            if (target.TryGetComponent(out Collider c)) Physics.IgnoreCollision(pc.col, c, true);
+        }
+        else
+        {
+            distance = Mathf.Min(dashDistance, direction.magnitude);
+        }
+        
+        Timing.RunCoroutine(ResumeMoving(pc, a, dashTime + a.attackClips[3].length));
+        
+        yield return Timing.WaitUntilDone(GameManager.TraverseDistanceInTime(pc.rb, direction.normalized, distance, dashTime));
+        
+
+        pc.ExitTimeAnimation(a.attackClips[3], null, () => pc.canAttack = true);
+        
+        if (collidersInPath != null)
+        {
+            foreach (var hit in collidersInPath)
+            {
+                Physics.IgnoreCollision(pc.col, hit.collider, false);
+            }
+        }
+        if (target.TryGetComponent(out Collider c2)) Physics.IgnoreCollision(pc.col, c2, false);
+    }
+    
+    IEnumerator<float> ResumeMoving(PlayerController pc, Attack a, float time)
+    {
+        yield return Timing.WaitForSeconds(time);
+        
+        pc.canAttack = true;
     }
     
     #endregion
@@ -102,7 +184,7 @@ public class OnAttackEvents : MonoBehaviour
         if (pc.rb.linearVelocity.y < 0)
             force -= pc.rb.linearVelocity.y;
 		
-        pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+        pc.rb.AddForce(Vector3.up * force * pc.rb.mass, ForceMode.Impulse);
         pc.isJumping = true;
         
     }
@@ -138,16 +220,27 @@ public class OnAttackEvents : MonoBehaviour
     
     private void Dodge(PlayerController pc, Attack a)
     {
-        Debug.Log("Dodge");
         Vector3 dodgeDirection = pc.moveDirection.ZeroVector3Axis().normalized;
+        float distance = dodgeDistance;
         
-        if (dodgeDirection == Vector3.zero)
+        if (pc.StandardizedMoveDir.magnitude < 0.1f)
         {
-            dodgeDirection = pc.IsMidair ? Vector3.down : Vector3.up;
+            if (pc.cam.isLockedOn)
+            {
+                Vector3 teleportedPosition = pc.cam.targetedEnemy.transform.position + 
+                                             (pc.transform.position - pc.cam.targetedEnemy.transform.position).ZeroVector3Axis().normalized * pc.itsCalledAuraBro;
+                dodgeDirection = teleportedPosition - pc.transform.position;
+                
+                distance = dodgeDirection.magnitude;
+                dodgeDirection.Normalize();
+            }
+            else
+            {
+                dodgeDirection = pc.IsMidair ? Vector3.down : Vector3.zero;
+            }
         }
         
-
-        Timing.RunCoroutine(GameManager.TraverseDistanceInTime(pc.rb, dodgeDirection, dodgeDistance, dodgeTime), Segment.FixedUpdate);
+        Timing.RunCoroutine(GameManager.TraverseDistanceInTime(pc.rb, dodgeDirection, distance, dodgeTime), Segment.FixedUpdate);
     }
     
 

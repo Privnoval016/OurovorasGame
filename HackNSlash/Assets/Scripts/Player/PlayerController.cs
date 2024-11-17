@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     #region Components
     
     [HideInInspector] public Rigidbody rb;
+    [HideInInspector] public CapsuleCollider col;
     
     public PlayerData playerData;
     public AttackConfig attackData;
@@ -129,6 +130,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        col = GetComponent<CapsuleCollider>();
         
         if (Camera.main != null)
             Camera.main.TryGetComponent(out cam);
@@ -207,6 +209,30 @@ public class PlayerController : MonoBehaviour
     {
         AnimancerState state = animancer.Play(clip);
         return state;
+    }
+    
+    public void ExitTimeAnimation(ITransition currentAnim, ITransition nextAnim, Action onExit = null)
+    {
+        AnimancerState state = PlayAnimation(currentAnim);
+        state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
+    }
+	
+    public void OnAnimExit(ITransition nextAnim, Action onExit = null)
+    {
+        if (nextAnim != null) PlayAnimation(nextAnim);
+        onExit?.Invoke();
+    }
+    
+    public void ExitTimeAnimation(AnimationClip currentAnim, AnimationClip nextAnim, Action onExit = null)
+    {
+        AnimancerState state = PlayAnimation(currentAnim);
+        state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
+    }
+	
+    public void OnAnimExit(AnimationClip nextAnim, Action onExit = null)
+    {
+        if (nextAnim != null) PlayAnimation(nextAnim);
+        onExit?.Invoke();
     }
     
     public void StopCurrentAnimation()
