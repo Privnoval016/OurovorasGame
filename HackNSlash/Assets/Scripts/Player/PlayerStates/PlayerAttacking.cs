@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using System.Collections.Generic;
 using System.Linq;
+using Animancer;
 using ExtensionUtils;
 using MEC;
 
@@ -31,8 +32,8 @@ public class PlayerAttacking : State
         
         SetAttackGravity();
 
-        if (attack.attackTransitions.Length > 0) LaunchWithTransition();
-        else LaunchClipAttack();
+        if (attack.attackTransitions.Length > 0) LaunchTransitionAttack();
+        else if (attack.attackClips.Length > 0) LaunchClipAttack();
     }
 
     public override void OnUpdate()
@@ -68,6 +69,15 @@ public class PlayerAttacking : State
                 sc.ResumePrevious();
             }
         }
+        if (attack.exitCondition == ExitConditions.ExternalExit)
+        {
+            attackEndTime = 10;
+            attackCoolDownTime = 10;
+            if (pc.canAttack)
+            {
+                sc.ResumePrevious();
+            }
+        }
     }
 
     public override void OnFixedUpdate()
@@ -91,66 +101,64 @@ public class PlayerAttacking : State
 
     private void LaunchClipAttack()
     {
+        Debug.Log("Launching Clip Attack" + attack.clipsToPlay);
         pc.canAttack = false;
         attackCoolDownTime = attack.attackCoolDown;
 
-        if (attack.playFirstClipOnly)
+        List<AnimationClip> clips = new();
+        
+        for (int i = 0; i < attack.clipsToPlay; i++)
         {
-            attackEndTime = attack.attackClips[0].length;
-            pc.PlayAnimation(attack.attackClips[0], 0.01f);
-            pc.InvokeOnAttack(attack);
-            return;
+            clips.Add(attack.attackClips[i]);
         }
         
         attackEndTime = 0;
-        foreach (var clip in attack.attackClips)
+        foreach (var clip in clips)
         {
             attackEndTime += clip.length;
         }
 
-        Timing.RunCoroutine(AttackWithClip());
+        Timing.RunCoroutine(AttackWithClip(clips));
 
         
         pc.InvokeOnAttack(attack);
     }
 
-    private void LaunchWithTransition()
+    private void LaunchTransitionAttack()
     {
         pc.canAttack = false;
         attackCoolDownTime = attack.attackCoolDown;
         
-        if (attack.playFirstClipOnly)
+        List<TransitionAsset> transitions = new();
+        
+        for (int i = 0; i < attack.clipsToPlay; i++)
         {
-            attackEndTime = attack.attackTransitions[0].MaximumDuration;
-            pc.PlayAnimation(attack.attackTransitions[0]);
-            pc.InvokeOnAttack(attack);
-            return;
+            transitions.Add(attack.attackTransitions[i]);
         }
         
         attackEndTime = 0;
-        foreach (var clip in attack.attackTransitions)
+        foreach (var clip in transitions)
         {
             attackEndTime += clip.MaximumDuration / clip.Speed;
         }
-        Debug.Log(attackEndTime);
         
-        Timing.RunCoroutine(AttackWithTransition());
+        Timing.RunCoroutine(AttackWithTransition(transitions));
         
         pc.InvokeOnAttack(attack);
     }
     
-    private IEnumerator<float> AttackWithClip()
+    private IEnumerator<float> AttackWithClip(List<AnimationClip> clips)
     {
-        foreach (var clip in attack.attackClips)
+        foreach (var clip in clips)
         {
             pc.PlayAnimation(clip, 0.25f);
             yield return Timing.WaitForSeconds(clip.length);
         }
     }
     
-    private IEnumerator<float> AttackWithTransition()
+    private IEnumerator<float> AttackWithTransition(List<TransitionAsset> transitions)
     {
-        foreach (var clip in attack.attackTransitions)
+        foreach (var clip in transitions)
         {
             pc.PlayAnimation(clip);
             yield return Timing.WaitForSeconds(clip.MaximumDuration / clip.Speed);
@@ -204,6 +212,8 @@ public class PlayerAttacking : State
     
     private void TurnToLookOnAttack()
     {
+        if (attack.exitCondition != ExitConditions.AnimationEnd) return;
+        
        // Debug.Log(pc.NearestEnemy);
         if (pc.NearestEnemy != null)
         {

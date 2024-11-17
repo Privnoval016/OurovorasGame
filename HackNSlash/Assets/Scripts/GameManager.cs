@@ -27,17 +27,15 @@ public class GameManager : MonoBehaviour
     
     public static IEnumerator<float> TraverseDistanceInTime(Rigidbody rb, Vector3 direction, float distance, float time)
     {
+        direction.Normalize();
         Vector3 initialPosition = rb.position;
         
         float force = 2 * rb.mass * Mathf.Sqrt(2 * distance - 2 * rb.linearVelocity.magnitude * time) / time;
         rb.AddForce(direction * force, ForceMode.Impulse);
         
-        float initialTime = Time.time;
+        float startTime = Time.time;
         
-        
-        yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance);
-        
-        Debug.Log(Time.time - initialTime);
+        yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || Time.time - startTime >= time);
         
         rb.linearVelocity = Vector3.zero;
     }

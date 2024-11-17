@@ -19,6 +19,7 @@ public class PlayerMoving : State
 	    //doNotRemove = true;
 	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
+	    pc.rootMotion.enabled = false;
 	    
 	    
 	    pc.canAttack = true;
@@ -78,8 +79,10 @@ public class PlayerMoving : State
 	    animState = WalkingAnimStates.Idle;
 	    SwitchAnimState(WalkingAnimStates.Idle);
 	    
+	    pc.rootMotion.enabled = false;
 	    
-	    pc.TurnToLook();
+	    
+	    //pc.TurnToLook();
     }
 
     #endregion
@@ -306,37 +309,27 @@ public class PlayerMoving : State
 		    
 		    if (nextAnim is Loop nextLoop)
 		    {
-			    ExitTimeAnimation(currentLoop.EndClip, nextLoop.LoopClip, onExit);
+			    pc.ExitTimeAnimation(currentLoop.EndClip, nextLoop.LoopClip, onExit);
 		    }
 		    else
 		    {
-			    ExitTimeAnimation(currentLoop.EndClip, (ITransition) nextAnim, onExit);
+			    pc.ExitTimeAnimation(currentLoop.EndClip, (ITransition) nextAnim, onExit);
 		    }
 	    }
 	    else if (nextAnim is Loop nextLoop)
 	    {
-		    pc.PlayAnimation(nextLoop.LoopClip).Events(this).OnEnd ??= () => OnAnimExit(null, onExit);
+		    pc.PlayAnimation(nextLoop.LoopClip).Events(this).OnEnd ??= () => onExit?.Invoke();
 	    }
 	    else
 	    {
-		    pc.PlayAnimation((ITransition) nextAnim).Events(this).OnEnd ??= () => OnAnimExit(null, onExit);
+		    pc.PlayAnimation((ITransition) nextAnim).Events(this).OnEnd ??= () => onExit?.Invoke();
 	    }
 	    
 	    InputManager.Instance.ReleaseHoldAttacks();
 	    animState = newState;
     }
     
-    private void ExitTimeAnimation(ITransition currentAnim, ITransition nextAnim, Action onExit = null)
-	{
-		AnimancerState state = pc.PlayAnimation(currentAnim);
-		state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
-	}
-	
-	void OnAnimExit(ITransition nextAnim, Action onExit = null)
-	{
-		if (nextAnim != null) pc.PlayAnimation(nextAnim);
-		onExit?.Invoke();
-	}
+    
 	
     
     #endregion

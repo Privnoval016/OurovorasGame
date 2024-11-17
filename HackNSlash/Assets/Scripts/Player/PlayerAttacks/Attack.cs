@@ -26,7 +26,7 @@ public class Attack : ScriptableObject
     public TransitionAsset[] attackTransitions;
     public AnimationClip[] attackClips;
 
-    public bool playFirstClipOnly;
+    public int clipsToPlay = 1;
     
     public ExitConditions exitCondition = ExitConditions.AnimationEnd;
 
@@ -47,5 +47,6 @@ public class Attack : ScriptableObject
 public enum ExitConditions
 {
     AnimationEnd,
-    AttackRelease
+    AttackRelease,
+    ExternalExit
 }

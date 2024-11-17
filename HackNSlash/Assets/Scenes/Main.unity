@@ -669,10 +669,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashForce: 50
+  dashDistance: 30
+  dashTime: 0.2
+  dashTimeThreshold: 0.4
   launchUpForce: 40
   launchUpHoldTime: 0.4
   plungeForce: 50
-  dodgeDistance: 7
+  dodgeDistance: 12
   dodgeTime: 0.2
 --- !u!1 &699939028 stripped
 GameObject:
@@ -898,6 +901,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stateController: {fileID: 0}
   rb: {fileID: 0}
+  col: {fileID: 0}
   playerData: {fileID: 11400000, guid: 492cc163f440d418791e35eea37104b1, type: 2}
   attackData: {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
   moveAnimData: {fileID: 11400000, guid: fd6a31838b2c04777827e0d41dd8b298, type: 2}
@@ -926,7 +930,7 @@ MonoBehaviour:
   weapons:
   - {fileID: 699939028}
   - {fileID: 1869093425}
-  itsCalledAuraBro: 5
+  itsCalledAuraBro: 3
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -4637,9 +4641,9 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 330585546}
+  - {fileID: 1691020228}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 958863407}
   - {fileID: 1148389134}
   - {fileID: 2059573515}
-  - {fileID: 1691020228}
