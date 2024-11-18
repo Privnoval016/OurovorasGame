@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
         player = GameObject.FindWithTag("Player");
     }
     
-    public static IEnumerator<float> TraverseDistanceInTime(Rigidbody rb, Vector3 direction, float distance, float time)
+    public static IEnumerator<float> TraverseDistanceInTime(Rigidbody rb, Vector3 direction, float distance, float time, Func<bool> condition = null)
     {
         direction.Normalize();
         Vector3 initialPosition = rb.position;
@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
         
         float startTime = Time.time;
         
-        yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || Time.time - startTime >= time);
+        yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || Time.time - startTime >= time || (condition != null && condition()));
         
         rb.linearVelocity = Vector3.zero;
     }
