@@ -21,10 +21,11 @@ MonoBehaviour:
   applyRootMotion: 0
   attackTransitions: []
   attackClips:
-  - {fileID: 7400000, guid: 0c9cf6ddf468f6e428dc5cd3b5457d3a, type: 2}
-  - {fileID: 7400000, guid: b32ccc886a9635542966c261569ff780, type: 2}
-  clipsToPlay: 2
-  exitCondition: 0
+  - {fileID: 7400000, guid: 0e6b26a4a8d5ac243b26f58d73bc4143, type: 2}
+  - {fileID: 7400000, guid: 079ac537b3a75c049abb38f28a22ce30, type: 2}
+  - {fileID: 7400000, guid: e844afe95f8e637478d7b20e2a475e58, type: 2}
+  clipsToPlay: 0
+  exitCondition: 2
   onAttackAction: 3
   onHitAction: 0
   damage: 0

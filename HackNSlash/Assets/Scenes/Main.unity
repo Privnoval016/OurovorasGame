@@ -674,7 +674,7 @@ MonoBehaviour:
   dashTimeThreshold: 0.4
   launchUpForce: 40
   launchUpHoldTime: 0.4
-  plungeForce: 50
+  plungeSpeed: 75
   dodgeDistance: 12
   dodgeTime: 0.2
 --- !u!1 &699939028 stripped

@@ -16,7 +16,7 @@ public class PlayerMoving : State
     public override void OnEnter()
     {
 	    pc = (PlayerController) sc.parent;
-	    //doNotRemove = true;
+	    doNotRemove = true;
 	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
 	    pc.rootMotion.enabled = false;
@@ -74,6 +74,8 @@ public class PlayerMoving : State
 
     public override void OnResume()
     {
+	    Debug.Log("Resuming Moving");
+	    
 	    pc.comboIndex = -1;
 	    
 	    animState = WalkingAnimStates.Idle;

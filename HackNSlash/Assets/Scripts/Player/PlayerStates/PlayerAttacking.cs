@@ -26,7 +26,7 @@ public class PlayerAttacking : State
     public override void OnEnter()
     {
         pc = (PlayerController) sc.parent;
-        //pc.animancer.applyRootMotion = attack.applyRootMotion;
+
         pc.rootMotion.enabled = attack.applyRootMotion;
         pc.rb.linearVelocity = Vector3.zero;
         
@@ -47,17 +47,6 @@ public class PlayerAttacking : State
         TurnToLookOnAttack();
         CheckWeaponCollision();
         
-        if (attackCoolDownTime < 0)
-        {
-            pc.canAttack = true;
-        }
-        
-        if (attackEndTime < 0)
-        {
-            pc.canAttack = true;
-            sc.ResumePrevious();
-        }
-        
         if (attack.exitCondition == ExitConditions.AttackRelease)
         {
             attackEndTime = 10;
@@ -69,7 +58,7 @@ public class PlayerAttacking : State
                 sc.ResumePrevious();
             }
         }
-        if (attack.exitCondition == ExitConditions.ExternalExit)
+        else if (attack.exitCondition == ExitConditions.ExternalExit)
         {
             attackEndTime = 10;
             attackCoolDownTime = 10;
@@ -77,6 +66,17 @@ public class PlayerAttacking : State
             {
                 sc.ResumePrevious();
             }
+        }
+        
+        if (attackCoolDownTime < 0)
+        {
+            pc.canAttack = true;
+        }
+        
+        if (attackEndTime < 0)
+        {
+            pc.canAttack = true;
+            sc.ResumePrevious();
         }
     }
 
@@ -101,7 +101,6 @@ public class PlayerAttacking : State
 
     private void LaunchClipAttack()
     {
-        Debug.Log("Launching Clip Attack" + attack.clipsToPlay);
         pc.canAttack = false;
         attackCoolDownTime = attack.attackCoolDown;
 
@@ -149,6 +148,8 @@ public class PlayerAttacking : State
     
     private IEnumerator<float> AttackWithClip(List<AnimationClip> clips)
     {
+        if (clips.Count == 0) yield break;
+        
         foreach (var clip in clips)
         {
             pc.PlayAnimation(clip, 0.25f);
@@ -158,6 +159,8 @@ public class PlayerAttacking : State
     
     private IEnumerator<float> AttackWithTransition(List<TransitionAsset> transitions)
     {
+        if (transitions.Count == 0) yield break;
+        
         foreach (var clip in transitions)
         {
             pc.PlayAnimation(clip);

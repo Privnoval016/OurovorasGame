@@ -45,7 +45,7 @@ public class StateController : MonoBehaviour
     
     public State GetCurrentState()
     {
-        return currentState.Peek();
+        return currentState != null && currentState.Count > 0 ? currentState.Peek() : null;
     }
 
     private void RemoveTop()

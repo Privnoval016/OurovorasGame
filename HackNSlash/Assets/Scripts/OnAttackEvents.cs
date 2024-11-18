@@ -52,6 +52,13 @@ public class OnAttackEvents : MonoBehaviour
         
     }
     
+    IEnumerator<float> ResumeMoving(PlayerController pc, Attack a, float time)
+    {
+        yield return Timing.WaitForSeconds(time);
+        
+        pc.canAttack = true;
+    }
+    
     #region Air Dash
 
     [SerializeField] private float dashForce = 50;
@@ -132,7 +139,7 @@ public class OnAttackEvents : MonoBehaviour
         
         Timing.RunCoroutine(ResumeMoving(pc, a, dashTime + a.attackClips[3].length));
         
-        yield return Timing.WaitUntilDone(GameManager.TraverseDistanceInTime(pc.rb, direction.normalized, distance, dashTime));
+        yield return Timing.WaitUntilDone(GameManager.TraverseDistanceInTime(pc.rb, direction.normalized, distance, dashTime), Segment.FixedUpdate);
         
 
         pc.ExitTimeAnimation(a.attackClips[3], null, () => pc.canAttack = true);
@@ -145,13 +152,6 @@ public class OnAttackEvents : MonoBehaviour
             }
         }
         if (target.TryGetComponent(out Collider c2)) Physics.IgnoreCollision(pc.col, c2, false);
-    }
-    
-    IEnumerator<float> ResumeMoving(PlayerController pc, Attack a, float time)
-    {
-        yield return Timing.WaitForSeconds(time);
-        
-        pc.canAttack = true;
     }
     
     #endregion
@@ -195,7 +195,7 @@ public class OnAttackEvents : MonoBehaviour
     
     [Header("Plunge Attack")]
     
-    [SerializeField] private float plungeForce;
+    [SerializeField] private float plungeSpeed = 10;
     
     private void PlungeAttack(PlayerController pc, Attack a)
     {
@@ -204,9 +204,37 @@ public class OnAttackEvents : MonoBehaviour
     
     private IEnumerator<float> BeginPlungeAttack(PlayerController pc, Attack a)
     {
+        pc.PlayAnimation(a.attackClips[0], 0.01f);
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
         
-        pc.rb.AddForce(Vector3.down * plungeForce, ForceMode.Impulse);
+        pc.PlayAnimation(a.attackClips[1], 0.01f);
+        
+        pc.rb.linearVelocity = Vector3.zero;
+        
+        float minAnimTime = 0.05f;
+        float startTime = Time.time;
+        
+        while (Time.time - startTime < minAnimTime || pc.IsMidair && 
+               pc.StandardizedMoveDir.normalized != Vector2.zero && Vector2.Dot(pc.StandardizedMoveDir.normalized, a.inputDirection.normalized) > 0.69f)
+        {
+            pc.rb.linearVelocity = Vector3.down * plungeSpeed;
+            
+            yield return Timing.WaitForOneFrame;
+        }
+        
+        pc.rb.linearVelocity = Vector3.zero;
+
+        if (pc.IsGrounded)
+        {
+            pc.PlayAnimation(a.attackClips[2], 0.01f);
+
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.attackClips[2].length));
+        }
+        else
+        {
+            pc.PlayAnimation(pc.moveAnimData.fallClip.LoopClip);
+            Timing.RunCoroutine(ResumeMoving(pc, a, 0.1f));
+        }
     }
     
     #endregion
