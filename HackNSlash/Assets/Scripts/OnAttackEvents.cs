@@ -61,23 +61,47 @@ public class OnAttackEvents : MonoBehaviour
     
     #region Air Dash
 
-    [SerializeField] private float dashForce = 50;
+    [Header("Air Dash")]
+    [SerializeField] private float dashSpeed;
     
     private void DashToTarget(PlayerController pc, Attack a)
     {
-        GameObject target = pc.cam.targetedEnemy;
+        Timing.RunCoroutine(AirDash(pc, a));
+    }
 
-        if (target != null)
-        {
-            Vector3 distance = target.transform.position - pc.transform.position;
-            distance.Normalize();
-            
-            pc.transform.LookAt(target.transform);
-            
-            pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
-            
-            pc.rb.AddForce(distance * dashForce, ForceMode.Impulse);
-        }
+    IEnumerator<float> AirDash(PlayerController pc, Attack a)
+    {
+        GameObject target = pc.cam.targetedEnemy;
+        
+        pc.PlayAnimation(a.attackClips[0], 0.01f);
+        yield return Timing.WaitForSeconds(a.attackClips[0].length);
+        
+        Quaternion originalRotation = pc.animancer.gameObject.transform.rotation;
+        
+        pc.animancer.gameObject.transform.LookAt(target.transform.position);
+        pc.PlayAnimation(a.attackClips[1], 0.01f);
+       
+        pc.rb.linearVelocity = Vector3.zero;
+        float minAnimTime = 0.05f;
+        float startTime = Time.time;
+        
+        Func<bool> exitCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
+            pc.StandardizedMoveDir.normalized != Vector2.zero &&
+            Vector2.Dot(pc.StandardizedMoveDir.normalized, a.inputDirection.normalized) > 0.69f;
+        Vector3 direction = target.transform.position - pc.transform.position;
+        
+        if (target.TryGetComponent(out Collider c)) Physics.IgnoreCollision(pc.col, c, true);
+        
+        yield return Timing.WaitUntilDone(GameManager.TraverseWithVelocity(pc.rb, direction.normalized, dashSpeed, exitCondition), Segment.FixedUpdate);
+        
+        pc.rb.linearVelocity = Vector3.zero;
+
+        pc.PlayAnimation(a.attackClips[2], 0.01f);
+        Timing.RunCoroutine(ResumeMoving(pc, a, a.attackClips[2].length));
+        
+        pc.animancer.gameObject.transform.rotation = originalRotation;
+        if (target.TryGetComponent(out Collider c2)) Physics.IgnoreCollision(pc.col, c2, false);
+        
     }
     
     #endregion
@@ -124,7 +148,7 @@ public class OnAttackEvents : MonoBehaviour
         {
             distance = dashDistance * 2;
 
-            collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.col.radius, direction, distance * 1.2f, pc.enemyLayer);
+            collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.col.radius, direction, distance * 2f, pc.enemyLayer);
 
             foreach (var hit in collidersInPath)
             {
@@ -213,28 +237,25 @@ public class OnAttackEvents : MonoBehaviour
         
         float minAnimTime = 0.05f;
         float startTime = Time.time;
+
+        Func<bool> exitCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
+            pc.StandardizedMoveDir.normalized != Vector2.zero &&
+            Vector2.Dot(pc.StandardizedMoveDir.normalized, a.inputDirection.normalized) > 0.69f;
         
-        while (Time.time - startTime < minAnimTime || pc.IsMidair && 
-               pc.StandardizedMoveDir.normalized != Vector2.zero && Vector2.Dot(pc.StandardizedMoveDir.normalized, a.inputDirection.normalized) > 0.69f)
-        {
-            pc.rb.linearVelocity = Vector3.down * plungeSpeed;
-            
-            yield return Timing.WaitForOneFrame;
-        }
+        yield return Timing.WaitUntilDone(GameManager.TraverseWithVelocity(pc.rb, Vector3.down, plungeSpeed, exitCondition), Segment.FixedUpdate);
         
         pc.rb.linearVelocity = Vector3.zero;
 
         if (pc.IsGrounded)
         {
             pc.PlayAnimation(a.attackClips[2], 0.01f);
-
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.attackClips[2].length));
         }
         else
         {
             pc.PlayAnimation(pc.moveAnimData.fallClip.LoopClip);
-            Timing.RunCoroutine(ResumeMoving(pc, a, 0.1f));
         }
+        
+        Timing.RunCoroutine(ResumeMoving(pc, a, 0.1f));
     }
     
     #endregion
