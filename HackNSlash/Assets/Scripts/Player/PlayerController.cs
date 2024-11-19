@@ -75,7 +75,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Vector3 velocity;
     private Vector3 lastPosition;
 
-    public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).Rotate(cam.transform.right.ToVector2().ToAngle());
+    public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).Rotate(cam.transform.right.ToVector2().ToAngle()).normalized;
     #endregion
     
     #region CHECK PARAMETERS

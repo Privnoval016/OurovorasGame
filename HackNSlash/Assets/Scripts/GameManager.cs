@@ -29,14 +29,27 @@ public class GameManager : MonoBehaviour
     {
         direction.Normalize();
         Vector3 initialPosition = rb.position;
-        
-        float force = 2 * rb.mass * Mathf.Sqrt(2 * distance - 2 * rb.linearVelocity.magnitude * time) / time;
-        rb.AddForce(direction * force, ForceMode.Impulse);
-        
         float startTime = Time.time;
+
+
+
+        float impulse = rb.mass * (distance / time - rb.linearVelocity.magnitude);
+        rb.AddForce(direction * impulse, ForceMode.Impulse);
         
         yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || Time.time - startTime >= time || (condition != null && condition()));
         
         rb.linearVelocity = Vector3.zero;
+    }
+
+    public static IEnumerator<float> TraverseWithVelocity(Rigidbody rb, Vector3 direction, float magnitude,
+        Func<bool> loopCondition)
+    {
+        direction.Normalize();
+        
+        while (loopCondition())
+        {
+            rb.linearVelocity = direction * magnitude;
+            yield return Timing.WaitForOneFrame;
+        }
     }
 }

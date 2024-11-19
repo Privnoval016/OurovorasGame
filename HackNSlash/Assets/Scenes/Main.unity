@@ -668,8 +668,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1ace5b2907becc4c975ed45366be735, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dashForce: 50
-  dashDistance: 30
+  dashSpeed: 50
+  dashDistance: 15
   dashTime: 0.2
   dashTimeThreshold: 0.4
   launchUpForce: 40
