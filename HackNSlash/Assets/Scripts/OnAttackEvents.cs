@@ -13,7 +13,8 @@ public enum OnAttackActions
     LaunchUp,
     PlungeAttack,
     DodgeMove,
-    FloorDash
+    FloorDash,
+    HoldAttack
 }
 
 public class OnAttackEvents : MonoBehaviour
@@ -49,6 +50,8 @@ public class OnAttackEvents : MonoBehaviour
         OnAttackActionMap.Add(OnAttackActions.PlungeAttack, PlungeAttack);
         OnAttackActionMap.Add(OnAttackActions.DodgeMove, Dodge);
         OnAttackActionMap.Add(OnAttackActions.FloorDash, FloorDash);
+        OnAttackActionMap.Add(OnAttackActions.HoldAttack, HoldAttack);
+        
         
     }
     
@@ -58,6 +61,52 @@ public class OnAttackEvents : MonoBehaviour
         
         pc.canAttack = true;
     }
+    
+    #region Light Attack
+    
+    private void HoldAttack(PlayerController pc, Attack a)
+    {
+        Timing.RunCoroutine(PlayHoldAttack(pc, a));
+    }
+    
+    IEnumerator<float> PlayHoldAttack(PlayerController pc, Attack a)
+    {
+        bool stillHeld = true;
+        
+        KeyBind[] holdKeys = InputManager.GetHoldVersion(a.keyBinds);
+
+        while (!pc.canAttack)
+        {
+            if (holdKeys.Length == 0 || !holdKeys.Any(k => InputManager.KeyMap[k]()))
+            {
+                stillHeld = false;
+            }
+            
+            yield return Timing.WaitForOneFrame;
+        }
+        
+        if (!stillHeld) yield break;
+        
+        pc.canAttack = false;
+
+        BasicAttackTypes type;
+
+        if (a.isMidair.IsTrue()) type = BasicAttackTypes.MidairAttack;
+        else if (a.keyBinds[0] == KeyBind.HeavyAttack) type = BasicAttackTypes.HeavyAttack;
+        else type = BasicAttackTypes.LightAttack;
+        
+        Attack holdAttack = pc.attackData.BasicToHoldAttackMap[type];
+        
+        pc.PlayAnimation(holdAttack.attackClips[0], 0.01f);
+        
+        yield return Timing.WaitForSeconds(holdAttack.attackCoolDown);
+        
+        pc.canAttack = true;
+        
+        
+    }
+    
+    #endregion
     
     #region Air Dash
 
@@ -146,7 +195,7 @@ public class OnAttackEvents : MonoBehaviour
 
         if (elapsedTime >= dashTimeThreshold)
         {
-            distance = dashDistance * 2;
+            distance = Mathf.Max(Mathf.Min(dashDistance * 2, direction.magnitude * 2), dashDistance * 0.7f);
 
             collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.col.radius, direction, distance * 2f, pc.enemyLayer);
 
@@ -161,12 +210,12 @@ public class OnAttackEvents : MonoBehaviour
             distance = Mathf.Min(dashDistance, direction.magnitude);
         }
         
-        Timing.RunCoroutine(ResumeMoving(pc, a, dashTime + a.attackClips[3].length));
-        
         yield return Timing.WaitUntilDone(GameManager.TraverseDistanceInTime(pc.rb, direction.normalized, distance, dashTime), Segment.FixedUpdate);
         
 
-        pc.ExitTimeAnimation(a.attackClips[3], null, () => pc.canAttack = true);
+        pc.PlayAnimation(a.attackClips[3], 0.01f);
+        
+        Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown));
         
         if (collidersInPath != null)
         {
@@ -239,8 +288,7 @@ public class OnAttackEvents : MonoBehaviour
         float startTime = Time.time;
 
         Func<bool> exitCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
-            pc.StandardizedMoveDir.normalized != Vector2.zero &&
-            Vector2.Dot(pc.StandardizedMoveDir.normalized, a.inputDirection.normalized) > 0.69f;
+            pc.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
         
         yield return Timing.WaitUntilDone(GameManager.TraverseWithVelocity(pc.rb, Vector3.down, plungeSpeed, exitCondition), Segment.FixedUpdate);
         
@@ -255,7 +303,7 @@ public class OnAttackEvents : MonoBehaviour
             pc.PlayAnimation(pc.moveAnimData.fallClip.LoopClip);
         }
         
-        Timing.RunCoroutine(ResumeMoving(pc, a, 0.1f));
+        Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown));
     }
     
     #endregion
@@ -272,22 +320,33 @@ public class OnAttackEvents : MonoBehaviour
         Vector3 dodgeDirection = pc.moveDirection.ZeroVector3Axis().normalized;
         float distance = dodgeDistance;
         
-        if (pc.StandardizedMoveDir.magnitude < 0.1f)
+
+        if (pc.cam.isLockedOn && pc.StandardizedMoveDir.magnitude < 0.1f)
         {
-            if (pc.cam.isLockedOn)
-            {
-                Vector3 teleportedPosition = pc.cam.targetedEnemy.transform.position + 
-                                             (pc.transform.position - pc.cam.targetedEnemy.transform.position).ZeroVector3Axis().normalized * pc.itsCalledAuraBro;
-                dodgeDirection = teleportedPosition - pc.transform.position;
-                
-                distance = dodgeDirection.magnitude;
-                dodgeDirection.Normalize();
-            }
-            else
-            {
-                dodgeDirection = pc.IsMidair ? Vector3.down : Vector3.zero;
-            }
+            Vector3 teleportedPosition = pc.cam.targetedEnemy.transform.position + 
+                                         (pc.transform.position - pc.cam.targetedEnemy.transform.position).ZeroVector3Axis().normalized * pc.itsCalledAuraBro;
+            dodgeDirection = teleportedPosition - pc.transform.position;
+            
+            distance = dodgeDirection.magnitude;
+            dodgeDirection.Normalize();
         }
+        else if (pc.StandardizedMoveDir.magnitude < 0.1f)
+        {
+            dodgeDirection = pc.IsMidair ? Vector3.down : Vector3.up;
+        }
+        else if (pc.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, -1), 92f) && pc.IsMidair && pc.cam.isLockedOn)
+        {
+            Vector3 targetPos = dodgeDirection * dodgeDistance + pc.transform.position;
+            
+            bool isGround = Physics.Raycast(targetPos, Vector3.down, out RaycastHit hit, 100f, pc.groundLayer);
+            
+            Vector3 point = isGround ? hit.point : targetPos;
+            
+            dodgeDirection = point - pc.transform.position;
+            distance = dodgeDirection.magnitude;
+            dodgeDirection.Normalize();
+        }
+
         
         Timing.RunCoroutine(GameManager.TraverseDistanceInTime(pc.rb, dodgeDirection, distance, dodgeTime), Segment.FixedUpdate);
     }

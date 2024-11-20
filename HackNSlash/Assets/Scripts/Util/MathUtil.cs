@@ -595,5 +595,43 @@ namespace ExtensionUtils
             return (byte)i;
         }
         #endregion
+        
+        #region General Methods
+    
+        public static bool IsInDirectionCone(this Vector3 direction, Vector3 targetDirection, float angle, bool directional = true)
+        {
+            if (direction == targetDirection) return true;
+            if (direction == Vector3.zero || targetDirection == Vector3.zero ) return false;
+        
+            //if the direction is not direction we dont care about the orientation of the vectors
+
+            if (directional)
+            {
+                return Vector3.Dot(direction.normalized, targetDirection.normalized) > Mathf.Cos(angle * 0.5f * Mathf.Deg2Rad);
+            }
+            else
+            {
+                return Vector3.Angle(direction, targetDirection) < angle;
+            }
+        }
+    
+        public static bool IsInDirectionCone(this Vector2 direction, Vector2 targetDirection, float angle, bool directional = true)
+        {
+            if (direction == targetDirection) return true;
+            if (direction == Vector2.zero || targetDirection == Vector2.zero ) return false;
+        
+            //if the direction is not direction we dont care about the orientation of the vectors
+
+            if (directional)
+            {
+                return Vector2.Dot(direction.normalized, targetDirection.normalized) > Mathf.Cos(angle * 0.5f * Mathf.Deg2Rad);
+            }
+            else
+            {
+                return Vector2.Angle(direction, targetDirection) < angle;
+            }
+        }
+    
+        #endregion
     }
 }
