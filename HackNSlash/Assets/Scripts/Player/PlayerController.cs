@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using UnityEngine;
 using Animancer;
 using ExtensionUtils;
@@ -100,8 +101,8 @@ public class PlayerController : MonoBehaviour
         {
             return cam.isLockedOn ? cam.targetedEnemy :
                 Physics.OverlapSphere(transform.position, itsCalledAuraBro, enemyLayer).
-                    Where(e => 
-                        Vector3.Dot((e.transform.position - transform.position).normalized, transform.forward.normalized) > -0.72f)
+                    Where(e =>
+                        (e.transform.position - transform.position).IsInDirectionCone(transform.forward, 190f))
                     .OrderBy(e => Vector3.Distance(transform.position, e.transform.position)).FirstOrDefault()?.gameObject;
         }
     }
@@ -114,6 +115,8 @@ public class PlayerController : MonoBehaviour
     public GameObject[] weapons;
 
     public float itsCalledAuraBro = 2f;
+    
+    private float dodgeTimer = 0;
     #endregion
     
     #region LAYERS & TAGS
@@ -251,6 +254,29 @@ public class PlayerController : MonoBehaviour
     
     private void CheckAttackAction()
     {
+        #region Dodge
+        
+        dodgeTimer += Time.deltaTime;
+        
+        foreach (Attack attack in attackData.dodgeAttacks)
+        {
+            if (dodgeTimer < attackData.dodgeCoolDown) break;
+            
+            if (!attack.isEnabled) continue;
+            
+            if (attack.isLockedOn && !cam.isLockedOn) continue;
+            
+            if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) continue;
+
+            if (!attack.keyBinds.Any(k => KeyMap[k]())) continue;
+            
+            dodgeTimer = 0;
+            BeginAttack(attack);
+            return;
+        }
+        
+        #endregion
+        
         if (!canAttack) return;
                 
         #region Special Attacks
@@ -264,9 +290,8 @@ public class PlayerController : MonoBehaviour
             if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) continue;
 
             Vector2 direction = attack.applyTargetDirection ? StandardizedMoveDir : moveInput;
-            
-            if (attack.inputDirection.normalized != Vector2.zero && 
-                Vector2.Dot(direction.normalized, attack.inputDirection.normalized) < 0.69f) continue;
+
+            if (attack.inputDirection != Vector2.zero && !direction.IsInDirectionCone(attack.inputDirection, 92f)) continue;
             
             if (!attack.keyBinds.Any(k => KeyMap[k]())) continue;
             
@@ -283,6 +308,7 @@ public class PlayerController : MonoBehaviour
         }
         
         #endregion
+        
         
         #region Midair Combo Attacks
         
@@ -316,13 +342,13 @@ public class PlayerController : MonoBehaviour
     private void BeginAttack(Attack attack)
     {
         
-        
         if (stateController.GetCurrentState() is PlayerMoving)
         {
             stateController.Interrupt(new PlayerAttacking(attack));
         }
         else if (stateController.GetCurrentState() is PlayerAttacking)
         {
+            Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
             stateController.ChangeState(new PlayerAttacking(attack));
         }
 
@@ -389,4 +415,6 @@ public class PlayerController : MonoBehaviour
     }
     
     #endregion
+    
+    
 }

@@ -407,6 +407,11 @@ namespace ExtensionUtils
                     return false;
             }
         }
+        
+        public static void Print(string message)
+        {
+            Debug.Log(message);
+        }
     }
     
     public enum NBool

@@ -96,6 +96,7 @@ public class InputManager : MonoBehaviour
         AttackToReleaseAttackMap.Add(KeyBind.LightAttack, KeyBind.LightAttackRelease);
         AttackToReleaseAttackMap.Add(KeyBind.HeavyAttack, KeyBind.HeavyAttackRelease);
         AttackToReleaseAttackMap.Add(KeyBind.AnyAttack, KeyBind.AnyAttackRelease);
+        
     }
     
     void Update()
@@ -170,4 +171,11 @@ public enum KeyBind
     LightAttackRelease,
     HeavyAttackRelease,
     AnyAttackRelease
+}
+
+public enum BasicAttackTypes
+{
+    LightAttack,
+    HeavyAttack,
+    MidairAttack,
 }

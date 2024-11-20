@@ -38,6 +38,9 @@ public class GameManager : MonoBehaviour
         
         yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || Time.time - startTime >= time || (condition != null && condition()));
         
+        //Debug.Log("Intended distance: " + distance + " Actual distance: " + Vector3.Distance(rb.position, initialPosition));
+        //Debug.Log("Intended time: " + time + " Actual time: " + (Time.time - startTime));
+        
         rb.linearVelocity = Vector3.zero;
     }
 
