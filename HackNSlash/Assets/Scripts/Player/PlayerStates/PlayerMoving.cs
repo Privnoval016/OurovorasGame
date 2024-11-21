@@ -23,7 +23,7 @@ public class PlayerMoving : State
 	    
 	    
 	    pc.canAttack = true;
-	    pc.comboIndex = -1;
+	    pc.comboChain.Clear();
 	    
 	    animState = WalkingAnimStates.Idle;
 	    SwitchAnimState(WalkingAnimStates.Idle);
@@ -76,7 +76,7 @@ public class PlayerMoving : State
     {
 	    Debug.Log("Resuming Moving");
 	    
-	    pc.comboIndex = -1;
+	    pc.comboChain.Clear();
 	    
 	    animState = WalkingAnimStates.Idle;
 	    SwitchAnimState(WalkingAnimStates.Idle);

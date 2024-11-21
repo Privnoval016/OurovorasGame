@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
-  m_Name: LAtk 4
+  m_Name: LAtk A4
   m_EditorClassIdentifier: 
   isEnabled: 1
   isLockedOn: 0

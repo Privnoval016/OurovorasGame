@@ -408,7 +408,7 @@ namespace ExtensionUtils
             }
         }
         
-        public static void Print(string message)
+        public static void Print(object message)
         {
             Debug.Log(message);
         }
