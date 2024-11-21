@@ -25,14 +25,14 @@ public class InputManager : MonoBehaviour
     public InputAction heavyAttack;
 
     private bool lightAttacking, heavyAttacking;
-    private float lightAttackHoldTime, heavyAttackHoldTime;
-    private float AnyAttackHoldTime => Mathf.Max(lightAttackHoldTime, heavyAttackHoldTime);
     
     #endregion
 
-    public static Dictionary<KeyBind, Func<bool>> KeyMap = new();
-    public static Dictionary<KeyBind, KeyBind> AttackToHoldAttackMap = new();
-    public static Dictionary<KeyBind, KeyBind> AttackToReleaseAttackMap = new();
+    public static readonly Dictionary<KeyBind, Func<bool>> KeyMap = new();
+    public static readonly Dictionary<KeyBind, KeyBind> AttackToHoldAttackMap = new();
+    public static readonly Dictionary<KeyBind, KeyBind> AttackToReleaseAttackMap = new();
+    
+    public static readonly Dictionary<KeyBind, float> HoldAttackTimeMap = new();
     
     public float holdTime;
 
@@ -51,15 +51,12 @@ public class InputManager : MonoBehaviour
 
         playerInputActions = new PlayerInputActions();
         movement = playerInputActions.Player.Move;
-
-
+        
         cameraMove = playerInputActions.Player.Camera;
-
-
+        
         jump = playerInputActions.Player.Jump;
 
         dodge = playerInputActions.Player.Dodge;
-        KeyMap.Add(KeyBind.Dodge, () => dodge.triggered);
 
 
         lockOn = playerInputActions.Player.LockOn;
@@ -85,9 +82,10 @@ public class InputManager : MonoBehaviour
         KeyMap.Add(KeyBind.AnyAttackRelease, () => KeyMap[KeyBind.LightAttackRelease]() || KeyMap[KeyBind.LightAttackRelease]());
         KeyMap.Add(KeyBind.AnyAttackHold, () => lightAttacking || heavyAttacking);
         
+        KeyMap.Add(KeyBind.Dodge, () => dodge.triggered);
+        
         
         playerInputActions.Player.Enable();
-        
         
         AttackToHoldAttackMap.Add(KeyBind.LightAttack, KeyBind.LightAttackHold);
         AttackToHoldAttackMap.Add(KeyBind.HeavyAttack, KeyBind.HeavyAttackHold);
@@ -97,12 +95,15 @@ public class InputManager : MonoBehaviour
         AttackToReleaseAttackMap.Add(KeyBind.HeavyAttack, KeyBind.HeavyAttackRelease);
         AttackToReleaseAttackMap.Add(KeyBind.AnyAttack, KeyBind.AnyAttackRelease);
         
+        HoldAttackTimeMap.Add(KeyBind.LightAttackHold, 0);
+        HoldAttackTimeMap.Add(KeyBind.HeavyAttackHold, 0);
+        
     }
     
     void Update()
     {
-        lightAttackHoldTime = lightAttacking ? lightAttackHoldTime + Time.deltaTime : 0;
-        heavyAttackHoldTime = heavyAttacking ? heavyAttackHoldTime + Time.deltaTime : 0;
+        HoldAttackTimeMap[KeyBind.LightAttackHold] = lightAttacking ? HoldAttackTimeMap[KeyBind.LightAttackHold] + Time.deltaTime : 0;
+        HoldAttackTimeMap[KeyBind.HeavyAttackHold] = heavyAttacking ? HoldAttackTimeMap[KeyBind.HeavyAttackHold] + Time.deltaTime : 0;
     }
 
     public void ReleaseHoldAttacks()
@@ -173,9 +174,12 @@ public enum KeyBind
     AnyAttackRelease
 }
 
-public enum BasicAttackTypes
+public enum AttackTypes
 {
     LightAttack,
     HeavyAttack,
-    MidairAttack,
+    MidairLightAttack,
+    MidairHeavyAttack,
+    SpecialAttack,
+    Other
 }

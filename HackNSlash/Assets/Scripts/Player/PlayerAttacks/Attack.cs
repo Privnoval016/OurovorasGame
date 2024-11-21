@@ -8,9 +8,10 @@ using Animancer;
 [CreateAssetMenu(menuName = "Player/Attack")]
 public class Attack : ScriptableObject
 {
-    [Header("Requirements")]
-    public bool isEnabled;
-
+    [Header("General")] 
+    public bool isEnabled = true;
+    public AttackTypes attackType;
+    
     [Space(5)] 
     
     public bool isLockedOn = false;

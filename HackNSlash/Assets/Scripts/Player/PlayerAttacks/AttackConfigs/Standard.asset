@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   doubleJumpEnabled: 1
   dodgeCoolDown: 0.5
+  comboResetTime: 0.7
+  comboAttacks:
+  - {fileID: 11400000, guid: 4ff47c5a0c7d2489a978e61c0270db94, type: 2}
+  - {fileID: 11400000, guid: 5c917d7b06cf845188e688a22289d979, type: 2}
+  - {fileID: 11400000, guid: 6f551d9f7ebab4ef6890511449fd2707, type: 2}
+  - {fileID: 11400000, guid: 6cd504e762f13430a81179e567c363bd, type: 2}
+  - {fileID: 11400000, guid: 3ad68ae9a13f04ec9bc169304594d31e, type: 2}
+  - {fileID: 11400000, guid: 3d0e36f85019a448e8e9a3c853f119a2, type: 2}
   lightComboAttacks:
   - {fileID: 11400000, guid: 7f611990a4c07f443bd778e7c12d1f65, type: 2}
   - {fileID: 11400000, guid: 5a8aee660a8ed13478113d2e8d9dcf88, type: 2}
@@ -37,6 +45,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e066ee6eb132d4e799f3c6c2d178323b, type: 2}
   - {fileID: 11400000, guid: 1ca78521a5c1693429e77d7d6b46b7db, type: 2}
   - {fileID: 11400000, guid: 37cc0303a06b1cc4ea5d3ccdb57b37ea, type: 2}
-  holdAttacks:
-  - {fileID: 11400000, guid: 9bc2c85d37d3e664a9ec01c09caebad6, type: 2}
-  - {fileID: 11400000, guid: 506a0a9488fff57409f93ca2ae2728c5, type: 2}

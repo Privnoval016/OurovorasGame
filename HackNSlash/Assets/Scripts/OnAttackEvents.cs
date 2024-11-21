@@ -13,8 +13,7 @@ public enum OnAttackActions
     LaunchUp,
     PlungeAttack,
     DodgeMove,
-    FloorDash,
-    HoldAttack
+    FloorDash
 }
 
 public class OnAttackEvents : MonoBehaviour
@@ -50,7 +49,6 @@ public class OnAttackEvents : MonoBehaviour
         OnAttackActionMap.Add(OnAttackActions.PlungeAttack, PlungeAttack);
         OnAttackActionMap.Add(OnAttackActions.DodgeMove, Dodge);
         OnAttackActionMap.Add(OnAttackActions.FloorDash, FloorDash);
-        OnAttackActionMap.Add(OnAttackActions.HoldAttack, HoldAttack);
         
         
     }
@@ -62,51 +60,6 @@ public class OnAttackEvents : MonoBehaviour
         pc.canAttack = true;
     }
     
-    #region Light Attack
-    
-    private void HoldAttack(PlayerController pc, Attack a)
-    {
-        Timing.RunCoroutine(PlayHoldAttack(pc, a));
-    }
-    
-    IEnumerator<float> PlayHoldAttack(PlayerController pc, Attack a)
-    {
-        bool stillHeld = true;
-        
-        KeyBind[] holdKeys = InputManager.GetHoldVersion(a.keyBinds);
-
-        while (!pc.canAttack)
-        {
-            if (holdKeys.Length == 0 || !holdKeys.Any(k => InputManager.KeyMap[k]()))
-            {
-                stillHeld = false;
-            }
-            
-            yield return Timing.WaitForOneFrame;
-        }
-        
-        if (!stillHeld) yield break;
-        
-        pc.canAttack = false;
-
-        BasicAttackTypes type;
-
-        if (a.isMidair.IsTrue()) type = BasicAttackTypes.MidairAttack;
-        else if (a.keyBinds[0] == KeyBind.HeavyAttack) type = BasicAttackTypes.HeavyAttack;
-        else type = BasicAttackTypes.LightAttack;
-        
-        Attack holdAttack = pc.attackData.BasicToHoldAttackMap[type];
-        
-        pc.PlayAnimation(holdAttack.attackClips[0], 0.01f);
-        
-        yield return Timing.WaitForSeconds(holdAttack.attackCoolDown);
-        
-        pc.canAttack = true;
-        
-        
-    }
-    
-    #endregion
     
     #region Air Dash
 

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: LAtk 2
   m_EditorClassIdentifier: 
   isEnabled: 1
+  attackType: 0
   isLockedOn: 0
   keyBinds: 01000000
   inputDirection: {x: 0, y: 0}
@@ -24,7 +25,7 @@ MonoBehaviour:
   - {fileID: 7400000, guid: 10449c97c1e154043b31e7685050bb89, type: 2}
   clipsToPlay: 1
   exitCondition: 0
-  onAttackAction: 6
+  onAttackAction: 0
   onHitAction: 0
   damage: 0
   knockBackForce: 15

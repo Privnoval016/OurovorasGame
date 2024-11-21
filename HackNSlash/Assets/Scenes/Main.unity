@@ -922,15 +922,16 @@ MonoBehaviour:
   gravityScale: 0
   moveInput: {x: 0, y: 0}
   moveDirection: {x: 0, y: 0, z: 0}
-  velocity: {x: 0, y: 0, z: 0}
   groundCheckPoint: {fileID: 1977220826}
   groundCheckSize: {x: 0.4, y: 0.01, z: 0.4}
-  comboIndex: 0
   canAttack: 0
+  comboChain: []
+  comboResetTimer: 0
   weapons:
   - {fileID: 699939028}
   - {fileID: 1869093425}
   itsCalledAuraBro: 3
+  dodgeTimer: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
