@@ -13,15 +13,17 @@ MonoBehaviour:
   m_Name: HAtk 4
   m_EditorClassIdentifier: 
   isEnabled: 1
+  attackType: 0
   isLockedOn: 0
-  keyBinds: 03000000
+  keyBinds: 02000000
   inputDirection: {x: 0, y: 0}
   applyTargetDirection: 0
   isMidair: 0
   applyRootMotion: 1
+  attackTransitions: []
   attackClips:
   - {fileID: 7400000, guid: ddc0d56beaac6b240b66b2a2aa0602a0, type: 2}
-  playFirstClipOnly: 0
+  clipsToPlay: 1
   exitCondition: 0
   onAttackAction: 0
   onHitAction: 0

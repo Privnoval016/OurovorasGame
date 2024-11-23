@@ -22,6 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6cd504e762f13430a81179e567c363bd, type: 2}
   - {fileID: 11400000, guid: 3ad68ae9a13f04ec9bc169304594d31e, type: 2}
   - {fileID: 11400000, guid: 3d0e36f85019a448e8e9a3c853f119a2, type: 2}
+  - {fileID: 11400000, guid: 41564f242aba048ef9ae587a66aa7d85, type: 2}
   lightComboAttacks:
   - {fileID: 11400000, guid: 7f611990a4c07f443bd778e7c12d1f65, type: 2}
   - {fileID: 11400000, guid: 5a8aee660a8ed13478113d2e8d9dcf88, type: 2}
@@ -44,4 +45,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6d5b4b5e6ee8e413ebcf66a768cc7105, type: 2}
   - {fileID: 11400000, guid: e066ee6eb132d4e799f3c6c2d178323b, type: 2}
   - {fileID: 11400000, guid: 1ca78521a5c1693429e77d7d6b46b7db, type: 2}
-  - {fileID: 11400000, guid: 37cc0303a06b1cc4ea5d3ccdb57b37ea, type: 2}

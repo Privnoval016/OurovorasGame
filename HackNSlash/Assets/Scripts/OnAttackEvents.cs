@@ -13,7 +13,8 @@ public enum OnAttackActions
     LaunchUp,
     PlungeAttack,
     DodgeMove,
-    FloorDash
+    FloorDash,
+    MashAttack
 }
 
 public class OnAttackEvents : MonoBehaviour
@@ -49,6 +50,7 @@ public class OnAttackEvents : MonoBehaviour
         OnAttackActionMap.Add(OnAttackActions.PlungeAttack, PlungeAttack);
         OnAttackActionMap.Add(OnAttackActions.DodgeMove, Dodge);
         OnAttackActionMap.Add(OnAttackActions.FloorDash, FloorDash);
+        OnAttackActionMap.Add(OnAttackActions.MashAttack, MashAttack);
         
         
     }
@@ -128,11 +130,11 @@ public class OnAttackEvents : MonoBehaviour
         if (target == null) yield break;
         
         
-        KeyBind[] releaseKeys = InputManager.GetReleaseVersion(a.keyBinds);
+        KeyBind[] releaseKeys = InputManager.GetReleaseable(a.keyBinds);
         
         float startTime = Time.time;
         
-        yield return Timing.WaitUntilTrue(() => releaseKeys.Any(k => InputManager.KeyMap[k]()));
+        yield return Timing.WaitUntilTrue(() => releaseKeys.Any(k => InputManager.KeyMap[k].releaseAction()));
         
         float elapsedTime = Time.time - startTime;
         
@@ -196,11 +198,11 @@ public class OnAttackEvents : MonoBehaviour
     
     private IEnumerator<float> BeginLaunchUp(PlayerController pc, Attack a)
     {
-        KeyBind[] holdKeys = InputManager.GetHoldVersion(a.keyBinds);
+        KeyBind[] holdKeys = InputManager.GetHoldable(a.keyBinds);
         
         yield return Timing.WaitForSeconds(launchUpHoldTime);
         
-        if (!holdKeys.Any(k => InputManager.KeyMap[k]())) yield break;
+        if (!holdKeys.Any(k => InputManager.KeyMap[k].holdAction())) yield break;
         
         pc.PlayAnimation(a.attackClips[1], 0.01f);
 
@@ -304,6 +306,39 @@ public class OnAttackEvents : MonoBehaviour
         Timing.RunCoroutine(GameManager.TraverseDistanceInTime(pc.rb, dodgeDirection, distance, dodgeTime), Segment.FixedUpdate);
     }
     
+
+    #endregion
+
+    #region Mash Attack
+
+    [Header("Mash Attack")] 
+    [SerializeField] private float mashInterval;
+    private void MashAttack(PlayerController pc, Attack a)
+    {
+        Timing.RunCoroutine(BeginMashAttack(pc, a));
+    }
+
+    IEnumerator<float> BeginMashAttack(PlayerController pc, Attack a)
+    {
+        float timeSinceLastClick = 0;
+        
+        while (timeSinceLastClick < mashInterval)
+        {
+            if (InputManager.KeyMap[a.keyBinds[0]].action())
+            {
+                timeSinceLastClick = 0;
+            }
+            
+            timeSinceLastClick += Time.deltaTime;
+
+            yield return Timing.WaitForOneFrame;
+        }
+
+        Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown));
+        pc.PlayAnimation(a.attackClips[1], 0.01f);
+    }
+
+
 
     #endregion
 }

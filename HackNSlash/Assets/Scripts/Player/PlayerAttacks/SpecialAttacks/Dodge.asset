@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Dodge
   m_EditorClassIdentifier: 
   isEnabled: 1
+  attackType: 0
   isLockedOn: 0
-  keyBinds: 07000000
+  keyBinds: 04000000
   inputDirection: {x: 0, y: 0}
   applyTargetDirection: 1
   isMidair: 2
@@ -22,7 +23,7 @@ MonoBehaviour:
   attackTransitions:
   - {fileID: 11400000, guid: 982f3aa9e784f4c9784bf6d2de4aa715, type: 2}
   attackClips: []
-  playFirstClipOnly: 0
+  clipsToPlay: 1
   exitCondition: 0
   onAttackAction: 4
   onHitAction: 0

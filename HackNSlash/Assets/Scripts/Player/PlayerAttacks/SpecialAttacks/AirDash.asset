@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: AirDash
   m_EditorClassIdentifier: 
   isEnabled: 1
+  attackType: 0
   isLockedOn: 1
-  keyBinds: 05000000
+  keyBinds: 03000000
   inputDirection: {x: 0, y: 1}
   applyTargetDirection: 1
   isMidair: 1

@@ -6,6 +6,7 @@ using UnityEngine;
 using Animancer;
 using ExtensionUtils;
 using MEC;
+using Sirenix.Utilities;
 using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -89,7 +90,7 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public bool canAttack;
 
-    public Dictionary<KeyBind, Func<bool>> KeyMap;
+    public Dictionary<KeyBind, KeyBindData> KeyMap;
     
     [HideInInspector] public List<Attack> comboChain = new();
     [HideInInspector] public float comboResetTimer = 0;
@@ -261,15 +262,7 @@ public class PlayerController : MonoBehaviour
         
         foreach (Attack attack in attackData.dodgeAttacks)
         {
-            if (dodgeTimer < attackData.dodgeCoolDown) break;
-            
-            if (!attack.isEnabled) continue;
-            
-            if (attack.isLockedOn && !cam.isLockedOn) continue;
-            
-            if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) continue;
-
-            if (!attack.keyBinds.Any(k => KeyMap[k]())) continue;
+            if (!AttackIsAvailable(attack)) continue;
             
             dodgeTimer = 0;
             BeginAttack(attack);
@@ -295,6 +288,7 @@ public class PlayerController : MonoBehaviour
 
         #region Combo Attacks
 
+        Attack attackToPlay = null;
         foreach (ComboConfig combo in attackData.comboAttacks)
         {
             if (!combo.isEnabled) continue;
@@ -308,20 +302,19 @@ public class PlayerController : MonoBehaviour
             {
                 case ComboActionType.Press:
                     if (!AttackIsAvailable(nextAction.attack)) continue;
-                    BeginAttack(nextAction.attack);
+                    attackToPlay = nextAction.attack;
                     
-                    return;
+                    break;
                 
                 case ComboActionType.Hold:
-                    KeyBind holdKey = InputManager.GetHoldVersion(nextAction.attack.keyBinds).Contains(KeyBind.LightAttackHold)
-                        ? KeyBind.LightAttackHold : KeyBind.HeavyAttackHold;
+                    KeyBind pressedKey = nextAction.attack.keyBinds.Contains(KeyBind.LightAttack) ? KeyBind.LightAttack : KeyBind.HeavyAttack;
                     
-                    if (InputManager.HoldAttackTimeMap[holdKey] > nextAction.time)
+                    if (KeyMap[pressedKey].holdTime > nextAction.time)
                     {
-                        BeginAttack(nextAction.attack);
+                        attackToPlay = nextAction.attack;
                     }
 
-                    return;
+                    break;
                 
                 case ComboActionType.Pause:
                     if (comboResetTimer > nextAction.time)
@@ -329,8 +322,24 @@ public class PlayerController : MonoBehaviour
                         comboChain.Add(nextAction.attack);
                     }
                     
-                    return;
+                    break;
+                
+                case ComboActionType.Mash:
+                    KeyBind mashKey = nextAction.attack.keyBinds.Contains(KeyBind.LightAttack) ? KeyBind.LightAttack : KeyBind.HeavyAttack;
+                    
+                    if (KeyMap[mashKey].lastTime < nextAction.time && KeyMap[mashKey].action())
+                    {
+                        attackToPlay = nextAction.attack;
+                    }
+                    
+                    break;
             }
+        }
+        
+        if (attackToPlay != null)
+        {
+            BeginAttack(attackToPlay);
+            return;
         }
 
         #endregion
@@ -338,20 +347,20 @@ public class PlayerController : MonoBehaviour
         
         #region Combo Starters
         
-        if (IsMidair && KeyMap[KeyBind.AnyAttack]())
+        if (IsMidair && KeyMap[KeyBind.AnyAttack].action())
         {
             comboChain.Clear();
             BeginAttack(attackData.midairAttacks[0]);
 
             return;
         }
-        if (KeyMap[KeyBind.LightAttack]())
+        if (KeyMap[KeyBind.LightAttack].action())
         {
             comboChain.Clear();
             BeginAttack(attackData.lightComboAttacks[0]);
             return;
         }
-        if (KeyMap[KeyBind.HeavyAttack]())
+        if (KeyMap[KeyBind.HeavyAttack].action())
         {
             comboChain.Clear();
             BeginAttack(attackData.heavyComboAttacks[0]);
@@ -366,6 +375,8 @@ public class PlayerController : MonoBehaviour
     {
         comboResetTimer = 0;
         comboChain.Add(attack);
+        
+        if (attack == null) return;
         
         if (stateController.GetCurrentState() is PlayerMoving)
         {
@@ -387,7 +398,7 @@ public class PlayerController : MonoBehaviour
         
         if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) return false;
 
-        if (!attack.keyBinds.Any(k => KeyMap[k]())) return false;
+        if (!attack.keyBinds.Any(k => KeyMap[k].action())) return false;
         
         Vector2 direction = attack.applyTargetDirection ? StandardizedMoveDir : moveInput;
         if (attack.inputDirection != Vector2.zero && !direction.IsInDirectionCone(attack.inputDirection, 92f)) return false;
