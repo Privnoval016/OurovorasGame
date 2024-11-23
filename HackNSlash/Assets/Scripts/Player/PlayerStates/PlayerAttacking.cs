@@ -41,7 +41,7 @@ public class PlayerAttacking : State
         attackCoolDownTime -= Time.deltaTime;
         attackEndTime -= Time.deltaTime;
         
-        if (InputManager.GetHoldVersion(attack.keyBinds).Length == 0) InputManager.Instance.ReleaseHoldAttacks();
+        if (InputManager.GetHoldable(attack.keyBinds).Length == 0) InputManager.Instance.ReleaseHoldAttacks();
         
         SetAttackGravity();
         TurnToLookOnAttack();
@@ -50,9 +50,9 @@ public class PlayerAttacking : State
         if (attack.exitCondition == ExitConditions.AttackRelease)
         {
             attackEndTime = 10;
-            KeyBind[] holdKeys = InputManager.GetHoldVersion(attack.keyBinds);
+            KeyBind[] holdKeys = InputManager.GetHoldable(attack.keyBinds);
             
-            if (!holdKeys.Any(k => pc.KeyMap[k]()) || pc.moveInput.magnitude > 0.1f)
+            if (!holdKeys.Any(k => pc.KeyMap[k].holdAction()) || pc.moveInput.magnitude > 0.1f)
             {
                 pc.canAttack = true;
                 sc.ResumePrevious();

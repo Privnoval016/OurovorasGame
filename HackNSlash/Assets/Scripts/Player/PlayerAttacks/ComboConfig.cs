@@ -36,5 +36,6 @@ public enum ComboActionType
 {
     Press,
     Hold,
-    Pause
+    Pause,
+    Mash
 }

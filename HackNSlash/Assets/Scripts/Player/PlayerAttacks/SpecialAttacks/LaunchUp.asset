@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: LaunchUp
   m_EditorClassIdentifier: 
   isEnabled: 1
+  attackType: 0
   isLockedOn: 1
-  keyBinds: 05000000
+  keyBinds: 03000000
   inputDirection: {x: 0, y: -1}
   applyTargetDirection: 1
   isMidair: 0
@@ -23,7 +24,7 @@ MonoBehaviour:
   attackClips:
   - {fileID: 7400000, guid: 0c29bb370f8180d46930dc26fe1e4ad4, type: 2}
   - {fileID: 7400000, guid: f3d8248330a8e497f8fa8db4ff84e3f2, type: 2}
-  playFirstClipOnly: 1
+  clipsToPlay: 1
   exitCondition: 0
   onAttackAction: 2
   onHitAction: 1

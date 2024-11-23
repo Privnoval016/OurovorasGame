@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8ef66f85f9b24c6cb9411a33ceff23f, type: 3}
+  m_Name: LightComboD
+  m_EditorClassIdentifier: 
+  isEnabled: 1
+  attackType: 0
+  comboActions:
+  - actionType: 0
+    attack: {fileID: 11400000, guid: 7f611990a4c07f443bd778e7c12d1f65, type: 2}
+    time: 0
+  - actionType: 2
+    attack: {fileID: 0}
+    time: 0.4
+  - actionType: 0
+    attack: {fileID: 11400000, guid: ac138aa6d44a347498c504c8cfba18fd, type: 2}
+    time: 0
+  - actionType: 3
+    attack: {fileID: 11400000, guid: 8816a073d9871435195c30dddae9de47, type: 2}
+    time: 0.5

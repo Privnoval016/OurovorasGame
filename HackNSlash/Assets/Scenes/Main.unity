@@ -668,7 +668,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1ace5b2907becc4c975ed45366be735, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dashSpeed: 50
+  dashSpeed: 80
   dashDistance: 15
   dashTime: 0.2
   dashTimeThreshold: 0.4
@@ -677,6 +677,7 @@ MonoBehaviour:
   plungeSpeed: 75
   dodgeDistance: 12
   dodgeTime: 0.2
+  mashInterval: 0.4
 --- !u!1 &699939028 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6683074765048914119, guid: b0e4a338c52db4378bb3f6dcf19db215,
@@ -1499,7 +1500,6 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  holdTime: 0.5
 --- !u!1 &1577365917
 GameObject:
   m_ObjectHideFlags: 0

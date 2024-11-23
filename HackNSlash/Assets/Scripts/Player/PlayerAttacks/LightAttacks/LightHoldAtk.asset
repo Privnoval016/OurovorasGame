@@ -15,7 +15,7 @@ MonoBehaviour:
   isEnabled: 1
   attackType: 0
   isLockedOn: 0
-  keyBinds: 02000000
+  keyBinds: 01000000
   inputDirection: {x: 0, y: 0}
   applyTargetDirection: 1
   isMidair: 0
