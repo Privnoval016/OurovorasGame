@@ -92,7 +92,7 @@ public class PlayerController : MonoBehaviour
 
     public Dictionary<KeyBind, KeyBindData> KeyMap;
     
-    [HideInInspector] public List<Attack> comboChain = new();
+    [HideInInspector] public List<ComboAction> comboChain = new();
     [HideInInspector] public float comboResetTimer = 0;
 
     public GameObject NearestEnemy
@@ -117,6 +117,12 @@ public class PlayerController : MonoBehaviour
     public float itsCalledAuraBro = 2f;
     
     [HideInInspector] public float dodgeTimer = 0;
+    #endregion
+
+    #region ANIMATION PARAMETERS
+
+    [HideInInspector] public AnimancerState currentAnimState;
+
     #endregion
     
     #region LAYERS & TAGS
@@ -191,23 +197,30 @@ public class PlayerController : MonoBehaviour
         
     }
     
-    public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, FadeMode mode = FadeMode.FixedSpeed)
+    public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, bool canInterrupt = true, FadeMode mode = FadeMode.FixedSpeed)
     {
-        if (animancer.IsPlaying(clip)) return null;
-
-        return animancer.Play(clip, fadeDuration, mode);
+        if (canInterrupt && animancer.States.Current.Clip == clip)
+        {
+            currentAnimState.Time = 0;
+            return currentAnimState;
+        }
+        
+        currentAnimState = animancer.Play(clip, fadeDuration, mode);
+        return currentAnimState;
     }
     
     public AnimancerState PlayAnimation(TransitionAsset clip)
     {
-        return animancer.Play(clip);
+        currentAnimState = animancer.Play(clip);
+        return currentAnimState;
     }
     
     public AnimancerState PlayAnimation(ITransition clip)
     {
-        AnimancerState state = animancer.Play(clip);
-        return state;
+        currentAnimState = animancer.Play(clip);
+        return currentAnimState;
     }
+    
     
     public void ExitTimeAnimation(ITransition currentAnim, ITransition nextAnim, Action onExit = null)
     {
@@ -223,13 +236,13 @@ public class PlayerController : MonoBehaviour
     
     public void ExitTimeAnimation(AnimationClip currentAnim, AnimationClip nextAnim, Action onExit = null)
     {
-        AnimancerState state = PlayAnimation(currentAnim);
+        AnimancerState state = PlayAnimation(currentAnim, -1F, false);
         state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
     }
 	
     public void OnAnimExit(AnimationClip nextAnim, Action onExit = null)
     {
-        if (nextAnim != null) PlayAnimation(nextAnim);
+        if (nextAnim != null) PlayAnimation(nextAnim, -1F, false);
         onExit?.Invoke();
     }
     
@@ -249,7 +262,15 @@ public class PlayerController : MonoBehaviour
     
     private void CheckAttackAction()
     {
-        comboResetTimer += Time.deltaTime;
+        string comboAction = "";
+        foreach (var action in comboChain)
+        {
+            comboAction += action.actionType + " ";
+        }
+        Debug.Log(comboAction + " " + comboResetTimer);
+        
+        if (comboChain.IsNullOrEmpty() || comboChain.Last().actionType != ComboActionType.Mash)
+            comboResetTimer += Time.deltaTime;
         
         if (comboResetTimer > attackData.comboResetTime)
         {
@@ -287,31 +308,32 @@ public class PlayerController : MonoBehaviour
         #endregion
 
         #region Combo Attacks
-
-        Attack attackToPlay = null;
+        
+        List<ComboAction> possibleActions = new();
         foreach (ComboConfig combo in attackData.comboAttacks)
         {
             if (!combo.isEnabled) continue;
             if (comboChain.Count >= combo.comboActions.Length) continue;
-            
+
             List<Attack> attacks = combo.comboActions.Select(a => a.attack).ToList();
-            if (comboChain.Intersect(attacks.Take(comboChain.Count)).Count() != comboChain.Count) continue;
+            attacks = attacks.Take(comboChain.Count).ToList();
+            List<Attack> comboAttacks = comboChain.Select(a => a.attack).ToList();
+            if (comboAttacks.Except(attacks).Any()) continue;
             
             ComboAction nextAction = combo.comboActions[comboChain.Count];
             switch (nextAction.actionType)
             {
                 case ComboActionType.Press:
                     if (!AttackIsAvailable(nextAction.attack)) continue;
-                    attackToPlay = nextAction.attack;
+                    possibleActions.Add(nextAction);
                     
                     break;
                 
                 case ComboActionType.Hold:
                     KeyBind pressedKey = nextAction.attack.keyBinds.Contains(KeyBind.LightAttack) ? KeyBind.LightAttack : KeyBind.HeavyAttack;
-                    
                     if (KeyMap[pressedKey].holdTime > nextAction.time)
                     {
-                        attackToPlay = nextAction.attack;
+                        possibleActions.Add(nextAction);
                     }
 
                     break;
@@ -319,7 +341,7 @@ public class PlayerController : MonoBehaviour
                 case ComboActionType.Pause:
                     if (comboResetTimer > nextAction.time)
                     {
-                        comboChain.Add(nextAction.attack);
+                        comboChain.Add(nextAction);
                     }
                     
                     break;
@@ -329,16 +351,17 @@ public class PlayerController : MonoBehaviour
                     
                     if (KeyMap[mashKey].lastTime < nextAction.time && KeyMap[mashKey].action())
                     {
-                        attackToPlay = nextAction.attack;
+                        possibleActions.Add(nextAction);
                     }
                     
                     break;
             }
         }
         
-        if (attackToPlay != null)
+        if (possibleActions.Count > 0)
         {
-            BeginAttack(attackToPlay);
+            ComboAction action = possibleActions.OrderBy(a => ComboConfig.ComboActionPriority.IndexOf(a.actionType)).First();
+            BeginComboAttack(action);
             return;
         }
 
@@ -350,31 +373,54 @@ public class PlayerController : MonoBehaviour
         if (IsMidair && KeyMap[KeyBind.AnyAttack].action())
         {
             comboChain.Clear();
-            BeginAttack(attackData.midairAttacks[0]);
+            BeginAttack(attackData.midairAttacks[0], ComboActionType.Press);
 
             return;
         }
         if (KeyMap[KeyBind.LightAttack].action())
         {
             comboChain.Clear();
-            BeginAttack(attackData.lightComboAttacks[0]);
+            BeginAttack(attackData.lightComboAttacks[0], ComboActionType.Press);
             return;
         }
         if (KeyMap[KeyBind.HeavyAttack].action())
         {
             comboChain.Clear();
-            BeginAttack(attackData.heavyComboAttacks[0]);
+            BeginAttack(attackData.heavyComboAttacks[0], ComboActionType.Press);
             return;
         }
         
         #endregion
         
     }
-        
-    private void BeginAttack(Attack attack)
+
+    private void BeginComboAttack(ComboAction action)
     {
         comboResetTimer = 0;
-        comboChain.Add(attack);
+        comboChain.Add(action);
+
+        if (action == null) return;
+
+        if (stateController.GetCurrentState() is PlayerMoving)
+        {
+            stateController.Interrupt(new PlayerAttacking(action.attack));
+        }
+        else if (stateController.GetCurrentState() is PlayerAttacking)
+        {
+            Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
+            stateController.ChangeState(new PlayerAttacking(action.attack));
+        }
+    }
+
+    private void BeginAttack(Attack attack, ComboActionType type = ComboActionType.Special, float actionTime = 0)
+    {
+        comboResetTimer = 0;
+        comboChain.Add(new ComboAction()
+        {
+            actionType = type,
+            attack = attack,
+            time = actionTime
+        });
         
         if (attack == null) return;
         

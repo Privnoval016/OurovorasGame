@@ -48,6 +48,6 @@ public class Attack : ScriptableObject
 public enum ExitConditions
 {
     AnimationEnd,
-    AttackRelease,
+    X,
     ExternalExit
 }

@@ -47,18 +47,7 @@ public class PlayerAttacking : State
         TurnToLookOnAttack();
         CheckWeaponCollision();
         
-        if (attack.exitCondition == ExitConditions.AttackRelease)
-        {
-            attackEndTime = 10;
-            KeyBind[] holdKeys = InputManager.GetHoldable(attack.keyBinds);
-            
-            if (!holdKeys.Any(k => pc.KeyMap[k].holdAction()) || pc.moveInput.magnitude > 0.1f)
-            {
-                pc.canAttack = true;
-                sc.ResumePrevious();
-            }
-        }
-        else if (attack.exitCondition == ExitConditions.ExternalExit)
+        if (attack.exitCondition == ExitConditions.ExternalExit)
         {
             attackEndTime = 10;
             attackCoolDownTime = 10;
@@ -78,6 +67,11 @@ public class PlayerAttacking : State
             pc.canAttack = true;
             sc.ResumePrevious();
         }
+        
+        if (attackCoolDownTime < -pc.attackData.moveInterruptBuffer && pc.StandardizedMoveDir.magnitude > 0.1f)
+        {
+            sc.ResumePrevious();
+        }
     }
 
     public override void OnFixedUpdate()
@@ -86,7 +80,7 @@ public class PlayerAttacking : State
 
     public override void OnExit()
     {
-        //pc.animancer.applyRootMotion = false;
+        Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
         pc.rootMotion.enabled = false;
     }
     
@@ -152,7 +146,7 @@ public class PlayerAttacking : State
         
         foreach (var clip in clips)
         {
-            pc.PlayAnimation(clip, 0.25f);
+            pc.PlayAnimation(clip, 0.2f);
             yield return Timing.WaitForSeconds(clip.length);
         }
     }

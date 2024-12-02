@@ -21,6 +21,8 @@ public class AttackConfig : ScriptableObject
     
     [Header("Regular Attack Parameters")]
     
+    public float moveInterruptBuffer = 0.3f;
+    
     public Attack[] lightComboAttacks; // priority 3
     public Attack[] heavyComboAttacks; // priority 3
     

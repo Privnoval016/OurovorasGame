@@ -1,9 +1,19 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Player/ComboConfig")]
 public class ComboConfig : ScriptableObject
 {
+    public static readonly List<ComboActionType> ComboActionPriority = new List<ComboActionType>
+    {
+        ComboActionType.Pause,
+        ComboActionType.Mash,
+        ComboActionType.Hold,
+        ComboActionType.Press,
+        ComboActionType.Special
+    };
+    
     [Header("General")]
     public bool isEnabled = true;
     public AttackTypes attackType;
@@ -37,5 +47,6 @@ public enum ComboActionType
     Press,
     Hold,
     Pause,
-    Mash
+    Mash,
+    Special
 }

@@ -24,6 +24,9 @@ MonoBehaviour:
   - actionType: 0
     attack: {fileID: 11400000, guid: ac138aa6d44a347498c504c8cfba18fd, type: 2}
     time: 0
+  - actionType: 0
+    attack: {fileID: 11400000, guid: 5a8aee660a8ed13478113d2e8d9dcf88, type: 2}
+    time: 0
   - actionType: 3
     attack: {fileID: 11400000, guid: 8816a073d9871435195c30dddae9de47, type: 2}
-    time: 0.5
+    time: 0.3

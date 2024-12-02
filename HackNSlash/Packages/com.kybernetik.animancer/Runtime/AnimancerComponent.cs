@@ -774,8 +774,8 @@ namespace Animancer
             => Graph.Evaluate();
 
         /// <summary>
-        /// Advances time by the specified value (in seconds) and immediately applies the current states of all
-        /// animations to the animated objects.
+        /// Advances time by the specified value (in seconds)
+        /// and immediately applies the current states of all animations to the animated objects.
         /// </summary>
         public void Evaluate(float deltaTime)
             => Graph.Evaluate(deltaTime);

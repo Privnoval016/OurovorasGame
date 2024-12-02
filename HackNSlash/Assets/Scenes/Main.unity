@@ -678,6 +678,7 @@ MonoBehaviour:
   dodgeDistance: 12
   dodgeTime: 0.2
   mashInterval: 0.4
+  mashDuration: 1.5
 --- !u!1 &699939028 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6683074765048914119, guid: b0e4a338c52db4378bb3f6dcf19db215,
@@ -1998,9 +1999,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1081672187}
   - {fileID: 1399572579}
   - {fileID: 478547445}
-  - {fileID: 1081672187}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2067172551
