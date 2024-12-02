@@ -9,6 +9,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 293524
   packageName: Animancer Lite
-  packageVersion: 8.0.1
-  assetPath: Packages/com.kybernetik.animancer/Package.json
-  uploadId: 690614
+  packageVersion: 8.0.2
+  assetPath: Packages/com.kybernetik.animancer/package.json
+  uploadId: 705334

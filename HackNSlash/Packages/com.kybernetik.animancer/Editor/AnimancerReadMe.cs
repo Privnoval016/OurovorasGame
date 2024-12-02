@@ -49,8 +49,9 @@ namespace Animancer.Editor
         /// <item>[26] = v7.4.3: 2023-04-16.</item>
         /// <item>[27] = v8.0.0: 2024-08-17.</item>
         /// <item>[28] = v8.0.1: 2024-09-08.</item>
+        /// <item>[29] = v8.0.2: 2024-11-02.</item>
         /// </list></example>
-        public override int ReleaseNumber => 28;
+        public override int ReleaseNumber => 29;
 
         /// <inheritdoc/>
         public override string VersionName => Strings.DocsURLs.VersionName;

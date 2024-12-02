@@ -251,6 +251,8 @@ public class PlayerMoving : State
 			    break;
 		    
 		    case WalkingAnimStates.Walking:
+			    pc.currentAnimState.Speed = pc.rb.linearVelocity.ZeroVector3Axis().magnitude / pc.playerData.runMaxSpeed;
+			    
 			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
 			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
 			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
@@ -259,6 +261,9 @@ public class PlayerMoving : State
 			    break;
 		    
 		    case WalkingAnimStates.Sprinting:
+			    
+			    pc.currentAnimState.Speed = pc.rb.linearVelocity.ZeroVector3Axis().magnitude / pc.playerData.sprintMaxSpeed;
+			    
 			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
 			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
 			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
@@ -267,6 +272,9 @@ public class PlayerMoving : State
 			    break;
 		    
 		    case WalkingAnimStates.Targeting:
+			    
+			    pc.currentAnimState.Speed = pc.rb.linearVelocity.ZeroVector3Axis().magnitude / pc.playerData.runMaxSpeed;
+			    
 			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
 			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
 			    else if (!pc.cam.isLockedOn && !pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Walking);

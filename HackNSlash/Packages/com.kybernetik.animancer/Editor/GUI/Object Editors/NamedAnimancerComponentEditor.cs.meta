@@ -15,6 +15,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 293524
   packageName: Animancer Lite
-  packageVersion: 8.0.1
+  packageVersion: 8.0.2
   assetPath: Packages/com.kybernetik.animancer/Editor/GUI/Object Editors/NamedAnimancerComponentEditor.cs
-  uploadId: 690614
+  uploadId: 705334

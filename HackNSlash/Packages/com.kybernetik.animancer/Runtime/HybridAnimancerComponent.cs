@@ -702,12 +702,12 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>
-        /// Advances time by the specified value (in seconds) and immediately applies the current states of all
-        /// animations to the animated objects.
+        /// Advances time by the specified value (in seconds)
+        /// and immediately applies the current states of all animations to the animated objects.
         /// </summary>
         /// <remarks>
-        /// This is an extension method to avoid being treated as a <see cref="MonoBehaviour"/> <code>Update</code>
-        /// message and getting called every frame.
+        /// This is an extension method to avoid being treated as a <see cref="MonoBehaviour"/>
+        /// <code>Update</code> message and getting called every frame.
         /// </remarks>
         public static void Update(this HybridAnimancerComponent animancer, float deltaTime)
             => animancer.Evaluate(deltaTime);

@@ -55,10 +55,11 @@ public class OnAttackEvents : MonoBehaviour
         
     }
     
-    IEnumerator<float> ResumeMoving(PlayerController pc, Attack a, float time)
+    IEnumerator<float> ResumeMoving(PlayerController pc, Attack a, float time, Action action = null)
     {
         yield return Timing.WaitForSeconds(time);
         
+        if (action != null) action();
         pc.canAttack = true;
     }
     
@@ -313,6 +314,7 @@ public class OnAttackEvents : MonoBehaviour
 
     [Header("Mash Attack")] 
     [SerializeField] private float mashInterval;
+    [SerializeField] private float mashDuration;
     private void MashAttack(PlayerController pc, Attack a)
     {
         Timing.RunCoroutine(BeginMashAttack(pc, a));
@@ -321,8 +323,9 @@ public class OnAttackEvents : MonoBehaviour
     IEnumerator<float> BeginMashAttack(PlayerController pc, Attack a)
     {
         float timeSinceLastClick = 0;
+        float startTime = Time.time;
         
-        while (timeSinceLastClick < mashInterval)
+        while (timeSinceLastClick < mashInterval && Time.time - startTime < mashDuration)
         {
             if (InputManager.KeyMap[a.keyBinds[0]].action())
             {
@@ -330,12 +333,21 @@ public class OnAttackEvents : MonoBehaviour
             }
             
             timeSinceLastClick += Time.deltaTime;
-
+            
             yield return Timing.WaitForOneFrame;
         }
-
-        Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown));
-        pc.PlayAnimation(a.attackClips[1], 0.01f);
+        
+        
+        if (timeSinceLastClick >= mashInterval)
+        {
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown));
+            pc.PlayAnimation(a.attackClips[1], 0.01f);
+        }
+        else
+        {
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown * 2));
+            pc.PlayAnimation(a.attackClips[2], 0.01f);
+        }
     }
 
 

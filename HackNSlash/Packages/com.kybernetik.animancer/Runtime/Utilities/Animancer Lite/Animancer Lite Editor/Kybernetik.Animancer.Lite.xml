@@ -1533,7 +1533,8 @@
             </remarks>
         </member>
         <member name="M:Animancer.AnimancerUtilities.InsertAt``1(``0[]@,System.Int32,``0)">
-            <summary>Resizes the `array` to be 1 larger and inserts the `item` at the specified `index`.</summary>
+            <summary>Resizes the `array` to be at least 1 larger and inserts the `item` at the specified `index`.</summary>
+            <remarks>If the `index` is beyond the end of the array, it will be resized large enough to fit.</remarks>
         </member>
         <member name="M:Animancer.AnimancerUtilities.RemoveAt``1(``0[]@,System.Int32)">
             <summary>Removes the item at the specified `index` and resizes the `array` to be 1 smaller.</summary>
@@ -1886,7 +1887,7 @@
         <member name="M:Animancer.AnimancerUtilities.TryGetFadeDuration(Animancer.ITransition)">
             <summary>
             Returns the <see cref="P:Animancer.ITransition.FadeDuration"/>
-            or <see cref="F:System.Single.NaN"/> if it throws an exception.
+            or <see cref="F:System.Single.NaN"/> if it's <c>null</c> or throws an exception.
             </summary>
         </member>
         <member name="M:Animancer.AnimancerUtilities.TryGetIsLooping(System.Object,System.Boolean@)">
@@ -2809,13 +2810,14 @@
             </summary>
             <remarks>
             <strong>Documentation:</strong>
-            <see href="https://kybernetik.com.au/animancer/docs/manual/events/animancer">
-            Animancer Events</see>
+            <see href="https://kybernetik.com.au/animancer/docs/manual/events/animancer/serialization">
+            Serialized Events</see>
             </remarks>
             https://kybernetik.com.au/animancer/api/Animancer/Serializable
         </member>
         <member name="P:Animancer.AnimancerEvent.Sequence.Serializable.NormalizedTimes">
             <summary>[<see cref="T:UnityEngine.SerializeField"/>] The serialized <see cref="F:Animancer.AnimancerEvent.normalizedTime"/>s.</summary>
+            <remarks>The last item is used for the <see cref="P:Animancer.AnimancerEvent.Sequence.EndEvent"/>.</remarks>
         </member>
         <member name="P:Animancer.AnimancerEvent.Sequence.Serializable.Callbacks">
             <summary>[<see cref="T:UnityEngine.SerializeField"/>] The serialized <see cref="F:Animancer.AnimancerEvent.callback"/>s.</summary>
@@ -2883,6 +2885,28 @@
         </member>
         <member name="M:Animancer.AnimancerEvent.Sequence.Serializable.SetNormalizedEndTime(System.Single)">
             <summary>Sets the <see cref="F:Animancer.AnimancerEvent.normalizedTime"/> of the <see cref="P:Animancer.AnimancerEvent.Sequence.EndEvent"/>.</summary>
+        </member>
+        <member name="M:Animancer.AnimancerEvent.Sequence.Serializable.SetEndCallback(Animancer.IInvokable)">
+            <summary>Sets the <see cref="F:Animancer.AnimancerEvent.callback"/> of the <see cref="P:Animancer.AnimancerEvent.Sequence.EndEvent"/>.</summary>
+        </member>
+        <member name="M:Animancer.AnimancerEvent.Sequence.Serializable.SetEndEvent(System.Single,Animancer.IInvokable)">
+            <summary>Sets the data of the <see cref="P:Animancer.AnimancerEvent.Sequence.EndEvent"/>.</summary>
+        </member>
+        <member name="M:Animancer.AnimancerEvent.Sequence.Serializable.AddEvent(System.Single,Animancer.IInvokable,Animancer.StringAssetInternal)">
+            <summary>Adds an event to the serialized fields.</summary>
+        </member>
+        <member name="M:Animancer.AnimancerEvent.Sequence.Serializable.InsertOptionalItem``1(``0[]@,System.Int32,``0)">
+            <summary>Inserts an `item` at the specified `index` in an optional `array`.</summary>
+            <remarks>
+            If the `item` is <c>null</c> then the array only needs
+            to be expanded if it was already larger than the `index`.
+            </remarks>
+        </member>
+        <member name="M:Animancer.AnimancerEvent.Sequence.Serializable.RemoveEvent(System.Int32)">
+            <summary>Removes an event from the serialized fields.</summary>
+        </member>
+        <member name="M:Animancer.AnimancerEvent.Sequence.Serializable.Clear(System.Boolean)">
+            <summary>Removes all events.</summary>
         </member>
         <member name="M:Animancer.AnimancerEvent.Sequence.Serializable.Clone">
             <summary>Creates a new <see cref="T:Animancer.AnimancerEvent.Sequence.Serializable"/> and copies the contents of <c>this</c> into it.</summary>
@@ -6987,6 +7011,9 @@
         <member name="M:Animancer.Editor.Tools.SpriteDataEditor.SetBorder(System.Int32,UnityEngine.Vector4)">
             <summary>Sets the border of the sprite at the specified `index`.</summary>
         </member>
+        <member name="M:Animancer.Editor.Tools.SpriteDataEditor.GetSpriteAlignment(UnityEngine.Vector2)">
+            <summary>Returns the appropriate alignment for the given `pivot`.</summary>
+        </member>
         <member name="M:Animancer.Editor.Tools.SpriteDataEditor.#ctor(UnityEditor.TextureImporter)">
             <summary>Creates a new <see cref="T:Animancer.Editor.Tools.SpriteDataEditor"/>.</summary>
         </member>
@@ -9654,14 +9681,6 @@
         <member name="M:Animancer.Editor.Previews.TransitionPreviewWindow.Scene.OnDestroy">
             <summary>Called by <see cref="M:Animancer.Editor.Previews.TransitionPreviewWindow.OnDestroy"/>.</summary>
         </member>
-        <member name="T:Animancer.Editor.AnimancerEventInvokerEditor">
-            <summary>[Editor-Only] A custom Inspector for <see cref="T:Animancer.AnimancerEvent.Invoker"/>s.</summary>
-            https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerEventInvokerEditor
-            
-        </member>
-        <member name="M:Animancer.Editor.AnimancerEventInvokerEditor.OnInspectorGUI">
-            <inheritdoc/>
-        </member>
         <member name="T:Animancer.Editor.BaseAnimancerComponentEditor">
             <summary>[Editor-Only] A custom Inspector for <see cref="T:Animancer.IAnimancerComponent"/>s.</summary>
             https://kybernetik.com.au/animancer/api/Animancer.Editor/BaseAnimancerComponentEditor
@@ -9691,6 +9710,14 @@
             True = GUI was drawn, so don't draw the regular GUI. 
             False = Draw the regular GUI.
             </summary>
+        </member>
+        <member name="T:Animancer.Editor.AnimancerEventInvokerEditor">
+            <summary>[Editor-Only] A custom Inspector for <see cref="T:Animancer.AnimancerEvent.Invoker"/>s.</summary>
+            https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerEventInvokerEditor
+            
+        </member>
+        <member name="M:Animancer.Editor.AnimancerEventInvokerEditor.OnInspectorGUI">
+            <inheritdoc/>
         </member>
         <member name="T:Animancer.Editor.CachedEditor">
             <summary>[Editor-Only]
@@ -11224,6 +11251,9 @@
         <member name="M:Animancer.Editor.TransitionLibraries.TransitionModifierTableGUI.DoLabelGUI(UnityEngine.Rect,System.Int32,UnityEngine.GUIStyle,Animancer.Editor.TransitionLibraries.TransitionLibrarySelection.SelectionType)">
             <summary>Draws a row or column label.</summary>
         </member>
+        <member name="M:Animancer.Editor.TransitionLibraries.TransitionModifierTableGUI.GetTransitionName(Animancer.TransitionAssetBase)">
+            <summary>Returns the name of the `transition` with a special message for <c>null</c>.</summary>
+        </member>
         <member name="M:Animancer.Editor.TransitionLibraries.TransitionModifierTableGUI.HandleTransitionLabelInput(UnityEngine.Rect@,Animancer.Editor.TransitionLibraries.TransitionLibraryWindow,Animancer.TransitionAssetBase,System.Int32,Animancer.Editor.TransitionLibraries.TransitionLibrarySelection.SelectionType,System.Func{UnityEngine.Rect,System.Int32,UnityEngine.Event,System.Int32})">
             <summary>Handles input events on transition labels.</summary>
         </member>
@@ -11306,7 +11336,7 @@
         <member name="M:Animancer.Editor.TransitionLibraries.TransitionLibrarySelection.IsValid">
             <summary>Is the current selection valid?</summary>
         </member>
-        <member name="M:Animancer.Editor.TransitionLibraries.TransitionLibrarySelection.Select(Animancer.Editor.TransitionLibraries.TransitionLibraryWindow,System.Object,Animancer.Editor.TransitionLibraries.TransitionLibrarySelection.SelectionType)">
+        <member name="M:Animancer.Editor.TransitionLibraries.TransitionLibrarySelection.Select(Animancer.Editor.TransitionLibraries.TransitionLibraryWindow,System.Object,System.Int32,Animancer.Editor.TransitionLibraries.TransitionLibrarySelection.SelectionType)">
             <summary>Sets the <see cref="P:Animancer.Editor.TransitionLibraries.TransitionLibrarySelection.Selected"/> object.</summary>
             <remarks>
             We can't simply set the <see cref="P:UnityEditor.Selection.activeObject"/>
@@ -13578,8 +13608,7 @@
              {
                  // Implement IUpdatable.
                  // You can avoid this by inheriting from Updatable instead.
-                 private int _Index = IUpdatable.List.NotInList;
-                 ref int IUpdatable.ListIndex => ref _Index;
+                 int IUpdatable.UpdatableIndex { get; set; } = IUpdatable.List.NotInList;
                  
                  private AnimancerComponent _Animancer;
             
