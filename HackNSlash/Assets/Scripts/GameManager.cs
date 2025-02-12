@@ -36,7 +36,8 @@ public class GameManager : MonoBehaviour
         float impulse = rb.mass * (distance / time - rb.linearVelocity.magnitude);
         rb.AddForce(direction * impulse, ForceMode.Impulse);
         
-        yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || Time.time - startTime >= time || (condition != null && condition()));
+        yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || 
+                                                Time.time - startTime >= time || (condition != null && condition()));
         
         //Debug.Log("Intended distance: " + distance + " Actual distance: " + Vector3.Distance(rb.position, initialPosition));
         //Debug.Log("Intended time: " + time + " Actual time: " + (Time.time - startTime));
@@ -51,8 +52,11 @@ public class GameManager : MonoBehaviour
         
         while (loopCondition())
         {
+            Debug.Log(Time.time);
             rb.linearVelocity = direction * magnitude;
             yield return Timing.WaitForOneFrame;
         }
+        
+        rb.linearVelocity = Vector3.zero;
     }
 }

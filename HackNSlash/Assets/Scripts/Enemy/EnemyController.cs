@@ -5,6 +5,7 @@ public class EnemyController : IDamageable
     public EnemyGravity gravityData;
     
     private float gravityScale;
+    [HideInInspector] public bool pauseGravity;
     
     private Rigidbody rb;
     
@@ -44,7 +45,8 @@ public class EnemyController : IDamageable
 
     public void CalculateGravity()
     {
-        if (!IsGrounded && Mathf.Abs(rb.linearVelocity.y) < gravityData.jumpHangTimeThreshold)
+        if (pauseGravity) SetGravityScale(0);
+        else if (!IsGrounded && Mathf.Abs(rb.linearVelocity.y) < gravityData.jumpHangTimeThreshold)
         {
             SetGravityScale(gravityData.gravityScale * gravityData.jumpHangGravityMult);
         }

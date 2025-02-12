@@ -13,19 +13,25 @@ MonoBehaviour:
   m_Name: Stab
   m_EditorClassIdentifier: 
   isEnabled: 0
+  attackType: 0
   isLockedOn: 0
   keyBinds: 02000000
   inputDirection: {x: 0, y: 0}
   applyTargetDirection: 1
   isMidair: 0
   applyRootMotion: 1
+  attackTransitions: []
   attackClips:
   - {fileID: 7400000, guid: 47a84594126a6374a804144de2781ff4, type: 2}
   - {fileID: 7400000, guid: 39bcadf38a1687444b94e74b3b99f8c6, type: 2}
-  playFirstClipOnly: 0
+  clipsToPlay: 1
   exitCondition: 1
   onAttackAction: 0
-  onHitAction: 0
-  damage: 0
-  knockBackForce: 0
-  attackCoolDown: 0.1
+  hitInfo:
+    onHitAction: 0
+    hitDetection: 0
+    hitRegisterRadius: 3
+    hitRegisterAngle: 120
+    attackCoolDown: 0.1
+    knockBackForce: 0
+    damage: 0

@@ -267,7 +267,6 @@ public class PlayerController : MonoBehaviour
         {
             comboAction += action.actionType + " ";
         }
-        Debug.Log(comboAction + " " + comboResetTimer);
         
         if (comboChain.IsNullOrEmpty() || comboChain.Last().actionType != ComboActionType.Mash)
             comboResetTimer += Time.deltaTime;

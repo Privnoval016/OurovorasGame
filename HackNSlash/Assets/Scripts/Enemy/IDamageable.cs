@@ -48,12 +48,12 @@ public abstract class IDamageable : MonoBehaviour, ITargetable
         tookDamageThisAction = true;
         Timing.RunCoroutine(ResetHit(a));
         
-        OnHitEvents.OnHitActionMap[a.onHitAction](pc, this, a);
+        OnHitEvents.OnHitActionMap[a.hitInfo.onHitAction](pc, this, a);
     }
     
     private IEnumerator<float> ResetHit(Attack a)
     {
-        yield return Timing.WaitForSeconds(a.attackCoolDown);
+        yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
         tookDamageThisAction = false;
     }
 }
