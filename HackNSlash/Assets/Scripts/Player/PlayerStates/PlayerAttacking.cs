@@ -13,6 +13,8 @@ public class PlayerAttacking : State
     private PlayerController pc;
     public Attack attack;
 
+    public bool readyToHit = true;
+
     private float attackCoolDownTime;
     private float attackEndTime;
     
@@ -45,7 +47,7 @@ public class PlayerAttacking : State
         
         SetAttackGravity();
         TurnToLookOnAttack();
-        CheckWeaponCollision();
+        CheckEnemyCollision();
         
         if (attack.exitCondition == ExitConditions.ExternalExit)
         {
@@ -96,7 +98,7 @@ public class PlayerAttacking : State
     private void LaunchClipAttack()
     {
         pc.canAttack = false;
-        attackCoolDownTime = attack.attackCoolDown;
+        attackCoolDownTime = attack.hitInfo.attackCoolDown;
 
         List<AnimationClip> clips = new();
         
@@ -120,7 +122,7 @@ public class PlayerAttacking : State
     private void LaunchTransitionAttack()
     {
         pc.canAttack = false;
-        attackCoolDownTime = attack.attackCoolDown;
+        attackCoolDownTime = attack.hitInfo.attackCoolDown;
         
         List<TransitionAsset> transitions = new();
         
@@ -175,32 +177,70 @@ public class PlayerAttacking : State
     
     #region Collision Methods
     
-    private void CheckWeaponCollision()
+    private void CheckEnemyCollision()
     {
         
-        if (pc.canAttack) return;
-        
+        if (pc.canAttack || !readyToHit) return;
         
         HashSet<Collider> enemies = new();
-        
-        foreach (GameObject sword in pc.weapons)
+        switch (attack.hitInfo.hitDetection)
         {
-            if (!sword.TryGetComponent(out Collider c)) continue;
-            
-            Collider[] colliders = Physics.OverlapBox(c.bounds.center, c.bounds.extents, c.transform.rotation, pc.enemyLayer);
-            
-            
-            enemies = enemies.Union(colliders).ToHashSet();
+            case HitDetections.WeaponTrail:
+                enemies = EnemiesInWeaponTrail();
+                break;
+            case HitDetections.SphereCast:
+                enemies = EnemiesInSphere();
+                break;
         }
-
-        enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d) || d.tookDamageThisAction);
-        enemies.RemoveWhere(e => Mathf.Abs(Vector3.Dot(e.transform.position - pc.transform.position, pc.transform.forward)) < 0.8f);
         
         
         foreach (Collider enemy in enemies)
         {
+            Debug.Log(enemy.name);
             enemy.GetComponent<IDamageable>().OnHit(pc, attack);
         }
+    }
+
+    private HashSet<Collider> EnemiesInWeaponTrail()
+    {
+        HashSet<Collider> enemies = Physics.OverlapSphere(
+            pc.transform.position, 10, pc.enemyLayer).ToHashSet();
+        
+        enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d) || d.tookDamageThisAction);
+   
+        enemies.RemoveWhere(e => !(e.transform.position - pc.transform.position).ToVector2().
+            IsInDirectionCone(pc.transform.forward.ToVector2(), attack.hitInfo.hitRegisterAngle));
+        
+        List<HashSet<Collider>> tempEnemies = new();
+        foreach (GameObject sword in pc.weapons)
+        {
+            if (!sword.TryGetComponent(out WeaponController wc)) continue;
+            tempEnemies.Add(new HashSet<Collider>());
+            
+            tempEnemies[^1] = enemies.Where(e => wc.IsIntersecting(e)).ToHashSet();
+        }
+        
+        // remove enemies that are not hit by at least one weapon
+        enemies = new HashSet<Collider>();
+        foreach (HashSet<Collider> enemySet in tempEnemies)
+        {
+            enemies = enemies.Union(enemySet).ToHashSet();
+        }
+        
+        return enemies;
+    }
+    
+    private HashSet<Collider> EnemiesInSphere()
+    {
+        HashSet<Collider> enemies = Physics.OverlapSphere(
+            pc.transform.position, attack.hitInfo.hitRegisterRadius, pc.enemyLayer).ToHashSet();
+        
+        enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d) || d.tookDamageThisAction);
+        
+        enemies.RemoveWhere(e => !(e.transform.position - pc.transform.position).ToVector2().
+            IsInDirectionCone(pc.transform.forward.ToVector2(), attack.hitInfo.hitRegisterAngle));
+        
+        return enemies;
     }
     
     #endregion

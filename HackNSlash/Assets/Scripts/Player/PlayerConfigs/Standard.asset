@@ -18,7 +18,7 @@ MonoBehaviour:
   maxFallSpeed: 18
   runMaxSpeed: 9.5
   sprintMaxSpeed: 15
-  sprintBuildupLength: 1.5
+  sprintBuildupLength: 0.4
   runAcceleration: 7
   runAccelAmount: 36.842106
   runDeceleration: 7

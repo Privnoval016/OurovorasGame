@@ -4,6 +4,7 @@ using System.Linq;
 using Animancer;
 using ExtensionUtils;
 using MEC;
+using Sirenix.OdinInspector.Editor.Validation;
 using UnityEngine;
 
 public enum OnAttackActions
@@ -57,10 +58,13 @@ public class OnAttackEvents : MonoBehaviour
     
     IEnumerator<float> ResumeMoving(PlayerController pc, Attack a, float time, Action action = null)
     {
+        Debug.Log("Can attack: " + pc.canAttack);
+        Debug.Log("Time: " + time);
         yield return Timing.WaitForSeconds(time);
         
         if (action != null) action();
         pc.canAttack = true;
+        Debug.Log("Can attack: " + pc.canAttack);
     }
     
     
@@ -90,14 +94,15 @@ public class OnAttackEvents : MonoBehaviour
         float minAnimTime = 0.05f;
         float startTime = Time.time;
         
-        Func<bool> exitCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
-            pc.StandardizedMoveDir.normalized != Vector2.zero &&
-            Vector2.Dot(pc.StandardizedMoveDir.normalized, a.inputDirection.normalized) > 0.69f;
+        Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
+            pc.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
+        
         Vector3 direction = target.transform.position - pc.transform.position;
         
         if (target.TryGetComponent(out Collider c)) Physics.IgnoreCollision(pc.col, c, true);
         
-        yield return Timing.WaitUntilDone(GameManager.TraverseWithVelocity(pc.rb, direction.normalized, dashSpeed, exitCondition), Segment.FixedUpdate);
+        Timing.RunCoroutine(GameManager.TraverseWithVelocity(pc.rb, direction.normalized, dashSpeed, loopCondition), Segment.FixedUpdate);
+        yield return Timing.WaitUntilTrue(() => !loopCondition());
         
         pc.rb.linearVelocity = Vector3.zero;
 
@@ -130,6 +135,7 @@ public class OnAttackEvents : MonoBehaviour
         
         if (target == null) yield break;
         
+        ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = false;
         
         KeyBind[] releaseKeys = InputManager.GetReleaseable(a.keyBinds);
         
@@ -143,7 +149,8 @@ public class OnAttackEvents : MonoBehaviour
         pc.ExitTimeAnimation(a.attackClips[1], a.attackClips[2]);
 
 
-        Vector3 direction = (target.transform.position - pc.transform.position).WithY(Mathf.Min(target.transform.position.y, pc.transform.position.y));
+        Vector3 direction = (target.transform.position - pc.transform.position).
+            WithY(Mathf.Min(target.transform.position.y, pc.transform.position.y) - pc.transform.position.y);
         pc.transform.LookAt(target.transform.position.WithY(pc.transform.position.y));
         
         float distance;
@@ -163,6 +170,7 @@ public class OnAttackEvents : MonoBehaviour
         }
         else
         {
+            ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = true;
             distance = Mathf.Min(dashDistance, direction.magnitude);
         }
         
@@ -171,7 +179,8 @@ public class OnAttackEvents : MonoBehaviour
 
         pc.PlayAnimation(a.attackClips[3], 0.01f);
         
-        Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown));
+        
+        Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
         
         if (collidersInPath != null)
         {
@@ -188,9 +197,10 @@ public class OnAttackEvents : MonoBehaviour
     #region Launch Up Attack
 
     [Header("Launch Up Attack")] 
-    [SerializeField] private float launchUpForce = 40f;
-    
     [SerializeField] private float launchUpHoldTime;
+    
+    [SerializeField] private float launchUpTime = 0.5f;
+    [SerializeField] private float launchUpHeight = 10f;
     
     private void LaunchUp(PlayerController pc, Attack a)
     {
@@ -206,14 +216,9 @@ public class OnAttackEvents : MonoBehaviour
         if (!holdKeys.Any(k => InputManager.KeyMap[k].holdAction())) yield break;
         
         pc.PlayAnimation(a.attackClips[1], 0.01f);
-
-        float force = launchUpForce;
-
-        Debug.Log(force + " a");
-        if (pc.rb.linearVelocity.y < 0)
-            force -= pc.rb.linearVelocity.y;
-		
-        pc.rb.AddForce(Vector3.up * force * pc.rb.mass, ForceMode.Impulse);
+        
+        Timing.RunCoroutine(GameManager.TraverseDistanceInTime(pc.rb, Vector3.up, launchUpHeight, launchUpTime), Segment.FixedUpdate);
+        
         pc.isJumping = true;
         
     }
@@ -228,7 +233,7 @@ public class OnAttackEvents : MonoBehaviour
     
     private void PlungeAttack(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(BeginPlungeAttack(pc, a));
+        Timing.RunCoroutine(BeginPlungeAttack(pc, a), Segment.FixedUpdate);
     }
     
     private IEnumerator<float> BeginPlungeAttack(PlayerController pc, Attack a)
@@ -243,11 +248,12 @@ public class OnAttackEvents : MonoBehaviour
         float minAnimTime = 0.05f;
         float startTime = Time.time;
 
-        Func<bool> exitCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
+        Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
             pc.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
         
-        yield return Timing.WaitUntilDone(GameManager.TraverseWithVelocity(pc.rb, Vector3.down, plungeSpeed, exitCondition), Segment.FixedUpdate);
+        Timing.RunCoroutine(GameManager.TraverseWithVelocity(pc.rb, Vector3.down, plungeSpeed, loopCondition), Segment.FixedUpdate);
         
+        yield return Timing.WaitUntilTrue(() => !loopCondition());
         pc.rb.linearVelocity = Vector3.zero;
 
         if (pc.IsGrounded)
@@ -259,7 +265,7 @@ public class OnAttackEvents : MonoBehaviour
             pc.PlayAnimation(pc.moveAnimData.fallClip.LoopClip);
         }
         
-        Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown));
+        Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
     }
     
     #endregion
@@ -340,12 +346,12 @@ public class OnAttackEvents : MonoBehaviour
         
         if (timeSinceLastClick >= mashInterval)
         {
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown));
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
             pc.PlayAnimation(a.attackClips[1], 0.01f);
         }
         else
         {
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.attackCoolDown * 2));
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown * 2));
             pc.PlayAnimation(a.attackClips[2], 0.01f);
         }
     }

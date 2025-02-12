@@ -26,7 +26,11 @@ MonoBehaviour:
   clipsToPlay: 1
   exitCondition: 0
   onAttackAction: 0
-  onHitAction: 0
-  damage: 0
-  knockBackForce: 0
-  attackCoolDown: 0.4
+  hitInfo:
+    onHitAction: 0
+    hitDetection: 1
+    hitRegisterRadius: 3
+    hitRegisterAngle: 120
+    attackCoolDown: 0.4
+    knockBackForce: 0
+    damage: 0

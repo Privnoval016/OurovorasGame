@@ -34,15 +34,9 @@ public class Attack : ScriptableObject
     [FormerlySerializedAs("onAttackMethod")] [Header("Events")] 
     public OnAttackActions onAttackAction = OnAttackActions.None;
     
-    public OnHitActions onHitAction = OnHitActions.BasicKnockBack;
     
-    [Header("Stats")]
+    public HitInfo hitInfo;
     
-    public float damage;
-
-    public float knockBackForce;
-    
-    public float attackCoolDown;
 }
 
 public enum ExitConditions
@@ -50,4 +44,26 @@ public enum ExitConditions
     AnimationEnd,
     X,
     ExternalExit
+}
+
+public enum HitDetections
+{
+    WeaponTrail,
+    SphereCast,
+}
+
+[Serializable]
+public class HitInfo
+{
+    public OnHitActions onHitAction = OnHitActions.BasicKnockBack;
+    
+    [Header ("Hit Detection")]
+    public HitDetections hitDetection;
+    public float hitRegisterRadius = 3;
+    public float hitRegisterAngle = 120;
+    
+    [Header("Stats")]
+    public float attackCoolDown;
+    public float knockBackForce;
+    public float damage;
 }
