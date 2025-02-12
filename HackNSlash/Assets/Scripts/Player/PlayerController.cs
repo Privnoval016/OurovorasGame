@@ -6,8 +6,6 @@ using UnityEngine;
 using Animancer;
 using ExtensionUtils;
 using MEC;
-using Sirenix.Utilities;
-using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(StateController))]
@@ -268,7 +266,7 @@ public class PlayerController : MonoBehaviour
             comboAction += action.actionType + " ";
         }
         
-        if (comboChain.IsNullOrEmpty() || comboChain.Last().actionType != ComboActionType.Mash)
+        if (comboChain == null || comboChain.Count == 0 || comboChain.Last().actionType != ComboActionType.Mash)
             comboResetTimer += Time.deltaTime;
         
         if (comboResetTimer > attackData.comboResetTime)
