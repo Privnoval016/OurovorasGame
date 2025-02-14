@@ -28,9 +28,9 @@ MonoBehaviour:
   onAttackAction: 0
   hitInfo:
     onHitAction: 0
-    hitDetection: 0
+    hitDetection: 1
     hitRegisterRadius: 3
     hitRegisterAngle: 120
     attackCoolDown: 0.4
-    knockBackForce: 0
+    knockBackForce: 15
     damage: 0

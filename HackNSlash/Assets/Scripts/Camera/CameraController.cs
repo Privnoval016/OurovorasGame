@@ -50,7 +50,7 @@ public class CameraController : MonoBehaviour
     #region Accessible Properties
 
     public bool isLockedOn, lockOnTriggered;
-    public GameObject targetedEnemy;
+    public GameObject targetedEnemy; // The enemy the player is currently locked on to, or the player if not locked on
     public Vector3 LockOnDirection => (targetedEnemy.transform.position - playerFollowTarget.position).ZeroVector3Axis().normalized;
     
     #endregion

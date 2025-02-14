@@ -5,6 +5,7 @@ using Animancer;
 using ExtensionUtils;
 using MEC;
 using UnityEngine;
+using PrimeTween;
 
 public enum OnAttackActions
 {
@@ -100,7 +101,7 @@ public class OnAttackEvents : MonoBehaviour
         
         if (target.TryGetComponent(out Collider c)) Physics.IgnoreCollision(pc.col, c, true);
         
-        Timing.RunCoroutine(GameManager.TraverseWithVelocity(pc.rb, direction.normalized, dashSpeed, loopCondition), Segment.FixedUpdate);
+        Timing.RunCoroutine(pc.rb.TraverseWithVelocity(direction.normalized, dashSpeed, loopCondition));
         yield return Timing.WaitUntilTrue(() => !loopCondition());
         
         pc.rb.linearVelocity = Vector3.zero;
@@ -157,7 +158,7 @@ public class OnAttackEvents : MonoBehaviour
 
         if (elapsedTime >= dashTimeThreshold)
         {
-            distance = Mathf.Max(Mathf.Min(dashDistance * 2, direction.magnitude * 2), dashDistance * 0.7f);
+            distance = Mathf.Max(Mathf.Min(dashDistance * 2, direction.magnitude * 2), dashDistance * 0.8f);
 
             collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.col.radius, direction, distance * 2f, pc.enemyLayer);
 
@@ -173,7 +174,7 @@ public class OnAttackEvents : MonoBehaviour
             distance = Mathf.Min(dashDistance, direction.magnitude);
         }
         
-        yield return Timing.WaitUntilDone(GameManager.TraverseDistanceInTime(pc.rb, direction.normalized, distance, dashTime), Segment.FixedUpdate);
+        yield return Timing.WaitUntilDone(pc.rb.TraverseDistanceInTime(direction.normalized, distance, dashTime));
         
 
         pc.PlayAnimation(a.attackClips[3], 0.01f);
@@ -185,6 +186,7 @@ public class OnAttackEvents : MonoBehaviour
         {
             foreach (var hit in collidersInPath)
             {
+                if (hit.collider.TryGetComponent(out IDamageable d)) d.OnHit(pc, a, 1);
                 Physics.IgnoreCollision(pc.col, hit.collider, false);
             }
         }
@@ -216,7 +218,7 @@ public class OnAttackEvents : MonoBehaviour
         
         pc.PlayAnimation(a.attackClips[1], 0.01f);
         
-        Timing.RunCoroutine(GameManager.TraverseDistanceInTime(pc.rb, Vector3.up, launchUpHeight, launchUpTime), Segment.FixedUpdate);
+        Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(Vector3.up, launchUpHeight, launchUpTime));
         
         pc.isJumping = true;
         
@@ -232,7 +234,7 @@ public class OnAttackEvents : MonoBehaviour
     
     private void PlungeAttack(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(BeginPlungeAttack(pc, a), Segment.FixedUpdate);
+        Timing.RunCoroutine(BeginPlungeAttack(pc, a));
     }
     
     private IEnumerator<float> BeginPlungeAttack(PlayerController pc, Attack a)
@@ -250,7 +252,7 @@ public class OnAttackEvents : MonoBehaviour
         Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
             pc.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
         
-        Timing.RunCoroutine(GameManager.TraverseWithVelocity(pc.rb, Vector3.down, plungeSpeed, loopCondition), Segment.FixedUpdate);
+        Timing.RunCoroutine(pc.rb.TraverseWithVelocity(Vector3.down, plungeSpeed, loopCondition));
         
         yield return Timing.WaitUntilTrue(() => !loopCondition());
         pc.rb.linearVelocity = Vector3.zero;
@@ -258,10 +260,6 @@ public class OnAttackEvents : MonoBehaviour
         if (pc.IsGrounded)
         {
             pc.PlayAnimation(a.attackClips[2], 0.01f);
-        }
-        else
-        {
-            pc.PlayAnimation(pc.moveAnimData.fallClip.LoopClip);
         }
         
         Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
@@ -309,7 +307,7 @@ public class OnAttackEvents : MonoBehaviour
         }
 
         
-        Timing.RunCoroutine(GameManager.TraverseDistanceInTime(pc.rb, dodgeDirection, distance, dodgeTime), Segment.FixedUpdate);
+        Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, dodgeTime), Segment.FixedUpdate);
     }
     
 

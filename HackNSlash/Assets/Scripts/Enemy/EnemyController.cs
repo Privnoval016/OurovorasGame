@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// All enemies that can move will inherit from this class
 public class EnemyController : IDamageable
 {
     public EnemyGravity gravityData;
@@ -24,23 +25,30 @@ public class EnemyController : IDamageable
     
     public override void OnStart()
     {
-        base.OnStart();
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
     }
 
     public override void OnUpdate()
     {
-        base.OnUpdate();
         CalculateGravity();
     }
 
     public override void OnFixedUpdate()
     {
-        base.OnFixedUpdate();
         ApplyGravity();
     }
+
+    public override void OnLateUpdate()
+    {
+        AvoidPlayerClipping();
+    }
     
+    private void AvoidPlayerClipping()
+    {
+        // do at some point (stop enemy from staying clipped into player after attack)
+    }
+
     #region Gravity Methods
 
     public void CalculateGravity()

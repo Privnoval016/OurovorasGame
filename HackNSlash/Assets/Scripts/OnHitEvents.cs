@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using ExtensionUtils;
 using UnityEngine;
 using MEC;
+using PrimeTween;
 
 public enum OnHitActions
 {
     BasicKnockBack,
     LaunchUp,
-    FollowPlayerVelocity
+    FollowPlayerVelocity,
+    LaunchDown
 }
 
 public class OnHitEvents : MonoBehaviour
@@ -39,28 +42,42 @@ public class OnHitEvents : MonoBehaviour
         OnHitActionMap.Add(OnHitActions.BasicKnockBack, BasicKnockBack);
         OnHitActionMap.Add(OnHitActions.LaunchUp, LaunchUp);
         OnHitActionMap.Add(OnHitActions.FollowPlayerVelocity, FollowPlayerVelocity);
+        OnHitActionMap.Add(OnHitActions.LaunchDown, LaunchDown);
     }
 
     #region Basic Knockback
-
-    [Header("Basic Knockback Attack")] 
-    [SerializeField][Range(0, 1)] private float midairLift = 0.85f;
     
     private void BasicKnockBack(PlayerController pc, IDamageable enemy, Attack a)
     {
+        Timing.RunCoroutine(BeginBasicKnockBack(pc, enemy, a));
+    }
+    
+    IEnumerator<float> BeginBasicKnockBack(PlayerController pc, IDamageable enemy, Attack a)
+    {
+        yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
+        
         enemy.TryGetComponent(out EnemyController ec);
         if (ec != null) ec.pauseGravity = true;
         
         if (enemy.gameObject.TryGetComponent(out Rigidbody rb))
         {
-            Vector3 direction = (enemy.transform.position - pc.transform.position).normalized;
-            if (ec != null && !ec.IsGrounded)
+            Vector3 direction = Vector3.zero;
+            
+            if (a.hitInfo.hitDirection != Vector3.zero)
+            {
+                direction = a.hitInfo.hitDirection.GetRelativeVector3(pc.transform.forward).normalized;
+            }
+            else if (ec != null && !ec.IsGrounded)
             {
                 direction = Vector3.up;
             }
+            else
+            {
+                direction = (enemy.transform.position - pc.transform.position).normalized;
+            }
             
             rb.linearVelocity = Vector3.zero;
-            rb.AddForce(direction * a.hitInfo.knockBackForce, ForceMode.VelocityChange);
+            rb.AddForce(direction * a.hitInfo.hitForce, ForceMode.VelocityChange);
             
         }
 
@@ -93,13 +110,16 @@ public class OnHitEvents : MonoBehaviour
         Vector3 direction = Vector3.up;
         rb.linearVelocity = Vector3.zero;
         
-        Timing.RunCoroutine(GameManager.TraverseDistanceInTime(rb, direction, launchUpHeight, launchUpTime), Segment.FixedUpdate);
+        Timing.RunCoroutine(rb.TraverseDistanceInTime(direction, launchUpHeight, launchUpTime));
     }
     
     #endregion
 
 
     #region Follow Player Velocity
+    
+    [Header("Follow Player Velocity Attack")]
+    [SerializeField] private float followVelocityMult = 1.2f;
     
     private void FollowPlayerVelocity(PlayerController pc, IDamageable enemy, Attack a)
     {
@@ -112,15 +132,108 @@ public class OnHitEvents : MonoBehaviour
         if (enemy.gameObject.TryGetComponent(out EnemyController ec)) ec.pauseGravity = true;
         if (enemy.gameObject.TryGetComponent(out Collider col)) Physics.IgnoreCollision(pc.GetComponent<Collider>(), col);
         
-        while (pc.canAttack)
+        Vector3 lastNonZeroVelocity = Vector3.zero;
+        
+        while (!pc.canAttack)
         {
-            rb.linearVelocity = pc.rb.linearVelocity;
-            Debug.Log(pc.rb.linearVelocity);
+            rb.linearVelocity = pc.discreteVelocity * followVelocityMult;
+            
+            lastNonZeroVelocity = rb.linearVelocity.magnitude > 0.1f ? rb.linearVelocity : lastNonZeroVelocity;
+            
             yield return Timing.WaitForOneFrame;
+        }
+        
+        if (a.hitInfo.hitDirection != Vector3.zero)
+        {
+            lastNonZeroVelocity = a.hitInfo.hitDirection.GetRelativeVector3(pc.transform.forward);
+        }
+        
+        Debug.Log(lastNonZeroVelocity);
+        
+        rb.linearVelocity = Vector3.zero;
+        rb.AddForce(lastNonZeroVelocity.normalized * a.hitInfo.hitForce, ForceMode.VelocityChange);
+        
+        float startTime = Time.time;
+        
+        bool forceApplied = false;
+        while (Time.time - startTime < a.hitInfo.hitDelay)
+        {
+            if (ec.IsGrounded && a.hitInfo.elasticCollision)
+            {
+                forceApplied = true;
+                break;
+            }
+            yield return Timing.WaitForOneFrame;
+        }
+        
+        if (forceApplied && a.hitInfo.elasticCollision)
+        {
+            Vector3 direction = Vector3.up;
+            rb.linearVelocity = Vector3.zero;
+        
+            rb.transform.TweenDistance(direction, bounceHeight, bounceTime, Ease.OutQuad);
         }
         
         if (ec != null) ec.pauseGravity = false;
         if (col != null) Physics.IgnoreCollision(pc.GetComponent<Collider>(), col, false);
+        
+    }
+
+    #endregion
+    
+    
+    #region Launch Down
+    
+    [Header("Launch Down Attack")]
+    [SerializeField] private float launchDownVelocityMult = 1.2f;
+    [SerializeField] private float bounceCheckTime = 0.5f;
+    [SerializeField] private float bounceTime = 0.3f;
+    [SerializeField] private float bounceHeight = 15f;
+    
+    private void LaunchDown(PlayerController pc, IDamageable enemy, Attack a)
+    {
+        Timing.RunCoroutine(BeginLaunchDown(pc, enemy, a));
+    }
+    
+    IEnumerator<float> BeginLaunchDown(PlayerController pc, IDamageable enemy, Attack a)
+    {
+        Debug.Log("Begin Launch Down");
+        
+        if (!enemy.gameObject.TryGetComponent(out Rigidbody rb)) yield break;
+        if (enemy.gameObject.TryGetComponent(out EnemyController ec)) ec.pauseGravity = true;
+        if (enemy.gameObject.TryGetComponent(out Collider col)) Physics.IgnoreCollision(pc.GetComponent<Collider>(), col);
+        
+        bool forceApplied = false;
+        
+        while (!pc.canAttack)
+        {
+            Vector3 vel = pc.rb.linearVelocity.magnitude > 0f ? pc.rb.linearVelocity * launchDownVelocityMult : rb.linearVelocity; 
+            if (ec.IsGrounded && a.hitInfo.elasticCollision)
+            {
+                forceApplied = true;
+                break;
+            }
+            else
+            {
+                rb.linearVelocity = vel;
+            }
+            
+            yield return Timing.WaitForOneFrame;
+        }
+
+        if (forceApplied && a.hitInfo.elasticCollision)
+        {
+            Vector3 direction = Vector3.up;
+            rb.linearVelocity = Vector3.zero;
+        
+            rb.transform.TweenDistance(direction, bounceHeight, bounceTime, Ease.OutQuad);
+        }
+
+        if (ec != null) ec.pauseGravity = false;
+        if (col != null) Physics.IgnoreCollision(pc.GetComponent<Collider>(), col, false);
+        
+        
+        
     }
 
     #endregion
