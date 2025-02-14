@@ -655,9 +655,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce89fdf6dcc8d534284d9f7ae3daddca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  midairLift: 1
   launchUpTime: 0.3
   launchUpHeight: 15
+  followVelocityMult: 1.2
+  launchDownVelocityMult: 1.2
+  bounceCheckTime: 0.5
+  bounceTime: 0.3
+  bounceHeight: 5
 --- !u!114 &478547447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -671,10 +675,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashSpeed: 80
-  dashDistance: 15
+  dashDistance: 25
   dashTime: 0.2
   dashTimeThreshold: 0.4
-  launchUpHoldTime: 0.4
+  launchUpHoldTime: 0.25
   launchUpTime: 0.3
   launchUpHeight: 15
   plungeSpeed: 75
@@ -927,6 +931,8 @@ MonoBehaviour:
   gravityScale: 0
   moveInput: {x: 0, y: 0}
   moveDirection: {x: 0, y: 0, z: 0}
+  discreteVelocity: {x: 0, y: 0, z: 0}
+  discreteAcceleration: {x: 0, y: 0, z: 0}
   groundCheckPoint: {fileID: 1977220826}
   groundCheckSize: {x: 0.4, y: 0.01, z: 0.4}
   canAttack: 0
@@ -1472,6 +1478,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 372d98d179298fe44acab5871363ea6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pause:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 07e9096c-1202-4ab4-b391-25a0e5437804
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   movement:
     m_Name: Movement
     m_Type: 0
@@ -1540,6 +1555,33 @@ MonoBehaviour:
     m_Type: 0
     m_ExpectedControlType: 
     m_Id: 7b036315-cc91-41fe-8e40-2822d7c060a4
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  navigate:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 3dfc49d1-811f-4df0-b1e8-9341672e5f7a
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  select:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 9dd3b9a3-26e5-4b46-8126-d164e8d1cf9c
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  back:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 016c583d-d372-4905-b479-16bc1aab578d
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []

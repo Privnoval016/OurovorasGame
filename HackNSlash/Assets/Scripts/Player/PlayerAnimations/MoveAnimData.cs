@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Animancer;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
-using UnityEditor.ShaderGraph.Drawing;
 using Object = System.Object;
 
 [CreateAssetMenu(menuName = "Player/MoveAnimData")]

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MEC;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 
 public abstract class IDamageable : MonoBehaviour, ITargetable
@@ -26,6 +27,11 @@ public abstract class IDamageable : MonoBehaviour, ITargetable
         OnFixedUpdate();
     }
 
+    private void LateUpdate()
+    {
+        OnLateUpdate();
+    }
+
     public virtual void OnStart()
     {
         
@@ -40,14 +46,19 @@ public abstract class IDamageable : MonoBehaviour, ITargetable
     {
         
     }
+    
+    public virtual void OnLateUpdate()
+    {
+        
+    }
 
 
-    public void OnHit(PlayerController pc, Attack a)
+    public void OnHit(PlayerController pc, Attack a, int actionIndex = 0)
     {
         tookDamageThisAction = true;
         Timing.RunCoroutine(ResetHit(a));
         
-        OnHitEvents.OnHitActionMap[a.hitInfo.onHitAction](pc, this, a);
+        OnHitEvents.OnHitActionMap[a.hitInfo.onHitActions[actionIndex]](pc, this, a);
     }
     
     private IEnumerator<float> ResetHit(Attack a)

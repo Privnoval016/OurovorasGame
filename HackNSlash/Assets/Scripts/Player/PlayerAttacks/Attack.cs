@@ -36,7 +36,15 @@ public class Attack : ScriptableObject
     
     
     public HitInfo hitInfo;
-    
+
+
+    private void OnValidate()
+    {
+        if (hitInfo.onHitActions.Length == 0)
+        {
+            hitInfo.onHitActions = new[] {OnHitActions.BasicKnockBack};
+        }
+    }
 }
 
 public enum ExitConditions
@@ -55,7 +63,7 @@ public enum HitDetections
 [Serializable]
 public class HitInfo
 {
-    public OnHitActions onHitAction = OnHitActions.BasicKnockBack;
+    public OnHitActions[] onHitActions = {OnHitActions.BasicKnockBack};
     
     [Header ("Hit Detection")]
     public HitDetections hitDetection;
@@ -64,6 +72,17 @@ public class HitInfo
     
     [Header("Stats")]
     public float attackCoolDown;
-    public float knockBackForce;
     public float damage;
+    
+    [Header("Hit Parameters")]
+    
+    [FormerlySerializedAs("knockBackForce")] [Tooltip("Used for knockback and other select hit actions")]
+    public float hitForce;
+    [FormerlySerializedAs("knockBackDelay")] [Tooltip("Used for knockback and other select hit actions")]
+    public float hitDelay;
+    [Tooltip("Used for follow velocity and other select hit actions")]
+    public Vector3 hitDirection;
+
+    [Tooltip("Used for follow velocity and other select hit actions")]
+    public bool elasticCollision = false;
 }

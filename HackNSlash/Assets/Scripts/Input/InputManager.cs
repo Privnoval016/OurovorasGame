@@ -9,8 +9,15 @@ public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
     
-    #region Input Actions Instances
-    private PlayerInputActions playerInputActions;
+    
+    private PlayerInputActions InputMap;
+    public InputAction pause;
+    
+    // dictionary of gamestates and their respective input actions
+    public static readonly Dictionary<GameState, InputActionMap> GameStateInputs = new();
+
+    
+    #region Player Keybinds
     
     public InputAction movement;
     public InputAction cameraMove;
@@ -28,6 +35,15 @@ public class InputManager : MonoBehaviour
     
     #endregion
     
+    #region Menu Keybinds
+    
+    public InputAction navigate;
+    public InputAction select;
+    public InputAction back;
+    
+    #endregion
+    
+    
     public static readonly Dictionary<KeyBind, KeyBindData> KeyMap = new();
 
     void Awake()
@@ -41,48 +57,14 @@ public class InputManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        playerInputActions = new PlayerInputActions();
-        movement = playerInputActions.Player.Move;
-        cameraMove = playerInputActions.Player.Camera;
-        jump = playerInputActions.Player.Jump;
-        dodge = playerInputActions.Player.Dodge;
-        lockOn = playerInputActions.Player.LockOn;
-        retarget = playerInputActions.Player.Retarget;
-
-        KeyMap.Add(KeyBind.None, new KeyBindData() {action = () => true});
-
-        lightAttack = playerInputActions.Player.LightAttack;
-        lightAttack.performed += ctx => lightAttacking = true;
-        lightAttack.canceled += ctx => lightAttacking = false;
+        InputMap = new PlayerInputActions();
+        AddGameStateInputs();
         
-        KeyMap.Add(KeyBind.LightAttack, new KeyBindData
-        {
-            action = () => lightAttack.triggered,
-            holdAction = () => lightAttacking,
-            releaseAction = () => lightAttack.WasReleasedThisFrame(),
-        });
         
-        heavyAttack = playerInputActions.Player.HeavyAttack;
-        heavyAttack.performed += ctx => heavyAttacking = true;
-        heavyAttack.canceled += ctx => heavyAttacking = false;
+        SetPlayerKeybinds();
+        SetMenuKeybinds();
         
-        KeyMap.Add(KeyBind.HeavyAttack, new KeyBindData
-        {
-            action = () => heavyAttack.triggered,
-            holdAction = () => heavyAttacking,
-            releaseAction = () => heavyAttack.WasReleasedThisFrame(),
-        });
-        
-        KeyMap.Add(KeyBind.AnyAttack, new KeyBindData
-        {
-            action = () => KeyMap[KeyBind.LightAttack].action() || KeyMap[KeyBind.HeavyAttack].action(),
-            holdAction = () => KeyMap[KeyBind.LightAttack].holdAction() || KeyMap[KeyBind.HeavyAttack].holdAction(),
-            releaseAction = () => KeyMap[KeyBind.LightAttack].releaseAction() || KeyMap[KeyBind.HeavyAttack].releaseAction(),
-        });
-        
-        KeyMap.Add(KeyBind.Dodge, new KeyBindData {action = () => dodge.triggered});
-        
-        playerInputActions.Player.Enable();
+        InputMap.Player.Enable();
     }
     
     private void Update()
@@ -104,6 +86,70 @@ public class InputManager : MonoBehaviour
         lightAttacking = false;
         heavyAttacking = false;
     }
+    
+    #region Setup Keybinds
+
+    private void AddGameStateInputs()
+    {
+        pause = InputMap.StateControl.Pause;
+        InputMap.StateControl.Enable();
+        
+        GameStateInputs.Add(GameState.PlayerControl, InputMap.Player);
+        GameStateInputs.Add(GameState.Combat, InputMap.Player);
+        GameStateInputs.Add(GameState.PauseMenu, InputMap.Menu);
+    }
+    
+    private void SetPlayerKeybinds()
+    {
+        movement = InputMap.Player.Move;
+        cameraMove = InputMap.Player.Camera;
+        jump = InputMap.Player.Jump;
+        dodge = InputMap.Player.Dodge;
+        lockOn = InputMap.Player.LockOn;
+        retarget = InputMap.Player.Retarget;
+
+        KeyMap.Add(KeyBind.None, new KeyBindData() {action = () => true});
+
+        lightAttack = InputMap.Player.LightAttack;
+        lightAttack.performed += ctx => lightAttacking = true;
+        lightAttack.canceled += ctx => lightAttacking = false;
+        
+        KeyMap.Add(KeyBind.LightAttack, new KeyBindData
+        {
+            action = () => lightAttack.triggered,
+            holdAction = () => lightAttacking,
+            releaseAction = () => lightAttack.WasReleasedThisFrame(),
+        });
+        
+        heavyAttack = InputMap.Player.HeavyAttack;
+        heavyAttack.performed += ctx => heavyAttacking = true;
+        heavyAttack.canceled += ctx => heavyAttacking = false;
+        
+        KeyMap.Add(KeyBind.HeavyAttack, new KeyBindData
+        {
+            action = () => heavyAttack.triggered,
+            holdAction = () => heavyAttacking,
+            releaseAction = () => heavyAttack.WasReleasedThisFrame(),
+        });
+        
+        KeyMap.Add(KeyBind.AnyAttack, new KeyBindData
+        {
+            action = () => KeyMap[KeyBind.LightAttack].action() || KeyMap[KeyBind.HeavyAttack].action(),
+            holdAction = () => KeyMap[KeyBind.LightAttack].holdAction() || KeyMap[KeyBind.HeavyAttack].holdAction(),
+            releaseAction = () => KeyMap[KeyBind.LightAttack].releaseAction() || KeyMap[KeyBind.HeavyAttack].releaseAction(),
+        });
+        
+        KeyMap.Add(KeyBind.Dodge, new KeyBindData {action = () => dodge.triggered});
+    }
+    
+    private void SetMenuKeybinds()
+    {
+        navigate = InputMap.Menu.Navigate;
+        select = InputMap.Menu.Select;
+        back = InputMap.Menu.Deselect;
+    }
+    
+    #endregion
     
     #region Other Methods
 

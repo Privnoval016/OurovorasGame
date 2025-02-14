@@ -424,6 +424,11 @@ namespace ExtensionUtils
         {
             return new Vector3(a.x, a.y.Flip(isFlipped), a.z);
         }
+        
+        public static Vector3 FlipZ(this Vector3 a, bool isFlipped = true)
+        {
+            return new Vector3(a.x, a.y, a.z.Flip(isFlipped));
+        }
 
         #endregion
 

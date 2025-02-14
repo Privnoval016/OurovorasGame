@@ -6,6 +6,7 @@ using UnityEngine;
 using Animancer;
 using ExtensionUtils;
 using MEC;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(StateController))]
@@ -72,11 +73,16 @@ public class PlayerController : MonoBehaviour
     
     [HideInInspector] public Vector2 moveInput;
     [HideInInspector] public Vector3 moveDirection;
+    
+    [HideInInspector] public Vector3 discreteVelocity;
+    [FormerlySerializedAs("moveAcceleration")] [HideInInspector] public Vector3 discreteAcceleration;
+    private Vector3 lastPosition, lastVelocity;
 
-    public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).Rotate(cam.transform.right.ToVector2().ToAngle()).normalized;
+    public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).
+                                                Rotate(cam.transform.right.ToVector2().ToAngle()).normalized;
     #endregion
     
-    #region CHECK PARAMETERS
+    #region GROUND CHECK PARAMETERS
    
     [Header("Checks")] 
     [SerializeField] public Transform groundCheckPoint;
@@ -149,6 +155,9 @@ public class PlayerController : MonoBehaviour
         animancer.TryGetComponent(out rootMotion);
         
         KeyMap = InputManager.KeyMap;
+        
+        lastPosition = transform.position;
+        lastVelocity = rb.linearVelocity;
     }
 
     private void Start()
@@ -161,7 +170,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
+        SetMoveValues();
         
         CheckAttackAction();
 
@@ -171,6 +180,24 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         ApplyGravity();
+    }
+    
+    #endregion
+    
+    #region Info Methods
+    
+    private void SetMoveValues()
+    {
+        moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
+        
+        discreteVelocity = (transform.position - lastPosition) / Time.deltaTime;
+        discreteAcceleration = (discreteVelocity - lastVelocity) / Time.deltaTime;
+        
+        lastPosition = transform.position;
+        lastVelocity = discreteVelocity;
+        
+        // Debug.Log(" Discrete Velocity: " + discreteVelocity + " Discrete Acceleration: " + discreteAcceleration);
+        
     }
     
     #endregion
@@ -260,11 +287,6 @@ public class PlayerController : MonoBehaviour
     
     private void CheckAttackAction()
     {
-        string comboAction = "";
-        foreach (var action in comboChain)
-        {
-            comboAction += action.actionType + " ";
-        }
         
         if (comboChain == null || comboChain.Count == 0 || comboChain.Last().actionType != ComboActionType.Mash)
             comboResetTimer += Time.deltaTime;
