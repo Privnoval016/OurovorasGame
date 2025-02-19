@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Standard
   m_EditorClassIdentifier: 
   doubleJumpEnabled: 1
-  dodgeCoolDown: 0.5
+  dodgeCoolDown: 1
   comboResetTime: 0.7
   comboAttacks:
   - {fileID: 11400000, guid: 4ff47c5a0c7d2489a978e61c0270db94, type: 2}
@@ -30,10 +30,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ac138aa6d44a347498c504c8cfba18fd, type: 2}
   - {fileID: 11400000, guid: 0cd63598015d1c34b918fdfa9706e1d8, type: 2}
   heavyComboAttacks:
-  - {fileID: 11400000, guid: baabe31c666811744bdbf9a9b2821935, type: 2}
-  - {fileID: 11400000, guid: 43315435d8823ec459fee7aa753bb78f, type: 2}
-  - {fileID: 11400000, guid: 6b8203980fc2baf4fb55433405aa4e0c, type: 2}
-  - {fileID: 11400000, guid: 5dc74631a82fb9e4aba5a1d0b0def479, type: 2}
+  - {fileID: 11400000, guid: a1b3d8615ef9e124888778393ae8767f, type: 2}
   midairAttacks:
   - {fileID: 11400000, guid: cca959ef9f66dff40971bae6e0bb23dc, type: 2}
   - {fileID: 11400000, guid: 5d1bf1100f403ef46bbef808161486bb, type: 2}
@@ -45,3 +42,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ad565a90574fe4c05b00d0eda6d89b63, type: 2}
   - {fileID: 11400000, guid: e066ee6eb132d4e799f3c6c2d178323b, type: 2}
   - {fileID: 11400000, guid: 1ca78521a5c1693429e77d7d6b46b7db, type: 2}
+  - {fileID: 11400000, guid: 1b1cda7d87478d34a9791ab168e9bd1c, type: 2}

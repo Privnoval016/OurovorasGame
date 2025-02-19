@@ -21,9 +21,8 @@ public class PlayerMoving : State
 	    InputManager.Instance.jump.performed += OnJumpAction;
 	    pc.rootMotion.enabled = false;
 	    
-	    
 	    pc.canAttack = true;
-	    pc.comboChain.Clear();
+	    pc.currentAttack = null;
 	    
 	    animState = WalkingAnimStates.Idle;
 	    SwitchAnimState(WalkingAnimStates.Idle);
@@ -32,6 +31,7 @@ public class PlayerMoving : State
     public override void OnUpdate()
     {
 	    #region Timers
+	    
 	    pc.lastOnGroundTime -= Time.deltaTime;
 	    pc.lastPressedJumpTime -= Time.deltaTime;
 	    
@@ -76,12 +76,12 @@ public class PlayerMoving : State
     {
 	    Debug.Log("Resuming Moving");
 	    
-	    pc.comboChain.Clear();
-	    
 	    animState = WalkingAnimStates.Idle;
 	    SwitchAnimState(WalkingAnimStates.Idle);
 	    
 	    pc.rootMotion.enabled = false;
+	    
+	    pc.currentAttack = null;
 	    
 	    
 	    //pc.TurnToLook();

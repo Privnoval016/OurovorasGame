@@ -32,12 +32,12 @@ MonoBehaviour:
   doubleJumpTimeToApex: 0.5
   doubleJumpForce: 37.5
   doubleJumpWaitDuration: 0.1
-  jumpHangGravityMult: 1
-  jumpHangTimeThreshold: 0
+  jumpHangGravityMult: 0.3
+  jumpHangTimeThreshold: 1
   jumpHangAccelerationMult: 1.88
   jumpHangMaxSpeedMult: 1
   dashForce: 50
-  coyoteTime: 0.2
-  jumpInputBufferTime: 0.1
+  coyoteTime: 0.1121
+  jumpInputBufferTime: 0.0474
   lockOnRange: 40
   midairAttackGravityMult: 0.5

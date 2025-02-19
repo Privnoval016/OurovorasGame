@@ -10,6 +10,7 @@ public class ComboConfig : ScriptableObject
         ComboActionType.Pause,
         ComboActionType.Mash,
         ComboActionType.Hold,
+        ComboActionType.Release,
         ComboActionType.Press,
         ComboActionType.Special
     };
@@ -48,5 +49,6 @@ public enum ComboActionType
     Hold,
     Pause,
     Mash,
-    Special
+    Special,
+    Release
 }

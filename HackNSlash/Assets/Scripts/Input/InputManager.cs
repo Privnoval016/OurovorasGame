@@ -95,8 +95,7 @@ public class InputManager : MonoBehaviour
         InputMap.StateControl.Enable();
         
         GameStateInputs.Add(GameState.PlayerControl, InputMap.Player);
-        GameStateInputs.Add(GameState.Combat, InputMap.Player);
-        GameStateInputs.Add(GameState.PauseMenu, InputMap.Menu);
+        GameStateInputs.Add(GameState.Menu, InputMap.Menu);
     }
     
     private void SetPlayerKeybinds()

@@ -66,5 +66,6 @@ public abstract class IDamageable : MonoBehaviour, ITargetable
         yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
         tookDamageThisAction = false;
     }
+    
 }
 

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
+  m_Name: VortexSlash
+  m_EditorClassIdentifier: 
+  isEnabled: 1
+  attackType: 4
+  element: 1
+  isLockedOn: 1
+  keyBinds: 02000000
+  inputDirection: {x: 0, y: -1}
+  applyTargetDirection: 1
+  isMidair: 0
+  applyRootMotion: 0
+  attackTransitions: []
+  attackClips:
+  - {fileID: 7400000, guid: 22f08f08956c96844b73e6bb0e0c6db0, type: 2}
+  clipsToPlay: 1
+  exitCondition: 0
+  onAttackAction: 0
+  hitInfo:
+    onHitActions: 00000000
+    hitDetection: 1
+    hitRegisterRadius: 15
+    hitRegisterAngle: 360
+    attackCoolDown: 0.5
+    damage: 0
+    hitForce: -15
+    hitDelay: 0.4
+    hitDirection: {x: 0, y: 0, z: 0}
+    elasticCollision: 0
+  vfxAttack: {fileID: 0}
+  vfxRotation: {x: 0, y: 0, z: 0}
