@@ -56,36 +56,30 @@ public class OnHitEvents : MonoBehaviour
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
         
-        enemy.TryGetComponent(out EnemyController ec);
-        if (ec != null) ec.pauseGravity = true;
+        if (!enemy.TryGetComponent(out EnemyController ec)) yield break;
         
-        if (enemy.gameObject.TryGetComponent(out Rigidbody rb))
-        {
-            Vector3 direction = Vector3.zero;
-            
-            if (a.hitInfo.hitDirection != Vector3.zero)
-            {
-                direction = a.hitInfo.hitDirection.GetRelativeVector3(pc.transform.forward).normalized;
-            }
-            else if (ec != null && !ec.IsGrounded)
-            {
-                direction = Vector3.up;
-            }
-            else
-            {
-                direction = (enemy.transform.position - pc.transform.position).normalized;
-            }
-            
-            rb.linearVelocity = Vector3.zero;
-            rb.AddForce(direction * a.hitInfo.hitForce, ForceMode.VelocityChange);
-            
-        }
+        ec.pauseGravity = true;
 
-        if (ec != null) 
+        Vector3 direction = Vector3.zero;
+        
+        if (a.hitInfo.hitDirection != Vector3.zero)
         {
-            Timing.WaitUntilTrue(() => pc.canAttack);
-            ec.pauseGravity = false;
+            direction = a.hitInfo.hitDirection.GetRelativeVector3(pc.transform.forward).normalized;
         }
+        else if (ec != null && !ec.IsGrounded)
+        {
+            direction = Vector3.up;
+        }
+        else
+        {
+            direction = (enemy.transform.position - pc.transform.position).normalized;
+        }
+        
+        ec.ForceKnockback(direction * a.hitInfo.hitForce);
+        
+        Timing.WaitUntilTrue(() => pc.canAttack);
+        ec.pauseGravity = false;
+        
     }
 
     #endregion
@@ -103,14 +97,13 @@ public class OnHitEvents : MonoBehaviour
     
     IEnumerator<float> BeginLaunchUp(PlayerController pc, IDamageable enemy, Attack a)
     {
-        if (!enemy.gameObject.TryGetComponent(out Rigidbody rb)) yield break;
+        if (!enemy.gameObject.TryGetComponent(out EnemyController ec)) yield break;
         
         yield return Timing.WaitUntilTrue(() => pc.canAttack);
 
         Vector3 direction = Vector3.up;
-        rb.linearVelocity = Vector3.zero;
         
-        Timing.RunCoroutine(rb.TraverseDistanceInTime(direction, launchUpHeight, launchUpTime));
+        ec.TraverseDistKnockback(direction, launchUpHeight, launchUpTime);
     }
     
     #endregion
@@ -128,17 +121,18 @@ public class OnHitEvents : MonoBehaviour
     
     IEnumerator<float> BeginFollowPlayerVelocity(PlayerController pc, IDamageable enemy, Attack a)
     {
-        if (!enemy.gameObject.TryGetComponent(out Rigidbody rb)) yield break;
-        if (enemy.gameObject.TryGetComponent(out EnemyController ec)) ec.pauseGravity = true;
-        if (enemy.gameObject.TryGetComponent(out Collider col)) Physics.IgnoreCollision(pc.GetComponent<Collider>(), col);
+        if (!enemy.gameObject.TryGetComponent(out EnemyController ec)) yield break;
+        
+        ec.pauseGravity = true;
+        Physics.IgnoreCollision(pc.col, ec.col);
         
         Vector3 lastNonZeroVelocity = Vector3.zero;
         
         while (!pc.canAttack)
         {
-            rb.linearVelocity = pc.discreteVelocity * followVelocityMult;
+            ec.SetVelocityKnockback(pc.discreteVelocity * followVelocityMult);
             
-            lastNonZeroVelocity = rb.linearVelocity.magnitude > 0.1f ? rb.linearVelocity : lastNonZeroVelocity;
+            lastNonZeroVelocity = ec.rb.linearVelocity.magnitude > 0.1f ? ec.rb.linearVelocity : lastNonZeroVelocity;
             
             yield return Timing.WaitForOneFrame;
         }
@@ -150,32 +144,30 @@ public class OnHitEvents : MonoBehaviour
         
         Debug.Log(lastNonZeroVelocity);
         
-        rb.linearVelocity = Vector3.zero;
-        rb.AddForce(lastNonZeroVelocity.normalized * a.hitInfo.hitForce, ForceMode.VelocityChange);
+        ec.ForceKnockback(lastNonZeroVelocity.normalized * a.hitInfo.hitForce);
         
-        float startTime = Time.time;
+         float startTime = Time.time;
         
-        bool forceApplied = false;
-        while (Time.time - startTime < a.hitInfo.hitDelay)
-        {
-            if (ec.IsGrounded && a.hitInfo.elasticCollision)
-            {
-                forceApplied = true;
-                break;
-            }
-            yield return Timing.WaitForOneFrame;
-        }
+         bool forceApplied = false;
+         while (Time.time - startTime < a.hitInfo.hitDelay)
+         {
+             if (ec.IsGrounded && a.hitInfo.elasticCollision)
+             {
+                 forceApplied = true;
+                 break;
+             }
+             yield return Timing.WaitForOneFrame;
+         }
         
-        if (forceApplied && a.hitInfo.elasticCollision)
-        {
-            Vector3 direction = Vector3.up;
-            rb.linearVelocity = Vector3.zero;
+         if (forceApplied && a.hitInfo.elasticCollision)
+         {
+             Vector3 direction = Vector3.up;
+             
+             ec.TweenKnockback(direction, bounceHeight, bounceTime, Ease.OutQuad);
+         }
         
-            rb.transform.TweenDistance(direction, bounceHeight, bounceTime, Ease.OutQuad);
-        }
-        
-        if (ec != null) ec.pauseGravity = false;
-        if (col != null) Physics.IgnoreCollision(pc.GetComponent<Collider>(), col, false);
+        ec.pauseGravity = false;
+        Physics.IgnoreCollision(pc.GetComponent<Collider>(), ec.col, false);
         
     }
 
@@ -199,15 +191,17 @@ public class OnHitEvents : MonoBehaviour
     {
         Debug.Log("Begin Launch Down");
         
-        if (!enemy.gameObject.TryGetComponent(out Rigidbody rb)) yield break;
-        if (enemy.gameObject.TryGetComponent(out EnemyController ec)) ec.pauseGravity = true;
-        if (enemy.gameObject.TryGetComponent(out Collider col)) Physics.IgnoreCollision(pc.GetComponent<Collider>(), col);
+        if (!enemy.gameObject.TryGetComponent(out EnemyController ec)) yield break;
+        
+        ec.pauseGravity = true;
+        Physics.IgnoreCollision(pc.col, ec.col);
         
         bool forceApplied = false;
         
         while (!pc.canAttack)
         {
-            Vector3 vel = pc.rb.linearVelocity.magnitude > 0f ? pc.rb.linearVelocity * launchDownVelocityMult : rb.linearVelocity; 
+            Vector3 vel = pc.rb.linearVelocity.magnitude > 0f ? pc.rb.linearVelocity * launchDownVelocityMult : ec.rb.linearVelocity; 
+            
             if (ec.IsGrounded && a.hitInfo.elasticCollision)
             {
                 forceApplied = true;
@@ -215,7 +209,7 @@ public class OnHitEvents : MonoBehaviour
             }
             else
             {
-                rb.linearVelocity = vel;
+                ec.SetVelocityKnockback(vel);
             }
             
             yield return Timing.WaitForOneFrame;
@@ -224,13 +218,12 @@ public class OnHitEvents : MonoBehaviour
         if (forceApplied && a.hitInfo.elasticCollision)
         {
             Vector3 direction = Vector3.up;
-            rb.linearVelocity = Vector3.zero;
-        
-            rb.transform.TweenDistance(direction, bounceHeight, bounceTime, Ease.OutQuad);
+            
+            ec.TweenKnockback(direction, bounceHeight, bounceTime, Ease.OutQuad);
         }
 
-        if (ec != null) ec.pauseGravity = false;
-        if (col != null) Physics.IgnoreCollision(pc.GetComponent<Collider>(), col, false);
+        ec.pauseGravity = false;
+        Physics.IgnoreCollision(pc.col, ec.col, false);
         
         
         

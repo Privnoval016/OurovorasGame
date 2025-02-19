@@ -11,6 +11,7 @@ public class Attack : ScriptableObject
     [Header("General")] 
     public bool isEnabled = true;
     public AttackTypes attackType;
+    public ElementEffect element;
     
     [Space(5)] 
     
@@ -36,6 +37,12 @@ public class Attack : ScriptableObject
     
     
     public HitInfo hitInfo;
+
+    [Header("VFX")] 
+    
+    public VFXAttack vfxAttack;
+
+    public Vector3 vfxRotation;
 
 
     private void OnValidate()

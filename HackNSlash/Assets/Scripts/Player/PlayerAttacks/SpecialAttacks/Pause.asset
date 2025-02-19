@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pause
   m_EditorClassIdentifier: 
   isEnabled: 1
-  attackType: 0
+  attackType: 4
   isLockedOn: 0
   keyBinds: 
   inputDirection: {x: 0, y: 0}
@@ -26,10 +26,13 @@ MonoBehaviour:
   exitCondition: 0
   onAttackAction: 0
   hitInfo:
-    onHitAction: 0
+    onHitActions: 00000000
     hitDetection: 0
     hitRegisterRadius: 3
     hitRegisterAngle: 120
     attackCoolDown: 0
-    knockBackForce: 0
     damage: 0
+    hitForce: 0
+    hitDelay: 0
+    hitDirection: {x: 0, y: 0, z: 0}
+    elasticCollision: 0

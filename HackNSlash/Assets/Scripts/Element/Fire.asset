@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 711da0ead83f73c4b9556f763e33c8ed, type: 3}
+  m_Name: Fire
+  m_EditorClassIdentifier: 
+  element: 2
+  brightColor: {r: 5.6855345, g: 0.7615721, b: 0.30394328, a: 1}
+  trueBrightAlpha: 5
+  vfxBrightColor: {r: 5.6855345, g: 0.7615721, b: 0.30394328, a: 5}
+  darkColor: {r: 0, g: 0, b: 0, a: 0}
+  trueDarkAlpha: 10
+  vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}

@@ -31,6 +31,11 @@ public class PlayerController : MonoBehaviour
     public AnimancerComponent animancer;
     public RedirectRootMotionToRigidbody rootMotion;
     
+    [HideInInspector]
+    public WeaponController wc;
+    
+    public float playerRadius = 3f;
+    
     #endregion
     
     #region MOVE PARAMETERS
@@ -93,18 +98,20 @@ public class PlayerController : MonoBehaviour
     #region ATTACK PARAMETERS
 
     [HideInInspector] public bool canAttack;
+    [HideInInspector] public Attack currentAttack;
 
     public Dictionary<KeyBind, KeyBindData> KeyMap;
     
     [HideInInspector] public List<ComboAction> comboChain = new();
     [HideInInspector] public float comboResetTimer = 0;
+    [HideInInspector] public bool pauseComboReset = false;
 
     public GameObject NearestEnemy
     {
         get
         {
             return cam.isLockedOn ? cam.targetedEnemy :
-                Physics.OverlapSphere(transform.position, itsCalledAuraBro, enemyLayer).
+                Physics.OverlapSphere(transform.position, playerRadius, enemyLayer).
                     Where(e =>
                         (e.transform.position - transform.position).IsInDirectionCone(transform.forward, 190f))
                     .OrderBy(e => Vector3.Distance(transform.position, e.transform.position)).FirstOrDefault()?.gameObject;
@@ -114,11 +121,8 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region WEAPON PARAMETERS
-    
-    [Header("Weapons")]
-    public GameObject[] weapons;
 
-    public float itsCalledAuraBro = 2f;
+    
     
     [HideInInspector] public float dodgeTimer = 0;
     #endregion
@@ -143,6 +147,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
+        wc = GetComponent<WeaponController>();
         
         if (Camera.main != null)
             Camera.main.TryGetComponent(out cam);
@@ -158,6 +163,8 @@ public class PlayerController : MonoBehaviour
         
         lastPosition = transform.position;
         lastVelocity = rb.linearVelocity;
+
+        wc.player = this;
     }
 
     private void Start()
@@ -285,11 +292,25 @@ public class PlayerController : MonoBehaviour
         OnAttackEvents.OnAttackActionMap[a.onAttackAction](this, a);
     }
     
+    public void InvokeOnVFX(TransformInfo start, Attack a, int actionIndex = 0)
+    {
+        OnVFXEvents.OnVFXActionMap[a.vfxAttack.vfxActions[actionIndex]](this, start, a);
+    }
+    
     private void CheckAttackAction()
     {
-        
-        if (comboChain == null || comboChain.Count == 0 || comboChain.Last().actionType != ComboActionType.Mash)
+
+        if (!pauseComboReset)
+        {
+            //Debug.Log(comboChain != null && comboChain.Count > 0 ? comboChain.Last().actionType.ToString() : "No Combo Chain");
             comboResetTimer += Time.deltaTime;
+        }
+        else
+        {
+            comboResetTimer = 0;
+        }
+
+        //Debug.Log("Combo Reset Timer: " + comboResetTimer + " Combo Chain: " + comboChain.Count);
         
         if (comboResetTimer > attackData.comboResetTime)
         {
@@ -299,16 +320,19 @@ public class PlayerController : MonoBehaviour
         #region Dodge
         
         dodgeTimer += Time.deltaTime;
-        
-        foreach (Attack attack in attackData.dodgeAttacks)
+
+        if (dodgeTimer > attackData.dodgeCoolDown)
         {
-            if (!AttackIsAvailable(attack)) continue;
-            
-            dodgeTimer = 0;
-            BeginAttack(attack);
-            return;
+            foreach (Attack attack in attackData.dodgeAttacks)
+            {
+                if (!AttackIsAvailable(attack)) continue;
+
+                dodgeTimer = 0;
+                BeginAttack(attack);
+                return;
+            }
         }
-        
+
         #endregion
         
         if (!canAttack) return;
@@ -329,6 +353,7 @@ public class PlayerController : MonoBehaviour
         #region Combo Attacks
         
         List<ComboAction> possibleActions = new();
+        
         foreach (ComboConfig combo in attackData.comboAttacks)
         {
             if (!combo.isEnabled) continue;
@@ -343,6 +368,7 @@ public class PlayerController : MonoBehaviour
             switch (nextAction.actionType)
             {
                 case ComboActionType.Press:
+                case ComboActionType.Release:
                     if (!AttackIsAvailable(nextAction.attack)) continue;
                     possibleActions.Add(nextAction);
                     
@@ -389,7 +415,7 @@ public class PlayerController : MonoBehaviour
         
         #region Combo Starters
         
-        if (IsMidair && KeyMap[KeyBind.AnyAttack].action())
+        if (IsMidair && KeyMap[KeyBind.LightAttack].action())
         {
             comboChain.Clear();
             BeginAttack(attackData.midairAttacks[0], ComboActionType.Press);
@@ -417,8 +443,10 @@ public class PlayerController : MonoBehaviour
     {
         comboResetTimer = 0;
         comboChain.Add(action);
-
+        
         if (action == null) return;
+        
+        currentAttack = action.attack;
 
         if (stateController.GetCurrentState() is PlayerMoving)
         {
@@ -441,6 +469,8 @@ public class PlayerController : MonoBehaviour
             time = actionTime
         });
         
+        currentAttack = attack;
+        
         if (attack == null) return;
         
         if (stateController.GetCurrentState() is PlayerMoving)
@@ -452,7 +482,6 @@ public class PlayerController : MonoBehaviour
             Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
             stateController.ChangeState(new PlayerAttacking(attack));
         }
-
     }
     
     private bool AttackIsAvailable(Attack attack)
@@ -478,7 +507,8 @@ public class PlayerController : MonoBehaviour
 
     public void CalculateGravity()
     {
-        if (isJumping && Mathf.Abs(rb.linearVelocity.y) < playerData.jumpHangTimeThreshold)
+        Debug.Log(rb.linearVelocity.y);
+        if (IsMidair && Mathf.Abs(rb.linearVelocity.y) < playerData.jumpHangTimeThreshold)
         {
             SetGravityScale(playerData.gravityScale * playerData.jumpHangGravityMult);
         }

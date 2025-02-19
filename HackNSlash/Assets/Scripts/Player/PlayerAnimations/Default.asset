@@ -26,8 +26,11 @@ MonoBehaviour:
       _FadeDuration: 0.25
       _Speed: 1
       _Events:
-        _NormalizedTimes: []
-        _Callbacks: []
+        _NormalizedTimes:
+        - 0.5
+        - NaN
+        _Callbacks:
+        - rid: 5117006577293328725
         _Names: []
       _Clip: {fileID: 7400000, guid: 6f180cabdebef0b45a3eef76ed55b35b, type: 2}
       _NormalizedStartTime: NaN
@@ -257,4 +260,8 @@ MonoBehaviour:
       _NormalizedStartTime: NaN
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5117006577293328725
+      type: {class: AnimancerEvent/ParameterObject, ns: Animancer, asm: Kybernetik.Animancer.Lite}
+      data:
+        "\u200E\u206E\u206C\u206E\u206F\u202D\u200C\u202D\u202A\u202D\u206E\u206B\u206C\u200E\u202A\u202A\u200E\u202E\u202E\u200F\u200B\u206F\u206C\u200C\u202D\u200D\u200D\u206C\u206F\u206B\u206C\u206E\u200E\u200B\u200C\u200F\u200F\u202C\u206E\u200C\u202E": {fileID: 0}

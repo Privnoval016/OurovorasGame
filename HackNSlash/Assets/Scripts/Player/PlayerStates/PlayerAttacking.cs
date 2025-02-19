@@ -46,6 +46,26 @@ public class PlayerAttacking : State
         TurnToLookOnAttack();
         CheckEnemyCollision();
         
+        CheckAttackExit();
+    }
+
+    public override void OnFixedUpdate()
+    {
+    }
+
+    public override void OnExit()
+    {
+        Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
+        pc.pauseComboReset = false;
+        pc.rootMotion.enabled = false;
+    }
+    
+    #endregion
+
+    #region Exit Methods
+
+    private void CheckAttackExit()
+    {
         if (attack.exitCondition == ExitConditions.ExternalExit)
         {
             attackEndTime = 10;
@@ -72,20 +92,6 @@ public class PlayerAttacking : State
             sc.ResumePrevious();
         }
     }
-
-    public override void OnFixedUpdate()
-    {
-    }
-
-    public override void OnExit()
-    {
-        Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
-        pc.rootMotion.enabled = false;
-    }
-    
-    #endregion
-
-    #region Input Callbacks
     
 
     #endregion
@@ -208,21 +214,7 @@ public class PlayerAttacking : State
         enemies.RemoveWhere(e => !(e.transform.position - pc.transform.position).ToVector2().
             IsInDirectionCone(pc.transform.forward.ToVector2(), attack.hitInfo.hitRegisterAngle));
         
-        List<HashSet<Collider>> tempEnemies = new();
-        foreach (GameObject sword in pc.weapons)
-        {
-            if (!sword.TryGetComponent(out WeaponController wc)) continue;
-            tempEnemies.Add(new HashSet<Collider>());
-            
-            tempEnemies[^1] = enemies.Where(e => wc.IsIntersecting(e)).ToHashSet();
-        }
-        
-        // remove enemies that are not hit by at least one weapon
-        enemies = new HashSet<Collider>();
-        foreach (HashSet<Collider> enemySet in tempEnemies)
-        {
-            enemies = enemies.Union(enemySet).ToHashSet();
-        }
+        enemies = enemies.Where(e => pc.wc.IsIntersecting(e)).ToHashSet();
         
         return enemies;
     }

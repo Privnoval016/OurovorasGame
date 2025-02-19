@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dodge
   m_EditorClassIdentifier: 
   isEnabled: 1
-  attackType: 0
+  attackType: 4
   isLockedOn: 0
   keyBinds: 04000000
   inputDirection: {x: 0, y: 0}
@@ -27,10 +27,13 @@ MonoBehaviour:
   exitCondition: 0
   onAttackAction: 4
   hitInfo:
-    onHitAction: 0
+    onHitActions: 00000000
     hitDetection: 0
     hitRegisterRadius: 3
     hitRegisterAngle: 120
     attackCoolDown: 0.7
-    knockBackForce: 0
     damage: 0
+    hitForce: 0
+    hitDelay: 0
+    hitDirection: {x: 0, y: 0, z: 0}
+    elasticCollision: 0

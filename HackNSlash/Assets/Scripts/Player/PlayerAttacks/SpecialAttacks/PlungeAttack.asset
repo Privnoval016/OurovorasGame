@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlungeAttack
   m_EditorClassIdentifier: 
   isEnabled: 1
-  attackType: 0
+  attackType: 4
   isLockedOn: 1
   keyBinds: 01000000
   inputDirection: {x: 0, y: -1}

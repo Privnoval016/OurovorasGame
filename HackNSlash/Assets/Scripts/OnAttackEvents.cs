@@ -15,7 +15,8 @@ public enum OnAttackActions
     PlungeAttack,
     DodgeMove,
     FloorDash,
-    MashAttack
+    MashAttack,
+    BladeBeam
 }
 
 public class OnAttackEvents : MonoBehaviour
@@ -52,20 +53,70 @@ public class OnAttackEvents : MonoBehaviour
         OnAttackActionMap.Add(OnAttackActions.DodgeMove, Dodge);
         OnAttackActionMap.Add(OnAttackActions.FloorDash, FloorDash);
         OnAttackActionMap.Add(OnAttackActions.MashAttack, MashAttack);
+        OnAttackActionMap.Add(OnAttackActions.BladeBeam, BladeBeam);
         
         
     }
     
     IEnumerator<float> ResumeMoving(PlayerController pc, Attack a, float time, Action action = null)
     {
-        Debug.Log("Can attack: " + pc.canAttack);
-        Debug.Log("Time: " + time);
         yield return Timing.WaitForSeconds(time);
-        
         if (action != null) action();
         pc.canAttack = true;
-        Debug.Log("Can attack: " + pc.canAttack);
     }
+    
+    #region Blade Beam
+    
+    [Header("Blade Beam")]
+    [SerializeField] private float bladeBeamHoldTime;
+    [SerializeField] private float crossSlashDuration = 1.3f;
+    
+    private void BladeBeam(PlayerController pc, Attack a)
+    {
+        Timing.RunCoroutine(BeginBladeBeam(pc, a));
+    }
+    
+    private IEnumerator<float> BeginBladeBeam(PlayerController pc, Attack a)
+    {
+        ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = false;
+        
+        pc.pauseComboReset = true; 
+        pc.TurnToLook();
+        
+        KeyBind[] holdKeys = InputManager.GetReleaseable(a.keyBinds);
+        float startTime = Time.time;
+        yield return Timing.WaitUntilTrue(() => holdKeys.Any(k => InputManager.KeyMap[k].releaseAction()));
+        float elapsedTime = Time.time - startTime;
+
+        if (elapsedTime < bladeBeamHoldTime)
+        {
+            pc.PlayAnimation(a.attackClips[1], 0.01f);
+            
+            Vector3 startPos = pc.transform.forward.FindRadialVector3(pc.playerRadius, 0) + pc.transform.position;
+            Quaternion startRot = pc.transform.rotation;
+            if (pc.cam.isLockedOn)
+                startRot = Quaternion.LookRotation(pc.cam.targetedEnemy.transform.position - pc.transform.position);
+            if (a.vfxRotation != Vector3.zero)
+            {
+                startRot *= Quaternion.Euler(a.vfxRotation);
+            }
+            
+            pc.InvokeOnVFX(new TransformInfo(startPos, startRot, Vector3.one), a);
+            
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.pauseComboReset = false));
+            
+            
+        }
+        else
+        {
+            pc.PlayAnimation(a.attackClips[2], 0.01f);
+            Timing.RunCoroutine(ResumeMoving(pc, a, crossSlashDuration, () => pc.pauseComboReset = false));
+        }
+        
+        
+    }
+    
+    #endregion
     
     
     #region Air Dash
@@ -87,7 +138,6 @@ public class OnAttackEvents : MonoBehaviour
         
         Quaternion originalRotation = pc.animancer.gameObject.transform.rotation;
         
-        pc.animancer.gameObject.transform.LookAt(target.transform.position);
         pc.PlayAnimation(a.attackClips[1], 0.01f);
        
         pc.rb.linearVelocity = Vector3.zero;
@@ -97,6 +147,7 @@ public class OnAttackEvents : MonoBehaviour
         Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
             pc.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
         
+        pc.animancer.gameObject.transform.LookAt(target.transform.position);
         Vector3 direction = target.transform.position - pc.transform.position;
         
         if (target.TryGetComponent(out Collider c)) Physics.IgnoreCollision(pc.col, c, true);
@@ -220,7 +271,13 @@ public class OnAttackEvents : MonoBehaviour
         
         Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(Vector3.up, launchUpHeight, launchUpTime));
         
-        pc.isJumping = true;
+        Timing.WaitForSeconds(launchUpTime);
+        
+        pc.rb.linearVelocity = Vector3.zero;
+        //pc.SetGravityScale(pc.playerData.jumpHangGravityMult);
+        
+        
+        
         
     }
     
@@ -239,9 +296,11 @@ public class OnAttackEvents : MonoBehaviour
     
     private IEnumerator<float> BeginPlungeAttack(PlayerController pc, Attack a)
     {
+        ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = false;
         pc.PlayAnimation(a.attackClips[0], 0.01f);
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
         
+        ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = true;
         pc.PlayAnimation(a.attackClips[1], 0.01f);
         
         pc.rb.linearVelocity = Vector3.zero;
@@ -283,7 +342,7 @@ public class OnAttackEvents : MonoBehaviour
         if (pc.cam.isLockedOn && pc.StandardizedMoveDir.magnitude < 0.1f)
         {
             Vector3 teleportedPosition = pc.cam.targetedEnemy.transform.position + 
-                                         (pc.transform.position - pc.cam.targetedEnemy.transform.position).ZeroVector3Axis().normalized * pc.itsCalledAuraBro;
+                                         (pc.transform.position - pc.cam.targetedEnemy.transform.position).ZeroVector3Axis().normalized * pc.playerRadius;
             dodgeDirection = teleportedPosition - pc.transform.position;
             
             distance = dodgeDirection.magnitude;
@@ -328,6 +387,8 @@ public class OnAttackEvents : MonoBehaviour
         float timeSinceLastClick = 0;
         float startTime = Time.time;
         
+        pc.pauseComboReset = true;
+        
         while (timeSinceLastClick < mashInterval && Time.time - startTime < mashDuration)
         {
             if (InputManager.KeyMap[a.keyBinds[0]].action())
@@ -343,12 +404,12 @@ public class OnAttackEvents : MonoBehaviour
         
         if (timeSinceLastClick >= mashInterval)
         {
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.pauseComboReset = false));
             pc.PlayAnimation(a.attackClips[1], 0.01f);
         }
         else
         {
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown * 2));
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown * 2, () => pc.pauseComboReset = false));
             pc.PlayAnimation(a.attackClips[2], 0.01f);
         }
     }

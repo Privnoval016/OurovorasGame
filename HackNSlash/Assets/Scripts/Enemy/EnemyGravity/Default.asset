@@ -16,7 +16,5 @@ MonoBehaviour:
   gravityScale: 7.6452594
   fallGravityMult: 1.5
   maxFallSpeed: 10
-  jumpHangGravityMult: 0.513
-  jumpHangTimeThreshold: 0
-  jumpHangAccelerationMult: 1.88
-  jumpHangMaxSpeedMult: 1
+  jumpHangGravityMult: 0.133
+  jumpHangTimeThreshold: 1

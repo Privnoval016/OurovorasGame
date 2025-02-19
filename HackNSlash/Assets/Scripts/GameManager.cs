@@ -9,10 +9,20 @@ using UnityEngine.InputSystem;
 public enum GameState
 {
     PlayerControl,
-    Combat,
     Cutscene,
-    PauseMenu,
-    UpgradeMenu,
+    Menu,
+}
+
+public enum ElementEffect
+{
+    None,
+    MatchCurrent,
+    Fire,
+    Water,
+    Lightning,
+    Earth,
+    Wind,
+    Aether
 }
 
 public class GameManager : MonoBehaviour
@@ -24,6 +34,10 @@ public class GameManager : MonoBehaviour
     public static GameState CurrentGameState;
     private GameState previousGameState;
     
+    public static readonly Dictionary<ElementEffect, Func<ElementData>> ElementMap = new();
+    public static ElementEffect CurrentElementEffect = ElementEffect.None;
+    public static ElementData CurrentElementData => ElementMap[CurrentElementEffect]();
+    
     
     [Header("In Game Instances")]
     public GameObject player;
@@ -31,6 +45,8 @@ public class GameManager : MonoBehaviour
     
     [Header("Global Parameters")]
     public float globalGravity = -9.81f;
+    
+    public ElementData[] elementData;
 
     #region MonoBehavior Callbacks
     
@@ -50,9 +66,16 @@ public class GameManager : MonoBehaviour
         CurrentGameState = GameState.PlayerControl;
         previousGameState = GameState.PlayerControl;
         
+        SetElementMap();
+        
         InputManager.Instance.pause.performed += OnPauseAction;
     }
     
+    private void Update()
+    {
+
+    }
+
     #endregion
 
 
@@ -60,13 +83,13 @@ public class GameManager : MonoBehaviour
     
     private void OnPauseAction(InputAction.CallbackContext context)
     {
-        if (CurrentGameState == GameState.PauseMenu)
+        if (CurrentGameState == GameState.Menu)
         {
             SetGameState(previousGameState);
         }
         else
         {
-            SetGameState(GameState.PauseMenu);
+            SetGameState(GameState.Menu);
         }
     }
 
@@ -83,22 +106,34 @@ public class GameManager : MonoBehaviour
             case GameState.PlayerControl:
                 Time.timeScale = 1;
                 break;
-            case GameState.Combat:
-                Time.timeScale = 1;
-                break;
             case GameState.Cutscene:
                 Time.timeScale = 1;
                 break;
-            case GameState.PauseMenu:
-                Time.timeScale = 0;
-                break;
-            case GameState.UpgradeMenu:
+            case GameState.Menu:
                 Time.timeScale = 0;
                 break;
         }
         
         previousGameState = CurrentGameState;
         CurrentGameState = state;
+    }
+    
+    #endregion
+    
+    #region Element Methods
+    
+    private void SetElementMap()
+    {
+        if (elementData == null) return;
+        
+        foreach (ElementData element in elementData)
+        {
+            ElementMap.Add(element.element, () => element);
+        }
+        
+        // match current element should return the elementdata associated with the current element effect
+        
+        ElementMap.Add(ElementEffect.MatchCurrent, () => ElementMap[CurrentElementEffect]());
     }
     
     #endregion

@@ -1,6 +1,10 @@
+using System;
+using ExtensionUtils;
+using MEC;
 using UnityEngine;
+using PrimeTween;
 
-// All enemies that can move will inherit from this class
+// All enemies that utilize rigidbody physics should inherit from this class
 public class EnemyController : IDamageable
 {
     public EnemyGravity gravityData;
@@ -8,10 +12,15 @@ public class EnemyController : IDamageable
     private float gravityScale;
     [HideInInspector] public bool pauseGravity;
     
-    private Rigidbody rb;
+    [HideInInspector]
+    public Rigidbody rb;
+    [HideInInspector]
+    public Collider col;
     
     public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
+
+    public bool canBeKnockedBack;
     
     #region CHECK PARAMETERS
    
@@ -26,7 +35,9 @@ public class EnemyController : IDamageable
     public override void OnStart()
     {
         rb = GetComponent<Rigidbody>();
+        col = GetComponent<Collider>();
         rb.useGravity = false;
+        canBeKnockedBack = true;
     }
 
     public override void OnUpdate()
@@ -83,5 +94,45 @@ public class EnemyController : IDamageable
         rb.AddForce(gravity, ForceMode.Acceleration);
     }
     
+    #endregion
+
+
+    #region Knockback Methods
+    
+    public bool ForceKnockback(Vector3 force, ForceMode mode = ForceMode.VelocityChange)
+    {
+        if (!canBeKnockedBack) return false;
+        
+        rb.linearVelocity = Vector3.zero;
+        rb.AddForce(force, mode);
+        return true;
+    }
+
+    public bool TraverseDistKnockback(Vector3 direction, float distance, float time, Func<bool> condition = null)
+    {
+        if (!canBeKnockedBack) return false;
+
+        rb.linearVelocity = Vector3.zero;
+        Timing.RunCoroutine(rb.TraverseDistanceInTime(direction, distance, time, condition));
+        return true;
+    }
+
+    public bool SetVelocityKnockback(Vector3 velocity)
+    {
+        if (!canBeKnockedBack) return false;
+        
+        rb.linearVelocity = velocity;
+        return true;
+    }
+    
+    public bool TweenKnockback(Vector3 direction, float distance, float time, Ease ease = Ease.Default)
+    {
+        if (!canBeKnockedBack) return false;
+        
+        rb.linearVelocity = Vector3.zero;
+        transform.TweenDistance(direction, distance, time, ease);
+        return true;
+    }
+
     #endregion
 }
