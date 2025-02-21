@@ -96,12 +96,12 @@ public class OnAttackEvents : MonoBehaviour
             Quaternion startRot = pc.transform.rotation;
             if (pc.cam.isLockedOn)
                 startRot = Quaternion.LookRotation(pc.cam.targetedEnemy.transform.position - pc.transform.position);
-            if (a.vfxRotation != Vector3.zero)
+            if (a.vfxInfos[0].rotation != Quaternion.identity)
             {
-                startRot *= Quaternion.Euler(a.vfxRotation);
+                startRot *= a.vfxInfos[0].rotation;
             }
             
-            pc.InvokeOnVFX(new TransformInfo(startPos, startRot, Vector3.one), a);
+            OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(startPos, startRot, Vector3.one), a, 0);
             
             Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.pauseComboReset = false));
             

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isEnabled: 1
   attackType: 0
+  element: 0
   isLockedOn: 0
   keyBinds: 01000000
   inputDirection: {x: 0, y: 0}
@@ -27,10 +28,17 @@ MonoBehaviour:
   exitCondition: 0
   onAttackAction: 0
   hitInfo:
-    onHitAction: 0
+    onHitActions: 00000000
     hitDetection: 1
     hitRegisterRadius: 3
     hitRegisterAngle: 120
     attackCoolDown: 0.4
-    knockBackForce: 0
     damage: 0
+    hitForce: 0
+    hitDelay: 0
+    hitDirection: {x: 0, y: 0, z: 0}
+    elasticCollision: 0
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    duration: 0.3
+    rotation: {x: 0, y: 0, z: 0, w: 0}

@@ -20,7 +20,7 @@ public class OnVFXEvents : MonoBehaviour
 {
     public static OnVFXEvents Instance { get; private set; }
     
-    public static Dictionary<OnVFXActions, Action<PlayerController, TransformInfo, Attack>> OnVFXActionMap;
+    public static Dictionary<OnVFXActions, Action<VFXController, WeaponType>> OnVFXActionMap;
     
     private void Awake()
     {
@@ -44,11 +44,24 @@ public class OnVFXEvents : MonoBehaviour
         OnVFXActionMap = new();
         
         OnVFXActionMap.Add(OnVFXActions.LinearPath, LinearPath);
+        OnVFXActionMap.Add(OnVFXActions.FollowWeapon, FollowWeapon);
     }
     
-    private VFXController InstantiateVFX(PlayerController pc, TransformInfo start, Attack a)
+    public bool InvokeOnVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
     {
-        GameObject vfx = Instantiate(a.vfxAttack.vfxHitBox, start.Position, start.Rotation);
+        if (a == null || a.vfxInfos.Length == 0) return false;
+        VFXController vfx = InstantiateVFX(pc, start, a, vfxIndex);
+        if (vfx == null) return false;
+        OnVFXActionMap[a.vfxInfos[vfxIndex].vfxAttack.vfxAction](vfx, weaponType);
+        return true;
+    }
+    
+    private VFXController InstantiateVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0)
+    {
+        if (a.vfxInfos.Length <= vfxIndex) return null;
+
+        VFXInfo v = a.vfxInfos[vfxIndex];
+        GameObject vfx = Instantiate(v.vfxAttack.vfxHitBox, start.Position, start.Rotation);
         
         if (!vfx.TryGetComponent(out VFXController vc))
         {
@@ -58,74 +71,78 @@ public class OnVFXEvents : MonoBehaviour
         
         List<VisualEffect> vfxs = new List<VisualEffect>();
 
-        foreach (VFXData vfxData in a.vfxAttack.vfxDatas)
+        foreach (VFXData vfxData in v.vfxAttack.vfxDatas)
         {
             GameObject effect = vfxData.effect == null ? 
                 GameManager.CurrentElementData.GetVFX(vfxData.vfxType) : vfxData.effect;
             if (effect == null) continue;
             
             GameObject vfxInstance = Instantiate(effect, vfx.transform);
-            if (!vfxInstance.TryGetComponent(out VisualEffect vfxInstanceVFX))
+            if (!vfxInstance.TryGetComponentInChildren(out VisualEffect vfxInstanceVFX))
             {
                 Destroy(vfxInstance);
                 continue;
             }
             
-            vfxInstanceVFX.SafeSetFloat("Lifetime", vfxData.duration <= 0 ? a.vfxAttack.vfxDuration : vfxData.duration);
+            vfxInstanceVFX.SafeSetFloat("Lifetime", v.duration * vfxData.durationScale);
             
             vfxInstance.transform.localPosition = vfxData.localTransform.Position;
             vfxInstance.transform.localRotation = vfxData.localTransform.Rotation;
-            vfxInstance.transform.localScale = vfxData.localTransform.Scale;
+            vc.SetChildScale(vfxInstance, vfxData.localTransform.Scale);
             
             vfxs.Add(vfxInstanceVFX);
+            
+            vfxInstanceVFX.gameObject.SetActive(false);
         }
         
-        vc.InitializeVFX(pc, start, a, vfxs.ToArray(), a.vfxAttack.canCollide);
+        vc.InitializeVFX(pc, start, a, v, vfxs.ToArray(), vfxIndex, v.vfxAttack.canCollide);
         return vc;
     }
     
     #region Linear Path
     
-    private void LinearPath(PlayerController pc, TransformInfo start, Attack a)
+    private void LinearPath(VFXController vfx , WeaponType weaponType)
     {
-        Timing.RunCoroutine(BeginLinearPath(pc, start, a));
+        Timing.RunCoroutine(BeginLinearPath(vfx, weaponType));
     }
     
-    IEnumerator<float> BeginLinearPath(PlayerController pc, TransformInfo start, Attack a)
+    IEnumerator<float> BeginLinearPath(VFXController vfx, WeaponType weaponType)
     {
-        VFXAttack v = a.vfxAttack;
-        
-        VFXController vfx = InstantiateVFX(pc, start, a);
-        if (vfx == null) yield break;
+        VFXAttack v = vfx.vfxInfo.vfxAttack;
         
         Vector3 direction = vfx.transform.forward;
-        vfx.transform.TweenDistance(direction, v.vfxDuration * v.vfxSpeed, v.vfxDuration, Ease.Linear);
+        vfx.transform.TweenDistance(direction, vfx.timeAlive * v.vfxSpeed, vfx.timeAlive, Ease.Linear);
         
-        Destroy(vfx.gameObject, v.vfxDuration);
+        vfx.EnableVFX();
+        
+        yield return Timing.WaitForSeconds(vfx.timeAlive);
     }
     
     #endregion
     
     
     #region Follow Weapon
+
+    [SerializeField] private float slowDownTime = 0.3f;
     
-    private void FollowWeapon(PlayerController pc, TransformInfo start, Attack a)
+    private void FollowWeapon(VFXController vfx, WeaponType weaponType)
     {
-        Timing.RunCoroutine(BeginFollowWeapon(pc, start, a));
+        Timing.RunCoroutine(BeginFollowWeapon(vfx, weaponType));
     }
     
-    IEnumerator<float> BeginFollowWeapon(PlayerController pc, TransformInfo start, Attack a)
+    IEnumerator<float> BeginFollowWeapon(VFXController vfx, WeaponType weaponType)
     {
-        VFXAttack v = a.vfxAttack;
+        VFXInfo v = vfx.vfxInfo;
+
+        vfx.UpdateVFXFloat("Slow", Math.Max((v.duration - slowDownTime) / v.duration, 0));
         
-        VFXController vfx = InstantiateVFX(pc, start, a);
-        if (vfx == null) yield break;
-        
-        vfx.transform.SetParent(pc.wc.WeaponBodies[0].transform);
+        vfx.ChangeParent(vfx.player.wc.GetWeapon(weaponType).transform);
         vfx.transform.localPosition = Vector3.zero;
         vfx.transform.localRotation = Quaternion.identity;
         
-        Destroy(vfx.gameObject, v.vfxDuration);
+        vfx.EnableVFX();
+        
+        yield return Timing.WaitForSeconds(vfx.timeAlive);
     }
     
     

@@ -98,6 +98,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""EnterCombat"",
+                    ""type"": ""Button"",
+                    ""id"": ""7ecf1276-9751-4342-b69c-2476fac5c22b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -342,6 +351,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Retarget"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dbd274c6-f9c8-427c-8fd3-97ea949688d3"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EnterCombat"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ff448b93-0fe8-463e-8708-cd13f45661c9"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EnterCombat"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -559,6 +590,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_LightAttack = m_Player.FindAction("LightAttack", throwIfNotFound: true);
         m_Player_HeavyAttack = m_Player.FindAction("HeavyAttack", throwIfNotFound: true);
         m_Player_Retarget = m_Player.FindAction("Retarget", throwIfNotFound: true);
+        m_Player_EnterCombat = m_Player.FindAction("EnterCombat", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_Navigate = m_Menu.FindAction("Navigate", throwIfNotFound: true);
@@ -643,6 +675,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_LightAttack;
     private readonly InputAction m_Player_HeavyAttack;
     private readonly InputAction m_Player_Retarget;
+    private readonly InputAction m_Player_EnterCombat;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -655,6 +688,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         public InputAction @LightAttack => m_Wrapper.m_Player_LightAttack;
         public InputAction @HeavyAttack => m_Wrapper.m_Player_HeavyAttack;
         public InputAction @Retarget => m_Wrapper.m_Player_Retarget;
+        public InputAction @EnterCombat => m_Wrapper.m_Player_EnterCombat;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -688,6 +722,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Retarget.started += instance.OnRetarget;
             @Retarget.performed += instance.OnRetarget;
             @Retarget.canceled += instance.OnRetarget;
+            @EnterCombat.started += instance.OnEnterCombat;
+            @EnterCombat.performed += instance.OnEnterCombat;
+            @EnterCombat.canceled += instance.OnEnterCombat;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -716,6 +753,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Retarget.started -= instance.OnRetarget;
             @Retarget.performed -= instance.OnRetarget;
             @Retarget.canceled -= instance.OnRetarget;
+            @EnterCombat.started -= instance.OnEnterCombat;
+            @EnterCombat.performed -= instance.OnEnterCombat;
+            @EnterCombat.canceled -= instance.OnEnterCombat;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -860,6 +900,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         void OnLightAttack(InputAction.CallbackContext context);
         void OnHeavyAttack(InputAction.CallbackContext context);
         void OnRetarget(InputAction.CallbackContext context);
+        void OnEnterCombat(InputAction.CallbackContext context);
     }
     public interface IMenuActions
     {

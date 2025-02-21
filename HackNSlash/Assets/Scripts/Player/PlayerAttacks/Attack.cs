@@ -40,9 +40,7 @@ public class Attack : ScriptableObject
 
     [Header("VFX")] 
     
-    public VFXAttack vfxAttack;
-
-    public Vector3 vfxRotation;
+    public VFXInfo[] vfxInfos;
 
 
     private void OnValidate()
@@ -92,4 +90,12 @@ public class HitInfo
 
     [Tooltip("Used for follow velocity and other select hit actions")]
     public bool elasticCollision = false;
+}
+
+[Serializable]
+public class VFXInfo
+{
+    public VFXAttack vfxAttack;
+    public float duration = 0.3f;
+    public Quaternion rotation;
 }

@@ -15,3 +15,8 @@ MonoBehaviour:
   element: 0
   vfxBrightColor: {r: 6.4734626, g: 6.4734626, b: 6.4734626, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
+  elementVFXs:
+    _serializedList:
+    - Key: 0
+      Value: {fileID: 289161321636050785, guid: 8ec69289443dd9b4d82fb190f1454e33,
+        type: 3}
