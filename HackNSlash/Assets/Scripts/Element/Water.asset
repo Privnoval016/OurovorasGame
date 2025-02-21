@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Water
   m_EditorClassIdentifier: 
   element: 3
-  brightColor: {r: 2.3727288, g: 2.8400402, b: 6.9222765, a: 1}
-  trueBrightAlpha: 5
   vfxBrightColor: {r: 2.3727288, g: 2.8400402, b: 6.9222765, a: 5}
-  darkColor: {r: 0, g: 0, b: 0, a: 0}
-  trueDarkAlpha: 10
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
+  elementVFXs:
+    _serializedList:
+    - Key: 0
+      Value: {fileID: 289161321636050785, guid: 8ec69289443dd9b4d82fb190f1454e33,
+        type: 3}

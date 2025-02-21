@@ -7,6 +7,8 @@ using Object = System.Object;
 [CreateAssetMenu(menuName = "Player/MoveAnimData")]
 public class MoveAnimData : ScriptableObject
 {
+    public MovingStates state;
+    
     public Dictionary<WalkingAnimStates, Object> _animStates;
     
     [Header("Idle")]
@@ -24,6 +26,11 @@ public class MoveAnimData : ScriptableObject
     public MixerTransition2D doubleJumpClip;
     
     public AnimLoop fallClip;
+    
+    [Header("Other")]
+    
+    public ClipTransition swapClip;
+    public MovingStates nextState;
 
     private void OnValidate()
     {
@@ -36,6 +43,7 @@ public class MoveAnimData : ScriptableObject
         _animStates.Add(WalkingAnimStates.Jumping, jumpClip);
         _animStates.Add(WalkingAnimStates.DoubleJumping, doubleJumpClip);
         _animStates.Add(WalkingAnimStates.Falling, fallClip);
+        _animStates.Add(WalkingAnimStates.Swapping, swapClip);
     }
 }
 
@@ -47,7 +55,8 @@ public enum WalkingAnimStates
     Sprinting,
     Falling,
     Jumping,
-    DoubleJumping
+    DoubleJumping,
+    Swapping,
 }
 
 public abstract class Loop

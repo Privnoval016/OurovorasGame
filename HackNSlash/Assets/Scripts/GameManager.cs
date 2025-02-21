@@ -35,8 +35,8 @@ public class GameManager : MonoBehaviour
     private GameState previousGameState;
     
     public static readonly Dictionary<ElementEffect, Func<ElementData>> ElementMap = new();
-    public static ElementEffect CurrentElementEffect = ElementEffect.None;
-    public static ElementData CurrentElementData => ElementMap[CurrentElementEffect]();
+    public ElementEffect CurrentElementEffect = ElementEffect.None;
+    public static ElementData CurrentElementData => ElementMap[Instance.CurrentElementEffect]();
     
     
     [Header("In Game Instances")]

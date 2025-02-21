@@ -701,6 +701,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d57a53a8b9a83514c9d5492225589fb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  slowDownTime: 0.3
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -923,7 +924,13 @@ MonoBehaviour:
   col: {fileID: 0}
   playerData: {fileID: 11400000, guid: 492cc163f440d418791e35eea37104b1, type: 2}
   attackData: {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
-  moveAnimData: {fileID: 11400000, guid: fd6a31838b2c04777827e0d41dd8b298, type: 2}
+  moveAnimDataDict:
+    _serializedList:
+    - Key: 0
+      Value: {fileID: 11400000, guid: eb901f98a0d7b3f408722cb48aed75d0, type: 2}
+    - Key: 1
+      Value: {fileID: 11400000, guid: fd6a31838b2c04777827e0d41dd8b298, type: 2}
+  movingState: 0
   parameterNames:
   - {fileID: 11400000, guid: 388a46bfede854feea0463faa2ce8881, type: 2}
   - {fileID: 11400000, guid: 5bbd3289517d44f308c4c0ef74b896ef, type: 2}
@@ -931,7 +938,9 @@ MonoBehaviour:
   animancer: {fileID: 5866666020638784866}
   rootMotion: {fileID: 1210943192}
   wc: {fileID: 0}
+  model: {fileID: 5866666020638784867}
   playerRadius: 3
+  pauseMovement: 0
   lastOnGroundTime: 0
   lastDoubleJumpTime: 0
   lastPressedJumpTime: 0
@@ -971,9 +980,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ecf9d8b9f08b436294ecda867e23241, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WeaponBodies:
-  - {fileID: 1663259182}
-  - {fileID: 272727709010029489}
+  weaponBodies:
+    _serializedList:
+    - Key: 1
+      Value: {fileID: 1663259182}
+    - Key: 2
+      Value: {fileID: 272727709010029489}
+  activeWeaponTypes: 0100000002000000
+  activeWeapons: []
   trailLength: 10
   player: {fileID: 0}
 --- !u!4 &878594581 stripped
@@ -1207,6 +1221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c636a7cace2440508f2e7744449d8a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CurrentElementEffect: 0
   player: {fileID: 0}
   globalGravity: -9.81
   elementData:
@@ -1590,6 +1605,15 @@ MonoBehaviour:
     m_Type: 0
     m_ExpectedControlType: 
     m_Id: 7b036315-cc91-41fe-8e40-2822d7c060a4
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  swapMode:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 2e5e70bf-fa4b-4ee5-8142-377169a4d11f
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -2301,6 +2325,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5343538577303432147, guid: b0e4a338c52db4378bb3f6dcf19db215,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6155948145651906798, guid: b0e4a338c52db4378bb3f6dcf19db215,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6683074765048914119, guid: b0e4a338c52db4378bb3f6dcf19db215,
         type: 3}
@@ -3872,6 +3906,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ef54c98c3fd4c047af04ed628b6a630, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pc: {fileID: 0}
+  slashLocalTransform:
+    Position: {x: 0, y: 0, z: 0}
+    Rotation: {x: 0, y: 0, z: 0, w: 0}
+    Scale: {x: 0.54627, y: 0.3316187, z: 0.54627}
 --- !u!1 &6016349229661995848
 GameObject:
   m_ObjectHideFlags: 0

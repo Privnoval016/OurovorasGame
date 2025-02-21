@@ -369,6 +369,11 @@ namespace ExtensionUtils
         {
             return new Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
         }
+        
+        public static Vector3 DividedBy(this Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.x / b.x, a.y / b.y, a.z / b.z);
+        }
 
         public static int Flip(this int a, bool isFlipped)
         {

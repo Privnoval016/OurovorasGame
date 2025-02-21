@@ -22,11 +22,23 @@ public class VFXAttack : ScriptableObject
     public VFXData[] vfxDatas;
     
     [Header("Movement Settings")]
-    public OnVFXActions[] vfxActions = {OnVFXActions.FollowWeapon};
-    public float vfxDuration;
+    public OnVFXActions vfxAction = OnVFXActions.FollowWeapon;
     public float vfxSpeed;
     public bool canCollide = true;
 
+
+    private void OnValidate()
+    {
+        if (vfxDatas.Length == 0) return;
+        
+        foreach (VFXData vfxData in vfxDatas)
+        {
+            if (vfxData.localTransform.Scale == Vector3.zero)
+            {
+                vfxData.localTransform.Scale = Vector3.one;
+            }
+        }
+    }
 }
 
 [Serializable]
@@ -36,8 +48,9 @@ public class VFXData
     [Tooltip("Overrides the VFX associated with the current element")]
     public GameObject effect;
     public TransformInfo localTransform;
-    [Tooltip("Duration of the effect (zero to match the duration of the VFXAttack, negative number for infinite duration)")]
-    public float duration = 0;
+    [Tooltip("Duration of the VFX relative to the hitbox's duration")]
+    [Range(0, 1)] public float durationScale = 1;
 
-    public float delay = 0;
+    [Tooltip("When the VFX will be spawned relative to the hitbox's duration")]
+    [Range(0, 1)] public float delayScale = 0;
 }

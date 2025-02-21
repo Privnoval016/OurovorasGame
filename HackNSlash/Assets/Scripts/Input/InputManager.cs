@@ -31,6 +31,8 @@ public class InputManager : MonoBehaviour
     public InputAction lightAttack;
     public InputAction heavyAttack;
 
+    public InputAction swapMode;
+
     private bool lightAttacking, heavyAttacking;
     
     #endregion
@@ -106,6 +108,7 @@ public class InputManager : MonoBehaviour
         dodge = InputMap.Player.Dodge;
         lockOn = InputMap.Player.LockOn;
         retarget = InputMap.Player.Retarget;
+        swapMode = InputMap.Player.EnterCombat;
 
         KeyMap.Add(KeyBind.None, new KeyBindData() {action = () => true});
 
@@ -139,6 +142,8 @@ public class InputManager : MonoBehaviour
         });
         
         KeyMap.Add(KeyBind.Dodge, new KeyBindData {action = () => dodge.triggered});
+        
+        
     }
     
     private void SetMenuKeybinds()

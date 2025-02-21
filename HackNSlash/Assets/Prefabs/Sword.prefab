@@ -166,7 +166,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponController: {fileID: 0}
-  weaponTransform: {fileID: 0}
   trailTransforms:
   - {fileID: 9121285050911234743}
   - {fileID: 5244160642528532339}
@@ -305,12 +304,12 @@ PrefabInstance:
     - target: {fileID: 289161321636050785, guid: 8ec69289443dd9b4d82fb190f1454e33,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1964990624904782940, guid: 8ec69289443dd9b4d82fb190f1454e33,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8129220956280791087, guid: 8ec69289443dd9b4d82fb190f1454e33,
         type: 3}

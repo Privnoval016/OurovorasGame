@@ -222,12 +222,19 @@ namespace ExtensionUtils
             if (!vfx.HasGradient(id)) return false;
             vfx.SetGradient(id, value);
             return true;
+            vfx.TryGetComponent(out VisualEffect vfxInstanceVFX);
         }
         
         #endregion
         
         
         #endregion
+        
+        public static bool TryGetComponentInChildren<T>(this GameObject go, out T component) where T : Component
+        {
+            component = go.GetComponentInChildren<T>();
+            return component != null;
+        }
     }
     
     [Serializable]

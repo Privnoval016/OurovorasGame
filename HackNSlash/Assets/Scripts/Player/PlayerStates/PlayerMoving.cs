@@ -5,6 +5,12 @@ using UnityEngine.InputSystem;
 using ExtensionUtils;
 using Object = System.Object;
 
+public enum MovingStates
+{
+	NonCombat,
+	Combat,
+}
+
 public class PlayerMoving : State
 {
 	private PlayerController pc;
@@ -19,6 +25,7 @@ public class PlayerMoving : State
 	    doNotRemove = true;
 	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
+	    InputManager.Instance.swapMode.performed += OnSwitchAction;
 	    pc.rootMotion.enabled = false;
 	    
 	    pc.canAttack = true;
@@ -50,26 +57,31 @@ public class PlayerMoving : State
 	    
 	    #endregion
 	    
-	    CheckJump();
-	    
 	    pc.CalculateGravity();
 	    
 	    UpdateAnimation();
+	    
+	    if (pc.pauseMovement) return;
+	    
+	    CheckJump();
     }
 
     public override void OnFixedUpdate()
     {
+	    if (pc.pauseMovement) return;
+	    
         Run(1);
     }
 
     public override void OnExit()
     {
 	    InputManager.Instance.jump.performed -= OnJumpAction;
+	    InputManager.Instance.swapMode.performed -= OnSwitchAction;
     }
 
     public override void OnInterrupt()
     {
-	    pc.isDoubleJumpUsed = false;
+	    //pc.isDoubleJumpUsed = false;
     }
 
     public override void OnResume()
@@ -108,6 +120,20 @@ public class PlayerMoving : State
 		    InputManager.Instance.ReleaseHoldAttacks();
 		    pc.isDoubleJumpTriggered = true;
 	    }
+    }
+    
+    private void OnSwitchAction(InputAction.CallbackContext context)
+    {
+	    if (!pc.IsGrounded) return;
+	    
+	    pc.pauseMovement = true;
+	    
+	    SwitchAnimState(WalkingAnimStates.Swapping, () =>
+	    {
+		    SwitchAnimState(WalkingAnimStates.Idle);
+		    pc.pauseMovement = false;
+	    });
+	    pc.movingState = pc.MovingAnims.nextState;
     }
     
     #endregion
@@ -301,6 +327,9 @@ public class PlayerMoving : State
 			    // else if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
 
 			    break;
+		    
+		    case WalkingAnimStates.Swapping:
+			    break;
 	    }
 	    
 	    //Debug.Log(animState);
@@ -308,8 +337,8 @@ public class PlayerMoving : State
     
     private void SwitchAnimState(WalkingAnimStates newState, Action onExit = null, bool playExit = false)
     {
-	    Object currentAnim = pc.moveAnimData._animStates[animState];
-	    Object nextAnim = pc.moveAnimData._animStates[newState];
+	    Object currentAnim = pc.MovingAnims._animStates[animState];
+	    Object nextAnim = pc.MovingAnims._animStates[newState];
 	    
 	    playExit = playExit && currentAnim is Loop;
 

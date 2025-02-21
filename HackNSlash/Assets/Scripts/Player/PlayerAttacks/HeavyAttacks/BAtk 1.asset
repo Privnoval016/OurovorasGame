@@ -40,5 +40,7 @@ MonoBehaviour:
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
-  vfxAttack: {fileID: 11400000, guid: e5f06a8d488e30c4e937bd901063d266, type: 2}
-  vfxRotation: {x: 0, y: 0, z: 15}
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: e5f06a8d488e30c4e937bd901063d266, type: 2}
+    duration: 0.3
+    rotation: {x: 0, y: 0, z: 0.1305262, w: 0.9914449}

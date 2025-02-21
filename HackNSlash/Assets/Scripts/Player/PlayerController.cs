@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using UnityEngine;
 using Animancer;
+using AYellowpaper.SerializedCollections;
 using ExtensionUtils;
 using MEC;
 using UnityEngine.Serialization;
@@ -23,7 +24,13 @@ public class PlayerController : MonoBehaviour
     
     public PlayerData playerData;
     public AttackConfig attackData;
-    public MoveAnimData moveAnimData;
+    
+    [SerializedDictionary("Move State", "Animation Data")]
+    public SerializedDictionary<MovingStates, MoveAnimData> moveAnimDataDict;
+    
+    [HideInInspector] public MovingStates movingState;
+    
+    public MoveAnimData MovingAnims => moveAnimDataDict[movingState];
     public StringAsset[] parameterNames;
     
     [HideInInspector] public CameraController cam;
@@ -33,6 +40,8 @@ public class PlayerController : MonoBehaviour
     
     [HideInInspector]
     public WeaponController wc;
+
+    public PlayerAnimListener model;
     
     public float playerRadius = 3f;
     
@@ -41,6 +50,8 @@ public class PlayerController : MonoBehaviour
     #region MOVE PARAMETERS
 
     //Timers (also all fields, could be private and a method returning a bool could be used)
+    [HideInInspector] public bool pauseMovement;
+    
     [HideInInspector] public float lastOnGroundTime;
     [HideInInspector] public float lastDoubleJumpTime;
     [HideInInspector] public float lastPressedJumpTime;
@@ -165,6 +176,7 @@ public class PlayerController : MonoBehaviour
         lastVelocity = rb.linearVelocity;
 
         wc.player = this;
+        model.pc = this;
     }
 
     private void Start()
@@ -292,11 +304,6 @@ public class PlayerController : MonoBehaviour
         OnAttackEvents.OnAttackActionMap[a.onAttackAction](this, a);
     }
     
-    public void InvokeOnVFX(TransformInfo start, Attack a, int actionIndex = 0)
-    {
-        OnVFXEvents.OnVFXActionMap[a.vfxAttack.vfxActions[actionIndex]](this, start, a);
-    }
-    
     private void CheckAttackAction()
     {
 
@@ -316,6 +323,8 @@ public class PlayerController : MonoBehaviour
         {
             comboChain.Clear();
         }
+        
+        if (movingState != MovingStates.Combat || pauseMovement) return;
         
         #region Dodge
         
