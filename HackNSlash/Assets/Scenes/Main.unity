@@ -763,10 +763,12 @@ GameObject:
   - component: {fileID: 845412127}
   - component: {fileID: 845412126}
   - component: {fileID: 845412130}
+  - component: {fileID: 845412133}
+  - component: {fileID: 845412132}
+  - component: {fileID: 845412131}
   - component: {fileID: 845412125}
   - component: {fileID: 845412128}
   - component: {fileID: 845412129}
-  - component: {fileID: 845412131}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -922,52 +924,12 @@ MonoBehaviour:
   stateController: {fileID: 0}
   rb: {fileID: 0}
   col: {fileID: 0}
-  playerData: {fileID: 11400000, guid: 492cc163f440d418791e35eea37104b1, type: 2}
-  attackData: {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
-  moveAnimDataDict:
-    _serializedList:
-    - Key: 0
-      Value: {fileID: 11400000, guid: eb901f98a0d7b3f408722cb48aed75d0, type: 2}
-    - Key: 1
-      Value: {fileID: 11400000, guid: fd6a31838b2c04777827e0d41dd8b298, type: 2}
-  movingState: 0
-  parameterNames:
-  - {fileID: 11400000, guid: 388a46bfede854feea0463faa2ce8881, type: 2}
-  - {fileID: 11400000, guid: 5bbd3289517d44f308c4c0ef74b896ef, type: 2}
   cam: {fileID: 0}
-  animancer: {fileID: 5866666020638784866}
-  rootMotion: {fileID: 1210943192}
   wc: {fileID: 0}
+  pac: {fileID: 0}
+  psm: {fileID: 0}
   model: {fileID: 5866666020638784867}
   playerRadius: 3
-  pauseMovement: 0
-  lastOnGroundTime: 0
-  lastDoubleJumpTime: 0
-  lastPressedJumpTime: 0
-  walkingTime: 0
-  isJumping: 0
-  isJumpFalling: 0
-  isDoubleJumpTriggered: 0
-  isDoubleJumpUsed: 0
-  gravityScale: 0
-  moveInput: {x: 0, y: 0}
-  moveDirection: {x: 0, y: 0, z: 0}
-  discreteVelocity: {x: 0, y: 0, z: 0}
-  discreteAcceleration: {x: 0, y: 0, z: 0}
-  groundCheckPoint: {fileID: 1977220826}
-  groundCheckSize: {x: 0.4, y: 0.01, z: 0.4}
-  canAttack: 0
-  currentAttack: {fileID: 0}
-  comboChain: []
-  comboResetTimer: 0
-  pauseComboReset: 0
-  dodgeTimer: 0
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 192
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!114 &845412131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -990,6 +952,75 @@ MonoBehaviour:
   activeWeapons: []
   trailLength: 10
   player: {fileID: 0}
+--- !u!114 &845412132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 845412123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b7060d6f1c406045a438c018ac61586, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pc: {fileID: 0}
+  parameterNames:
+  - {fileID: 11400000, guid: 388a46bfede854feea0463faa2ce8881, type: 2}
+  - {fileID: 11400000, guid: 5bbd3289517d44f308c4c0ef74b896ef, type: 2}
+  animancer: {fileID: 5866666020638784866}
+  rootMotion: {fileID: 1210943192}
+  moveAnimDataDict:
+    _serializedList:
+    - Key: 0
+      Value: {fileID: 11400000, guid: eb901f98a0d7b3f408722cb48aed75d0, type: 2}
+    - Key: 1
+      Value: {fileID: 11400000, guid: fd6a31838b2c04777827e0d41dd8b298, type: 2}
+  walkingAnim: 0
+--- !u!114 &845412133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 845412123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f3752aced37e054680d91d58ee8456f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pc: {fileID: 0}
+  playerData: {fileID: 11400000, guid: 492cc163f440d418791e35eea37104b1, type: 2}
+  attackData: {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
+  movingState: 0
+  pauseMovement: 0
+  lastOnGroundTime: 0
+  lastDoubleJumpTime: 0
+  lastPressedJumpTime: 0
+  walkingTime: 0
+  isJumping: 0
+  isJumpFalling: 0
+  isDoubleJumpTriggered: 0
+  isDoubleJumpUsed: 1
+  gravityScale: 0
+  moveInput: {x: 0, y: 0}
+  moveDirection: {x: 0, y: 0, z: 0}
+  discreteVelocity: {x: 0, y: 0, z: 0}
+  discreteAcceleration: {x: 0, y: 0, z: 0}
+  groundCheckPoint: {fileID: 1977220826}
+  groundCheckSize: {x: 0.49, y: 0.3, z: 0.49}
+  canAttack: 0
+  currentAttack: {fileID: 0}
+  comboChain: []
+  comboResetTimer: 0
+  pauseComboReset: 0
+  dodgeTimer: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 192
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!4 &878594581 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4241132978300236699, guid: 62d9b8bdffb744a4fa6a82f72f869352,

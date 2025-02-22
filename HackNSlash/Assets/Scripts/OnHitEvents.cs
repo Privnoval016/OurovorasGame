@@ -77,7 +77,7 @@ public class OnHitEvents : MonoBehaviour
         
         ec.ForceKnockback(direction * a.hitInfo.hitForce);
         
-        Timing.WaitUntilTrue(() => pc.canAttack);
+        Timing.WaitUntilTrue(() => pc.psm.canAttack);
         ec.pauseGravity = false;
         
     }
@@ -99,7 +99,7 @@ public class OnHitEvents : MonoBehaviour
     {
         if (!enemy.gameObject.TryGetComponent(out EnemyController ec)) yield break;
         
-        yield return Timing.WaitUntilTrue(() => pc.canAttack);
+        yield return Timing.WaitUntilTrue(() => pc.psm.canAttack);
 
         Vector3 direction = Vector3.up;
         
@@ -128,9 +128,9 @@ public class OnHitEvents : MonoBehaviour
         
         Vector3 lastNonZeroVelocity = Vector3.zero;
         
-        while (!pc.canAttack)
+        while (!pc.psm.canAttack)
         {
-            ec.SetVelocityKnockback(pc.discreteVelocity * followVelocityMult);
+            ec.SetVelocityKnockback(pc.psm.discreteVelocity * followVelocityMult);
             
             lastNonZeroVelocity = ec.rb.linearVelocity.magnitude > 0.1f ? ec.rb.linearVelocity : lastNonZeroVelocity;
             
@@ -198,7 +198,7 @@ public class OnHitEvents : MonoBehaviour
         
         bool forceApplied = false;
         
-        while (!pc.canAttack)
+        while (!pc.psm.canAttack)
         {
             Vector3 vel = pc.rb.linearVelocity.magnitude > 0f ? pc.rb.linearVelocity * launchDownVelocityMult : ec.rb.linearVelocity; 
             

@@ -39,7 +39,7 @@ public class CameraController : MonoBehaviour
     private CinemachineTargetGroup currentTargetGroup;
     private CinemachineBrain camBrain;
     
-    private PlayerController playerController;
+    private PlayerController pc;
 
     private float destroyDelay = 0.2f;
 
@@ -67,7 +67,7 @@ public class CameraController : MonoBehaviour
             Destroy(gameObject);
         }
         
-        player.TryGetComponent(out playerController);
+        player.TryGetComponent(out pc);
         TryGetComponent(out camBrain);
         
         InputManager.Instance.lockOn.performed += OnLockOnAction;
@@ -137,7 +137,7 @@ public class CameraController : MonoBehaviour
     private void CheckForLockOnTarget()
     {
         Collider[] collidersInRange =
-            Physics.OverlapSphere(playerFollowTarget.position, playerController.playerData.lockOnRange);
+            Physics.OverlapSphere(playerFollowTarget.position, pc.psm.playerData.lockOnRange);
         
         if (collidersInRange.Length == 0) return;
         
@@ -176,7 +176,7 @@ public class CameraController : MonoBehaviour
         }
         
         if (Vector3.Distance(playerFollowTarget.position, targetedEnemy.transform.position) >
-            playerController.playerData.lockOnRange)
+            pc.psm.playerData.lockOnRange)
         {
             targetedEnemy = playerFollowTarget.gameObject;
         }

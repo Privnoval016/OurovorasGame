@@ -1,12 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using Animancer;
 using AYellowpaper.SerializedCollections;
-using JetBrains.Annotations;
-using UnityEngine.Serialization;
-using UnityEngine.VFX;
 
 public enum WeaponType
 {
@@ -26,10 +20,12 @@ public class WeaponController : MonoBehaviour
     public int trailLength = 10;
     
     [HideInInspector]
-    public PlayerController player;
+    public PlayerController pc;
     
     void Awake()
     {
+        pc = GetComponent<PlayerController>();
+        
         foreach (WeaponBody weaponBody in weaponBodies.Values)
         {
             weaponBody.weaponController = this;
