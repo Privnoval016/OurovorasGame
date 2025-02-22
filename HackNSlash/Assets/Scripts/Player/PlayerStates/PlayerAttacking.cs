@@ -26,7 +26,7 @@ public class PlayerAttacking : State
     {
         pc = (PlayerController) sc.parent;
 
-        pc.rootMotion.enabled = attack.applyRootMotion;
+        pc.pac.rootMotion.enabled = attack.applyRootMotion;
         pc.rb.linearVelocity = Vector3.zero;
         
         SetAttackGravity();
@@ -56,8 +56,8 @@ public class PlayerAttacking : State
     public override void OnExit()
     {
         Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
-        pc.pauseComboReset = false;
-        pc.rootMotion.enabled = false;
+        pc.psm.pauseComboReset = false;
+        pc.pac.rootMotion.enabled = false;
     }
     
     #endregion
@@ -70,7 +70,7 @@ public class PlayerAttacking : State
         {
             attackEndTime = 10;
             attackCoolDownTime = 10;
-            if (pc.canAttack)
+            if (pc.psm.canAttack)
             {
                 sc.ResumePrevious();
             }
@@ -78,16 +78,16 @@ public class PlayerAttacking : State
         
         if (attackCoolDownTime < 0)
         {
-            pc.canAttack = true;
+            pc.psm.canAttack = true;
         }
         
         if (attackEndTime < 0)
         {
-            pc.canAttack = true;
+            pc.psm.canAttack = true;
             sc.ResumePrevious();
         }
         
-        if (attackCoolDownTime < -pc.attackData.moveInterruptBuffer && pc.StandardizedMoveDir.magnitude > 0.1f)
+        if (attackCoolDownTime < -pc.psm.attackData.moveInterruptBuffer && pc.psm.StandardizedMoveDir.magnitude > 0.1f)
         {
             sc.ResumePrevious();
         }
@@ -100,7 +100,7 @@ public class PlayerAttacking : State
 
     private void LaunchClipAttack()
     {
-        pc.canAttack = false;
+        pc.psm.canAttack = false;
         attackCoolDownTime = attack.hitInfo.attackCoolDown;
 
         List<AnimationClip> clips = new();
@@ -119,12 +119,12 @@ public class PlayerAttacking : State
         Timing.RunCoroutine(AttackWithClip(clips));
 
         
-        pc.InvokeOnAttack(attack);
+        pc.psm.InvokeOnAttack(attack);
     }
 
     private void LaunchTransitionAttack()
     {
-        pc.canAttack = false;
+        pc.psm.canAttack = false;
         attackCoolDownTime = attack.hitInfo.attackCoolDown;
         
         List<TransitionAsset> transitions = new();
@@ -142,7 +142,7 @@ public class PlayerAttacking : State
         
         Timing.RunCoroutine(AttackWithTransition(transitions));
         
-        pc.InvokeOnAttack(attack);
+        pc.psm.InvokeOnAttack(attack);
     }
     
     private IEnumerator<float> AttackWithClip(List<AnimationClip> clips)
@@ -151,7 +151,7 @@ public class PlayerAttacking : State
         
         foreach (var clip in clips)
         {
-            pc.PlayAnimation(clip, 0.2f);
+            pc.pac.PlayAnimation(clip, 0.2f);
             yield return Timing.WaitForSeconds(clip.length);
         }
     }
@@ -162,7 +162,7 @@ public class PlayerAttacking : State
         
         foreach (var clip in transitions)
         {
-            pc.PlayAnimation(clip);
+            pc.pac.PlayAnimation(clip);
             yield return Timing.WaitForSeconds(clip.MaximumDuration / clip.Speed);
         }
     }
@@ -171,9 +171,9 @@ public class PlayerAttacking : State
     {
         if (!attack.isMidair.IsTrue()) ; //pc.CalculateGravity();
 
-        else if (!pc.canAttack) pc.SetGravityScale(0);
+        else if (!pc.psm.canAttack) pc.psm.SetGravityScale(0);
 
-        else pc.gravityScale = pc.playerData.midairAttackGravityMult;
+        else pc.psm.gravityScale = pc.psm.playerData.midairAttackGravityMult;
     }
 
     #endregion
@@ -183,7 +183,7 @@ public class PlayerAttacking : State
     private void CheckEnemyCollision()
     {
         
-        if (pc.canAttack || !readyToHit) return;
+        if (pc.psm.canAttack || !readyToHit) return;
         
         HashSet<Collider> enemies = new();
         switch (attack.hitInfo.hitDetection)
@@ -207,7 +207,7 @@ public class PlayerAttacking : State
     private HashSet<Collider> EnemiesInWeaponTrail()
     {
         HashSet<Collider> enemies = Physics.OverlapSphere(
-            pc.transform.position, 10, pc.enemyLayer).ToHashSet();
+            pc.transform.position, 10, pc.psm.enemyLayer).ToHashSet();
         
         enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d) || d.tookDamageThisAction);
    
@@ -222,7 +222,7 @@ public class PlayerAttacking : State
     private HashSet<Collider> EnemiesInSphere()
     {
         HashSet<Collider> enemies = Physics.OverlapSphere(
-            pc.transform.position, attack.hitInfo.hitRegisterRadius, pc.enemyLayer).ToHashSet();
+            pc.transform.position, attack.hitInfo.hitRegisterRadius, pc.psm.enemyLayer).ToHashSet();
         
         enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d) || d.tookDamageThisAction);
         
@@ -241,9 +241,9 @@ public class PlayerAttacking : State
         if (attack.exitCondition != ExitConditions.AnimationEnd) return;
         
        // Debug.Log(pc.NearestEnemy);
-        if (pc.NearestEnemy != null)
+        if (pc.psm.NearestEnemy != null)
         {
-            Vector3 lookDir = (pc.NearestEnemy.transform.position - pc.transform.position).ZeroVector3Axis();
+            Vector3 lookDir = (pc.psm.NearestEnemy.transform.position - pc.transform.position).ZeroVector3Axis();
             
             if (lookDir.magnitude < 0.5f) return;
             
@@ -252,7 +252,7 @@ public class PlayerAttacking : State
         }
         else
         {
-            pc.TurnToLook();
+            pc.psm.TurnToLook();
         }
     }
     

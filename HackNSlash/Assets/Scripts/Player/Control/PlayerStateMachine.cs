@@ -1,53 +1,27 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using UnityEngine;
-using Animancer;
-using AYellowpaper.SerializedCollections;
 using ExtensionUtils;
 using MEC;
+using UnityEngine;
 using UnityEngine.Serialization;
 
-[RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(StateController))]
-public class PlayerController : MonoBehaviour
+public class PlayerStateMachine : MonoBehaviour
 {
-    #region State Machine
-    [HideInInspector] public StateController stateController;
-    #endregion
+    [HideInInspector]
+    public PlayerController pc;
     
-    #region Components
+    #region Inspector Variables
     
-    [HideInInspector] public Rigidbody rb;
-    [HideInInspector] public CapsuleCollider col;
+    [Header("Locomotion Data")]
     
     public PlayerData playerData;
     public AttackConfig attackData;
     
-    [SerializedDictionary("Move State", "Animation Data")]
-    public SerializedDictionary<MovingStates, MoveAnimData> moveAnimDataDict;
-    
     [HideInInspector] public MovingStates movingState;
-    
-    public MoveAnimData MovingAnims => moveAnimDataDict[movingState];
-    public StringAsset[] parameterNames;
-    
-    [HideInInspector] public CameraController cam;
-    
-    public AnimancerComponent animancer;
-    public RedirectRootMotionToRigidbody rootMotion;
-    
-    [HideInInspector]
-    public WeaponController wc;
-
-    public PlayerAnimListener model;
-    
-    public float playerRadius = 3f;
     
     #endregion
     
-    #region MOVE PARAMETERS
+     #region MOVE PARAMETERS
 
     //Timers (also all fields, could be private and a method returning a bool could be used)
     [HideInInspector] public bool pauseMovement;
@@ -67,7 +41,7 @@ public class PlayerController : MonoBehaviour
     
     //Walk
     public bool IsWalking => moveInput.magnitude > 0;
-    public bool IsSprinting => !cam.isLockedOn && IsWalking && walkingTime > playerData.sprintBuildupLength;
+    public bool IsSprinting => !pc.cam.isLockedOn && IsWalking && walkingTime > playerData.sprintBuildupLength;
     
     //Jump
     [HideInInspector] public bool isJumping;
@@ -95,7 +69,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 lastPosition, lastVelocity;
 
     public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).
-                                                Rotate(cam.transform.right.ToVector2().ToAngle()).normalized;
+                                                Rotate(pc.cam.transform.right.ToVector2().ToAngle()).normalized;
     #endregion
     
     #region GROUND CHECK PARAMETERS
@@ -110,8 +84,6 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public bool canAttack;
     [HideInInspector] public Attack currentAttack;
-
-    public Dictionary<KeyBind, KeyBindData> KeyMap;
     
     [HideInInspector] public List<ComboAction> comboChain = new();
     [HideInInspector] public float comboResetTimer = 0;
@@ -121,8 +93,8 @@ public class PlayerController : MonoBehaviour
     {
         get
         {
-            return cam.isLockedOn ? cam.targetedEnemy :
-                Physics.OverlapSphere(transform.position, playerRadius, enemyLayer).
+            return pc.cam.isLockedOn ? pc.cam.targetedEnemy :
+                Physics.OverlapSphere(transform.position, pc.playerRadius, enemyLayer).
                     Where(e =>
                         (e.transform.position - transform.position).IsInDirectionCone(transform.forward, 190f))
                     .OrderBy(e => Vector3.Distance(transform.position, e.transform.position)).FirstOrDefault()?.gameObject;
@@ -130,19 +102,9 @@ public class PlayerController : MonoBehaviour
     }
 
     #endregion
-
-    #region WEAPON PARAMETERS
-
-    
     
     [HideInInspector] public float dodgeTimer = 0;
-    #endregion
 
-    #region ANIMATION PARAMETERS
-
-    [HideInInspector] public AnimancerState currentAnimState;
-
-    #endregion
     
     #region LAYERS & TAGS
 
@@ -152,48 +114,30 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public LayerMask enemyLayer;
     #endregion
     
+    public Dictionary<KeyBind, KeyBindData> KeyMap;
+    
+    
     #region MonoBehaviour Callbacks
-
+    
+    
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        col = GetComponent<CapsuleCollider>();
-        wc = GetComponent<WeaponController>();
+        pc = GetComponent<PlayerController>();
         
-        if (Camera.main != null)
-            Camera.main.TryGetComponent(out cam);
-        
-        rb.useGravity = false;
-        
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        animancer.TryGetComponent(out rootMotion);
+        pc.rb.useGravity = false;
         
         KeyMap = InputManager.KeyMap;
         
         lastPosition = transform.position;
-        lastVelocity = rb.linearVelocity;
-
-        wc.player = this;
-        model.pc = this;
-    }
-
-    private void Start()
-    {
-        stateController = GetComponent<StateController>();
-        stateController.parent = this;
+        lastVelocity = pc.rb.linearVelocity;
         
-        stateController.ChangeState(new PlayerMoving());
+        pc.sc.ChangeState(new PlayerMoving());
     }
-
+    
     private void Update()
     {
         SetMoveValues();
-        
         CheckAttackAction();
-
-        UpdateAnimatorState();
     }
     
     private void FixedUpdate()
@@ -202,6 +146,7 @@ public class PlayerController : MonoBehaviour
     }
     
     #endregion
+    
     
     #region Info Methods
     
@@ -221,87 +166,11 @@ public class PlayerController : MonoBehaviour
     
     #endregion
     
-    #region Animator Methods
-
-    private void UpdateAnimatorState()
-    {
-        foreach (StringAsset parameterName in parameterNames)
-        {
-            Parameter<float> param = animancer.Parameters.GetOrCreate<float>(parameterName);
-            
-            if (parameterName == "MoveX")
-            {
-                param.Value = EaseUtil.Damp(param.Value, StandardizedMoveDir.normalized.x, 2f, Time.deltaTime);
-            }
-            else if (parameterName == "MoveZ")
-            {
-                param.Value = EaseUtil.Damp(param.Value, StandardizedMoveDir.normalized.y, 2f, Time.deltaTime);
-            }
-        }
-        
-    }
-    
-    public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, bool canInterrupt = true, FadeMode mode = FadeMode.FixedSpeed)
-    {
-        if (canInterrupt && animancer.States.Current.Clip == clip)
-        {
-            currentAnimState.Time = 0;
-            return currentAnimState;
-        }
-        
-        currentAnimState = animancer.Play(clip, fadeDuration, mode);
-        return currentAnimState;
-    }
-    
-    public AnimancerState PlayAnimation(TransitionAsset clip)
-    {
-        currentAnimState = animancer.Play(clip);
-        return currentAnimState;
-    }
-    
-    public AnimancerState PlayAnimation(ITransition clip)
-    {
-        currentAnimState = animancer.Play(clip);
-        return currentAnimState;
-    }
-    
-    
-    public void ExitTimeAnimation(ITransition currentAnim, ITransition nextAnim, Action onExit = null)
-    {
-        AnimancerState state = PlayAnimation(currentAnim);
-        state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
-    }
-	
-    public void OnAnimExit(ITransition nextAnim, Action onExit = null)
-    {
-        if (nextAnim != null) PlayAnimation(nextAnim);
-        onExit?.Invoke();
-    }
-    
-    public void ExitTimeAnimation(AnimationClip currentAnim, AnimationClip nextAnim, Action onExit = null)
-    {
-        AnimancerState state = PlayAnimation(currentAnim, -1F, false);
-        state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
-    }
-	
-    public void OnAnimExit(AnimationClip nextAnim, Action onExit = null)
-    {
-        if (nextAnim != null) PlayAnimation(nextAnim, -1F, false);
-        onExit?.Invoke();
-    }
-    
-    public void StopCurrentAnimation()
-    {
-        animancer.Stop();
-    }
-
-    #endregion
-    
-    #region Attack Methods
+     #region Attack Methods
 
     public void InvokeOnAttack(Attack a)
     {
-        OnAttackEvents.OnAttackActionMap[a.onAttackAction](this, a);
+        OnAttackEvents.OnAttackActionMap[a.onAttackAction](pc, a);
     }
     
     private void CheckAttackAction()
@@ -457,14 +326,14 @@ public class PlayerController : MonoBehaviour
         
         currentAttack = action.attack;
 
-        if (stateController.GetCurrentState() is PlayerMoving)
+        if (pc.sc.GetCurrentState() is PlayerMoving)
         {
-            stateController.Interrupt(new PlayerAttacking(action.attack));
+            pc.sc.Interrupt(new PlayerAttacking(action.attack));
         }
-        else if (stateController.GetCurrentState() is PlayerAttacking)
+        else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
             Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
-            stateController.ChangeState(new PlayerAttacking(action.attack));
+            pc.sc.ChangeState(new PlayerAttacking(action.attack));
         }
     }
 
@@ -482,14 +351,14 @@ public class PlayerController : MonoBehaviour
         
         if (attack == null) return;
         
-        if (stateController.GetCurrentState() is PlayerMoving)
+        if (pc.sc.GetCurrentState() is PlayerMoving)
         {
-            stateController.Interrupt(new PlayerAttacking(attack));
+            pc.sc.Interrupt(new PlayerAttacking(attack));
         }
-        else if (stateController.GetCurrentState() is PlayerAttacking)
+        else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
             Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
-            stateController.ChangeState(new PlayerAttacking(attack));
+            pc.sc.ChangeState(new PlayerAttacking(attack));
         }
     }
     
@@ -497,7 +366,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!attack.isEnabled) return false;
         
-        if (attack.isLockedOn && !cam.isLockedOn) return false;
+        if (attack.isLockedOn && !pc.cam.isLockedOn) return false;
         
         if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) return false;
 
@@ -516,17 +385,17 @@ public class PlayerController : MonoBehaviour
 
     public void CalculateGravity()
     {
-        Debug.Log(rb.linearVelocity.y);
-        if (IsMidair && Mathf.Abs(rb.linearVelocity.y) < playerData.jumpHangTimeThreshold)
+        Debug.Log(pc.rb.linearVelocity.y);
+        if (IsMidair && Mathf.Abs(pc.rb.linearVelocity.y) < playerData.jumpHangTimeThreshold)
         {
             SetGravityScale(playerData.gravityScale * playerData.jumpHangGravityMult);
         }
-        else if (rb.linearVelocity.y < 0)
+        else if (pc.rb.linearVelocity.y < 0)
         {
             //Higher gravity if falling
             SetGravityScale(playerData.gravityScale * playerData.fallGravityMult);
             //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -playerData.maxFallSpeed), rb.linearVelocity.z);
+            pc.rb.linearVelocity = new Vector3(pc.rb.linearVelocity.x, Mathf.Max(pc.rb.linearVelocity.y, -playerData.maxFallSpeed), pc.rb.linearVelocity.z);
         }
         else
         {
@@ -543,7 +412,7 @@ public class PlayerController : MonoBehaviour
     private void ApplyGravity()
     {
         Vector3 gravity = GameManager.Instance.globalGravity * gravityScale * Vector3.up;
-        rb.AddForce(gravity, ForceMode.Acceleration);
+        pc.rb.AddForce(gravity, ForceMode.Acceleration);
     }
     
     #endregion
@@ -554,14 +423,14 @@ public class PlayerController : MonoBehaviour
     {
         if (!IsWalking || moveDirection.magnitude == 0) return;
 	    
-        if (!cam.isLockedOn)
+        if (!pc.cam.isLockedOn)
         {
             transform.rotation =
                 EaseUtil.DampQuaternion(transform.rotation, Quaternion.LookRotation(moveDirection), 5f, 0.1f);
         }
         else
         {
-            Vector3 lookDir = cam.LockOnDirection.ZeroVector3Axis();
+            Vector3 lookDir = pc.cam.LockOnDirection.ZeroVector3Axis();
             
             if (lookDir.magnitude < 0.3f) return;
 
@@ -571,6 +440,4 @@ public class PlayerController : MonoBehaviour
     }
     
     #endregion
-    
-    
 }

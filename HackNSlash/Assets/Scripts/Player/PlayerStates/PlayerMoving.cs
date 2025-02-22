@@ -15,8 +15,6 @@ public class PlayerMoving : State
 {
 	private PlayerController pc;
 	
-	private WalkingAnimStates animState;
-	
     #region State Methods
     
     public override void OnEnter()
@@ -26,49 +24,49 @@ public class PlayerMoving : State
 	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
 	    InputManager.Instance.swapMode.performed += OnSwitchAction;
-	    pc.rootMotion.enabled = false;
+	    pc.pac.rootMotion.enabled = false;
 	    
-	    pc.canAttack = true;
-	    pc.currentAttack = null;
+	    pc.psm.canAttack = true;
+	    pc.psm.currentAttack = null;
 	    
-	    animState = WalkingAnimStates.Idle;
-	    SwitchAnimState(WalkingAnimStates.Idle);
+	    pc.pac.walkingAnim = WalkingAnimStates.Idle;
+	    pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
     }
 
     public override void OnUpdate()
     {
 	    #region Timers
 	    
-	    pc.lastOnGroundTime -= Time.deltaTime;
-	    pc.lastPressedJumpTime -= Time.deltaTime;
+	    pc.psm.lastOnGroundTime -= Time.deltaTime;
+	    pc.psm.lastPressedJumpTime -= Time.deltaTime;
 	    
-	    if (pc.lastOnGroundTime > 0)
-			pc.lastDoubleJumpTime += Time.deltaTime;
+	    if (pc.psm.lastOnGroundTime > 0)
+			pc.psm.lastDoubleJumpTime += Time.deltaTime;
 
-	    if (pc.IsWalking && !pc.cam.isLockedOn && pc.rb.linearVelocity.ZeroVector3Axis().magnitude > 0.01f && pc.moveInput.magnitude > 0.95f)
+	    if (pc.psm.IsWalking && !pc.cam.isLockedOn && pc.rb.linearVelocity.ZeroVector3Axis().magnitude > 0.01f && pc.psm.moveInput.magnitude > 0.95f)
 	    {
-		    pc.walkingTime += Time.deltaTime;
+		    pc.psm.walkingTime += Time.deltaTime;
 	    }
 	    else
 	    {
-		    pc.walkingTime = 0;
+		    pc.psm.walkingTime = 0;
 	    }
 
 	    
 	    #endregion
 	    
-	    pc.CalculateGravity();
+	    pc.psm.CalculateGravity();
 	    
-	    UpdateAnimation();
+	    pc.pac.UpdateAnimation();
 	    
-	    if (pc.pauseMovement) return;
+	    if (pc.psm.pauseMovement) return;
 	    
 	    CheckJump();
     }
 
     public override void OnFixedUpdate()
     {
-	    if (pc.pauseMovement) return;
+	    if (pc.psm.pauseMovement) return;
 	    
         Run(1);
     }
@@ -81,22 +79,22 @@ public class PlayerMoving : State
 
     public override void OnInterrupt()
     {
-	    //pc.isDoubleJumpUsed = false;
+	    //pc.psm.isDoubleJumpUsed = false;
     }
 
     public override void OnResume()
     {
 	    Debug.Log("Resuming Moving");
 	    
-	    animState = WalkingAnimStates.Idle;
-	    SwitchAnimState(WalkingAnimStates.Idle);
+	    pc.pac.walkingAnim = WalkingAnimStates.Idle;
+	    pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
 	    
-	    pc.rootMotion.enabled = false;
+	    pc.pac.rootMotion.enabled = false;
 	    
-	    pc.currentAttack = null;
+	    pc.psm.currentAttack = null;
 	    
 	    
-	    //pc.TurnToLook();
+	    //pc.psm.TurnToLook();
     }
 
     #endregion
@@ -105,35 +103,35 @@ public class PlayerMoving : State
     
     private void OnJumpAction(InputAction.CallbackContext context)
     {
-	    if (!pc.canAttack) return;
+	    if (!pc.psm.canAttack) return;
 	    
 	    if (sc.GetCurrentState() is PlayerAttacking) sc.ResumePrevious();
 	    
-	    if (pc.lastOnGroundTime > 0)
+	    if (pc.psm.lastOnGroundTime > 0)
 	    {
 		    InputManager.Instance.ReleaseHoldAttacks();
-		    pc.lastPressedJumpTime = pc.playerData.jumpInputBufferTime;
+		    pc.psm.lastPressedJumpTime = pc.psm.playerData.jumpInputBufferTime;
 	    }
 	    
-	    else if (pc.attackData.doubleJumpEnabled && !pc.isDoubleJumpUsed)
+	    else if (pc.psm.attackData.doubleJumpEnabled && !pc.psm.isDoubleJumpUsed)
 	    {
 		    InputManager.Instance.ReleaseHoldAttacks();
-		    pc.isDoubleJumpTriggered = true;
+		    pc.psm.isDoubleJumpTriggered = true;
 	    }
     }
     
     private void OnSwitchAction(InputAction.CallbackContext context)
     {
-	    if (!pc.IsGrounded) return;
+	    if (!pc.psm.IsGrounded) return;
 	    
-	    pc.pauseMovement = true;
+	    pc.psm.pauseMovement = true;
 	    
-	    SwitchAnimState(WalkingAnimStates.Swapping, () =>
+	    pc.pac.SwitchAnimState(WalkingAnimStates.Swapping, () =>
 	    {
-		    SwitchAnimState(WalkingAnimStates.Idle);
-		    pc.pauseMovement = false;
+		    pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
+		    pc.psm.pauseMovement = false;
 	    });
-	    pc.movingState = pc.MovingAnims.nextState;
+	    pc.psm.movingState = pc.pac.MovingAnims.nextState;
     }
     
     #endregion
@@ -144,25 +142,25 @@ public class PlayerMoving : State
     {
 	    
 	    Transform cam = pc.cam.transform;
-	    pc.moveDirection = pc.moveInput.x * cam.right.ZeroVector3Axis().normalized + 
-	                            pc.moveInput.y * cam.forward.ZeroVector3Axis().normalized;
+	    pc.psm.moveDirection = pc.psm.moveInput.x * cam.right.ZeroVector3Axis().normalized + 
+	                           pc.psm.moveInput.y * cam.forward.ZeroVector3Axis().normalized;
 		
-	    Vector3 targetSpeed = pc.moveDirection * (pc.IsSprinting ? pc.playerData.sprintMaxSpeed : pc.playerData.runMaxSpeed);
+	    Vector3 targetSpeed = pc.psm.moveDirection * (pc.psm.IsSprinting ? pc.psm.playerData.sprintMaxSpeed : pc.psm.playerData.runMaxSpeed);
 		targetSpeed = Vector3.Lerp(pc.rb.linearVelocity, targetSpeed, lerpAmount);
 
 
 		float accelRate;
-		if (pc.lastOnGroundTime > 0)
-			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.playerData.runAccelAmount : pc.playerData.runDecelAmount;
+		if (pc.psm.lastOnGroundTime > 0)
+			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.psm.playerData.runAccelAmount : pc.psm.playerData.runDecelAmount;
 		else
-			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.playerData.runAccelAmount * pc.playerData.accelInAir : 
-															pc.playerData.runDecelAmount * pc.playerData.decelInAir;
+			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.psm.playerData.runAccelAmount * pc.psm.playerData.accelInAir : 
+															pc.psm.playerData.runDecelAmount * pc.psm.playerData.decelInAir;
 		
 		
-		if ((pc.isJumping || pc.isJumpFalling) && Mathf.Abs(pc.rb.linearVelocity.y) < pc.playerData.jumpHangTimeThreshold)
+		if ((pc.psm.isJumping || pc.psm.isJumpFalling) && Mathf.Abs(pc.rb.linearVelocity.y) < pc.psm.playerData.jumpHangTimeThreshold)
 		{
-			accelRate *= pc.playerData.jumpHangAccelerationMult;
-			targetSpeed *= pc.playerData.jumpHangMaxSpeedMult;
+			accelRate *= pc.psm.playerData.jumpHangAccelerationMult;
+			targetSpeed *= pc.psm.playerData.jumpHangMaxSpeedMult;
 		}
 		
 		Vector3 speedDiff = targetSpeed - pc.rb.linearVelocity.ZeroVector3Axis();
@@ -171,7 +169,7 @@ public class PlayerMoving : State
 		
 		pc.rb.AddForce(movementForce, ForceMode.Force);
 		
-		pc.TurnToLook();
+		pc.psm.TurnToLook();
 	}
     
     #endregion
@@ -181,43 +179,43 @@ public class PlayerMoving : State
     private void CheckJump()
     {
 	    
-	    if (pc.IsGrounded)
+	    if (pc.psm.IsGrounded)
 	    {
-		    pc.lastOnGroundTime = pc.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
-		    pc.lastDoubleJumpTime = 0;
-		    pc.isDoubleJumpUsed = false;
-		    pc.isDoubleJumpTriggered = false;
+		    pc.psm.lastOnGroundTime = pc.psm.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
+		    pc.psm.lastDoubleJumpTime = 0;
+		    pc.psm.isDoubleJumpUsed = false;
+		    pc.psm.isDoubleJumpTriggered = false;
 	    }
 
-	    if (!pc.isDoubleJumpTriggered && (pc.isJumping || pc.isJumpFalling))
+	    if (!pc.psm.isDoubleJumpTriggered && (pc.psm.isJumping || pc.psm.isJumpFalling))
 	    {
-		    pc.lastDoubleJumpTime += Time.deltaTime;
+		    pc.psm.lastDoubleJumpTime += Time.deltaTime;
 	    }
 	    
-	    if (pc.CanJump)
+	    if (pc.psm.CanJump)
 	    {
-		    pc.isJumpFalling = false;
+		    pc.psm.isJumpFalling = false;
 		    
-		    if (pc.IsJumpTriggered)
+		    if (pc.psm.IsJumpTriggered)
 		    {
-			    pc.isJumping = true;
+			    pc.psm.isJumping = true;
 
 			    Jump();
 		    }
 	    }
 
-		if (pc.CanDoubleJump && pc.isDoubleJumpTriggered)
+		if (pc.psm.CanDoubleJump && pc.psm.isDoubleJumpTriggered)
 	    {
-		    pc.isDoubleJumpUsed = true;
-		    pc.isDoubleJumpTriggered = false;
+		    pc.psm.isDoubleJumpUsed = true;
+		    pc.psm.isDoubleJumpTriggered = false;
 		    
 		    DoubleJump();
 	    }
 		
-	    if (pc.rb.linearVelocity.y < 0 && pc.isJumping)
+	    if (pc.rb.linearVelocity.y < 0 && pc.psm.isJumping)
 	    {
-		    pc.isJumping = false;
-		    pc.isJumpFalling = true;
+		    pc.psm.isJumping = false;
+		    pc.psm.isJumpFalling = true;
 	    }
     }
     
@@ -225,15 +223,15 @@ public class PlayerMoving : State
 	{
 		Debug.Log("Jumping");
 
-		SwitchAnimState(WalkingAnimStates.Jumping);
+		pc.pac.SwitchAnimState(WalkingAnimStates.Jumping);
 		
-		pc.lastPressedJumpTime = 0;
-		pc.lastOnGroundTime = 0;
+		pc.psm.lastPressedJumpTime = 0;
+		pc.psm.lastOnGroundTime = 0;
 
 		#region Perform Jump
 		//We increase the force applied if we are falling
 		//This means we'll always feel like we jump the same amount 
-		float force = pc.playerData.jumpForce; 
+		float force = pc.psm.playerData.jumpForce; 
 		if (pc.rb.linearVelocity.y < 0)
 			force -= pc.rb.linearVelocity.y;
 		
@@ -245,131 +243,19 @@ public class PlayerMoving : State
 	{
 		Debug.Log("Double Jumping");
 		
-		SwitchAnimState(WalkingAnimStates.DoubleJumping, () => SwitchAnimState(WalkingAnimStates.Falling));
+		pc.pac.SwitchAnimState(WalkingAnimStates.DoubleJumping, () => pc.pac.SwitchAnimState(WalkingAnimStates.Falling));
 		
-		pc.lastDoubleJumpTime = 0;
+		pc.psm.lastDoubleJumpTime = 0;
 		
 		#region Perform Double Jump
 		
-		float force = pc.playerData.doubleJumpForce;
+		float force = pc.psm.playerData.doubleJumpForce;
 		
 		pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
 		
 		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
 		#endregion
 	}
-    
-    #endregion
-    
-    
-    #region Animation Methods
-
-    private void UpdateAnimation()
-    {
-	    switch (animState)
-	    {
-		    case WalkingAnimStates.Idle:
-			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-			    else if (pc.cam.isLockedOn && pc.IsWalking) SwitchAnimState(WalkingAnimStates.Targeting);
-			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
-			    else if (pc.IsWalking) SwitchAnimState(WalkingAnimStates.Walking);
-
-			    break;
-		    
-		    case WalkingAnimStates.Walking:
-			    pc.currentAnimState.Speed = pc.rb.linearVelocity.ZeroVector3Axis().magnitude / pc.playerData.runMaxSpeed;
-			    
-			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
-			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
-			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
-
-			    break;
-		    
-		    case WalkingAnimStates.Sprinting:
-			    
-			    pc.currentAnimState.Speed = pc.rb.linearVelocity.ZeroVector3Axis().magnitude / pc.playerData.sprintMaxSpeed;
-			    
-			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
-			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
-			    else if (!pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Walking);
-
-			    break;
-		    
-		    case WalkingAnimStates.Targeting:
-			    
-			    pc.currentAnimState.Speed = pc.rb.linearVelocity.ZeroVector3Axis().magnitude / pc.playerData.runMaxSpeed;
-			    
-			    if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-			    else if (!pc.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
-			    else if (!pc.cam.isLockedOn && !pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Walking);
-			    else if (pc.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
-			    break;
-		    
-		    case WalkingAnimStates.Falling:
-			    if (pc.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
-			    
-			    break;
-		    
-		    case WalkingAnimStates.Jumping:
-			    if (!pc.isJumpFalling || pc.rb.linearVelocity.y > 0) break;
-			    
-			    if (pc.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
-			    else if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-
-			    break;
-		    
-		    case WalkingAnimStates.DoubleJumping:
-			    // if (pc.rb.linearVelocity.y > 0) break;
-			    //
-			    // if (pc.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
-			    // else if (pc.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-
-			    break;
-		    
-		    case WalkingAnimStates.Swapping:
-			    break;
-	    }
-	    
-	    //Debug.Log(animState);
-    }
-    
-    private void SwitchAnimState(WalkingAnimStates newState, Action onExit = null, bool playExit = false)
-    {
-	    Object currentAnim = pc.MovingAnims._animStates[animState];
-	    Object nextAnim = pc.MovingAnims._animStates[newState];
-	    
-	    playExit = playExit && currentAnim is Loop;
-
-	    if (playExit)
-	    {
-		    Loop currentLoop = (Loop) currentAnim;
-		    
-		    if (nextAnim is Loop nextLoop)
-		    {
-			    pc.ExitTimeAnimation(currentLoop.EndClip, nextLoop.LoopClip, onExit);
-		    }
-		    else
-		    {
-			    pc.ExitTimeAnimation(currentLoop.EndClip, (ITransition) nextAnim, onExit);
-		    }
-	    }
-	    else if (nextAnim is Loop nextLoop)
-	    {
-		    pc.PlayAnimation(nextLoop.LoopClip).Events(this).OnEnd ??= () => onExit?.Invoke();
-	    }
-	    else
-	    {
-		    pc.PlayAnimation((ITransition) nextAnim).Events(this).OnEnd ??= () => onExit?.Invoke();
-	    }
-	    
-	    InputManager.Instance.ReleaseHoldAttacks();
-	    animState = newState;
-    }
-    
-    
-	
     
     #endregion
 }

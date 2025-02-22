@@ -62,7 +62,7 @@ public class OnAttackEvents : MonoBehaviour
     {
         yield return Timing.WaitForSeconds(time);
         if (action != null) action();
-        pc.canAttack = true;
+        pc.psm.canAttack = true;
     }
     
     #region Blade Beam
@@ -78,10 +78,10 @@ public class OnAttackEvents : MonoBehaviour
     
     private IEnumerator<float> BeginBladeBeam(PlayerController pc, Attack a)
     {
-        ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = false;
+        ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
         
-        pc.pauseComboReset = true; 
-        pc.TurnToLook();
+        pc.psm.pauseComboReset = true; 
+        pc.psm.TurnToLook();
         
         KeyBind[] holdKeys = InputManager.GetReleaseable(a.keyBinds);
         float startTime = Time.time;
@@ -90,7 +90,7 @@ public class OnAttackEvents : MonoBehaviour
 
         if (elapsedTime < bladeBeamHoldTime)
         {
-            pc.PlayAnimation(a.attackClips[1], 0.01f);
+            pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
             
             Vector3 startPos = pc.transform.forward.FindRadialVector3(pc.playerRadius, 0) + pc.transform.position;
             Quaternion startRot = pc.transform.rotation;
@@ -103,14 +103,14 @@ public class OnAttackEvents : MonoBehaviour
             
             OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(startPos, startRot, Vector3.one), a, 0);
             
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.pauseComboReset = false));
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
             
             
         }
         else
         {
-            pc.PlayAnimation(a.attackClips[2], 0.01f);
-            Timing.RunCoroutine(ResumeMoving(pc, a, crossSlashDuration, () => pc.pauseComboReset = false));
+            pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
+            Timing.RunCoroutine(ResumeMoving(pc, a, crossSlashDuration, () => pc.psm.pauseComboReset = false));
         }
         
         
@@ -133,21 +133,21 @@ public class OnAttackEvents : MonoBehaviour
     {
         GameObject target = pc.cam.targetedEnemy;
         
-        pc.PlayAnimation(a.attackClips[0], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[0], 0.01f);
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
         
-        Quaternion originalRotation = pc.animancer.gameObject.transform.rotation;
+        Quaternion originalRotation = pc.pac.animancer.gameObject.transform.rotation;
         
-        pc.PlayAnimation(a.attackClips[1], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
        
         pc.rb.linearVelocity = Vector3.zero;
         float minAnimTime = 0.05f;
         float startTime = Time.time;
         
-        Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
-            pc.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
+        Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.psm.IsMidair &&
+            pc.psm.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
         
-        pc.animancer.gameObject.transform.LookAt(target.transform.position);
+        pc.pac.animancer.gameObject.transform.LookAt(target.transform.position);
         Vector3 direction = target.transform.position - pc.transform.position;
         
         if (target.TryGetComponent(out Collider c)) Physics.IgnoreCollision(pc.col, c, true);
@@ -157,10 +157,10 @@ public class OnAttackEvents : MonoBehaviour
         
         pc.rb.linearVelocity = Vector3.zero;
 
-        pc.PlayAnimation(a.attackClips[2], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
         Timing.RunCoroutine(ResumeMoving(pc, a, a.attackClips[2].length));
         
-        pc.animancer.gameObject.transform.rotation = originalRotation;
+        pc.pac.animancer.gameObject.transform.rotation = originalRotation;
         if (target.TryGetComponent(out Collider c2)) Physics.IgnoreCollision(pc.col, c2, false);
         
     }
@@ -186,7 +186,7 @@ public class OnAttackEvents : MonoBehaviour
         
         if (target == null) yield break;
         
-        ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = false;
+        ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
         
         KeyBind[] releaseKeys = InputManager.GetReleaseable(a.keyBinds);
         
@@ -197,7 +197,7 @@ public class OnAttackEvents : MonoBehaviour
         float elapsedTime = Time.time - startTime;
         
         
-        pc.ExitTimeAnimation(a.attackClips[1], a.attackClips[2]);
+        pc.pac.ExitTimeAnimation(a.attackClips[1], a.attackClips[2]);
 
 
         Vector3 direction = (target.transform.position - pc.transform.position).
@@ -211,7 +211,7 @@ public class OnAttackEvents : MonoBehaviour
         {
             distance = Mathf.Max(Mathf.Min(dashDistance * 2, direction.magnitude * 2), dashDistance * 0.8f);
 
-            collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.col.radius, direction, distance * 2f, pc.enemyLayer);
+            collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.col.radius, direction, distance * 2f, pc.psm.enemyLayer);
 
             foreach (var hit in collidersInPath)
             {
@@ -221,14 +221,14 @@ public class OnAttackEvents : MonoBehaviour
         }
         else
         {
-            ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = true;
+            ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = true;
             distance = Mathf.Min(dashDistance, direction.magnitude);
         }
         
         yield return Timing.WaitUntilDone(pc.rb.TraverseDistanceInTime(direction.normalized, distance, dashTime));
         
 
-        pc.PlayAnimation(a.attackClips[3], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[3], 0.01f);
         
         
         Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
@@ -267,7 +267,7 @@ public class OnAttackEvents : MonoBehaviour
         
         if (!holdKeys.Any(k => InputManager.KeyMap[k].holdAction())) yield break;
         
-        pc.PlayAnimation(a.attackClips[1], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
         
         Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(Vector3.up, launchUpHeight, launchUpTime));
         
@@ -296,29 +296,29 @@ public class OnAttackEvents : MonoBehaviour
     
     private IEnumerator<float> BeginPlungeAttack(PlayerController pc, Attack a)
     {
-        ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = false;
-        pc.PlayAnimation(a.attackClips[0], 0.01f);
+        ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
+        pc.pac.PlayAnimation(a.attackClips[0], 0.01f);
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
         
-        ((PlayerAttacking) pc.stateController.GetCurrentState()).readyToHit = true;
-        pc.PlayAnimation(a.attackClips[1], 0.01f);
+        ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = true;
+        pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
         
         pc.rb.linearVelocity = Vector3.zero;
         
         float minAnimTime = 0.05f;
         float startTime = Time.time;
 
-        Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.IsMidair &&
-            pc.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
+        Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.psm.IsMidair &&
+            pc.psm.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
         
         Timing.RunCoroutine(pc.rb.TraverseWithVelocity(Vector3.down, plungeSpeed, loopCondition));
         
         yield return Timing.WaitUntilTrue(() => !loopCondition());
         pc.rb.linearVelocity = Vector3.zero;
 
-        if (pc.IsGrounded)
+        if (pc.psm.IsGrounded)
         {
-            pc.PlayAnimation(a.attackClips[2], 0.01f);
+            pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
         }
         
         Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
@@ -335,11 +335,11 @@ public class OnAttackEvents : MonoBehaviour
     
     private void Dodge(PlayerController pc, Attack a)
     {
-        Vector3 dodgeDirection = pc.moveDirection.ZeroVector3Axis().normalized;
+        Vector3 dodgeDirection = pc.psm.moveDirection.ZeroVector3Axis().normalized;
         float distance = dodgeDistance;
         
 
-        if (pc.cam.isLockedOn && pc.StandardizedMoveDir.magnitude < 0.1f)
+        if (pc.cam.isLockedOn && pc.psm.StandardizedMoveDir.magnitude < 0.1f)
         {
             Vector3 teleportedPosition = pc.cam.targetedEnemy.transform.position + 
                                          (pc.transform.position - pc.cam.targetedEnemy.transform.position).ZeroVector3Axis().normalized * pc.playerRadius;
@@ -348,15 +348,15 @@ public class OnAttackEvents : MonoBehaviour
             distance = dodgeDirection.magnitude;
             dodgeDirection.Normalize();
         }
-        else if (pc.StandardizedMoveDir.magnitude < 0.1f)
+        else if (pc.psm.StandardizedMoveDir.magnitude < 0.1f)
         {
-            dodgeDirection = pc.IsMidair ? Vector3.down : Vector3.up;
+            dodgeDirection = pc.psm.IsMidair ? Vector3.down : Vector3.up;
         }
-        else if (pc.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, -1), 92f) && pc.IsMidair && pc.cam.isLockedOn)
+        else if (pc.psm.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, -1), 92f) && pc.psm.IsMidair && pc.cam.isLockedOn)
         {
             Vector3 targetPos = dodgeDirection * dodgeDistance + pc.transform.position;
             
-            bool isGround = Physics.Raycast(targetPos, Vector3.down, out RaycastHit hit, 100f, pc.groundLayer);
+            bool isGround = Physics.Raycast(targetPos, Vector3.down, out RaycastHit hit, 100f, pc.psm.groundLayer);
             
             Vector3 point = isGround ? hit.point : targetPos;
             
@@ -387,7 +387,7 @@ public class OnAttackEvents : MonoBehaviour
         float timeSinceLastClick = 0;
         float startTime = Time.time;
         
-        pc.pauseComboReset = true;
+        pc.psm.pauseComboReset = true;
         
         while (timeSinceLastClick < mashInterval && Time.time - startTime < mashDuration)
         {
@@ -404,13 +404,13 @@ public class OnAttackEvents : MonoBehaviour
         
         if (timeSinceLastClick >= mashInterval)
         {
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.pauseComboReset = false));
-            pc.PlayAnimation(a.attackClips[1], 0.01f);
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
+            pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
         }
         else
         {
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown * 2, () => pc.pauseComboReset = false));
-            pc.PlayAnimation(a.attackClips[2], 0.01f);
+            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown * 2, () => pc.psm.pauseComboReset = false));
+            pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
         }
     }
 
