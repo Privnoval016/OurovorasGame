@@ -97,5 +97,6 @@ public class VFXInfo
 {
     public VFXAttack vfxAttack;
     public float duration = 0.3f;
+    public float delay = 0;
     public Quaternion rotation;
 }

@@ -27,7 +27,7 @@ public class PlayerAnimator : MonoBehaviour
 
     [HideInInspector] public AnimancerState currentAnimState;
     
-    public MoveAnimData MovingAnims => moveAnimDataDict[pc.psm.movingState];
+    public MoveAnimData MovingAnims => moveAnimDataDict[pc != null ? pc.psm.movingState : MovingStates.NonCombat];
     
     [HideInInspector]
     public WalkingAnimStates walkingAnim;

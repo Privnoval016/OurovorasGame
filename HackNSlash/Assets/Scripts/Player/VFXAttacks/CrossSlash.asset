@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb111e3fbd3c8a34496e456df7c86e62, type: 3}
+  m_Name: CrossSlash
+  m_EditorClassIdentifier: 
+  vfxHitBox: {fileID: 3712180620774419834, guid: d51210d8568031e4bb6c537a81d25ca2,
+    type: 3}
+  vfxDatas:
+  - vfxType: 0
+    effect: {fileID: 0}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: -0.38268346, w: 0.9238795}
+      Scale: {x: 0.25, y: 0.25, z: 0.25}
+    durationScale: 0.2
+    delayScale: 0
+  - vfxType: 0
+    effect: {fileID: 0}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0.85264015, w: 0.5224986}
+      Scale: {x: 0.25, y: 0.25, z: 0.25}
+    durationScale: 0.2
+    delayScale: 0.1
+  - vfxType: 0
+    effect: {fileID: 0}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0.12186935, w: 0.99254614}
+      Scale: {x: 0.25, y: 0.25, z: 0.25}
+    durationScale: 0.2
+    delayScale: 0.2
+  - vfxType: 0
+    effect: {fileID: 0}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0.54463905, w: 0.83867055}
+      Scale: {x: 0.25, y: 0.25, z: 0.25}
+    durationScale: 0.2
+    delayScale: 0.3
+  - vfxType: 0
+    effect: {fileID: 0}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0.9961947, w: 0.087155804}
+      Scale: {x: 0.25, y: 0.25, z: 0.25}
+    durationScale: 0.2
+    delayScale: 0.4
+  vfxAction: 3
+  vfxSpeed: 150
+  canCollide: 0

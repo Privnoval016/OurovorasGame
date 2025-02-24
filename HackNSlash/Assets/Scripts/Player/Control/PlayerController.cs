@@ -26,6 +26,9 @@ public class PlayerController : MonoBehaviour
     
     #endregion
     
+    public ElementEffect CurrentElementEffect = ElementEffect.None;
+    public ElementData CurrentElementData => GameManager.ElementMap[CurrentElementEffect]();
+    
     
     #region MonoBehaviour Callbacks
 
