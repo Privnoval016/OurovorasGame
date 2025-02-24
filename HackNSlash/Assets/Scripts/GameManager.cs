@@ -35,12 +35,10 @@ public class GameManager : MonoBehaviour
     private GameState previousGameState;
     
     public static readonly Dictionary<ElementEffect, Func<ElementData>> ElementMap = new();
-    public ElementEffect CurrentElementEffect = ElementEffect.None;
-    public static ElementData CurrentElementData => ElementMap[Instance.CurrentElementEffect]();
     
     
     [Header("In Game Instances")]
-    public GameObject player;
+    public PlayerController pc;
     
     
     [Header("Global Parameters")]
@@ -60,8 +58,9 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        
-        player = GameObject.FindWithTag("Player");
+
+        if (pc == null)
+            GameObject.FindWithTag("Player").TryGetComponent(out pc);
         
         CurrentGameState = GameState.PlayerControl;
         previousGameState = GameState.PlayerControl;
@@ -133,7 +132,7 @@ public class GameManager : MonoBehaviour
         
         // match current element should return the elementdata associated with the current element effect
         
-        ElementMap.Add(ElementEffect.MatchCurrent, () => ElementMap[CurrentElementEffect]());
+        ElementMap.Add(ElementEffect.MatchCurrent, () => pc?.CurrentElementData);
     }
     
     #endregion

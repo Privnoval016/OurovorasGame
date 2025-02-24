@@ -166,7 +166,7 @@ public class PlayerStateMachine : MonoBehaviour
     
     #endregion
     
-     #region Attack Methods
+    #region Attack Methods
 
     public void InvokeOnAttack(Attack a)
     {
@@ -385,7 +385,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void CalculateGravity()
     {
-        Debug.Log(pc.rb.linearVelocity.y);
         if (IsMidair && Mathf.Abs(pc.rb.linearVelocity.y) < playerData.jumpHangTimeThreshold)
         {
             SetGravityScale(playerData.gravityScale * playerData.jumpHangGravityMult);

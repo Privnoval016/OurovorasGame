@@ -677,10 +677,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bladeBeamHoldTime: 0.4
   crossSlashDuration: 0.7
-  dashSpeed: 80
-  dashDistance: 25
-  dashTime: 0.2
-  dashTimeThreshold: 0.4
+  hitboxDelay: 0.4
+  vortexSlashHoldTime: 1
+  airDashSpeed: 80
+  maxAirDashDistance: 20
+  groundDashDistance: 25
+  groundDashTime: 0.2
+  groundDashTimeThreshold: 0.4
   launchUpHoldTime: 0.25
   launchUpTime: 0.3
   launchUpHeight: 15
@@ -921,7 +924,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e513d574de4d7be45b2157b02bda27f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stateController: {fileID: 0}
+  sc: {fileID: 0}
   rb: {fileID: 0}
   col: {fileID: 0}
   cam: {fileID: 0}
@@ -930,6 +933,7 @@ MonoBehaviour:
   psm: {fileID: 0}
   model: {fileID: 5866666020638784867}
   playerRadius: 3
+  CurrentElementEffect: 0
 --- !u!114 &845412131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -951,7 +955,7 @@ MonoBehaviour:
   activeWeaponTypes: 0100000002000000
   activeWeapons: []
   trailLength: 10
-  player: {fileID: 0}
+  pc: {fileID: 0}
 --- !u!114 &845412132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1252,8 +1256,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c636a7cace2440508f2e7744449d8a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentElementEffect: 0
-  player: {fileID: 0}
+  pc: {fileID: 0}
   globalGravity: -9.81
   elementData:
   - {fileID: 11400000, guid: b495506635be6d44f832be5cb6c5172e, type: 2}

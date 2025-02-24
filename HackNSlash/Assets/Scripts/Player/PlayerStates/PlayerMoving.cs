@@ -59,6 +59,8 @@ public class PlayerMoving : State
 	    
 	    pc.pac.UpdateAnimation();
 	    
+	    PauseCallbacks();
+	    
 	    if (pc.psm.pauseMovement) return;
 	    
 	    CheckJump();
@@ -100,6 +102,16 @@ public class PlayerMoving : State
     #endregion
     
     #region Input Callbacks
+    
+    private void PauseCallbacks()
+	{
+		if (GameManager.CurrentGameState == GameState.Menu)
+		{
+			
+			
+			
+		}
+	}
     
     private void OnJumpAction(InputAction.CallbackContext context)
     {

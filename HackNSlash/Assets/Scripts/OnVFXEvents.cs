@@ -45,15 +45,22 @@ public class OnVFXEvents : MonoBehaviour
         
         OnVFXActionMap.Add(OnVFXActions.LinearPath, LinearPath);
         OnVFXActionMap.Add(OnVFXActions.FollowWeapon, FollowWeapon);
+        OnVFXActionMap.Add(OnVFXActions.StationaryPath, StationaryPath);
     }
     
-    public bool InvokeOnVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
+    public VFXController InvokeOnVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
     {
-        if (a == null || a.vfxInfos.Length == 0) return false;
+        if (a == null || a.vfxInfos.Length == 0) return null;
         VFXController vfx = InstantiateVFX(pc, start, a, vfxIndex);
-        if (vfx == null) return false;
-        OnVFXActionMap[a.vfxInfos[vfxIndex].vfxAttack.vfxAction](vfx, weaponType);
-        return true;
+        if (vfx == null) return null;
+        Timing.RunCoroutine(SpawnWithDelay(vfx, a, vfxIndex, weaponType));
+        return vfx;
+    }
+    
+    IEnumerator<float> SpawnWithDelay(VFXController vfx, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
+    {
+        yield return Timing.WaitForSeconds(a.vfxInfos[vfxIndex].delay);
+        OnVFXActionMap[a.vfxInfos[vfxIndex].vfxAttack.vfxAction].Invoke(vfx, weaponType);
     }
     
     private VFXController InstantiateVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0)
@@ -74,7 +81,7 @@ public class OnVFXEvents : MonoBehaviour
         foreach (VFXData vfxData in v.vfxAttack.vfxDatas)
         {
             GameObject effect = vfxData.effect == null ? 
-                GameManager.CurrentElementData.GetVFX(vfxData.vfxType) : vfxData.effect;
+                pc.CurrentElementData.GetVFX(vfxData.vfxType) : vfxData.effect;
             if (effect == null) continue;
             
             GameObject vfxInstance = Instantiate(effect, vfx.transform);
@@ -111,6 +118,7 @@ public class OnVFXEvents : MonoBehaviour
         VFXAttack v = vfx.vfxInfo.vfxAttack;
         
         Vector3 direction = vfx.transform.forward;
+        print(direction + " " + vfx.transform.rotation.eulerAngles);
         vfx.transform.TweenDistance(direction, vfx.timeAlive * v.vfxSpeed, vfx.timeAlive, Ease.Linear);
         
         vfx.EnableVFX();
@@ -148,5 +156,23 @@ public class OnVFXEvents : MonoBehaviour
     
     #endregion
     
+    
+    #region Stationary Path
+    
+    private void StationaryPath(VFXController vfx, WeaponType weaponType)
+    {
+        Timing.RunCoroutine(BeginStationaryPath(vfx, weaponType));
+    }
+    
+    IEnumerator<float> BeginStationaryPath(VFXController vfx, WeaponType weaponType)
+    {
+        VFXInfo v = vfx.vfxInfo;
+        
+        vfx.EnableVFX();
+        
+        yield return Timing.WaitForSeconds(v.duration);
+    }
+    
+    #endregion
     
 }

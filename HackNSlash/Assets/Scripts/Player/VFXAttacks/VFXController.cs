@@ -1,28 +1,38 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using ExtensionUtils;
 using UnityEngine;
-using UnityEngine.Serialization;
+using MEC;
 using UnityEngine.VFX;
 
 public class VFXController : MonoBehaviour
 {
-    [Header("Components")] 
-    public Collider col;
-    public VisualEffect[] vfxs;
-    public MeshRenderer meshRenderer;
+
+    [HideInInspector] public Collider col;
+    
+    
+    [HideInInspector] public MeshRenderer meshRenderer;
     
     [Header("Settings")]
     public Vector3 properScale = Vector3.one;
     public Vector3 initialScale;
 
-    public bool activeHitbox = true;
     
     [HideInInspector] public Attack attack;
     [HideInInspector] public PlayerController player;
     [HideInInspector] public VFXInfo vfxInfo;
+    
+    [HideInInspector] public VisualEffect[] vfxs;
     [HideInInspector] public int vfxIndex;
+    
     [HideInInspector] public float timeAlive;
+    
+    private Dictionary<VisualEffect, float> vfxDelays = new();
+    
+    public bool activeHitbox = true;
     private float elapsedTime;
+    public bool vfxEnabled;
 
     private void Awake()
     {
@@ -33,11 +43,22 @@ public class VFXController : MonoBehaviour
     
     private void Update()
     {
+        if (!vfxEnabled) return;
+        
         elapsedTime += Time.deltaTime;
         if (elapsedTime >= timeAlive)
         {
             Destroy(gameObject);
         }
+
+        vfxDelays.Keys.Where(effect => elapsedTime >= vfxDelays[effect] * timeAlive).ToList().ForEach(effect =>
+        {
+            effect.gameObject.SetActive(true);
+            effect.Play();
+            vfxDelays.Remove(effect);
+        });
+        
+        
     }
     
     public void InitializeVFX(PlayerController pc, TransformInfo start, Attack a, VFXInfo v, VisualEffect[] vfx, int index, bool canCollide)
@@ -47,6 +68,8 @@ public class VFXController : MonoBehaviour
         vfxs = vfx;
         vfxInfo = v;
         vfxIndex = index;
+        
+        AddVFXDelays();
         
         transform.position = start.Position;
         transform.rotation = start.Rotation;
@@ -61,13 +84,17 @@ public class VFXController : MonoBehaviour
         UpdateVFXColorByElement(a.element);
     }
     
+    private void AddVFXDelays()
+    {
+        for (int i = 0; i < vfxs.Length; i++)
+        {
+            vfxDelays.Add(vfxs[i], vfxInfo.vfxAttack.vfxDatas[i].delayScale);
+        }
+    }
+    
     public void EnableVFX()
     {
-        foreach (VisualEffect vfx in vfxs)
-        {
-            vfx.gameObject.SetActive(true);
-            vfx.Play();
-        }
+        vfxEnabled = true;
     }
     
     public void UpdateScale(Vector3 scale)
@@ -84,9 +111,7 @@ public class VFXController : MonoBehaviour
     
     public void SetChildScale(GameObject child, Vector3 scale)
     {
-        Vector3 targetLossyScale = properScale.ScaledBy(scale);
-        
-        child.transform.localScale = targetLossyScale.DividedBy(transform.lossyScale);
+        child.transform.localScale = scale;
     }
 
     public void UpdateVFXFloat(string name, float value)
@@ -112,13 +137,28 @@ public class VFXController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log("Hit");
-        if (!activeHitbox) return;
+        if (!activeHitbox || !vfxEnabled) return;
         
         if (player == null || attack == null) return;
         
-        if (other.TryGetComponent(out IDamageable enemy))
+        if (other.TryGetComponent(out IDamageable enemy) && !enemy.tookDamageThisAction)
         {
             enemy.OnHit(player, attack);
         }
     }
+
+    // private void OnTriggerStay(Collider other)
+    // {
+    //     Debug.Log("Hit");
+    //     if (!activeHitbox || !vfxEnabled) return;
+    //     
+    //     if (player == null || attack == null) return;
+    //     
+    //     Debug.Log("Hit Ready");
+    //     
+    //     if (other.TryGetComponent(out IDamageable enemy) && !enemy.tookDamageThisAction)
+    //     {
+    //         enemy.OnHit(player, attack);
+    //     }
+    // }
 }
