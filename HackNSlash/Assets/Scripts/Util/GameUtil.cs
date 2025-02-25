@@ -11,6 +11,12 @@ namespace ExtensionUtils
     public static class GameUtil
     {
         
+        public static IEnumerator<float> RunAfterDelay(float delay, Action action)
+        {
+            yield return Timing.WaitForSeconds(delay);
+            action();
+        }
+        
         /* 
          *  Converts the target vector to a vector relative to the basis vector (treated as the forward vector)
          */

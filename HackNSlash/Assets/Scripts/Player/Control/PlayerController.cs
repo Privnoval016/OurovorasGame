@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     #region Components
     
     [HideInInspector] public Rigidbody rb;
-    [HideInInspector] public CapsuleCollider col;
+    public CapsuleCollider col;
     
     [HideInInspector] public CameraController cam;
     
@@ -35,11 +35,22 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        col = GetComponent<CapsuleCollider>();
         wc = GetComponent<WeaponController>();
         pac = GetComponent<PlayerAnimator>();
         psm = GetComponent<PlayerStateMachine>();
-        
+
+        if (col == null)
+        {
+            Collider[] cols = GetComponents<Collider>();
+            foreach (Collider c in cols)
+            {
+                if (c.material != null) continue;
+                
+                col = (CapsuleCollider) c;
+                break;
+            }
+        }
+
         sc = GetComponent<StateController>();
         sc.parent = this;
         

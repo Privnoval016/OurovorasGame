@@ -190,7 +190,6 @@ public class PlayerMoving : State
 
     private void CheckJump()
     {
-	    
 	    if (pc.psm.IsGrounded)
 	    {
 		    pc.psm.lastOnGroundTime = pc.psm.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
@@ -204,6 +203,17 @@ public class PlayerMoving : State
 		    pc.psm.lastDoubleJumpTime += Time.deltaTime;
 	    }
 	    
+	    if (pc.psm.activateMidairEntry)
+	    {
+		    pc.psm.isJumping = true;
+		    pc.psm.lastPressedJumpTime = 0;
+		    pc.psm.lastOnGroundTime = 0;
+		    pc.psm.lastDoubleJumpTime = pc.psm.playerData.doubleJumpWaitDuration;
+		    pc.psm.isJumpFalling = false;
+		    
+		    pc.psm.activateMidairEntry = false;
+	    }
+	    
 	    if (pc.psm.CanJump)
 	    {
 		    pc.psm.isJumpFalling = false;
@@ -211,6 +221,7 @@ public class PlayerMoving : State
 		    if (pc.psm.IsJumpTriggered)
 		    {
 			    pc.psm.isJumping = true;
+			    pc.psm.lastPressedJumpTime = 0;
 
 			    Jump();
 		    }
@@ -236,9 +247,6 @@ public class PlayerMoving : State
 		Debug.Log("Jumping");
 
 		pc.pac.SwitchAnimState(WalkingAnimStates.Jumping);
-		
-		pc.psm.lastPressedJumpTime = 0;
-		pc.psm.lastOnGroundTime = 0;
 
 		#region Perform Jump
 		//We increase the force applied if we are falling
@@ -257,7 +265,7 @@ public class PlayerMoving : State
 		
 		pc.pac.SwitchAnimState(WalkingAnimStates.DoubleJumping, () => pc.pac.SwitchAnimState(WalkingAnimStates.Falling));
 		
-		pc.psm.lastDoubleJumpTime = 0;
+		//pc.psm.lastDoubleJumpTime = 0;
 		
 		#region Perform Double Jump
 		

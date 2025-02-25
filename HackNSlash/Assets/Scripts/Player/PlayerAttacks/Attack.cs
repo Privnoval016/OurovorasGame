@@ -87,7 +87,8 @@ public class HitInfo
     public float hitDelay;
     [Tooltip("Used for follow velocity and other select hit actions")]
     public Vector3 hitDirection;
-
+    
+    public bool tweenToPlayer = false;
     [Tooltip("Used for follow velocity and other select hit actions")]
     public bool elasticCollision = false;
 }

@@ -22,6 +22,11 @@ namespace ExtensionUtils
             float cos = Mathf.Cos(angle * Mathf.Deg2Rad);
             return new Vector2(vec.x * cos - vec.y * sin, vec.x * sin + vec.y * cos);
         }
+        
+        public static Vector3 Rotate(this Vector3 vec, float degAngle, Vector3 axis)
+        {
+            return Quaternion.AngleAxis(degAngle, axis) * vec;
+        }
 
         /*
          * Rotates a float2 by a given angle

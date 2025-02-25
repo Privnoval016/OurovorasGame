@@ -158,7 +158,9 @@ public class OnAttackEvents : MonoBehaviour
         float elapsedTime = Time.time - startTime;
 
         int index = elapsedTime >= vortexSlashHoldTime ? 2 : 1;
-        pc.pac.PlayAnimation(a.attackClips[index], 0.01f);
+
+        Timing.RunCoroutine(GameUtil.RunAfterDelay(index == 2 ? a.vfxInfos[index].delay : 0, () => pc.pac.PlayAnimation(a.attackClips[index], 0.01f)));
+        
         
         
         Vector3 startPos = pc.transform.forward.FindRadialVector3(pc.playerRadius, 0) + pc.transform.position;
@@ -213,8 +215,12 @@ public class OnAttackEvents : MonoBehaviour
             pc.psm.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f)) &&
                                          Vector3.Distance(startPos, pc.transform.position) < maxAirDashDistance;
         
-        pc.pac.animancer.gameObject.transform.LookAt(target.transform.position);
-        Vector3 direction = target.transform.position - pc.transform.position;
+        // rotate the direction downwards by 45 degrees
+        Vector3 direction = (target.transform.position - pc.transform.position).ZeroVector3Axis();
+        direction = direction.Rotate(-45, Vector3.Cross(direction, Vector3.up));
+        
+        
+        pc.pac.animancer.gameObject.transform.LookAt(pc.transform.position + direction);
         
         if (target.TryGetComponent(out Collider c)) Physics.IgnoreCollision(pc.col, c, true);
         
@@ -334,14 +340,18 @@ public class OnAttackEvents : MonoBehaviour
         
         if (!holdKeys.Any(k => InputManager.KeyMap[k].holdAction())) yield break;
         
-        pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[1], 0.01f, false);
         
         Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(Vector3.up, launchUpHeight, launchUpTime));
         
-        Timing.WaitForSeconds(launchUpTime);
+        Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
         
-        pc.rb.linearVelocity = Vector3.zero;
+        pc.psm.activateMidairEntry = true;
         
+        Timing.WaitForSeconds(launchUpTime - a.hitInfo.attackCoolDown);
+        
+        pc.rb.linearVelocity = (pc.psm.playerData.jumpHangTimeThreshold - 0.01f) * Vector3.up;
+
     }
     
     #endregion
