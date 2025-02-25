@@ -39,6 +39,7 @@ MonoBehaviour:
     hitForce: -40
     hitDelay: 0.1
     hitDirection: {x: 0, y: 0, z: 0}
+    tweenToPlayer: 0
     elasticCollision: 0
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
@@ -51,5 +52,5 @@ MonoBehaviour:
     rotation: {x: 0, y: 0, z: 0, w: 0}
   - vfxAttack: {fileID: 11400000, guid: 14697be9e967fdc40af0f7af8fa03a6f, type: 2}
     duration: 1
-    delay: 0
+    delay: 0.4
     rotation: {x: 0, y: 0, z: 0, w: 0}

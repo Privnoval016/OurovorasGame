@@ -53,7 +53,7 @@ public abstract class IDamageable : MonoBehaviour, ITargetable
     }
 
 
-    public void OnHit(PlayerController pc, Attack a, int actionIndex = 0)
+    public virtual void OnHit(PlayerController pc, Attack a, int actionIndex = 0)
     {
         tookDamageThisAction = true;
         Timing.RunCoroutine(ResetHit(a));

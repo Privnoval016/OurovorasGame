@@ -151,7 +151,7 @@ public class PlayerAttacking : State
         
         foreach (var clip in clips)
         {
-            pc.pac.PlayAnimation(clip, 0.2f);
+            pc.pac.PlayAnimation(clip, 0.2f, false);
             yield return Timing.WaitForSeconds(clip.length);
         }
     }
