@@ -21,11 +21,14 @@ MonoBehaviour:
   applyTargetDirection: 1
   isMidair: 1
   applyRootMotion: 0
+  maxUses: 1
   attackTransitions: []
   attackClips:
   - {fileID: 7400000, guid: adb2761a358165b4d9df56036412221f, type: 2}
   - {fileID: 7400000, guid: 8ce1084bf2426d749904a8b299ea5ad0, type: 2}
   - {fileID: 7400000, guid: ca0509887686cb94f906dbdd8bcedc81, type: 2}
+  animDelay: 0
+  animFade: 0.2
   clipsToPlay: 0
   exitCondition: 2
   onAttackAction: 1
@@ -36,9 +39,9 @@ MonoBehaviour:
     hitRegisterAngle: 120
     attackCoolDown: 0.5
     damage: 0
-    hitForce: 15
+    hitForce: 25
     hitDelay: 0
-    hitDirection: {x: 0, y: -1, z: 1}
+    hitDirection: {x: 0, y: 0, z: 1}
     tweenToPlayer: 0
     elasticCollision: 0
   vfxInfos:

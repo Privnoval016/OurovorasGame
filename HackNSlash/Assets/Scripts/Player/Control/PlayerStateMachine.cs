@@ -22,8 +22,7 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
     
      #region MOVE PARAMETERS
-
-     //Timers (also all fields, could be private and a method returning a bool could be used)
+     
      [HideInInspector] public bool pauseMovement;
     
      [HideInInspector] public float lastOnGroundTime;
@@ -33,11 +32,12 @@ public class PlayerStateMachine : MonoBehaviour
 
      public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
-    
-    
-     public bool CanJump => lastOnGroundTime > 0 || !isJumping;
-     public bool CanDoubleJump => lastDoubleJumpTime > playerData.doubleJumpWaitDuration 
-                                 && !isDoubleJumpUsed;
+     public bool IsMidair => !IsGrounded;
+
+     public bool CanJump => lastOnGroundTime > 0 && !isJumping;
+     
+     [HideInInspector] public bool isDoubleJumpUsed;
+     public bool CanDoubleJump => lastDoubleJumpTime <= 0 && !isDoubleJumpUsed && canAttack;
 
      [HideInInspector] public bool activateMidairEntry;
     
@@ -48,13 +48,8 @@ public class PlayerStateMachine : MonoBehaviour
      //Jump
      [HideInInspector] public bool isJumping;
      [HideInInspector] public bool isJumpFalling;
-     [HideInInspector] public bool isDoubleJumpTriggered;
      public bool IsJumpTriggered => lastPressedJumpTime > 0;
-     public bool IsPerformingJump => lastPressedJumpTime > -playerData.jumpTimeToApex && lastPressedJumpTime < 0;
     
-     public bool IsMidair => !IsGrounded;
-     
-     [HideInInspector] public bool isDoubleJumpUsed = true;
     
     
      [HideInInspector] public float gravityScale;
@@ -90,6 +85,10 @@ public class PlayerStateMachine : MonoBehaviour
     [HideInInspector] public List<ComboAction> comboChain = new();
     [HideInInspector] public float comboResetTimer = 0;
     [HideInInspector] public bool pauseComboReset = false;
+    
+    
+    [HideInInspector] public int numMidairAttacks;
+    [HideInInspector] public Dictionary<Attack, int> NumActionsUsed = new();
 
     public GameObject NearestEnemy
     {
@@ -139,6 +138,7 @@ public class PlayerStateMachine : MonoBehaviour
     private void Update()
     {
         SetMoveValues();
+        CheckGrounded();
         CheckAttackAction();
     }
     
@@ -166,6 +166,12 @@ public class PlayerStateMachine : MonoBehaviour
         
     }
     
+    public GameObject GetEnemyInRadius(float radius)
+    {
+        return Physics.OverlapSphere(transform.position, radius, enemyLayer)
+            .OrderBy(e => Vector3.Distance(transform.position, e.transform.position)).FirstOrDefault()?.gameObject;
+    }
+    
     #endregion
     
     #region Attack Methods
@@ -175,7 +181,14 @@ public class PlayerStateMachine : MonoBehaviour
         OnAttackEvents.OnAttackActionMap[a.onAttackAction](pc, a);
     }
     
-    private void CheckAttackAction()
+    public void ResetActions()
+    {
+        NumActionsUsed.Clear();
+        
+        numMidairAttacks = 0;
+    }
+
+    private void SetActionTimers()
     {
 
         if (!pauseComboReset)
@@ -195,25 +208,70 @@ public class PlayerStateMachine : MonoBehaviour
             comboChain.Clear();
         }
         
-        if (movingState != MovingStates.Combat || pauseMovement) return;
-        
-        #region Dodge
-        
         dodgeTimer += Time.deltaTime;
+    }
 
-        if (dodgeTimer > attackData.dodgeCoolDown)
+    private bool CheckMobilityAction()
+    {
+
+        if (movingState == MovingStates.Combat && !pauseMovement)
         {
-            foreach (Attack attack in attackData.dodgeAttacks)
+            #region Dodge
+
+            if (dodgeTimer > attackData.dodgeCoolDown)
+            {
+                foreach (Attack attack in attackData.dodgeAttacks)
+                {
+                    if (!AttackIsAvailable(attack)) continue;
+
+                    dodgeTimer = 0;
+                    BeginAttack(attack);
+                    return true;
+                }
+            }
+
+            #endregion
+
+            #region Enemy Step
+
+            foreach (Attack attack in attackData.enemyStepAttacks)
             {
                 if (!AttackIsAvailable(attack)) continue;
+                
+                if (comboChain.LastOrDefault()?.attack == attack) continue;
 
-                dodgeTimer = 0;
+                if (IsGrounded || GetEnemyInRadius(pc.playerRadius) == null) continue;
+
+                ResetActions();
                 BeginAttack(attack);
-                return;
+                return true;
             }
+
+            #endregion
         }
 
+        #region Double Jump
+        
+        if (attackData.doubleJumpEnabled && CanDoubleJump && KeyMap[KeyBind.Jump].action())
+        {
+            lastDoubleJumpTime = 0;
+            isDoubleJumpUsed = true;
+            Jump(playerData.doubleJumpForce, true, WalkingAnimStates.DoubleJumping);
+            return true;
+        }
+        
         #endregion
+
+        return false;
+    }
+    
+    private void CheckAttackAction()
+    {
+        SetActionTimers();
+        
+        if (CheckMobilityAction()) return;
+        
+        if (movingState != MovingStates.Combat || pauseMovement) return;
         
         if (!canAttack) return;
                 
@@ -292,7 +350,6 @@ public class PlayerStateMachine : MonoBehaviour
 
         #endregion
         
-        
         #region Combo Starters
         
         if (IsMidair && KeyMap[KeyBind.LightAttack].action())
@@ -327,14 +384,18 @@ public class PlayerStateMachine : MonoBehaviour
         if (action == null) return;
         
         currentAttack = action.attack;
-
+        
+        pc.rb.linearVelocity = Vector3.zero;
+        
+        if (NumActionsUsed.ContainsKey(action.attack)) NumActionsUsed[action.attack]++;
+        
         if (pc.sc.GetCurrentState() is PlayerMoving)
         {
             pc.sc.Interrupt(new PlayerAttacking(action.attack));
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
-            Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
+            OnAttackEvents.Instance.EndObjectCoroutines();
             pc.sc.ChangeState(new PlayerAttacking(action.attack));
         }
     }
@@ -353,13 +414,17 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (attack == null) return;
         
+        pc.rb.linearVelocity = Vector3.zero;
+        
+        if (NumActionsUsed.ContainsKey(attack)) NumActionsUsed[attack]++;
+        
         if (pc.sc.GetCurrentState() is PlayerMoving)
         {
             pc.sc.Interrupt(new PlayerAttacking(attack));
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
-            Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
+            OnAttackEvents.Instance.EndObjectCoroutines();
             pc.sc.ChangeState(new PlayerAttacking(attack));
         }
     }
@@ -367,6 +432,13 @@ public class PlayerStateMachine : MonoBehaviour
     private bool AttackIsAvailable(Attack attack)
     {
         if (!attack.isEnabled) return false;
+        
+        if (!NumActionsUsed.ContainsKey(attack) && attack.maxUses > 0)
+        {
+            NumActionsUsed.Add(attack, 0);
+        }
+        
+        if (NumActionsUsed.ContainsKey(attack) && NumActionsUsed[attack] >= attack.maxUses) return false;
         
         if (attack.isLockedOn && !pc.cam.isLockedOn) return false;
         
@@ -385,6 +457,52 @@ public class PlayerStateMachine : MonoBehaviour
     
     #region Gravity Methods
 
+    public void Jump(float force, bool switchAnim = true, WalkingAnimStates animState = WalkingAnimStates.Jumping)
+    {
+        if (switchAnim) pc.pac.SwitchAnimState(animState, () => pc.pac.SwitchAnimState(WalkingAnimStates.Falling));
+
+        #region Perform Jump
+        if (pc.rb.linearVelocity.y < 0)
+            force -= pc.rb.linearVelocity.y;
+        
+        pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
+		
+        pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+        #endregion
+    }
+
+    public void CheckGrounded()
+    {
+        
+        if (pc.psm.IsGrounded)
+        {
+            pc.psm.lastOnGroundTime = pc.psm.playerData.coyoteTime;
+            isDoubleJumpUsed = false;
+            pc.psm.lastDoubleJumpTime = playerData.doubleJumpWaitDuration;
+            ResetActions();
+        }
+        else
+        {
+            pc.psm.lastDoubleJumpTime -= Time.deltaTime;
+        }
+	    
+        if (pc.rb.linearVelocity.y < -0.1f && pc.psm.isJumping)
+        {
+            pc.psm.isJumping = false;
+            pc.psm.isJumpFalling = true;
+        }
+	    
+        if (pc.psm.activateMidairEntry)
+        {
+            pc.psm.isJumping = true;
+            pc.psm.lastPressedJumpTime = 0;
+            pc.psm.lastOnGroundTime = 0;
+            pc.psm.isJumpFalling = false;
+		    
+            pc.psm.activateMidairEntry = false;
+        }
+    }
+    
     public void CalculateGravity()
     {
         if (IsMidair && Mathf.Abs(pc.rb.linearVelocity.y) < playerData.jumpHangTimeThreshold)
@@ -393,14 +511,11 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else if (pc.rb.linearVelocity.y < 0)
         {
-            //Higher gravity if falling
             SetGravityScale(playerData.gravityScale * playerData.fallGravityMult);
-            //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
             pc.rb.linearVelocity = new Vector3(pc.rb.linearVelocity.x, Mathf.Max(pc.rb.linearVelocity.y, -playerData.maxFallSpeed), pc.rb.linearVelocity.z);
         }
         else
         {
-            //Default gravity if standing on a platform or moving upwards
             SetGravityScale(playerData.gravityScale);
         }
     }
@@ -413,8 +528,13 @@ public class PlayerStateMachine : MonoBehaviour
     private void ApplyGravity()
     {
         Vector3 gravity = GameManager.Instance.globalGravity * gravityScale * Vector3.up;
-        Debug.Log(gravity);
+        //Debug.Log(gravity);
         pc.rb.AddForce(gravity, ForceMode.Acceleration);
+    }
+
+    public float GetMidairGravity()
+    {
+        return Mathf.Pow((float) numMidairAttacks / playerData.maxMidairAtks, playerData.midairAtkGravScale);
     }
     
     #endregion

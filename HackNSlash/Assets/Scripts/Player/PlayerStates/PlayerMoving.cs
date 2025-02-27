@@ -39,9 +39,6 @@ public class PlayerMoving : State
 	    
 	    pc.psm.lastOnGroundTime -= Time.deltaTime;
 	    pc.psm.lastPressedJumpTime -= Time.deltaTime;
-	    
-	    if (pc.psm.lastOnGroundTime > 0)
-			pc.psm.lastDoubleJumpTime += Time.deltaTime;
 
 	    if (pc.psm.IsWalking && !pc.cam.isLockedOn && pc.rb.linearVelocity.ZeroVector3Axis().magnitude > 0.01f && pc.psm.moveInput.magnitude > 0.95f)
 	    {
@@ -51,7 +48,6 @@ public class PlayerMoving : State
 	    {
 		    pc.psm.walkingTime = 0;
 	    }
-
 	    
 	    #endregion
 	    
@@ -81,7 +77,7 @@ public class PlayerMoving : State
 
     public override void OnInterrupt()
     {
-	    //pc.psm.isDoubleJumpUsed = false;
+	    
     }
 
     public override void OnResume()
@@ -95,8 +91,7 @@ public class PlayerMoving : State
 	    
 	    pc.psm.currentAttack = null;
 	    
-	    
-	    //pc.psm.TurnToLook();
+	    pc.psm.TurnToLook();
     }
 
     #endregion
@@ -119,16 +114,10 @@ public class PlayerMoving : State
 	    
 	    if (sc.GetCurrentState() is PlayerAttacking) sc.ResumePrevious();
 	    
-	    if (pc.psm.lastOnGroundTime > 0)
+	    if (pc.psm.CanJump)
 	    {
 		    InputManager.Instance.ReleaseHoldAttacks();
 		    pc.psm.lastPressedJumpTime = pc.psm.playerData.jumpInputBufferTime;
-	    }
-	    
-	    else if (pc.psm.attackData.doubleJumpEnabled && !pc.psm.isDoubleJumpUsed)
-	    {
-		    InputManager.Instance.ReleaseHoldAttacks();
-		    pc.psm.isDoubleJumpTriggered = true;
 	    }
     }
     
@@ -190,92 +179,21 @@ public class PlayerMoving : State
 
     private void CheckJump()
     {
-	    if (pc.psm.IsGrounded)
-	    {
-		    pc.psm.lastOnGroundTime = pc.psm.playerData.coyoteTime; //if so sets the lastGrounded to coyoteTime
-		    pc.psm.lastDoubleJumpTime = 0;
-		    pc.psm.isDoubleJumpUsed = false;
-		    pc.psm.isDoubleJumpTriggered = false;
-	    }
-
-	    if (!pc.psm.isDoubleJumpTriggered && (pc.psm.isJumping || pc.psm.isJumpFalling))
-	    {
-		    pc.psm.lastDoubleJumpTime += Time.deltaTime;
-	    }
-	    
-	    if (pc.psm.activateMidairEntry)
-	    {
-		    pc.psm.isJumping = true;
-		    pc.psm.lastPressedJumpTime = 0;
-		    pc.psm.lastOnGroundTime = 0;
-		    pc.psm.lastDoubleJumpTime = pc.psm.playerData.doubleJumpWaitDuration;
-		    pc.psm.isJumpFalling = false;
-		    
-		    pc.psm.activateMidairEntry = false;
-	    }
-	    
 	    if (pc.psm.CanJump)
 	    {
 		    pc.psm.isJumpFalling = false;
-		    
+
 		    if (pc.psm.IsJumpTriggered)
 		    {
 			    pc.psm.isJumping = true;
 			    pc.psm.lastPressedJumpTime = 0;
+			    
+			    pc.psm.lastDoubleJumpTime = pc.psm.playerData.doubleJumpWaitDuration;
 
-			    Jump();
+			    pc.psm.Jump(pc.psm.playerData.jumpForce, true, WalkingAnimStates.Jumping);
 		    }
 	    }
-
-		if (pc.psm.CanDoubleJump && pc.psm.isDoubleJumpTriggered)
-	    {
-		    pc.psm.isDoubleJumpUsed = true;
-		    pc.psm.isDoubleJumpTriggered = false;
-		    
-		    DoubleJump();
-	    }
-		
-	    if (pc.rb.linearVelocity.y < 0 && pc.psm.isJumping)
-	    {
-		    pc.psm.isJumping = false;
-		    pc.psm.isJumpFalling = true;
-	    }
     }
-    
-	private void Jump()
-	{
-		Debug.Log("Jumping");
-
-		pc.pac.SwitchAnimState(WalkingAnimStates.Jumping);
-
-		#region Perform Jump
-		//We increase the force applied if we are falling
-		//This means we'll always feel like we jump the same amount 
-		float force = pc.psm.playerData.jumpForce; 
-		if (pc.rb.linearVelocity.y < 0)
-			force -= pc.rb.linearVelocity.y;
-		
-		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
-		#endregion
-	}
-
-	private void DoubleJump()
-	{
-		Debug.Log("Double Jumping");
-		
-		pc.pac.SwitchAnimState(WalkingAnimStates.DoubleJumping, () => pc.pac.SwitchAnimState(WalkingAnimStates.Falling));
-		
-		//pc.psm.lastDoubleJumpTime = 0;
-		
-		#region Perform Double Jump
-		
-		float force = pc.psm.playerData.doubleJumpForce;
-		
-		pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
-		
-		pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
-		#endregion
-	}
     
     #endregion
 }

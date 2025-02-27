@@ -12,7 +12,8 @@ public class PlayerController : MonoBehaviour
     #region Components
     
     [HideInInspector] public Rigidbody rb;
-    public CapsuleCollider col;
+    [FormerlySerializedAs("col")] public CapsuleCollider mainCol;
+    [HideInInspector] public CapsuleCollider[] allCols;
     
     [HideInInspector] public CameraController cam;
     
@@ -39,14 +40,15 @@ public class PlayerController : MonoBehaviour
         pac = GetComponent<PlayerAnimator>();
         psm = GetComponent<PlayerStateMachine>();
 
-        if (col == null)
+        allCols = GetComponents<CapsuleCollider>();
+        
+        if (mainCol == null)
         {
-            Collider[] cols = GetComponents<Collider>();
-            foreach (Collider c in cols)
+            foreach (CapsuleCollider c in allCols)
             {
                 if (c.material != null) continue;
                 
-                col = (CapsuleCollider) c;
+                mainCol = c;
                 break;
             }
         }
@@ -66,5 +68,13 @@ public class PlayerController : MonoBehaviour
     
     
     #endregion
+    
+    public void IgnoreCollision(Collider col, bool ignore)
+    {
+        foreach (CapsuleCollider c in allCols)
+        {
+            Physics.IgnoreCollision(c, col, ignore);
+        }
+    }
     
 }

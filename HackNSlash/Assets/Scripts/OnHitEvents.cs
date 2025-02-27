@@ -10,7 +10,8 @@ public enum OnHitActions
     BasicKnockBack,
     LaunchUp,
     FollowPlayerVelocity,
-    LaunchDown
+    LaunchDown,
+    MidairKnockback
 }
 
 public class OnHitEvents : MonoBehaviour
@@ -43,6 +44,12 @@ public class OnHitEvents : MonoBehaviour
         OnHitActionMap.Add(OnHitActions.LaunchUp, LaunchUp);
         OnHitActionMap.Add(OnHitActions.FollowPlayerVelocity, FollowPlayerVelocity);
         OnHitActionMap.Add(OnHitActions.LaunchDown, LaunchDown);
+        OnHitActionMap.Add(OnHitActions.MidairKnockback, MidairKnockback);
+    }
+    
+    public void EndObjectCoroutines()
+    {
+        Timing.KillCoroutines(gameObject);
     }
 
     #region Basic Knockback
@@ -66,16 +73,41 @@ public class OnHitEvents : MonoBehaviour
         {
             direction = a.hitInfo.hitDirection.GetRelativeVector3(pc.transform.forward).normalized;
         }
-        else if (ec != null && !ec.IsGrounded)
-        {
-            direction = Vector3.up;
-        }
         else
         {
             direction = (enemy.transform.position - pc.transform.position).normalized;
         }
         
         ec.ForceKnockback(direction * a.hitInfo.hitForce);
+        
+        Timing.WaitUntilTrue(() => pc.psm.canAttack);
+        ec.pauseGravity = false;
+        
+    }
+    
+    #endregion
+    
+    #region Midair Knockback
+    
+    [Header("Midair Knockback Attack")]
+    [SerializeField] private float midairKnockbackTime = 0.1f;
+    
+    private void MidairKnockback(PlayerController pc, IDamageable enemy, Attack a)
+    {
+        Timing.RunCoroutine(BeginMidairKnockback(pc, enemy, a));
+    }
+    
+    IEnumerator<float> BeginMidairKnockback(PlayerController pc, IDamageable enemy, Attack a)
+    {
+        yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
+        
+        if (!enemy.TryGetComponent(out EnemyController ec)) yield break;
+        
+        ec.pauseGravity = true;
+
+        Vector3 pos = ec.transform.position.WithY(pc.transform.position.y);
+        Vector3 movement = pos - ec.transform.position;
+        ec.TraverseDistKnockback(movement.normalized, movement.magnitude, midairKnockbackTime);
         
         Timing.WaitUntilTrue(() => pc.psm.canAttack);
         ec.pauseGravity = false;
@@ -124,7 +156,7 @@ public class OnHitEvents : MonoBehaviour
         if (!enemy.gameObject.TryGetComponent(out EnemyController ec)) yield break;
         
         ec.pauseGravity = true;
-        Physics.IgnoreCollision(pc.col, ec.col);
+        pc.IgnoreCollision(ec.col, true);
         
         Vector3 lastNonZeroVelocity = Vector3.zero;
         
@@ -167,7 +199,7 @@ public class OnHitEvents : MonoBehaviour
          }
         
         ec.pauseGravity = false;
-        Physics.IgnoreCollision(pc.GetComponent<Collider>(), ec.col, false);
+        pc.IgnoreCollision(ec.col, false);
         
     }
 
@@ -194,7 +226,7 @@ public class OnHitEvents : MonoBehaviour
         if (!enemy.gameObject.TryGetComponent(out EnemyController ec)) yield break;
         
         ec.pauseGravity = true;
-        Physics.IgnoreCollision(pc.col, ec.col);
+        pc.IgnoreCollision(ec.col, true);
         
         bool forceApplied = false;
         
@@ -223,7 +255,7 @@ public class OnHitEvents : MonoBehaviour
         }
 
         ec.pauseGravity = false;
-        Physics.IgnoreCollision(pc.col, ec.col, false);
+        pc.IgnoreCollision(ec.col, false);
         
         
         

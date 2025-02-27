@@ -57,12 +57,6 @@ public class EnemyController : IDamageable
         AvoidPlayerClipping();
     }
     
-    public override void OnHit(PlayerController pc, Attack a, int actionIndex = 0)
-    {
-        if (a.hitInfo.tweenToPlayer) TweenToYLevel(pc.transform.position.y, HitTweenTime);
-        base.OnHit(pc, a, actionIndex);
-    }
-    
     private void AvoidPlayerClipping()
     {
         // do at some point (stop enemy from staying clipped into player after attack)
@@ -106,14 +100,6 @@ public class EnemyController : IDamageable
 
 
     #region Knockback Methods
-    
-    public bool TweenToYLevel(float yLevel, float time, Ease ease = Ease.Default)
-    {
-        if (!canBeKnockedBack) return false;
-        
-        Tween.PositionY(transform, yLevel, time, ease);
-        return true;
-    }
     
     
     public bool ForceKnockback(Vector3 force, ForceMode mode = ForceMode.VelocityChange)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ExtensionUtils;
+using JetBrains.Annotations;
 using UnityEngine;
 using MEC;
 using UnityEngine.VFX;
@@ -23,7 +24,7 @@ public class VFXController : MonoBehaviour
     [HideInInspector] public PlayerController player;
     [HideInInspector] public VFXInfo vfxInfo;
     
-    [HideInInspector] public VisualEffect[] vfxs;
+    [HideInInspector] public Dictionary<VisualEffect, int> vfxs;
     [HideInInspector] public int vfxIndex;
     
     [HideInInspector] public float timeAlive;
@@ -61,7 +62,7 @@ public class VFXController : MonoBehaviour
         
     }
     
-    public void InitializeVFX(PlayerController pc, TransformInfo start, Attack a, VFXInfo v, VisualEffect[] vfx, int index, bool canCollide)
+    public void InitializeVFX(PlayerController pc, TransformInfo start, Attack a, VFXInfo v, Dictionary<VisualEffect, int> vfx, int index, bool canCollide)
     {
         player = pc;
         attack = a;
@@ -79,16 +80,16 @@ public class VFXController : MonoBehaviour
 
         timeAlive = v.duration;
         
-        meshRenderer.enabled = vfxs.Length == 0;
+        meshRenderer.enabled = vfxs.Count == 0;
 
         UpdateVFXColorByElement(a.element);
     }
     
     private void AddVFXDelays()
     {
-        for (int i = 0; i < vfxs.Length; i++)
+        foreach (VisualEffect vfx in vfxs.Keys)
         {
-            vfxDelays.Add(vfxs[i], vfxInfo.vfxAttack.vfxDatas[i].delayScale);
+            vfxDelays.Add(vfx, vfxInfo.vfxAttack.vfxDatas[vfxs[vfx]].delayScale);
         }
     }
     
@@ -111,12 +112,12 @@ public class VFXController : MonoBehaviour
     
     public void SetChildScale(GameObject child, Vector3 scale)
     {
-        child.transform.localScale = scale;
+        child.transform.localScale = scale.ScaledBy(properScale).DividedBy(initialScale);
     }
 
     public void UpdateVFXFloat(string name, float value)
     {
-        foreach (VisualEffect vfx in vfxs)
+        foreach (VisualEffect vfx in vfxs.Keys)
         {
             vfx.SafeSetFloat(name, value);
         }
@@ -127,7 +128,7 @@ public class VFXController : MonoBehaviour
         Color brightColor = GameManager.ElementMap[elementType]().vfxBrightColor;
         Color darkColor = GameManager.ElementMap[elementType]().vfxDarkColor;
 
-        foreach (VisualEffect vfx in vfxs)
+        foreach (VisualEffect vfx in vfxs.Keys)
         {
             vfx.SafeSetVector4("BrightColor", brightColor);
             vfx.SafeSetVector4("DarkColor", darkColor);

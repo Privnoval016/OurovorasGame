@@ -173,16 +173,11 @@ public class PlayerAnimator : MonoBehaviour
 			    break;
 		    
 		    case WalkingAnimStates.Falling:
-			    if (pc.psm.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
+			    if (pc.psm.lastOnGroundTime > 0) SwitchAnimState(WalkingAnimStates.Idle);
 			    
 			    break;
 		    
 		    case WalkingAnimStates.Jumping:
-			    if (!pc.psm.isJumpFalling || pc.rb.linearVelocity.y > 0) break;
-			    
-			    if (pc.psm.IsGrounded) SwitchAnimState(WalkingAnimStates.Idle);
-			    else if (pc.psm.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-
 			    break;
 		    
 		    case WalkingAnimStates.DoubleJumping:
