@@ -20,7 +20,7 @@ public class VFXAttack : ScriptableObject
     public GameObject vfxHitBox;
     [Tooltip("Individual VFX prefabs that will spawn as children of the hitbox (must be VFX Graphs)")]
     public VFXData[] vfxDatas;
-    
+        
     [Header("Movement Settings")]
     public OnVFXActions vfxAction = OnVFXActions.FollowWeapon;
     public float vfxSpeed;

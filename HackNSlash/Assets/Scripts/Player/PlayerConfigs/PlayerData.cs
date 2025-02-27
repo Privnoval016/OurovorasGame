@@ -67,7 +67,9 @@ public class PlayerData : ScriptableObject
 	public float lockOnRange;
 
 	[Header("Attacks")] 
-	public float midairAttackGravityMult;
+
+	[Range(0, 1)] public float midairAtkGravScale;
+	public int maxMidairAtks = 5;
 
 	//Unity Callback, called when the inspector updates
     private void OnValidate()

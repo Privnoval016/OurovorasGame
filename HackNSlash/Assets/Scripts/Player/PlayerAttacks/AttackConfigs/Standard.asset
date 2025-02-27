@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Standard
   m_EditorClassIdentifier: 
   doubleJumpEnabled: 1
-  dodgeCoolDown: 1
+  dodgeCoolDown: 0.2
   comboResetTime: 0.7
   comboAttacks:
   - {fileID: 11400000, guid: 4ff47c5a0c7d2489a978e61c0270db94, type: 2}
@@ -37,6 +37,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9bb4be9573875ed48a7043b5bae428a4, type: 2}
   dodgeAttacks:
   - {fileID: 11400000, guid: 6afab0c4d1daf4f97b63e7c2254ef2a7, type: 2}
+  enemyStepAttacks:
+  - {fileID: 11400000, guid: ad44dd1239c408440a970d6f204734b6, type: 2}
   specialAttacks:
   - {fileID: 11400000, guid: 8ddd1452f470cf84e9fd02dd3e112c6d, type: 2}
   - {fileID: 11400000, guid: ad565a90574fe4c05b00d0eda6d89b63, type: 2}

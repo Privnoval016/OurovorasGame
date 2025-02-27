@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using ExtensionUtils;
 using MEC;
@@ -48,6 +49,11 @@ public class OnVFXEvents : MonoBehaviour
         OnVFXActionMap.Add(OnVFXActions.StationaryPath, StationaryPath);
     }
     
+    public void EndObjectCoroutines()
+    {
+        Timing.KillCoroutines(gameObject);
+    }
+    
     public VFXController InvokeOnVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
     {
         if (a == null || a.vfxInfos.Length == 0) return null;
@@ -76,33 +82,36 @@ public class OnVFXEvents : MonoBehaviour
             return null;
         }
         
-        List<VisualEffect> vfxs = new List<VisualEffect>();
+        Dictionary<VisualEffect, int> vfxs = new();
 
-        foreach (VFXData vfxData in v.vfxAttack.vfxDatas)
+        VFXData[] vfxDatas = v.vfxAttack.vfxDatas;
+        for (int i = 0; i < vfxDatas.Length; i++)
         {
-            GameObject effect = vfxData.effect == null ? 
-                pc.CurrentElementData.GetVFX(vfxData.vfxType) : vfxData.effect;
+            GameObject effect = vfxDatas[i].effect == null ? 
+                pc.CurrentElementData.GetVFX(vfxDatas[i].vfxType) : vfxDatas[i].effect;
             if (effect == null) continue;
             
             GameObject vfxInstance = Instantiate(effect, vfx.transform);
-            if (!vfxInstance.TryGetComponentInChildren(out VisualEffect vfxInstanceVFX))
+            VisualEffect[] vfxInstanceChildren = vfxInstance.GetComponentsInChildren<VisualEffect>();
+            if (vfxInstanceChildren.Length == 0)
             {
                 Destroy(vfxInstance);
                 continue;
             }
+
+            foreach (VisualEffect vfxInstanceVFX in vfxInstanceChildren)
+            {
+                vfxInstanceVFX.SafeSetFloat("Lifetime", v.duration * vfxDatas[i].durationScale);
+                vfxInstanceVFX.gameObject.SetActive(false);
+                vfxs.Add(vfxInstanceVFX, i);
+            }
             
-            vfxInstanceVFX.SafeSetFloat("Lifetime", v.duration * vfxData.durationScale);
-            
-            vfxInstance.transform.localPosition = vfxData.localTransform.Position;
-            vfxInstance.transform.localRotation = vfxData.localTransform.Rotation;
-            vc.SetChildScale(vfxInstance, vfxData.localTransform.Scale);
-            
-            vfxs.Add(vfxInstanceVFX);
-            
-            vfxInstanceVFX.gameObject.SetActive(false);
+            vfxInstance.transform.localPosition = vfxDatas[i].localTransform.Position;
+            vfxInstance.transform.localRotation = vfxDatas[i].localTransform.Rotation;
+            vc.SetChildScale(vfxInstance, vfxDatas[i].localTransform.Scale);
         }
         
-        vc.InitializeVFX(pc, start, a, v, vfxs.ToArray(), vfxIndex, v.vfxAttack.canCollide);
+        vc.InitializeVFX(pc, start, a, v, vfxs, vfxIndex, v.vfxAttack.canCollide);
         return vc;
     }
     

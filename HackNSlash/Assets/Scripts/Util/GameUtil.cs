@@ -62,6 +62,8 @@ namespace ExtensionUtils
         
             yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || 
                                                     Time.time - startTime >= time || (condition != null && condition()));
+            
+            Debug.Log("Intended Distance: " + distance + " Actual Distance: " + Vector3.Distance(rb.position, initialPosition));
         
             rb.linearVelocity = Vector3.zero;
         }
@@ -244,11 +246,11 @@ namespace ExtensionUtils
     }
     
     [Serializable]
-    public class TransformInfo
+    public struct TransformInfo
     {
         public Vector3 Position;
         public Quaternion Rotation;
-        public Vector3 Scale = Vector3.one;
+        public Vector3 Scale;
         
         public Vector3 Forward => Rotation * Vector3.forward;
         public Vector3 Right => Rotation * Vector3.right;

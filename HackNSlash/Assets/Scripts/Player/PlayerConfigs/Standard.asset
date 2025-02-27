@@ -16,13 +16,13 @@ MonoBehaviour:
   gravityScale: 7.6452594
   fallGravityMult: 1.5
   maxFallSpeed: 18
-  runMaxSpeed: 9.5
-  sprintMaxSpeed: 15
+  runMaxSpeed: 12
+  sprintMaxSpeed: 18
   sprintBuildupLength: 0.4
   runAcceleration: 7
-  runAccelAmount: 36.842106
+  runAccelAmount: 29.166666
   runDeceleration: 7
-  runDecelAmount: 36.842106
+  runDecelAmount: 29.166666
   accelInAir: 1
   decelInAir: 1
   doConserveMomentum: 0
@@ -37,7 +37,9 @@ MonoBehaviour:
   jumpHangAccelerationMult: 1.88
   jumpHangMaxSpeedMult: 1
   dashForce: 50
-  coyoteTime: 0.01
+  coyoteTime: 0.162
   jumpInputBufferTime: 0.241
   lockOnRange: 40
-  midairAttackGravityMult: 0.5
+  midairAtkGravScale: 0.5
+  maxMidairAtks: 5
+  maxDodges: 1

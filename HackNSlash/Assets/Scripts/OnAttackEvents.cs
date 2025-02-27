@@ -19,7 +19,8 @@ public enum OnAttackActions
     FloorDash,
     MashAttack,
     BladeBeam,
-    VortexSlash
+    VortexSlash,
+    EnemyStep
 }
 
 public class OnAttackEvents : MonoBehaviour
@@ -58,6 +59,7 @@ public class OnAttackEvents : MonoBehaviour
         OnAttackActionMap.Add(OnAttackActions.MashAttack, MashAttack);
         OnAttackActionMap.Add(OnAttackActions.BladeBeam, BladeBeam);
         OnAttackActionMap.Add(OnAttackActions.VortexSlash, VortexSlash);
+        OnAttackActionMap.Add(OnAttackActions.EnemyStep, EnemyStep);
         
         
     }
@@ -67,6 +69,11 @@ public class OnAttackEvents : MonoBehaviour
         yield return Timing.WaitForSeconds(time);
         if (action != null) action();
         pc.psm.canAttack = true;
+    }
+    
+    public void EndObjectCoroutines()
+    {
+        Timing.KillCoroutines(gameObject);
     }
     
     #region Blade Beam
@@ -83,6 +90,8 @@ public class OnAttackEvents : MonoBehaviour
     
     private IEnumerator<float> BeginBladeBeam(PlayerController pc, Attack a)
     {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
         
         pc.psm.pauseComboReset = true; 
@@ -95,7 +104,7 @@ public class OnAttackEvents : MonoBehaviour
 
         if (elapsedTime >= bladeBeamHoldTime && pc.cam.isLockedOn)
         {
-            pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
+            pc.pac.PlayAnimation(a.attackClips[2], 0.1f);
             
             Vector3 targetPos = pc.cam.targetedEnemy.transform.position;
             
@@ -111,7 +120,7 @@ public class OnAttackEvents : MonoBehaviour
         }
         else
         {
-            pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
+            pc.pac.PlayAnimation(a.attackClips[1], 0.1f);
             
             Vector3 startPos = pc.transform.forward.FindRadialVector3(pc.playerRadius, 0) + pc.transform.position;
             Quaternion startRot = pc.transform.rotation;
@@ -147,6 +156,8 @@ public class OnAttackEvents : MonoBehaviour
     
     private IEnumerator<float> BeginVortexSlash(PlayerController pc, Attack a)
     {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
         
         pc.psm.pauseComboReset = true;
@@ -159,7 +170,7 @@ public class OnAttackEvents : MonoBehaviour
 
         int index = elapsedTime >= vortexSlashHoldTime ? 2 : 1;
 
-        Timing.RunCoroutine(GameUtil.RunAfterDelay(index == 2 ? a.vfxInfos[index].delay : 0, () => pc.pac.PlayAnimation(a.attackClips[index], 0.01f)));
+        Timing.WaitUntilDone(GameUtil.RunAfterDelay(index == 2 ? a.vfxInfos[index].delay : 0, () => pc.pac.PlayAnimation(a.attackClips[index], 0.01f)));
         
         
         
@@ -197,6 +208,8 @@ public class OnAttackEvents : MonoBehaviour
 
     IEnumerator<float> AirDash(PlayerController pc, Attack a)
     {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
         GameObject target = pc.cam.targetedEnemy;
         
         pc.pac.PlayAnimation(a.attackClips[0], 0.01f);
@@ -216,13 +229,18 @@ public class OnAttackEvents : MonoBehaviour
                                          Vector3.Distance(startPos, pc.transform.position) < maxAirDashDistance;
         
         // rotate the direction downwards by 45 degrees
-        Vector3 direction = (target.transform.position - pc.transform.position).ZeroVector3Axis();
-        direction = direction.Rotate(-45, Vector3.Cross(direction, Vector3.up));
-        
-        
+        Vector3 direction = target.transform.position - pc.transform.position;
+
+        if (direction.y > 0)
+        {
+            direction = direction.ZeroVector3Axis();
+            direction = direction.Rotate(-45, Vector3.Cross(direction, Vector3.up));
+        }
+
+
         pc.pac.animancer.gameObject.transform.LookAt(pc.transform.position + direction);
         
-        if (target.TryGetComponent(out Collider c)) Physics.IgnoreCollision(pc.col, c, true);
+        if (target.TryGetComponent(out Collider c)) pc.IgnoreCollision(c, true);
         
         Timing.RunCoroutine(pc.rb.TraverseWithVelocity(direction.normalized, airDashSpeed, loopCondition));
         yield return Timing.WaitUntilTrue(() => !loopCondition());
@@ -233,7 +251,7 @@ public class OnAttackEvents : MonoBehaviour
         Timing.RunCoroutine(ResumeMoving(pc, a, a.attackClips[2].length));
         
         pc.pac.animancer.gameObject.transform.rotation = originalRotation;
-        if (target.TryGetComponent(out Collider c2)) Physics.IgnoreCollision(pc.col, c2, false);
+        if (target.TryGetComponent(out Collider c2)) pc.IgnoreCollision(c2, false);
         
     }
     
@@ -255,6 +273,8 @@ public class OnAttackEvents : MonoBehaviour
 
     IEnumerator<float> DashAttack(PlayerController pc, Attack a)
     {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
         GameObject target = pc.cam.targetedEnemy;
         
         if (target == null) yield break;
@@ -284,13 +304,13 @@ public class OnAttackEvents : MonoBehaviour
         {
             distance = Mathf.Max(Mathf.Min(groundDashDistance * 2, direction.magnitude * 2), groundDashDistance * 0.8f);
 
-            collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.col.radius, direction, distance * 2f, pc.psm.enemyLayer);
+            collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.mainCol.radius, direction, distance * 2f, pc.psm.enemyLayer);
 
             foreach (var hit in collidersInPath)
             {
-                Physics.IgnoreCollision(pc.col, hit.collider, true);
+               pc.IgnoreCollision(hit.collider, true);
             }
-            if (target.TryGetComponent(out Collider c)) Physics.IgnoreCollision(pc.col, c, true);
+            if (target.TryGetComponent(out Collider c)) pc.IgnoreCollision(c, true);
         }
         else
         {
@@ -311,10 +331,10 @@ public class OnAttackEvents : MonoBehaviour
             foreach (var hit in collidersInPath)
             {
                 if (hit.collider.TryGetComponent(out IDamageable d)) d.OnHit(pc, a, 1);
-                Physics.IgnoreCollision(pc.col, hit.collider, false);
+                pc.IgnoreCollision(hit.collider, false);
             }
         }
-        if (target.TryGetComponent(out Collider c2)) Physics.IgnoreCollision(pc.col, c2, false);
+        if (target.TryGetComponent(out Collider c2)) pc.IgnoreCollision(c2, false);
     }
     
     #endregion
@@ -334,6 +354,8 @@ public class OnAttackEvents : MonoBehaviour
     
     private IEnumerator<float> BeginLaunchUp(PlayerController pc, Attack a)
     {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
         KeyBind[] holdKeys = InputManager.GetHoldable(a.keyBinds);
         
         yield return Timing.WaitForSeconds(launchUpHoldTime);
@@ -369,6 +391,8 @@ public class OnAttackEvents : MonoBehaviour
     
     private IEnumerator<float> BeginPlungeAttack(PlayerController pc, Attack a)
     {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
         pc.pac.PlayAnimation(a.attackClips[0], 0.01f);
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
@@ -398,21 +422,64 @@ public class OnAttackEvents : MonoBehaviour
     }
     
     #endregion
+    
+    #region Enemy Step
+
+    [Header("Enemy Step")] [SerializeField]
+    private float enemyStepPushBack = 1;
+    [SerializeField]
+    private float enemyStepTime = 0.3f;
+    [SerializeField]
+    private float enemyStepHeight = 15f;
+    
+    
+    public void EnemyStep(PlayerController pc, Attack a)
+    {
+        Timing.RunCoroutine(BeginEnemyStep(pc, a));
+    }
+    
+    private IEnumerator<float> BeginEnemyStep(PlayerController pc, Attack a)
+    {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
+        Vector3 enemyPos = pc.psm.GetEnemyInRadius(pc.playerRadius) != null ? 
+            pc.psm.GetEnemyInRadius(pc.playerRadius).transform.position : pc.transform.position;
+        Vector3 direction = (pc.transform.position - enemyPos).ZeroVector3Axis().normalized;
+        direction = (Vector3.up + direction * enemyStepPushBack).normalized;
+        
+        pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
+        
+        Debug.Log(direction + " " + enemyStepHeight + " " + enemyStepTime);
+		
+        Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(direction, enemyStepHeight, enemyStepTime));
+    }
+    
+    
+    #endregion
 
     #region Dodge
 
     [Header("Dodge")]
     
     [SerializeField] private float dodgeDistance;
-    [SerializeField] private float dodgeTime = 0.2f;
+
+    [SerializeField] private float dodgeTime;
     
     private void Dodge(PlayerController pc, Attack a)
     {
+        Timing.RunCoroutine(BeginDodge(pc, a));
+    }
+    
+    IEnumerator<float> BeginDodge(PlayerController pc, Attack a)
+    {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
         Vector3 dodgeDirection = pc.psm.moveDirection.ZeroVector3Axis().normalized;
         float distance = dodgeDistance;
+        float moveTime = dodgeTime;
         
 
-        if (pc.psm.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, -1), 120f) && pc.psm.IsMidair && pc.cam.isLockedOn)
+        if (pc.psm.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, -1), 92f) && pc.psm.IsMidair && pc.cam.isLockedOn)
         {
             Vector3 targetPos = dodgeDirection * dodgeDistance + pc.transform.position;
             
@@ -424,19 +491,22 @@ public class OnAttackEvents : MonoBehaviour
             distance = dodgeDirection.magnitude;
             dodgeDirection.Normalize();
         }
-        else if (pc.cam.isLockedOn && pc.psm.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, -1), 120f))
+        else if (pc.cam.isLockedOn && pc.psm.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, -1), 92f))
         {
             dodgeDirection = -pc.transform.forward.ZeroVector3Axis();
             dodgeDirection.Normalize();
         }
-        else if (pc.cam.isLockedOn)
+        else if (pc.cam.isLockedOn && (pc.psm.StandardizedMoveDir.magnitude < 0.1f || pc.psm.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, 1), 92f)))
         {
             Vector3 teleportedPosition = pc.cam.targetedEnemy.transform.position + 
-                                         (pc.transform.position - pc.cam.targetedEnemy.transform.position).ZeroVector3Axis().normalized * pc.playerRadius;
+                                         (pc.transform.position - pc.cam.targetedEnemy.transform.position).ZeroVector3Axis().normalized * pc.playerRadius +
+                                         Vector3.up * pc.playerRadius;
             dodgeDirection = teleportedPosition - pc.transform.position;
             
             distance = dodgeDirection.magnitude;
             dodgeDirection.Normalize();
+            
+            moveTime = dodgeTime / 2;
         }
         else if (pc.psm.StandardizedMoveDir.magnitude < 0.1f)
         {
@@ -444,7 +514,7 @@ public class OnAttackEvents : MonoBehaviour
         }
 
         
-        Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, dodgeTime), Segment.FixedUpdate);
+        Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime), Segment.FixedUpdate);
     }
     
 
@@ -462,6 +532,8 @@ public class OnAttackEvents : MonoBehaviour
 
     IEnumerator<float> BeginMashAttack(PlayerController pc, Attack a)
     {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
         float timeSinceLastClick = 0;
         float startTime = Time.time;
         

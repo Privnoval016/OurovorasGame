@@ -21,9 +21,12 @@ MonoBehaviour:
   applyTargetDirection: 1
   isMidair: 1
   applyRootMotion: 1
+  maxUses: 0
   attackTransitions: []
   attackClips:
   - {fileID: 7400000, guid: fc927efed3b3395479122ad48aec3726, type: 2}
+  animDelay: 0
+  animFade: 0.2
   clipsToPlay: 1
   exitCondition: 0
   onAttackAction: 0

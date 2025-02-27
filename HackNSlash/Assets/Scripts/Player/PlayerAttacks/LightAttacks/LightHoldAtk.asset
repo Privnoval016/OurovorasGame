@@ -36,7 +36,7 @@ MonoBehaviour:
     damage: 0
     hitForce: 30
     hitDelay: 0
-    hitDirection: {x: 0, y: 0, z: 0}
+    hitDirection: {x: 0, y: 0, z: 1}
     tweenToPlayer: 0
     elasticCollision: 0
   vfxInfos:

@@ -16,12 +16,12 @@ MonoBehaviour:
     type: 3}
   vfxDatas:
   - vfxType: 0
-    effect: {fileID: 4086177743616776332, guid: d081d2614533449429c6b4385c59e307,
+    effect: {fileID: 4987761441001423198, guid: 0ecff7d153fd9c4428ee21331a08022b,
       type: 3}
     localTransform:
       Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: 0.70710677, w: 0.70710677}
-      Scale: {x: 0.5, y: 1, z: 0.5}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
     durationScale: 1
     delayScale: 0
   vfxAction: 0

@@ -142,6 +142,7 @@ public class InputManager : MonoBehaviour
         });
         
         KeyMap.Add(KeyBind.Dodge, new KeyBindData {action = () => dodge.triggered});
+        KeyMap.Add(KeyBind.Jump, new KeyBindData {action = () => jump.triggered});
         
         
     }
@@ -206,6 +207,7 @@ public enum KeyBind
     HeavyAttack,
     AnyAttack,
     Dodge,
+    Jump,
 }
 
 public enum AttackTypes

@@ -29,6 +29,9 @@ public class PlayerAttacking : State
         pc.pac.rootMotion.enabled = attack.applyRootMotion;
         pc.rb.linearVelocity = Vector3.zero;
         
+        if (attack.isMidair.IsTrue())
+            pc.psm.numMidairAttacks++;
+        
         SetAttackGravity();
 
         if (attack.attackTransitions.Length > 0) LaunchTransitionAttack();
@@ -149,9 +152,11 @@ public class PlayerAttacking : State
     {
         if (clips.Count == 0) yield break;
         
+        yield return Timing.WaitForSeconds(attack.animDelay);
+        
         foreach (var clip in clips)
         {
-            pc.pac.PlayAnimation(clip, 0.2f, false);
+            pc.pac.PlayAnimation(clip, attack.animFade, true);
             yield return Timing.WaitForSeconds(clip.length);
         }
     }
@@ -159,6 +164,8 @@ public class PlayerAttacking : State
     private IEnumerator<float> AttackWithTransition(List<TransitionAsset> transitions)
     {
         if (transitions.Count == 0) yield break;
+        
+        yield return Timing.WaitForSeconds(attack.animDelay);
         
         foreach (var clip in transitions)
         {
@@ -169,11 +176,8 @@ public class PlayerAttacking : State
 
     private void SetAttackGravity()
     {
-        if (!attack.isMidair.IsTrue()) ; //pc.CalculateGravity();
-
-        else if (!pc.psm.canAttack) pc.psm.SetGravityScale(0);
-
-        else pc.psm.gravityScale = pc.psm.playerData.midairAttackGravityMult;
+        if (attack.isMidair.IsTrue())
+            pc.psm.SetGravityScale(pc.psm.GetMidairGravity());
     }
 
     #endregion

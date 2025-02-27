@@ -22,11 +22,16 @@ public class Attack : ScriptableObject
     public bool applyTargetDirection = true;
     public NBool isMidair = NBool.False;
     public bool applyRootMotion = true;
+
+    public int maxUses = 0;
     
     [Header("Animation")]
     
     public TransitionAsset[] attackTransitions;
     public AnimationClip[] attackClips;
+    
+    public float animDelay = 0;
+    public float animFade = 0.2f;
 
     public int clipsToPlay = 1;
     
