@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Earth
   m_EditorClassIdentifier: 
   element: 5
+  vfxPureColor: {r: 5.656854, g: 0.54654104, b: 0, a: 1}
   vfxBrightColor: {r: 5.197779, g: 4.030337, b: 0.67015356, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
   elementVFXs:

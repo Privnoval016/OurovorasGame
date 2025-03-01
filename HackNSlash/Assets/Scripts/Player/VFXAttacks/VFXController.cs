@@ -5,31 +5,30 @@ using ExtensionUtils;
 using JetBrains.Annotations;
 using UnityEngine;
 using MEC;
+using UnityEngine.Serialization;
 using UnityEngine.VFX;
 
 public class VFXController : MonoBehaviour
 {
 
-    [HideInInspector] public Collider col;
+    public VFXHitbox[] hitboxes;
     
     
     [HideInInspector] public MeshRenderer meshRenderer;
+    [HideInInspector] public Rigidbody rb;
     
     [Header("Settings")]
-    public Vector3 properScale = Vector3.one;
-    public Vector3 initialScale;
-
     
     [HideInInspector] public Attack attack;
     [HideInInspector] public PlayerController player;
-    [HideInInspector] public VFXInfo vfxInfo;
+    [HideInInspector] public VFXSpawnInfo vfxSpawnInfo;
     
-    [HideInInspector] public Dictionary<VisualEffect, int> vfxs;
+    [HideInInspector] public VFXActivator[] vas;
     [HideInInspector] public int vfxIndex;
     
     [HideInInspector] public float timeAlive;
     
-    private Dictionary<VisualEffect, float> vfxDelays = new();
+    private Dictionary<VFXActivator, float> vfxDelays = new();
     
     public bool activeHitbox = true;
     private float elapsedTime;
@@ -37,9 +36,18 @@ public class VFXController : MonoBehaviour
 
     private void Awake()
     {
-        initialScale = transform.localScale;
         if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
-        if (col == null) col = GetComponent<Collider>();
+        if (rb == null) rb = GetComponent<Rigidbody>();
+        
+        if (hitboxes.Length == 0)
+        {
+            hitboxes = GetComponentsInChildren<VFXHitbox>();
+        }
+        
+        foreach (VFXHitbox hitbox in hitboxes)
+        {
+            hitbox.vfxController = this;
+        }
     }
     
     private void Update()
@@ -54,42 +62,46 @@ public class VFXController : MonoBehaviour
 
         vfxDelays.Keys.Where(effect => elapsedTime >= vfxDelays[effect] * timeAlive).ToList().ForEach(effect =>
         {
-            effect.gameObject.SetActive(true);
-            effect.Play();
+            effect.PlayVFX();
             vfxDelays.Remove(effect);
         });
         
         
     }
     
-    public void InitializeVFX(PlayerController pc, TransformInfo start, Attack a, VFXInfo v, Dictionary<VisualEffect, int> vfx, int index, bool canCollide)
+    public void InitializeVFX(PlayerController pc, TransformInfo start, Attack a, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
     {
         player = pc;
         attack = a;
-        vfxs = vfx;
-        vfxInfo = v;
+        vas = vfx;
+        vfxSpawnInfo = v;
         vfxIndex = index;
         
         AddVFXDelays();
         
         transform.position = start.Position;
         transform.rotation = start.Rotation;
-        UpdateScale(start.Scale);
+        transform.localScale = start.Scale;
         
         activeHitbox = canCollide;
 
         timeAlive = v.duration;
-        
-        meshRenderer.enabled = vfxs.Count == 0;
+
+        foreach (VFXHitbox hitbox in hitboxes)
+        {
+            hitbox.meshRenderer.enabled = vas.Length == 0;
+        }
+        if (meshRenderer != null) meshRenderer.enabled = vas.Length == 0;
 
         UpdateVFXColorByElement(a.element);
     }
     
     private void AddVFXDelays()
     {
-        foreach (VisualEffect vfx in vfxs.Keys)
+        for (int i = 0; i < vas.Length; i++)
         {
-            vfxDelays.Add(vfx, vfxInfo.vfxAttack.vfxDatas[vfxs[vfx]].delayScale);
+            VFXActivator va = vas[i];
+            vfxDelays.Add(va, vfxSpawnInfo.vfxAttack.vfxDatas[i].delayScale);
         }
     }
     
@@ -98,28 +110,19 @@ public class VFXController : MonoBehaviour
         vfxEnabled = true;
     }
     
-    public void UpdateScale(Vector3 scale)
+    public void ChangeParent(Transform parent, Vector3 localScale = default)
     {
-        properScale = scale;
-        transform.localScale = initialScale.ScaledBy(properScale);
-    }
-    
-    public void ChangeParent(Transform parent)
-    {
+        if (localScale == default) localScale = Vector3.one;
         transform.SetParent(parent);
-        UpdateScale(properScale);
-    }
-    
-    public void SetChildScale(GameObject child, Vector3 scale)
-    {
-        child.transform.localScale = scale.ScaledBy(properScale).DividedBy(initialScale);
+        transform.localScale = localScale;
+        
     }
 
     public void UpdateVFXFloat(string name, float value)
     {
-        foreach (VisualEffect vfx in vfxs.Keys)
+        foreach (VFXActivator va in vas)
         {
-            vfx.SafeSetFloat(name, value);
+            va.SetVFXFloat(name, value);
         }
     }
     
@@ -127,15 +130,17 @@ public class VFXController : MonoBehaviour
     {
         Color brightColor = GameManager.ElementMap[elementType]().vfxBrightColor;
         Color darkColor = GameManager.ElementMap[elementType]().vfxDarkColor;
+        Color pureColor = GameManager.ElementMap[elementType]().vfxPureColor;
 
-        foreach (VisualEffect vfx in vfxs.Keys)
+        foreach (VFXActivator va in vas)
         {
-            vfx.SafeSetVector4("BrightColor", brightColor);
-            vfx.SafeSetVector4("DarkColor", darkColor);
+            va.SetVFXVector4("PureColor", pureColor);
+            va.SetVFXVector4("BrightColor", brightColor);
+            va.SetVFXVector4("DarkColor", darkColor);
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void HitboxTriggerEnter(Collider other)
     {
         Debug.Log("Hit");
         if (!activeHitbox || !vfxEnabled) return;
@@ -148,18 +153,8 @@ public class VFXController : MonoBehaviour
         }
     }
 
-    // private void OnTriggerStay(Collider other)
-    // {
-    //     Debug.Log("Hit");
-    //     if (!activeHitbox || !vfxEnabled) return;
-    //     
-    //     if (player == null || attack == null) return;
-    //     
-    //     Debug.Log("Hit Ready");
-    //     
-    //     if (other.TryGetComponent(out IDamageable enemy) && !enemy.tookDamageThisAction)
-    //     {
-    //         enemy.OnHit(player, attack);
-    //     }
-    // }
+    public void HitboxTriggerStay(Collider other)
+    {
+        
+    }
 }

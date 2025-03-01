@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Water
   m_EditorClassIdentifier: 
   element: 3
+  vfxPureColor: {r: 0, g: 0.46164978, b: 2.037736, a: 1}
   vfxBrightColor: {r: 2.3727288, g: 2.8400402, b: 6.9222765, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
   elementVFXs:

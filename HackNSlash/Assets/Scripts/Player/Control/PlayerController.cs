@@ -71,6 +71,7 @@ public class PlayerController : MonoBehaviour
     
     public void IgnoreCollision(Collider col, bool ignore)
     {
+        Debug.Log("NumCols: " + allCols.Length);
         foreach (CapsuleCollider c in allCols)
         {
             Physics.IgnoreCollision(c, col, ignore);

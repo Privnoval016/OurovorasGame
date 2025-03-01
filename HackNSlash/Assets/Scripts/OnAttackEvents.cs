@@ -125,7 +125,15 @@ public class OnAttackEvents : MonoBehaviour
             Vector3 startPos = pc.transform.forward.FindRadialVector3(pc.playerRadius, 0) + pc.transform.position;
             Quaternion startRot = pc.transform.rotation;
             if (pc.cam.isLockedOn)
-                startRot = Quaternion.LookRotation(pc.cam.targetedEnemy.transform.position - pc.transform.position);
+            {
+                Vector3 targetPos = pc.cam.targetedEnemy.transform.position;
+                if (pc.cam.targetedEnemy.TryGetComponent(out Rigidbody rb))
+                {
+                    targetPos = rb.PredictPositionAtTime(a.vfxInfos[1].duration * 0.8f);
+                }
+                startRot = Quaternion.LookRotation(targetPos - pc.transform.position);
+            }
+
             if (a.vfxInfos[1].rotation.eulerAngles != Vector3.zero)
             {
                 startRot *= a.vfxInfos[1].rotation;
@@ -169,9 +177,8 @@ public class OnAttackEvents : MonoBehaviour
         float elapsedTime = Time.time - startTime;
 
         int index = elapsedTime >= vortexSlashHoldTime ? 2 : 1;
-
-        Timing.WaitUntilDone(GameUtil.RunAfterDelay(index == 2 ? a.vfxInfos[index].delay : 0, () => pc.pac.PlayAnimation(a.attackClips[index], 0.01f)));
         
+        pc.pac.PlayAnimation(a.attackClips[index], 0.1f);
         
         
         Vector3 startPos = pc.transform.forward.FindRadialVector3(pc.playerRadius, 0) + pc.transform.position;

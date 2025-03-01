@@ -21,38 +21,38 @@ public class PlayerStateMachine : MonoBehaviour
     
     #endregion
     
-     #region MOVE PARAMETERS
+    #region MOVE PARAMETERS
      
-     [HideInInspector] public bool pauseMovement;
+    [HideInInspector] public bool pauseMovement;
     
-     [HideInInspector] public float lastOnGroundTime;
-     [HideInInspector] public float lastDoubleJumpTime;
-     [HideInInspector] public float lastPressedJumpTime;
-     [HideInInspector] public float walkingTime;
+    [HideInInspector] public float lastOnGroundTime;
+    [HideInInspector] public float lastDoubleJumpTime;
+    [HideInInspector] public float lastPressedJumpTime;
+    [HideInInspector] public float walkingTime;
 
-     public bool IsGrounded =>
+    public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
-     public bool IsMidair => !IsGrounded;
+    public bool IsMidair => !IsGrounded;
 
-     public bool CanJump => lastOnGroundTime > 0 && !isJumping;
+    public bool CanJump => lastOnGroundTime > 0 && !isJumping;
      
-     [HideInInspector] public bool isDoubleJumpUsed;
-     public bool CanDoubleJump => lastDoubleJumpTime <= 0 && !isDoubleJumpUsed && canAttack;
+    [HideInInspector] public bool isDoubleJumpUsed;
+    public bool CanDoubleJump => lastDoubleJumpTime <= 0 && !isDoubleJumpUsed && canAttack && IsMidair;
 
-     [HideInInspector] public bool activateMidairEntry;
+    [HideInInspector] public bool activateMidairEntry;
     
-     //Walk
-     public bool IsWalking => moveInput.magnitude > 0;
-     public bool IsSprinting => !pc.cam.isLockedOn && IsWalking && walkingTime > playerData.sprintBuildupLength;
+    //Walk
+    public bool IsWalking => moveInput.magnitude > 0;
+    public bool IsSprinting => !pc.cam.isLockedOn && IsWalking && walkingTime > playerData.sprintBuildupLength;
     
-     //Jump
-     [HideInInspector] public bool isJumping;
-     [HideInInspector] public bool isJumpFalling;
-     public bool IsJumpTriggered => lastPressedJumpTime > 0;
+    //Jump
+    [HideInInspector] public bool isJumping;
+    [HideInInspector] public bool isJumpFalling;
+    public bool IsJumpTriggered => lastPressedJumpTime > 0;
     
     
     
-     [HideInInspector] public float gravityScale;
+    [HideInInspector] public float gravityScale;
 
     #endregion
     
@@ -254,6 +254,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (attackData.doubleJumpEnabled && CanDoubleJump && KeyMap[KeyBind.Jump].action())
         {
+            Debug.Log("Double Jump");
             lastDoubleJumpTime = 0;
             isDoubleJumpUsed = true;
             Jump(playerData.doubleJumpForce, true, WalkingAnimStates.DoubleJumping);
@@ -462,12 +463,12 @@ public class PlayerStateMachine : MonoBehaviour
         if (switchAnim) pc.pac.SwitchAnimState(animState, () => pc.pac.SwitchAnimState(WalkingAnimStates.Falling));
 
         #region Perform Jump
-        if (pc.rb.linearVelocity.y < 0)
-            force -= pc.rb.linearVelocity.y;
+        // if (pc.rb.linearVelocity.y < 0)
+        //     force -= pc.rb.linearVelocity.y;
         
         pc.rb.linearVelocity = pc.rb.linearVelocity.ZeroVector3Axis();
 		
-        pc.rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+        pc.rb.AddForce(Vector3.up * force, ForceMode.VelocityChange);
         #endregion
     }
 
