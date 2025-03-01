@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Wind
   m_EditorClassIdentifier: 
   element: 6
+  vfxPureColor: {r: 0, g: 5.229923, b: 0.361644, a: 1}
   vfxBrightColor: {r: 1.8125259, g: 5.717402, b: 1.168651, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
   elementVFXs:

@@ -14,6 +14,7 @@ public enum OnVFXActions
     CircularPath,
     StationaryPath,
     FollowWeapon,
+    FollowGround
 }
 
 
@@ -47,6 +48,7 @@ public class OnVFXEvents : MonoBehaviour
         OnVFXActionMap.Add(OnVFXActions.LinearPath, LinearPath);
         OnVFXActionMap.Add(OnVFXActions.FollowWeapon, FollowWeapon);
         OnVFXActionMap.Add(OnVFXActions.StationaryPath, StationaryPath);
+        OnVFXActionMap.Add(OnVFXActions.FollowGround, FollowGround);
     }
     
     public void EndObjectCoroutines()
@@ -73,45 +75,42 @@ public class OnVFXEvents : MonoBehaviour
     {
         if (a.vfxInfos.Length <= vfxIndex) return null;
 
-        VFXInfo v = a.vfxInfos[vfxIndex];
+        VFXSpawnInfo v = a.vfxInfos[vfxIndex];
         GameObject vfx = Instantiate(v.vfxAttack.vfxHitBox, start.Position, start.Rotation);
+        vfx.transform.localScale = start.Scale;
         
         if (!vfx.TryGetComponent(out VFXController vc))
         {
             Destroy(vfx);
             return null;
         }
-        
-        Dictionary<VisualEffect, int> vfxs = new();
+
+        List<VFXActivator> vfxs = new();
 
         VFXData[] vfxDatas = v.vfxAttack.vfxDatas;
-        for (int i = 0; i < vfxDatas.Length; i++)
+        foreach (VFXData vfxData in vfxDatas)
         {
-            GameObject effect = vfxDatas[i].effect == null ? 
-                pc.CurrentElementData.GetVFX(vfxDatas[i].vfxType) : vfxDatas[i].effect;
+            GameObject effect = vfxData.effect == null ? 
+                pc.CurrentElementData.GetVFX(vfxData.vfxType) : vfxData.effect;
             if (effect == null) continue;
             
             GameObject vfxInstance = Instantiate(effect, vfx.transform);
-            VisualEffect[] vfxInstanceChildren = vfxInstance.GetComponentsInChildren<VisualEffect>();
-            if (vfxInstanceChildren.Length == 0)
+
+            if (!vfxInstance.TryGetComponent(out VFXActivator va))
             {
                 Destroy(vfxInstance);
                 continue;
             }
-
-            foreach (VisualEffect vfxInstanceVFX in vfxInstanceChildren)
-            {
-                vfxInstanceVFX.SafeSetFloat("Lifetime", v.duration * vfxDatas[i].durationScale);
-                vfxInstanceVFX.gameObject.SetActive(false);
-                vfxs.Add(vfxInstanceVFX, i);
-            }
             
-            vfxInstance.transform.localPosition = vfxDatas[i].localTransform.Position;
-            vfxInstance.transform.localRotation = vfxDatas[i].localTransform.Rotation;
-            vc.SetChildScale(vfxInstance, vfxDatas[i].localTransform.Scale);
+            vfxs.Add(va);
+            va.SetEffectLifetimes(v.duration * vfxData.durationScale);
+            
+            vfxInstance.transform.localPosition = vfxData.localTransform.Position;
+            vfxInstance.transform.localRotation = vfxData.localTransform.Rotation;
+            vfxInstance.transform.localScale = vfxData.localTransform.Scale;
         }
         
-        vc.InitializeVFX(pc, start, a, v, vfxs, vfxIndex, v.vfxAttack.canCollide);
+        vc.InitializeVFX(pc, start, a, v, vfxs.ToArray(), vfxIndex, v.vfxAttack.canCollide);
         return vc;
     }
     
@@ -124,7 +123,7 @@ public class OnVFXEvents : MonoBehaviour
     
     IEnumerator<float> BeginLinearPath(VFXController vfx, WeaponType weaponType)
     {
-        VFXAttack v = vfx.vfxInfo.vfxAttack;
+        VFXAttack v = vfx.vfxSpawnInfo.vfxAttack;
         
         Vector3 direction = vfx.transform.forward;
         print(direction + " " + vfx.transform.rotation.eulerAngles);
@@ -149,7 +148,7 @@ public class OnVFXEvents : MonoBehaviour
     
     IEnumerator<float> BeginFollowWeapon(VFXController vfx, WeaponType weaponType)
     {
-        VFXInfo v = vfx.vfxInfo;
+        VFXSpawnInfo v = vfx.vfxSpawnInfo;
 
         vfx.UpdateVFXFloat("Slow", Math.Max((v.duration - slowDownTime) / v.duration, 0));
         
@@ -175,11 +174,51 @@ public class OnVFXEvents : MonoBehaviour
     
     IEnumerator<float> BeginStationaryPath(VFXController vfx, WeaponType weaponType)
     {
-        VFXInfo v = vfx.vfxInfo;
+        VFXSpawnInfo v = vfx.vfxSpawnInfo;
         
         vfx.EnableVFX();
         
         yield return Timing.WaitForSeconds(v.duration);
+    }
+    
+    #endregion
+    
+    #region Follow Ground
+    
+    private void FollowGround(VFXController vfx, WeaponType weaponType)
+    {
+        Timing.RunCoroutine(BeginFollowGround(vfx, weaponType));
+    }
+    
+    IEnumerator<float> BeginFollowGround(VFXController vfx, WeaponType weaponType)
+    {
+        Vector3 position = vfx.transform.GetGroundedPosition(vfx.player.psm.groundLayer) + Vector3.up * 0.1f;
+        vfx.transform.position = position;
+        
+        float startTime = Time.time;
+        float duration = vfx.timeAlive;
+        float speed = vfx.vfxSpawnInfo.vfxAttack.vfxSpeed;
+        
+        vfx.UpdateVFXFloat("Slow", Math.Max((duration - slowDownTime) / duration, 0));
+        
+        vfx.EnableVFX();
+        
+        while (Time.time - startTime < duration)
+        {
+            Vector3 nextPos = vfx.transform.position + speed * vfx.transform.forward * Time.deltaTime;
+            Vector3 direction = vfx.transform.forward;
+            
+            RaycastHit hit;
+            if (!Physics.Raycast(nextPos, Vector3.down, out hit, 100, vfx.player.psm.groundLayer))
+            {
+                Debug.Log("No ground");
+                direction = Physics.Raycast(nextPos, Vector3.up, out hit, 100, vfx.player.psm.groundLayer) ? 
+                    (hit.point - vfx.transform.position).normalized : vfx.transform.forward;
+            }
+            
+            vfx.rb.linearVelocity = speed * direction;
+            yield return Timing.WaitForOneFrame;
+        }
     }
     
     #endregion

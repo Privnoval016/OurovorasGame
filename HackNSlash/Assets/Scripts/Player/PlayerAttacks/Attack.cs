@@ -45,7 +45,7 @@ public class Attack : ScriptableObject
 
     [Header("VFX")] 
     
-    public VFXInfo[] vfxInfos;
+    public VFXSpawnInfo[] vfxInfos;
 
 
     private void OnValidate()
@@ -99,7 +99,7 @@ public class HitInfo
 }
 
 [Serializable]
-public class VFXInfo
+public class VFXSpawnInfo
 {
     public VFXAttack vfxAttack;
     public float duration = 0.3f;

@@ -7,7 +7,8 @@ public class ElementData : ScriptableObject
 {
     public ElementEffect element;
 
-    [Header("VFX Attributes")] 
+    [Header("VFX Colors")] [ColorUsage(true, true)]
+    public Color vfxPureColor;
     
     [ColorUsage(true, true)]
     public Color vfxBrightColor;
@@ -15,6 +16,8 @@ public class ElementData : ScriptableObject
     [ColorUsage(true, true)]
     public Color vfxDarkColor;
     
+    
+    [Header("VFX Attributes")] 
     [SerializedDictionary("VFXType", "Effect GameObject")]
     public SerializedDictionary<VFXType, GameObject> elementVFXs = new();
     

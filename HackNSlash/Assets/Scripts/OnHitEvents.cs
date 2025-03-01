@@ -105,7 +105,7 @@ public class OnHitEvents : MonoBehaviour
         
         ec.pauseGravity = true;
 
-        Vector3 pos = ec.transform.position.WithY(pc.transform.position.y);
+        Vector3 pos = ec.transform.position.WithY(pc.transform.position.y) + Vector3.up * 0.5f * pc.playerRadius;
         Vector3 movement = pos - ec.transform.position;
         ec.TraverseDistKnockback(movement.normalized, movement.magnitude, midairKnockbackTime);
         

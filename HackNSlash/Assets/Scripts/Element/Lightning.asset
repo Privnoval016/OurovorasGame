@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Lightning
   m_EditorClassIdentifier: 
   element: 4
+  vfxPureColor: {r: 0.30471283, g: 0, b: 1.4942632, a: 1}
   vfxBrightColor: {r: 2.531287, g: 2.1659555, b: 8.718662, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
   elementVFXs:

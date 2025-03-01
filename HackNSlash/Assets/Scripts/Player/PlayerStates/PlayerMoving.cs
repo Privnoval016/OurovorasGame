@@ -168,7 +168,7 @@ public class PlayerMoving : State
 		
 		Vector3 movementForce = speedDiff * accelRate;
 		
-		pc.rb.AddForce(movementForce, ForceMode.Force);
+		pc.rb.AddForce(movementForce, ForceMode.Acceleration);
 		
 		pc.psm.TurnToLook();
 	}

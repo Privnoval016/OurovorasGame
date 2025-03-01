@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 5261310567344933792}
   - component: {fileID: 5788384784292559455}
   - component: {fileID: 560590601532932535}
-  - component: {fileID: -3822805232122832623}
-  m_Layer: 0
+  - component: {fileID: 3520694603144500510}
+  m_Layer: 9
   m_Name: Slash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47,17 +47,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e728e3408950e7b4da57bbd6b46b829a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  col: {fileID: 0}
-  vfxs: []
+  hitboxes: []
   meshRenderer: {fileID: 0}
-  properScale: {x: 1, y: 1, z: 1}
-  initialScale: {x: 0, y: 0, z: 0}
-  activeHitbox: 1
+  rb: {fileID: 0}
   attack: {fileID: 0}
   player: {fileID: 0}
-  currentVFXAttack: {fileID: 0}
+  vfxSpawnInfo:
+    vfxAttack: {fileID: 0}
+    duration: 0.3
+    delay: 0
+    rotation: {x: 0, y: 0, z: 0, w: 0}
+  vas: []
   vfxIndex: 0
   timeAlive: 0
+  activeHitbox: 1
+  vfxEnabled: 0
 --- !u!33 &5788384784292559455
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -111,7 +115,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!54 &-3822805232122832623
+--- !u!54 &3520694603144500510
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -134,7 +138,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0

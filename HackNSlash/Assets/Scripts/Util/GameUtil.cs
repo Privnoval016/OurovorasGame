@@ -62,8 +62,6 @@ namespace ExtensionUtils
         
             yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || 
                                                     Time.time - startTime >= time || (condition != null && condition()));
-            
-            Debug.Log("Intended Distance: " + distance + " Actual Distance: " + Vector3.Distance(rb.position, initialPosition));
         
             rb.linearVelocity = Vector3.zero;
         }
@@ -80,6 +78,21 @@ namespace ExtensionUtils
             }
         
             rb.linearVelocity = Vector3.zero;
+        }
+        
+        public static Vector3 PredictPositionAtTime(this Rigidbody rb, float time)
+        {
+            return rb.position + rb.linearVelocity * time;
+        }
+        
+        public static Vector3 GetGroundedPosition(this Transform t, LayerMask groundMask = default, float distance = 100f)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(t.position, Vector3.down, out hit, distance))
+            {
+                return hit.point;
+            }
+            return t.position;
         }
         
         #endregion
