@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MEC;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
+using ExtensionUtils;
 
 
 public abstract class IDamageable : MonoBehaviour, ITargetable
@@ -56,7 +57,7 @@ public abstract class IDamageable : MonoBehaviour, ITargetable
     public virtual void OnHit(PlayerController pc, Attack a, int actionIndex = 0)
     {
         tookDamageThisAction = true;
-        Timing.RunCoroutine(ResetHit(a));
+        this.RunSegmentCoroutine(ResetHit(a));
         
         OnHitEvents.OnHitActionMap[a.hitInfo.onHitActions[actionIndex]](pc, this, a);
     }

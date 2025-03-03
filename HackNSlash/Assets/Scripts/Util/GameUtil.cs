@@ -17,6 +17,11 @@ namespace ExtensionUtils
             action();
         }
         
+        public static CoroutineHandle RunSegmentCoroutine(this MonoBehaviour m, IEnumerator<float> coroutine, Segment segment = Segment.RealtimeUpdate)
+        {
+            return Timing.RunCoroutine(coroutine.CancelWith(m), segment, m.GetInstanceID());
+        }
+        
         /* 
          *  Converts the target vector to a vector relative to the basis vector (treated as the forward vector)
          */
@@ -88,7 +93,7 @@ namespace ExtensionUtils
         public static Vector3 GetGroundedPosition(this Transform t, LayerMask groundMask = default, float distance = 100f)
         {
             RaycastHit hit;
-            if (Physics.Raycast(t.position, Vector3.down, out hit, distance))
+            if (Physics.SphereCast(t.position, 0.1f, Vector3.down, out hit, distance, groundMask))
             {
                 return hit.point;
             }

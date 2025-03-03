@@ -90,6 +90,8 @@ public class HitInfo
     public float hitForce;
     [FormerlySerializedAs("knockBackDelay")] [Tooltip("Used for knockback and other select hit actions")]
     public float hitDelay;
+
+    public bool lockGravWhileDelayed = false;
     [Tooltip("Used for follow velocity and other select hit actions")]
     public Vector3 hitDirection;
     
@@ -102,6 +104,7 @@ public class HitInfo
 public class VFXSpawnInfo
 {
     public VFXAttack vfxAttack;
+    public int hitIndex;
     public float duration = 0.3f;
     public float delay = 0;
     public Quaternion rotation;

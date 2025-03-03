@@ -73,7 +73,7 @@ public class OnAttackEvents : MonoBehaviour
     
     public void EndObjectCoroutines()
     {
-        Timing.KillCoroutines(gameObject);
+        Timing.KillCoroutines(GetInstanceID());
     }
     
     #region Blade Beam
@@ -81,11 +81,10 @@ public class OnAttackEvents : MonoBehaviour
     [Header("Blade Beam")]
     [SerializeField] private float bladeBeamHoldTime;
     [SerializeField] private float crossSlashDuration = 1.3f;
-    [SerializeField] private float hitboxDelay = 0.4f;
     
     private void BladeBeam(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(BeginBladeBeam(pc, a));
+        this.RunSegmentCoroutine(BeginBladeBeam(pc, a));
     }
     
     private IEnumerator<float> BeginBladeBeam(PlayerController pc, Attack a)
@@ -108,15 +107,11 @@ public class OnAttackEvents : MonoBehaviour
             
             Vector3 targetPos = pc.cam.targetedEnemy.transform.position;
             
-            Quaternion targetRot = Quaternion.LookRotation(pc.transform.position - targetPos);
+            Quaternion targetRot = Quaternion.LookRotation((pc.transform.position - targetPos).ZeroVector3Axis());
             
             VFXController vfx = OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(targetPos, targetRot, Vector3.one), a, 2);
             
-            Timing.RunCoroutine(ResumeMoving(pc, a, crossSlashDuration, () => pc.psm.pauseComboReset = false));
-            
-            vfx.activeHitbox = false;
-            yield return Timing.WaitForSeconds(hitboxDelay);
-            vfx.activeHitbox = true;
+            this.RunSegmentCoroutine(ResumeMoving(pc, a, crossSlashDuration, () => pc.psm.pauseComboReset = false));
         }
         else
         {
@@ -141,7 +136,7 @@ public class OnAttackEvents : MonoBehaviour
             
             OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(startPos, startRot, Vector3.one), a, 1);
             
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
+            this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
             
             
         }
@@ -159,7 +154,7 @@ public class OnAttackEvents : MonoBehaviour
     
     private void VortexSlash(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(BeginVortexSlash(pc, a));
+        this.RunSegmentCoroutine(BeginVortexSlash(pc, a));
     }
     
     private IEnumerator<float> BeginVortexSlash(PlayerController pc, Attack a)
@@ -194,7 +189,7 @@ public class OnAttackEvents : MonoBehaviour
         OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(startPos, startRot, Vector3.one), a, index);
         
             
-        Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
     }
     
     #endregion
@@ -210,7 +205,7 @@ public class OnAttackEvents : MonoBehaviour
     
     private void DashToTarget(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(AirDash(pc, a));
+        this.RunSegmentCoroutine(AirDash(pc, a));
     }
 
     IEnumerator<float> AirDash(PlayerController pc, Attack a)
@@ -249,13 +244,13 @@ public class OnAttackEvents : MonoBehaviour
         
         if (target.TryGetComponent(out Collider c)) pc.IgnoreCollision(c, true);
         
-        Timing.RunCoroutine(pc.rb.TraverseWithVelocity(direction.normalized, airDashSpeed, loopCondition));
+        this.RunSegmentCoroutine(pc.rb.TraverseWithVelocity(direction.normalized, airDashSpeed, loopCondition));
         yield return Timing.WaitUntilTrue(() => !loopCondition());
         
         pc.rb.linearVelocity = Vector3.zero;
 
         pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
-        Timing.RunCoroutine(ResumeMoving(pc, a, a.attackClips[2].length));
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.attackClips[2].length));
         
         pc.pac.animancer.gameObject.transform.rotation = originalRotation;
         if (target.TryGetComponent(out Collider c2)) pc.IgnoreCollision(c2, false);
@@ -275,18 +270,18 @@ public class OnAttackEvents : MonoBehaviour
 
     private void FloorDash(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(DashAttack(pc, a));
+        this.RunSegmentCoroutine(DashAttack(pc, a));
     }
 
     IEnumerator<float> DashAttack(PlayerController pc, Attack a)
     {
+        ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
+        
         yield return Timing.WaitForSeconds(a.animDelay);
         
         GameObject target = pc.cam.targetedEnemy;
-        
+
         if (target == null) yield break;
-        
-        ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
         
         KeyBind[] releaseKeys = InputManager.GetReleaseable(a.keyBinds);
         
@@ -331,7 +326,7 @@ public class OnAttackEvents : MonoBehaviour
         pc.pac.PlayAnimation(a.attackClips[3], 0.01f);
         
         
-        Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
         
         if (collidersInPath != null)
         {
@@ -356,7 +351,7 @@ public class OnAttackEvents : MonoBehaviour
     
     private void LaunchUp(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(BeginLaunchUp(pc, a));
+        this.RunSegmentCoroutine(BeginLaunchUp(pc, a));
     }
     
     private IEnumerator<float> BeginLaunchUp(PlayerController pc, Attack a)
@@ -371,7 +366,7 @@ public class OnAttackEvents : MonoBehaviour
         
         pc.pac.PlayAnimation(a.attackClips[1], 0.01f, false);
         
-        Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(Vector3.up, launchUpHeight, launchUpTime));
+        this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(Vector3.up, launchUpHeight, launchUpTime));
         
         Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
         
@@ -393,7 +388,7 @@ public class OnAttackEvents : MonoBehaviour
     
     private void PlungeAttack(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(BeginPlungeAttack(pc, a));
+        this.RunSegmentCoroutine(BeginPlungeAttack(pc, a));
     }
     
     private IEnumerator<float> BeginPlungeAttack(PlayerController pc, Attack a)
@@ -415,7 +410,7 @@ public class OnAttackEvents : MonoBehaviour
         Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.psm.IsMidair &&
             pc.psm.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f);
         
-        Timing.RunCoroutine(pc.rb.TraverseWithVelocity(Vector3.down, plungeSpeed, loopCondition));
+        this.RunSegmentCoroutine(pc.rb.TraverseWithVelocity(Vector3.down, plungeSpeed, loopCondition));
         
         yield return Timing.WaitUntilTrue(() => !loopCondition());
         pc.rb.linearVelocity = Vector3.zero;
@@ -425,7 +420,7 @@ public class OnAttackEvents : MonoBehaviour
             pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
         }
         
-        Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
     }
     
     #endregion
@@ -442,7 +437,7 @@ public class OnAttackEvents : MonoBehaviour
     
     public void EnemyStep(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(BeginEnemyStep(pc, a));
+        this.RunSegmentCoroutine(BeginEnemyStep(pc, a));
     }
     
     private IEnumerator<float> BeginEnemyStep(PlayerController pc, Attack a)
@@ -458,7 +453,7 @@ public class OnAttackEvents : MonoBehaviour
         
         Debug.Log(direction + " " + enemyStepHeight + " " + enemyStepTime);
 		
-        Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(direction, enemyStepHeight, enemyStepTime));
+        this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(direction, enemyStepHeight, enemyStepTime));
     }
     
     
@@ -474,7 +469,7 @@ public class OnAttackEvents : MonoBehaviour
     
     private void Dodge(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(BeginDodge(pc, a));
+        this.RunSegmentCoroutine(BeginDodge(pc, a));
     }
     
     IEnumerator<float> BeginDodge(PlayerController pc, Attack a)
@@ -507,7 +502,7 @@ public class OnAttackEvents : MonoBehaviour
         {
             Vector3 teleportedPosition = pc.cam.targetedEnemy.transform.position + 
                                          (pc.transform.position - pc.cam.targetedEnemy.transform.position).ZeroVector3Axis().normalized * pc.playerRadius +
-                                         Vector3.up * pc.playerRadius;
+                                         Vector3.up * pc.playerRadius * 0.5f;
             dodgeDirection = teleportedPosition - pc.transform.position;
             
             distance = dodgeDirection.magnitude;
@@ -521,7 +516,7 @@ public class OnAttackEvents : MonoBehaviour
         }
 
         
-        Timing.RunCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime), Segment.FixedUpdate);
+        this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
     }
     
 
@@ -534,7 +529,7 @@ public class OnAttackEvents : MonoBehaviour
     [SerializeField] private float mashDuration;
     private void MashAttack(PlayerController pc, Attack a)
     {
-        Timing.RunCoroutine(BeginMashAttack(pc, a));
+        this.RunSegmentCoroutine(BeginMashAttack(pc, a));
     }
 
     IEnumerator<float> BeginMashAttack(PlayerController pc, Attack a)
@@ -561,12 +556,12 @@ public class OnAttackEvents : MonoBehaviour
         
         if (timeSinceLastClick >= mashInterval)
         {
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
+            this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
             pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
         }
         else
         {
-            Timing.RunCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown * 2, () => pc.psm.pauseComboReset = false));
+            this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown * 2, () => pc.psm.pauseComboReset = false));
             pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
         }
     }

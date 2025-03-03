@@ -16,45 +16,13 @@ MonoBehaviour:
     type: 3}
   vfxDatas:
   - vfxType: 0
-    effect: {fileID: 0}
+    effect: {fileID: 289161321636050785, guid: 478b7365a68a6e14e9de44b817fb3ba7, type: 3}
     localTransform:
       Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: -0.38268346, w: 0.9238795}
-      Scale: {x: 0.25, y: 0.25, z: 0.25}
-    durationScale: 0.2
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1.7, y: 1.7, z: 1.7}
+    durationScale: 1
     delayScale: 0
-  - vfxType: 0
-    effect: {fileID: 0}
-    localTransform:
-      Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: 0.85264015, w: 0.5224986}
-      Scale: {x: 0.25, y: 0.25, z: 0.25}
-    durationScale: 0.2
-    delayScale: 0.1
-  - vfxType: 0
-    effect: {fileID: 0}
-    localTransform:
-      Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: 0.12186935, w: 0.99254614}
-      Scale: {x: 0.25, y: 0.25, z: 0.25}
-    durationScale: 0.2
-    delayScale: 0.2
-  - vfxType: 0
-    effect: {fileID: 0}
-    localTransform:
-      Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: 0.54463905, w: 0.83867055}
-      Scale: {x: 0.25, y: 0.25, z: 0.25}
-    durationScale: 0.2
-    delayScale: 0.3
-  - vfxType: 0
-    effect: {fileID: 0}
-    localTransform:
-      Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: 0.9961947, w: 0.087155804}
-      Scale: {x: 0.25, y: 0.25, z: 0.25}
-    durationScale: 0.2
-    delayScale: 0.4
   vfxAction: 3
   vfxSpeed: 150
-  canCollide: 0
+  canCollide: 1

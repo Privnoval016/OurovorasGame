@@ -149,7 +149,7 @@ public class VFXController : MonoBehaviour
         
         if (other.TryGetComponent(out IDamageable enemy) && !enemy.tookDamageThisAction)
         {
-            enemy.OnHit(player, attack);
+            enemy.OnHit(player, attack, vfxSpawnInfo.hitIndex);
         }
     }
 
