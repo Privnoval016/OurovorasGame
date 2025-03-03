@@ -53,7 +53,7 @@ public class OnVFXEvents : MonoBehaviour
     
     public void EndObjectCoroutines()
     {
-        Timing.KillCoroutines(gameObject);
+        Timing.KillCoroutines(GetInstanceID());
     }
     
     public VFXController InvokeOnVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
@@ -61,7 +61,7 @@ public class OnVFXEvents : MonoBehaviour
         if (a == null || a.vfxInfos.Length == 0) return null;
         VFXController vfx = InstantiateVFX(pc, start, a, vfxIndex);
         if (vfx == null) return null;
-        Timing.RunCoroutine(SpawnWithDelay(vfx, a, vfxIndex, weaponType));
+        this.RunSegmentCoroutine(SpawnWithDelay(vfx, a, vfxIndex, weaponType));
         return vfx;
     }
     
@@ -118,7 +118,7 @@ public class OnVFXEvents : MonoBehaviour
     
     private void LinearPath(VFXController vfx , WeaponType weaponType)
     {
-        Timing.RunCoroutine(BeginLinearPath(vfx, weaponType));
+        this.RunSegmentCoroutine(BeginLinearPath(vfx, weaponType));
     }
     
     IEnumerator<float> BeginLinearPath(VFXController vfx, WeaponType weaponType)
@@ -143,7 +143,7 @@ public class OnVFXEvents : MonoBehaviour
     
     private void FollowWeapon(VFXController vfx, WeaponType weaponType)
     {
-        Timing.RunCoroutine(BeginFollowWeapon(vfx, weaponType));
+        this.RunSegmentCoroutine(BeginFollowWeapon(vfx, weaponType));
     }
     
     IEnumerator<float> BeginFollowWeapon(VFXController vfx, WeaponType weaponType)
@@ -169,7 +169,7 @@ public class OnVFXEvents : MonoBehaviour
     
     private void StationaryPath(VFXController vfx, WeaponType weaponType)
     {
-        Timing.RunCoroutine(BeginStationaryPath(vfx, weaponType));
+        this.RunSegmentCoroutine(BeginStationaryPath(vfx, weaponType));
     }
     
     IEnumerator<float> BeginStationaryPath(VFXController vfx, WeaponType weaponType)
@@ -187,7 +187,7 @@ public class OnVFXEvents : MonoBehaviour
     
     private void FollowGround(VFXController vfx, WeaponType weaponType)
     {
-        Timing.RunCoroutine(BeginFollowGround(vfx, weaponType));
+        this.RunSegmentCoroutine(BeginFollowGround(vfx, weaponType));
     }
     
     IEnumerator<float> BeginFollowGround(VFXController vfx, WeaponType weaponType)
@@ -196,7 +196,8 @@ public class OnVFXEvents : MonoBehaviour
         vfx.transform.position = position;
         
         float startTime = Time.time;
-        float duration = vfx.timeAlive;
+        float duration = vfx.timeAlive - Time.deltaTime * 2;
+        Debug.Log(duration);
         float speed = vfx.vfxSpawnInfo.vfxAttack.vfxSpeed;
         
         vfx.UpdateVFXFloat("Slow", Math.Max((duration - slowDownTime) / duration, 0));
@@ -208,12 +209,13 @@ public class OnVFXEvents : MonoBehaviour
             Vector3 nextPos = vfx.transform.position + speed * vfx.transform.forward * Time.deltaTime;
             Vector3 direction = vfx.transform.forward;
             
+            Debug.Log(nextPos + " " + direction);
+            
             RaycastHit hit;
-            if (!Physics.Raycast(nextPos, Vector3.down, out hit, 100, vfx.player.psm.groundLayer))
+            if (!Physics.SphereCast(nextPos, 0.1f, Vector3.down, out hit, 100, vfx.player.psm.groundLayer))
             {
                 Debug.Log("No ground");
-                direction = Physics.Raycast(nextPos, Vector3.up, out hit, 100, vfx.player.psm.groundLayer) ? 
-                    (hit.point - vfx.transform.position).normalized : vfx.transform.forward;
+                direction = (vfx.transform.forward + Vector3.up).normalized;
             }
             
             vfx.rb.linearVelocity = speed * direction;

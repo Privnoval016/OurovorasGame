@@ -116,7 +116,7 @@ public class EnemyController : IDamageable
         if (!canBeKnockedBack) return false;
 
         rb.linearVelocity = Vector3.zero;
-        Timing.RunCoroutine(rb.TraverseDistanceInTime(direction, distance, time, condition));
+        this.RunSegmentCoroutine(rb.TraverseDistanceInTime(direction, distance, time, condition));
         return true;
     }
 

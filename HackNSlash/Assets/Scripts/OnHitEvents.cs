@@ -11,7 +11,8 @@ public enum OnHitActions
     LaunchUp,
     FollowPlayerVelocity,
     LaunchDown,
-    MidairKnockback
+    MidairKnockback,
+    CrossSlash
 }
 
 public class OnHitEvents : MonoBehaviour
@@ -45,25 +46,27 @@ public class OnHitEvents : MonoBehaviour
         OnHitActionMap.Add(OnHitActions.FollowPlayerVelocity, FollowPlayerVelocity);
         OnHitActionMap.Add(OnHitActions.LaunchDown, LaunchDown);
         OnHitActionMap.Add(OnHitActions.MidairKnockback, MidairKnockback);
+        OnHitActionMap.Add(OnHitActions.CrossSlash, CrossSlash);
     }
     
     public void EndObjectCoroutines()
     {
-        Timing.KillCoroutines(gameObject);
+        Timing.KillCoroutines(GetInstanceID());
     }
 
     #region Basic Knockback
     
     private void BasicKnockBack(PlayerController pc, IDamageable enemy, Attack a)
     {
-        Timing.RunCoroutine(BeginBasicKnockBack(pc, enemy, a));
+        this.RunSegmentCoroutine(BeginBasicKnockBack(pc, enemy, a));
     }
     
     IEnumerator<float> BeginBasicKnockBack(PlayerController pc, IDamageable enemy, Attack a)
     {
+        if (!enemy.TryGetComponent(out EnemyController ec)) yield break;
+        
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
         
-        if (!enemy.TryGetComponent(out EnemyController ec)) yield break;
         
         ec.pauseGravity = true;
 
@@ -94,7 +97,7 @@ public class OnHitEvents : MonoBehaviour
     
     private void MidairKnockback(PlayerController pc, IDamageable enemy, Attack a)
     {
-        Timing.RunCoroutine(BeginMidairKnockback(pc, enemy, a));
+        this.RunSegmentCoroutine(BeginMidairKnockback(pc, enemy, a));
     }
     
     IEnumerator<float> BeginMidairKnockback(PlayerController pc, IDamageable enemy, Attack a)
@@ -124,7 +127,7 @@ public class OnHitEvents : MonoBehaviour
     
     private void LaunchUp(PlayerController pc, IDamageable enemy, Attack a)
     {
-        Timing.RunCoroutine(BeginLaunchUp(pc, enemy, a));
+        this.RunSegmentCoroutine(BeginLaunchUp(pc, enemy, a));
     }
     
     IEnumerator<float> BeginLaunchUp(PlayerController pc, IDamageable enemy, Attack a)
@@ -148,7 +151,7 @@ public class OnHitEvents : MonoBehaviour
     
     private void FollowPlayerVelocity(PlayerController pc, IDamageable enemy, Attack a)
     {
-        Timing.RunCoroutine(BeginFollowPlayerVelocity(pc, enemy, a));
+        this.RunSegmentCoroutine(BeginFollowPlayerVelocity(pc, enemy, a));
     }
     
     IEnumerator<float> BeginFollowPlayerVelocity(PlayerController pc, IDamageable enemy, Attack a)
@@ -216,7 +219,7 @@ public class OnHitEvents : MonoBehaviour
     
     private void LaunchDown(PlayerController pc, IDamageable enemy, Attack a)
     {
-        Timing.RunCoroutine(BeginLaunchDown(pc, enemy, a));
+        this.RunSegmentCoroutine(BeginLaunchDown(pc, enemy, a));
     }
     
     IEnumerator<float> BeginLaunchDown(PlayerController pc, IDamageable enemy, Attack a)
@@ -261,5 +264,36 @@ public class OnHitEvents : MonoBehaviour
         
     }
 
+    #endregion
+    
+    #region Cross Slash
+
+    [Header("Cross Slash")] [SerializeField]
+    private float crossSlashHitboxDelay = 0.4f;
+
+    private float crossSlashHitStrength = 10f;
+    
+    private void CrossSlash(PlayerController pc, IDamageable enemy, Attack a)
+    {
+        this.RunSegmentCoroutine(BeginCrossSlash(pc, enemy, a));
+    }
+    
+    IEnumerator<float> BeginCrossSlash(PlayerController pc, IDamageable enemy, Attack a)
+    { 
+        if (!enemy.TryGetComponent(out EnemyController ec)) yield break;
+        
+        ec.pauseGravity = true;
+        ec.rb.linearVelocity = Vector3.zero;
+        
+        yield return Timing.WaitForSeconds(crossSlashHitboxDelay);
+        
+        Vector3 direction = (enemy.transform.position - pc.transform.position).normalized;
+        if (!ec.IsGrounded) direction = Vector3.up;
+        
+        ec.ForceKnockback(direction * crossSlashHitStrength);
+        
+        ec.pauseGravity = false;
+    }
+    
     #endregion
 }

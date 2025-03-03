@@ -49,7 +49,7 @@ MonoBehaviour:
   - effect: {fileID: 6841210946760019386}
     durationScale: 1
     delayScale: 0
-  duration: 0
+  totalDuration: 0
 --- !u!1 &8631935827509540881
 GameObject:
   m_ObjectHideFlags: 0

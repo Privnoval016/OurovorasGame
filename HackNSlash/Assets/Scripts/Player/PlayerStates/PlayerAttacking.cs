@@ -119,7 +119,7 @@ public class PlayerAttacking : State
             attackEndTime += clip.length;
         }
 
-        Timing.RunCoroutine(AttackWithClip(clips));
+        pc.RunSegmentCoroutine(AttackWithClip(clips));
 
         
         pc.psm.InvokeOnAttack(attack);
@@ -142,8 +142,8 @@ public class PlayerAttacking : State
         {
             attackEndTime += clip.MaximumDuration / clip.Speed;
         }
-        
-        Timing.RunCoroutine(AttackWithTransition(transitions));
+
+        pc.RunSegmentCoroutine(AttackWithTransition(transitions));
         
         pc.psm.InvokeOnAttack(attack);
     }

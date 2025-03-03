@@ -5,24 +5,33 @@ using ExtensionUtils;
 using UnityEngine;
 using UnityEngine.VFX;
 using MEC;
+using NaughtyAttributes;
+using UnityEngine.Serialization;
 
 public class VFXActivator : MonoBehaviour
 {
     public VFXDelayInfo[] vfxs;
-    [HideInInspector] public float duration;
+    public float totalDuration;
+    private bool lifetimesSet = false;
 
     private void Awake()
     {
         gameObject.SetActive(false);
-    }
-
-    public void SetEffectLifetimes(float effectTime)
-    {
-        duration = effectTime;
         foreach (VFXDelayInfo vfx in vfxs)
         {
-            vfx.effect.SafeSetFloat("Lifetime", duration * vfx.durationScale);
+            vfx.effect.Stop();
+            vfx.effect.gameObject.SetActive(false);
         }
+    }
+    
+    public void SetEffectLifetimes(float effectTime)
+    {
+        totalDuration = effectTime;
+        foreach (VFXDelayInfo vfx in vfxs)
+        {
+            vfx.effect.SafeSetFloat("Lifetime", totalDuration * vfx.durationScale);
+        }
+        lifetimesSet = true;
     }
     
     public void SetVFXFloat(string name, float value)
@@ -41,19 +50,23 @@ public class VFXActivator : MonoBehaviour
         }
     }
     
+    [Button]
     public void PlayVFX()
     {
+        if (!lifetimesSet) SetEffectLifetimes(totalDuration);
+        
         gameObject.SetActive(true);
         
         foreach (VFXDelayInfo vfx in vfxs)
         {
-            Timing.RunCoroutine(PlayWithDelay(vfx.effect, duration * vfx.delayScale).CancelWith(gameObject));
+            this.RunSegmentCoroutine(PlayWithDelay(vfx.effect, totalDuration * vfx.delayScale));
         }
     }
     
     IEnumerator<float> PlayWithDelay(VisualEffect vfx, float delay = 0)
     {
         yield return Timing.WaitForSeconds(delay);
+        vfx.gameObject.SetActive(true);
         vfx.Play();
     }
 }
