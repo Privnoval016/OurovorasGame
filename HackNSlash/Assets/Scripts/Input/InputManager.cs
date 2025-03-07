@@ -214,8 +214,8 @@ public enum AttackTypes
 {
     LightAttack,
     HeavyAttack,
-    MidairLightAttack,
-    MidairHeavyAttack,
+    MidairAttack,
+    DirectionalAttack,
     SpecialAttack,
     Other
 }

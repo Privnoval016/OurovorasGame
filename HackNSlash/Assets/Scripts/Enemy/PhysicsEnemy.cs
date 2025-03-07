@@ -1,11 +1,13 @@
 using System;
+using System.Collections.Generic;
 using ExtensionUtils;
 using MEC;
 using UnityEngine;
 using PrimeTween;
+using UnityEngine.Serialization;
 
-// All enemies that utilize rigidbody physics should inherit from this class
-public class EnemyController : IDamageable
+// All enemies that are able to take knockback should inherit from this class
+public class PhysicsEnemy : LockOnTarget
 {
     public EnemyGravity gravityData;
     
@@ -14,15 +16,14 @@ public class EnemyController : IDamageable
     
     [HideInInspector]
     public Rigidbody rb;
-    [HideInInspector]
-    public Collider col;
-    
-    public static float HitTweenTime = 0.1f;
     
     public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
 
-    public bool canBeKnockedBack;
+    public bool knockbackImmune;
+    public bool TakeKnockback => !knockbackImmune && physicsInteract;
+
+    public bool physicsInteract = true;
     
     #region CHECK PARAMETERS
    
@@ -39,7 +40,7 @@ public class EnemyController : IDamageable
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         rb.useGravity = false;
-        canBeKnockedBack = true;
+        knockbackImmune = false;
     }
 
     public override void OnUpdate()
@@ -66,7 +67,7 @@ public class EnemyController : IDamageable
 
     public void CalculateGravity()
     {
-        if (pauseGravity) SetGravityScale(0);
+        if (pauseGravity || !physicsInteract) SetGravityScale(0);
         else if (!IsGrounded && Mathf.Abs(rb.linearVelocity.y) < gravityData.jumpHangTimeThreshold)
         {
             SetGravityScale(gravityData.gravityScale * gravityData.jumpHangGravityMult);
@@ -104,7 +105,7 @@ public class EnemyController : IDamageable
     
     public bool ForceKnockback(Vector3 force, ForceMode mode = ForceMode.VelocityChange)
     {
-        if (!canBeKnockedBack) return false;
+        if (!TakeKnockback) return false;
         
         rb.linearVelocity = Vector3.zero;
         rb.AddForce(force, mode);
@@ -113,7 +114,8 @@ public class EnemyController : IDamageable
 
     public bool TraverseDistKnockback(Vector3 direction, float distance, float time, Func<bool> condition = null)
     {
-        if (!canBeKnockedBack) return false;
+        Debug.Log("Traversing");
+        if (!TakeKnockback) return false;
 
         rb.linearVelocity = Vector3.zero;
         this.RunSegmentCoroutine(rb.TraverseDistanceInTime(direction, distance, time, condition));
@@ -122,7 +124,7 @@ public class EnemyController : IDamageable
 
     public bool SetVelocityKnockback(Vector3 velocity)
     {
-        if (!canBeKnockedBack) return false;
+        if (!TakeKnockback) return false;
         
         rb.linearVelocity = velocity;
         return true;
@@ -130,7 +132,7 @@ public class EnemyController : IDamageable
     
     public bool TweenKnockback(Vector3 direction, float distance, float time, Ease ease = Ease.Default)
     {
-        if (!canBeKnockedBack) return false;
+        if (!TakeKnockback) return false;
         
         rb.linearVelocity = Vector3.zero;
         transform.TweenDistance(direction, distance, time, ease);
@@ -138,4 +140,11 @@ public class EnemyController : IDamageable
     }
 
     #endregion
+
+    public override void OnHit(PlayerController pc, Attack a, int actionIndex = 0)
+    {
+        base.OnHit(pc, a, actionIndex);
+        
+        OnHitEvents.OnHitActionMap[a.hitInfo.onHitActions[actionIndex]](pc, this, a);
+    }
 }

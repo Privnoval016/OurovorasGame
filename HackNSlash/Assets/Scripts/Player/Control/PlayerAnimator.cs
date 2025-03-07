@@ -72,10 +72,9 @@ public class PlayerAnimator : MonoBehaviour
     
     public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, bool canInterrupt = true, FadeMode mode = FadeMode.FixedSpeed)
     {
-        if (canInterrupt && animancer.States.Current.Clip == clip)
+        if (canInterrupt && (animancer.States.Current.Clip && animancer.States.Current.Clip == clip))
         {
-            currentAnimState.Time = 0;
-            return currentAnimState;
+	        animancer.Stop();
         }
         
         currentAnimState = animancer.Play(clip, fadeDuration, mode);
@@ -135,7 +134,7 @@ public class PlayerAnimator : MonoBehaviour
 	    {
 		    case WalkingAnimStates.Idle:
 			    if (pc.psm.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-			    else if (pc.cam.isLockedOn && pc.psm.IsWalking) SwitchAnimState(WalkingAnimStates.Targeting);
+			    else if (pc.cam.IsLockedOn && pc.psm.IsWalking) SwitchAnimState(WalkingAnimStates.Targeting);
 			    else if (pc.psm.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
 			    else if (pc.psm.IsWalking) SwitchAnimState(WalkingAnimStates.Walking);
 
@@ -145,7 +144,7 @@ public class PlayerAnimator : MonoBehaviour
 			    pc.pac.currentAnimState.Speed = pc.rb.linearVelocity.ZeroVector3Axis().magnitude / pc.psm.playerData.runMaxSpeed;
 			    
 			    if (pc.psm.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
+			    else if (pc.cam.IsLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
 			    else if (pc.psm.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
 			    else if (!pc.psm.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
 
@@ -156,7 +155,7 @@ public class PlayerAnimator : MonoBehaviour
 			    currentAnimState.Speed = pc.rb.linearVelocity.ZeroVector3Axis().magnitude / pc.psm.playerData.sprintMaxSpeed;
 			    
 			    if (pc.psm.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
-			    else if (pc.cam.isLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
+			    else if (pc.cam.IsLockedOn) SwitchAnimState(WalkingAnimStates.Targeting);
 			    else if (!pc.psm.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
 			    else if (!pc.psm.IsSprinting) SwitchAnimState(WalkingAnimStates.Walking);
 
@@ -168,7 +167,7 @@ public class PlayerAnimator : MonoBehaviour
 			    
 			    if (pc.psm.IsMidair) SwitchAnimState(WalkingAnimStates.Falling);
 			    else if (!pc.psm.IsWalking) SwitchAnimState(WalkingAnimStates.Idle, null, true);
-			    else if (!pc.cam.isLockedOn && !pc.psm.IsSprinting) SwitchAnimState(WalkingAnimStates.Walking);
+			    else if (!pc.cam.IsLockedOn && !pc.psm.IsSprinting) SwitchAnimState(WalkingAnimStates.Walking);
 			    else if (pc.psm.IsSprinting) SwitchAnimState(WalkingAnimStates.Sprinting);
 			    break;
 		    

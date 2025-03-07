@@ -43,7 +43,7 @@ public class PlayerStateMachine : MonoBehaviour
     
     //Walk
     public bool IsWalking => moveInput.magnitude > 0;
-    public bool IsSprinting => !pc.cam.isLockedOn && IsWalking && walkingTime > playerData.sprintBuildupLength;
+    public bool IsSprinting => !pc.cam.IsLockedOn && IsWalking && walkingTime > playerData.sprintBuildupLength;
     
     //Jump
     [HideInInspector] public bool isJumping;
@@ -57,6 +57,10 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
     
     #region INPUT PARAMETERS
+
+    public int inputQueueLength = 3;
+    public float heldDirResetTime = 0.1f;
+    private float dirHoldTimer = 0;
     
     [HideInInspector] public Vector2 moveInput;
     [HideInInspector] public Vector3 moveDirection;
@@ -67,6 +71,10 @@ public class PlayerStateMachine : MonoBehaviour
 
     public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).
                                                 Rotate(pc.cam.transform.right.ToVector2().ToAngle()).normalized;
+
+    public Queue<Vector2> inputDirQueue = new();
+    public Queue<float> inputTimeQueue = new();
+    [HideInInspector] public Vector2 lastInputDir;
     #endregion
     
     #region GROUND CHECK PARAMETERS
@@ -88,20 +96,11 @@ public class PlayerStateMachine : MonoBehaviour
     
     
     [HideInInspector] public int numMidairAttacks;
-    [HideInInspector] public Dictionary<Attack, int> NumActionsUsed = new();
+    public Dictionary<Attack, int> NumActionsUsed = new();
 
-    public GameObject NearestEnemy
-    {
-        get
-        {
-            return pc.cam.isLockedOn ? pc.cam.targetedEnemy :
-                Physics.OverlapSphere(transform.position, pc.playerRadius, enemyLayer).
-                    Where(e =>
-                        (e.transform.position - transform.position).IsInDirectionCone(transform.forward, 190f))
-                    .OrderBy(e => Vector3.Distance(transform.position, e.transform.position)).FirstOrDefault()?.gameObject;
-        }
-    }
-
+    public LockOnTarget NearestHEnemy => pc.cam.IsLockedOn ? pc.cam.TargetedEnemy : GetEnemyInRadius(playerData.mediumRadius, 190f);
+    
+    
     #endregion
     
     [HideInInspector] public float dodgeTimer = 0;
@@ -149,7 +148,6 @@ public class PlayerStateMachine : MonoBehaviour
     
     #endregion
     
-    
     #region Info Methods
     
     private void SetMoveValues()
@@ -161,15 +159,41 @@ public class PlayerStateMachine : MonoBehaviour
         
         lastPosition = transform.position;
         lastVelocity = discreteVelocity;
+
+        dirHoldTimer += Time.deltaTime;
+
+        inputDirQueue.Enqueue(StandardizedMoveDir);
+        inputTimeQueue.Enqueue(Time.time);
+
+        while (inputTimeQueue.Peek() < Time.time - heldDirResetTime)
+        {
+            inputDirQueue.Dequeue();
+            inputTimeQueue.Dequeue();
+        }
+
+        lastInputDir = inputDirQueue.Peek();
         
-        // Debug.Log(" Discrete Velocity: " + discreteVelocity + " Discrete Acceleration: " + discreteAcceleration);
-        
+        Debug.Log(lastInputDir);
+
     }
-    
-    public GameObject GetEnemyInRadius(float radius)
+
+    public LockOnTarget GetEnemyInRadius(float radius, float angle = 360f)
     {
-        return Physics.OverlapSphere(transform.position, radius, enemyLayer)
-            .OrderBy(e => Vector3.Distance(transform.position, e.transform.position)).FirstOrDefault()?.gameObject;
+        HashSet<LockOnTarget> enemySet = Physics.OverlapSphere(transform.position, radius, enemyLayer).Select(e =>
+        {
+            e.TryGetComponent(out LockOnTarget d);
+            return d;
+        }).ToHashSet();
+        enemySet.RemoveWhere(e => !e);
+        
+        if (angle > 359f)
+        {
+            enemySet.RemoveWhere(e => !(e.TargetedPosition() - pc.transform.position).ToVector2().
+                IsInDirectionCone(pc.transform.forward.ToVector2(), angle));
+        }
+
+        enemySet = enemySet.OrderBy(e => Vector3.Distance(pc.transform.position, e.TargetedPosition())).ToHashSet();
+        return enemySet.FirstOrDefault();
     }
     
     #endregion
@@ -240,7 +264,7 @@ public class PlayerStateMachine : MonoBehaviour
                 
                 if (comboChain.LastOrDefault()?.attack == attack) continue;
 
-                if (IsGrounded || GetEnemyInRadius(pc.playerRadius) == null) continue;
+                if (IsGrounded || GetEnemyInRadius(playerData.mediumRadius) == null) continue;
 
                 ResetActions();
                 BeginAttack(attack);
@@ -275,6 +299,19 @@ public class PlayerStateMachine : MonoBehaviour
         if (movingState != MovingStates.Combat || pauseMovement) return;
         
         if (!canAttack) return;
+        
+        #region Directional Attacks
+
+        foreach (Attack attack in attackData.directionalAttacks)
+        {
+            if (!AttackIsAvailable(attack)) continue;
+            
+            comboChain.Clear();
+            BeginAttack(attack);
+            return;
+        }
+        
+        #endregion
                 
         #region Special Attacks
 
@@ -396,7 +433,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
-            OnAttackEvents.Instance.EndObjectCoroutines();
+            OnAttackEvents.Instance.KillObjectCoroutines();
             pc.sc.ChangeState(new PlayerAttacking(action.attack));
         }
     }
@@ -425,7 +462,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
-            OnAttackEvents.Instance.EndObjectCoroutines();
+            OnAttackEvents.Instance.KillObjectCoroutines();
             pc.sc.ChangeState(new PlayerAttacking(attack));
         }
     }
@@ -438,10 +475,15 @@ public class PlayerStateMachine : MonoBehaviour
         {
             NumActionsUsed.Add(attack, 0);
         }
+
+        if (attack.comboDirection != Vector2.zero)
+        {
+            if (!attack.comboDirection.IsInDirectionCone(lastInputDir, 92f)) return false;
+        }
         
         if (NumActionsUsed.ContainsKey(attack) && NumActionsUsed[attack] >= attack.maxUses) return false;
         
-        if (attack.isLockedOn && !pc.cam.isLockedOn) return false;
+        if (attack.isLockedOn && !pc.cam.IsLockedOn) return false;
         
         if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) return false;
 
@@ -544,9 +586,9 @@ public class PlayerStateMachine : MonoBehaviour
     
     public void TurnToLook()
     {
-        if (!IsWalking || moveDirection.magnitude == 0) return;
+        if (moveDirection.magnitude == 0) return;
 	    
-        if (!pc.cam.isLockedOn)
+        if (!pc.cam.IsLockedOn)
         {
             transform.rotation =
                 EaseUtil.DampQuaternion(transform.rotation, Quaternion.LookRotation(moveDirection), 5f, 0.1f);

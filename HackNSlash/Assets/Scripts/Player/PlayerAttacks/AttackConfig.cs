@@ -34,6 +34,8 @@ public class AttackConfig : ScriptableObject
     public Attack[] dodgeAttacks;
     
     public Attack[] enemyStepAttacks;
+
+    public Attack[] directionalAttacks;
     
     public Attack[] specialAttacks; // priority 2
 }

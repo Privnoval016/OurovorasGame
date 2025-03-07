@@ -163,7 +163,7 @@ GameObject:
   - component: {fileID: 5261310567344933792}
   - component: {fileID: -8647599811641329118}
   m_Layer: 9
-  m_Name: CrossSlash
+  m_Name: Grapple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

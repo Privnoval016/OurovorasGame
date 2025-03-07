@@ -40,7 +40,7 @@ public class PlayerMoving : State
 	    pc.psm.lastOnGroundTime -= Time.deltaTime;
 	    pc.psm.lastPressedJumpTime -= Time.deltaTime;
 
-	    if (pc.psm.IsWalking && !pc.cam.isLockedOn && pc.rb.linearVelocity.ZeroVector3Axis().magnitude > 0.01f && pc.psm.moveInput.magnitude > 0.95f)
+	    if (pc.psm.IsWalking && !pc.cam.IsLockedOn && pc.rb.linearVelocity.ZeroVector3Axis().magnitude > 0.01f && pc.psm.moveInput.magnitude > 0.95f)
 	    {
 		    pc.psm.walkingTime += Time.deltaTime;
 	    }

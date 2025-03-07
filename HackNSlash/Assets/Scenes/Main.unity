@@ -344,9 +344,8 @@ MonoBehaviour:
   defaultCamera: {fileID: 374352477}
   player: {fileID: 845412123}
   playerFollowTarget: {fileID: 34867868}
-  isLockedOn: 0
   lockOnTriggered: 0
-  targetedEnemy: {fileID: 0}
+  TargetedEnemy: {fileID: 0}
 --- !u!1 &374352477
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,6 +664,8 @@ MonoBehaviour:
   bounceTime: 0.3
   bounceHeight: 5
   crossSlashHitboxDelay: 0.4
+  grappleTime: 0.1
+  releaseKnockbackTime: 5
 --- !u!114 &478547447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,9 +678,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1ace5b2907becc4c975ed45366be735, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bladeBeamHoldTime: 0.4
-  crossSlashDuration: 0.7
-  vortexSlashHoldTime: 1
+  bladeBeamHoldTime: 0.2
+  crossSlashDuration: 0.3
+  grappleMaxTime: 0.1
   airDashSpeed: 80
   maxAirDashDistance: 20
   groundDashDistance: 25
@@ -1024,7 +1025,6 @@ MonoBehaviour:
   pac: {fileID: 0}
   psm: {fileID: 0}
   model: {fileID: 5866666020638784867}
-  playerRadius: 3
   CurrentElementEffect: 6
 --- !u!114 &845412131
 MonoBehaviour:
@@ -1099,10 +1099,13 @@ MonoBehaviour:
   isJumping: 0
   isJumpFalling: 0
   gravityScale: 0
+  inputQueueLength: 3
+  heldDirResetTime: 0.2
   moveInput: {x: 0, y: 0}
   moveDirection: {x: 0, y: 0, z: 0}
   discreteVelocity: {x: 0, y: 0, z: 0}
   discreteAcceleration: {x: 0, y: 0, z: 0}
+  lastInputDir: {x: 0, y: 0}
   groundCheckPoint: {fileID: 1977220826}
   groundCheckSize: {x: 0.49, y: 0.3, z: 0.49}
   canAttack: 0

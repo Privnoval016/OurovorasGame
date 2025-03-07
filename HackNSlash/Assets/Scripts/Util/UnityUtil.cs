@@ -412,6 +412,11 @@ namespace ExtensionUtils
         {
             Debug.Log(message);
         }
+        
+        public static string ArrayAsString<T>(this T[] array)
+        {
+            return string.Join(", ", array.Select(x => x.ToString()).ToArray());
+        }
     }
     
     public enum NBool

@@ -19,6 +19,7 @@ public class Attack : ScriptableObject
     
     public KeyBind[] keyBinds;
     public Vector2 inputDirection;
+    public Vector2 comboDirection;
     public bool applyTargetDirection = true;
     public NBool isMidair = NBool.False;
     public bool applyRootMotion = true;
@@ -104,8 +105,22 @@ public class HitInfo
 public class VFXSpawnInfo
 {
     public VFXAttack vfxAttack;
+    
+    [Header("VFX Parameters")]
     public int hitIndex;
     public float duration = 0.3f;
     public float delay = 0;
-    public Quaternion rotation;
+
+    [Header("Default Spawn Parameters")] 
+    public Target spawnTarget = Target.None;
+
+    public TransformInfo spawnTransform;
+}
+
+public enum Target
+{
+    None,
+    Player,
+    TargetedEnemy,
+    KatanaSpirit
 }

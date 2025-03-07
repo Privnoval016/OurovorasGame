@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8ef66f85f9b24c6cb9411a33ceff23f, type: 3}
-  m_Name: AirComboB
+  m_Name: AirComboB1
   m_EditorClassIdentifier: 
   isEnabled: 1
   attackType: 0

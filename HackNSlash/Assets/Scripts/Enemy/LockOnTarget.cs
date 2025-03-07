@@ -1,16 +1,23 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using MEC;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 using ExtensionUtils;
 
 
-public abstract class IDamageable : MonoBehaviour, ITargetable
+// Things with health that can take damage
+public abstract class LockOnTarget : MonoBehaviour
 {
+    public float radius = 3f;
+    
+    [HideInInspector]
+    public Collider col;
+    
     [HideInInspector] public bool tookDamageThisAction;
     
+    public virtual Vector3 TargetedPosition()
+    {
+        return transform.position;
+    }
 
     private void Start()
     {
@@ -52,20 +59,24 @@ public abstract class IDamageable : MonoBehaviour, ITargetable
     {
         
     }
-
-
+    
     public virtual void OnHit(PlayerController pc, Attack a, int actionIndex = 0)
     {
         tookDamageThisAction = true;
         this.RunSegmentCoroutine(ResetHit(a));
-        
-        OnHitEvents.OnHitActionMap[a.hitInfo.onHitActions[actionIndex]](pc, this, a);
+
+        TakeDamage();
     }
     
     private IEnumerator<float> ResetHit(Attack a)
     {
         yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
         tookDamageThisAction = false;
+    }
+
+    public virtual void TakeDamage()
+    {
+        // add later
     }
     
 }

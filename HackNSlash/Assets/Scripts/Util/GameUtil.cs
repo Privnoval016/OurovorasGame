@@ -16,11 +16,31 @@ namespace ExtensionUtils
             yield return Timing.WaitForSeconds(delay);
             action();
         }
-        
-        public static CoroutineHandle RunSegmentCoroutine(this MonoBehaviour m, IEnumerator<float> coroutine, Segment segment = Segment.RealtimeUpdate)
+
+        public static CoroutineHandle RunSegmentCoroutine(this MonoBehaviour m, IEnumerator<float> coroutine, string tag = null,
+            Segment segment = Segment.RealtimeUpdate)
         {
-            return Timing.RunCoroutine(coroutine.CancelWith(m), segment, m.GetInstanceID());
+            if (string.IsNullOrEmpty(tag))
+            {
+                return Timing.RunCoroutine(coroutine.CancelWith(m), segment, m.GetInstanceID());
+            }
+            
+            return Timing.RunCoroutine(coroutine.CancelWith(m), segment, m.GetInstanceID(), tag);
         }
+
+        public static void KillObjectCoroutines(this MonoBehaviour m, string tag = null)
+        {
+            if (string.IsNullOrEmpty(tag))
+            {
+                Timing.KillCoroutines(m.GetInstanceID());
+                return;
+            }
+            
+            Timing.KillCoroutines(m.GetInstanceID(), tag);
+        }
+
+        
+        
         
         /* 
          *  Converts the target vector to a vector relative to the basis vector (treated as the forward vector)
@@ -248,7 +268,6 @@ namespace ExtensionUtils
             if (!vfx.HasGradient(id)) return false;
             vfx.SetGradient(id, value);
             return true;
-            vfx.TryGetComponent(out VisualEffect vfxInstanceVFX);
         }
         
         #endregion
@@ -273,6 +292,13 @@ namespace ExtensionUtils
         public Vector3 Forward => Rotation * Vector3.forward;
         public Vector3 Right => Rotation * Vector3.right;
         public Vector3 Up => Rotation * Vector3.up;
+
+        public TransformInfo(bool defaultTransform = true)
+        {
+            this.Position = Vector3.zero;
+            this.Rotation = Quaternion.identity;
+            this.Scale = defaultTransform ? Vector3.one : Vector3.zero;
+        }
 
         public TransformInfo(Vector3 position, Quaternion rotation, Vector3 scale)
         {
