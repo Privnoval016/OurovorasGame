@@ -23,8 +23,6 @@ public class PlayerController : MonoBehaviour
 
     public PlayerAnimListener model;
     
-    public float playerRadius = 3f;
-    
     #endregion
     
     public ElementEffect CurrentElementEffect = ElementEffect.None;

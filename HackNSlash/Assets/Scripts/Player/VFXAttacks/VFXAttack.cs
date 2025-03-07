@@ -25,20 +25,6 @@ public class VFXAttack : ScriptableObject
     public OnVFXActions vfxAction = OnVFXActions.FollowWeapon;
     public float vfxSpeed;
     public bool canCollide = true;
-
-
-    private void OnValidate()
-    {
-        if (vfxDatas.Length == 0) return;
-        
-        foreach (VFXData vfxData in vfxDatas)
-        {
-            if (vfxData.localTransform.Scale == Vector3.zero)
-            {
-                vfxData.localTransform.Scale = Vector3.one;
-            }
-        }
-    }
 }
 
 [Serializable]
@@ -47,6 +33,7 @@ public class VFXData
     public VFXType vfxType;
     [Tooltip("Overrides the VFX associated with the current element")]
     public GameObject effect;
+
     public TransformInfo localTransform;
     [Tooltip("Duration of the VFX relative to the hitbox's duration")]
     [Range(0, 1)] public float durationScale = 1;

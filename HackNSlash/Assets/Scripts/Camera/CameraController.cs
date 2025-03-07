@@ -35,7 +35,6 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Transform playerFollowTarget;
     
     private CinemachineOrbitalFollow playerCamera;
-    private CinemachineInputAxisController playerInputAxisController;
     private CinemachineTargetGroup currentTargetGroup;
     private CinemachineBrain camBrain;
     
@@ -49,9 +48,12 @@ public class CameraController : MonoBehaviour
     
     #region Accessible Properties
 
-    public bool isLockedOn, lockOnTriggered;
-    public GameObject targetedEnemy; // The enemy the player is currently locked on to, or the player if not locked on
-    public Vector3 LockOnDirection => (targetedEnemy.transform.position - playerFollowTarget.position).ZeroVector3Axis().normalized;
+    public bool IsLockedOn => TargetedEnemy != null;
+    public bool lockOnTriggered;
+    public LockOnTarget TargetedEnemy;
+    public Vector3 LockOnDirection => (TargetedEnemy.TargetedPosition() - pc.transform.position).ZeroVector3Axis().normalized;
+    
+    public Vector3 TargetPosition => IsLockedOn ? TargetedEnemy.TargetedPosition() : pc.transform.position;
     
     #endregion
 
@@ -77,20 +79,21 @@ public class CameraController : MonoBehaviour
         defaultCamera.SetActive(false);
         
         Instantiate(defaultCamera, cameraContainer).transform.GetChild(0).TryGetComponent(out playerCamera);
-        defaultCamera.transform.GetChild(0).TryGetComponent(out playerInputAxisController);
         playerCamera.transform.parent.GetChild(1).TryGetComponent(out currentTargetGroup);
         
         
         playerCamera.transform.parent.gameObject.SetActive(true);
-        
-        targetedEnemy = playerFollowTarget.gameObject;
-        
+
+        TargetedEnemy = null;
+
     }
 
     void Update()
     {
         SetMovementSettings();
         ValidateLockedOnTarget();
+        
+        Debug.Log(TargetedEnemy);
     }
     
     #endregion
@@ -105,15 +108,14 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            targetedEnemy = playerFollowTarget.gameObject;
-            isLockedOn = false;
+            TargetedEnemy = null;
             lockOnTriggered = false;
         }
     }
     
     private void OnRetargetAction(InputAction.CallbackContext context)
     {
-        if (isLockedOn)
+        if (IsLockedOn)
         {
             CheckForLockOnTarget();
         }
@@ -126,7 +128,7 @@ public class CameraController : MonoBehaviour
     private void SetMovementSettings()
     {
 
-        float radiusIncrease = Math.Max(GetViewportOutOfBounds(targetedEnemy.transform.position),
+        float radiusIncrease = Math.Max(GetViewportOutOfBounds(IsLockedOn ? TargetPosition : playerFollowTarget.position),
             GetViewportOutOfBounds(playerFollowTarget.position));
 
         targetRadiusMultiplier = 1 + radiusIncrease + 0.1f;
@@ -141,50 +143,50 @@ public class CameraController : MonoBehaviour
         
         if (collidersInRange.Length == 0) return;
         
-        GameObject nearestEnemy = null;
-        
+        LockOnTarget t = null;
         foreach (var c in collidersInRange)
         {
-            if (c.gameObject == targetedEnemy || !c.TryGetComponent(out ITargetable t) || !IsOnScreen(c.transform.position))
-            {
-                continue;
-            }
+            if (!c.TryGetComponent(out LockOnTarget t1)) continue;
+            Debug.Log("1");
+            if (TargetedEnemy == t1) continue;
+            Debug.Log("2");
+            if (!IsOnScreen(t1.TargetedPosition())) continue;
+            Debug.Log("3");
             
-            if (nearestEnemy == null)
+            if (!IsLockedOn || (t != null && Vector3.Distance(pc.transform.position, t1.TargetedPosition()) <
+                     Vector3.Distance(pc.transform.position, t.TargetedPosition())))
             {
-                nearestEnemy = c.gameObject;
-            }
-            else if (Vector3.Distance(playerFollowTarget.position, c.transform.position) <
-                     Vector3.Distance(playerFollowTarget.position, nearestEnemy.transform.position))
-            {
-                nearestEnemy = c.gameObject;
+                t = t1;
             }
         }
         
-        if (nearestEnemy != null)
-        {
-            targetedEnemy = nearestEnemy;
-            isLockedOn = true;
-        }
+        if (t != null) TargetedEnemy = t;
     }
     
     private void ValidateLockedOnTarget()
     {
-        if (lockOnTriggered && !isLockedOn)
+        if (lockOnTriggered && !IsLockedOn)
         {
             CheckForLockOnTarget();
         }
-        
-        if (Vector3.Distance(playerFollowTarget.position, targetedEnemy.transform.position) >
-            pc.psm.playerData.lockOnRange)
+
+        if (!lockOnTriggered)
         {
-            targetedEnemy = playerFollowTarget.gameObject;
+            TargetedEnemy = null;
         }
         
-        isLockedOn = targetedEnemy != playerFollowTarget.gameObject;
-        
+        if (Vector3.Distance(playerFollowTarget.position, TargetPosition) >
+            pc.psm.playerData.lockOnRange)
+        {
+            TargetedEnemy = null;
+        }
 
-        if (currentTargetGroup.Targets[1].Object == targetedEnemy.transform)
+        if (TargetedEnemy != null && currentTargetGroup.Targets[1].Object == TargetedEnemy.transform)
+        {
+            return;
+        }
+
+        if (TargetedEnemy == null && currentTargetGroup.Targets[1].Object == playerFollowTarget.transform)
         {
             return;
         }
@@ -192,10 +194,10 @@ public class CameraController : MonoBehaviour
         
         CinemachineOrbitalFollow oldCamera = playerCamera;
         Instantiate(defaultCamera, cameraContainer).transform.GetChild(0).TryGetComponent(out playerCamera);
-        defaultCamera.transform.GetChild(0).TryGetComponent(out playerInputAxisController);
         
         playerCamera.transform.parent.GetChild(1).TryGetComponent(out currentTargetGroup);
-        currentTargetGroup.Targets[1].Object = targetedEnemy.transform;
+        Transform targetTransform = TargetedEnemy != null ? TargetedEnemy.transform : playerFollowTarget;
+        currentTargetGroup.Targets[1].Object = targetTransform;
         
         playerCamera.transform.parent.gameObject.SetActive(true);
 

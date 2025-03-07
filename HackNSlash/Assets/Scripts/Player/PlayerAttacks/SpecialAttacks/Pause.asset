@@ -13,15 +13,20 @@ MonoBehaviour:
   m_Name: Pause
   m_EditorClassIdentifier: 
   isEnabled: 1
-  attackType: 4
+  attackType: 5
+  element: 0
   isLockedOn: 0
   keyBinds: 
   inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
   applyTargetDirection: 1
   isMidair: 0
   applyRootMotion: 1
+  maxUses: 0
   attackTransitions: []
   attackClips: []
+  animDelay: 0
+  animFade: 0.2
   clipsToPlay: 1
   exitCondition: 0
   onAttackAction: 0
@@ -34,5 +39,8 @@ MonoBehaviour:
     damage: 0
     hitForce: 0
     hitDelay: 0
+    lockGravWhileDelayed: 0
     hitDirection: {x: 0, y: 0, z: 0}
+    tweenToPlayer: 0
     elasticCollision: 0
+  vfxInfos: []

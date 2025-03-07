@@ -1,3 +1,4 @@
+using System.Buffers.Text;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -70,6 +71,12 @@ public class PlayerData : ScriptableObject
 
 	[Range(0, 1)] public float midairAtkGravScale;
 	public int maxMidairAtks = 5;
+	
+	
+	[Header("Radii")]
+	public float smallRadius = 1.5f;
+	public float mediumRadius = 3f;
+	public float largeRadius = 8f;
 
 	//Unity Callback, called when the inspector updates
     private void OnValidate()

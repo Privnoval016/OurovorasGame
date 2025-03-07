@@ -51,11 +51,6 @@ public class OnVFXEvents : MonoBehaviour
         OnVFXActionMap.Add(OnVFXActions.FollowGround, FollowGround);
     }
     
-    public void EndObjectCoroutines()
-    {
-        Timing.KillCoroutines(GetInstanceID());
-    }
-    
     public VFXController InvokeOnVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
     {
         if (a == null || a.vfxInfos.Length == 0) return null;
@@ -75,9 +70,15 @@ public class OnVFXEvents : MonoBehaviour
     {
         if (a.vfxInfos.Length <= vfxIndex) return null;
 
+        TransformInfo realStart = new(start.Position,
+            a.vfxInfos[vfxIndex].spawnTransform.Rotation.eulerAngles != Vector3.zero
+                ? start.Rotation * a.vfxInfos[vfxIndex].spawnTransform.Rotation
+                : start.Rotation,
+            start.Scale.ScaledBy(a.vfxInfos[vfxIndex].spawnTransform.Scale));
+
         VFXSpawnInfo v = a.vfxInfos[vfxIndex];
-        GameObject vfx = Instantiate(v.vfxAttack.vfxHitBox, start.Position, start.Rotation);
-        vfx.transform.localScale = start.Scale;
+        GameObject vfx = Instantiate(v.vfxAttack.vfxHitBox, realStart.Position, realStart.Rotation);
+        vfx.transform.localScale = realStart.Scale;
         
         if (!vfx.TryGetComponent(out VFXController vc))
         {
@@ -126,7 +127,6 @@ public class OnVFXEvents : MonoBehaviour
         VFXAttack v = vfx.vfxSpawnInfo.vfxAttack;
         
         Vector3 direction = vfx.transform.forward;
-        print(direction + " " + vfx.transform.rotation.eulerAngles);
         vfx.transform.TweenDistance(direction, vfx.timeAlive * v.vfxSpeed, vfx.timeAlive, Ease.Linear);
         
         vfx.EnableVFX();
@@ -197,7 +197,6 @@ public class OnVFXEvents : MonoBehaviour
         
         float startTime = Time.time;
         float duration = vfx.timeAlive - Time.deltaTime * 2;
-        Debug.Log(duration);
         float speed = vfx.vfxSpawnInfo.vfxAttack.vfxSpeed;
         
         vfx.UpdateVFXFloat("Slow", Math.Max((duration - slowDownTime) / duration, 0));
@@ -209,12 +208,9 @@ public class OnVFXEvents : MonoBehaviour
             Vector3 nextPos = vfx.transform.position + speed * vfx.transform.forward * Time.deltaTime;
             Vector3 direction = vfx.transform.forward;
             
-            Debug.Log(nextPos + " " + direction);
-            
             RaycastHit hit;
             if (!Physics.SphereCast(nextPos, 0.1f, Vector3.down, out hit, 100, vfx.player.psm.groundLayer))
             {
-                Debug.Log("No ground");
                 direction = (vfx.transform.forward + Vector3.up).normalized;
             }
             

@@ -58,7 +58,7 @@ public class PlayerAttacking : State
 
     public override void OnExit()
     {
-        Timing.KillCoroutines(OnAttackEvents.Instance.GetInstanceID());
+        OnAttackEvents.Instance.KillObjectCoroutines();
         pc.psm.pauseComboReset = false;
         pc.pac.rootMotion.enabled = false;
     }
@@ -203,8 +203,7 @@ public class PlayerAttacking : State
         
         foreach (Collider enemy in enemies)
         {
-            Debug.Log(enemy.name);
-            enemy.GetComponent<IDamageable>().OnHit(pc, attack);
+            enemy.GetComponent<LockOnTarget>().OnHit(pc, attack);
         }
     }
 
@@ -213,7 +212,7 @@ public class PlayerAttacking : State
         HashSet<Collider> enemies = Physics.OverlapSphere(
             pc.transform.position, 10, pc.psm.enemyLayer).ToHashSet();
         
-        enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d) || d.tookDamageThisAction);
+        enemies.RemoveWhere(e => !e.TryGetComponent(out LockOnTarget d) || d.tookDamageThisAction);
    
         enemies.RemoveWhere(e => !(e.transform.position - pc.transform.position).ToVector2().
             IsInDirectionCone(pc.transform.forward.ToVector2(), attack.hitInfo.hitRegisterAngle));
@@ -228,7 +227,7 @@ public class PlayerAttacking : State
         HashSet<Collider> enemies = Physics.OverlapSphere(
             pc.transform.position, attack.hitInfo.hitRegisterRadius, pc.psm.enemyLayer).ToHashSet();
         
-        enemies.RemoveWhere(e => !e.TryGetComponent(out IDamageable d) || d.tookDamageThisAction);
+        enemies.RemoveWhere(e => !e.TryGetComponent(out LockOnTarget d) || d.tookDamageThisAction);
         
         enemies.RemoveWhere(e => !(e.transform.position - pc.transform.position).ToVector2().
             IsInDirectionCone(pc.transform.forward.ToVector2(), attack.hitInfo.hitRegisterAngle));
@@ -245,9 +244,9 @@ public class PlayerAttacking : State
         if (attack.exitCondition != ExitConditions.AnimationEnd) return;
         
        // Debug.Log(pc.NearestEnemy);
-        if (pc.psm.NearestEnemy != null)
+        if (pc.psm.NearestHEnemy != null)
         {
-            Vector3 lookDir = (pc.psm.NearestEnemy.transform.position - pc.transform.position).ZeroVector3Axis();
+            Vector3 lookDir = (pc.psm.NearestHEnemy.TargetedPosition() - pc.transform.position).ZeroVector3Axis();
             
             if (lookDir.magnitude < 0.5f) return;
             
