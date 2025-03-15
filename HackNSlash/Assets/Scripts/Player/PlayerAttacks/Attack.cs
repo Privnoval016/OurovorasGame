@@ -2,12 +2,22 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
-using ExtensionUtils;
+using Extensions.Utils;
 using Animancer;
 
 [CreateAssetMenu(menuName = "Player/Attack")]
 public class Attack : ScriptableObject
 {
+    public static readonly List<AttackTypes> AttackTypePriority = new()
+    {
+        AttackTypes.Other,
+        AttackTypes.DirectionalAttack,
+        AttackTypes.SpecialAttack,
+        AttackTypes.MidairAttack,
+        AttackTypes.HeavyAttack,
+        AttackTypes.LightAttack,
+    };
+    
     [Header("General")] 
     public bool isEnabled = true;
     public AttackTypes attackType;
@@ -123,4 +133,14 @@ public enum Target
     Player,
     TargetedEnemy,
     KatanaSpirit
+}
+
+public enum AttackTypes
+{
+    LightAttack,
+    HeavyAttack,
+    MidairAttack,
+    DirectionalAttack,
+    SpecialAttack,
+    Other
 }

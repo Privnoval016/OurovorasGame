@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using MEC;
 using UnityEngine;
-using ExtensionUtils;
+using Extensions.Utils;
 
 
 // Things with health that can take damage
-public abstract class LockOnTarget : MonoBehaviour
+public abstract class LockOnTarget : KinematicBehaviour
 {
     public float radius = 3f;
     
@@ -14,7 +14,7 @@ public abstract class LockOnTarget : MonoBehaviour
     
     [HideInInspector] public bool tookDamageThisAction;
     
-    public virtual Vector3 TargetedPosition()
+    public virtual Vector3 TargetedPosition(float deltaTime = 0)
     {
         return transform.position;
     }
@@ -22,11 +22,13 @@ public abstract class LockOnTarget : MonoBehaviour
     private void Start()
     {
         tookDamageThisAction = false;
+        SetKinematicAttributes();
         OnStart();
     }
     
     private void Update()
     {
+        UpdateKinematicAttributes();
         OnUpdate();
     }
 

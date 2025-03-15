@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using ExtensionUtils;
+using Extensions.Utils;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -43,6 +43,7 @@ public class CameraController : MonoBehaviour
     private float destroyDelay = 0.2f;
 
     private float targetRadiusMultiplier = 1f;
+    private float previousRadiusMultiplier = 1f;
     
     #endregion
     
@@ -127,13 +128,18 @@ public class CameraController : MonoBehaviour
    
     private void SetMovementSettings()
     {
+        if (!IsOnScreen(IsLockedOn ? TargetedEnemy.TargetedPosition() : playerFollowTarget.position, 0.1f)
+            || !IsOnScreen(playerFollowTarget.position, 0.1f))
+        {
+            Vector2 playerOOB = GetViewportOutOfBounds(playerFollowTarget.position, 0.1f);
+            Vector2 targetOOB = GetViewportOutOfBounds(IsLockedOn ? TargetedEnemy.TargetedPosition() : playerFollowTarget.position, 0.1f);
+            
+            float oob = 1 + Math.Max(playerOOB.x, targetOOB.x);
+            Debug.Log("Out of Bounds: " + oob);
 
-        float radiusIncrease = Math.Max(GetViewportOutOfBounds(IsLockedOn ? TargetPosition : playerFollowTarget.position),
-            GetViewportOutOfBounds(playerFollowTarget.position));
-
-        targetRadiusMultiplier = 1 + radiusIncrease + 0.1f;
-
-        playerCamera.RadialAxis.Value = targetRadiusMultiplier;
+            playerCamera.RadialAxis.Range = new Vector2(0, 2 * oob);
+            playerCamera.RadialAxis.Value = oob;
+        } 
     }
     
     private void CheckForLockOnTarget()
@@ -150,11 +156,11 @@ public class CameraController : MonoBehaviour
             Debug.Log("1");
             if (TargetedEnemy == t1) continue;
             Debug.Log("2");
-            if (!IsOnScreen(t1.TargetedPosition())) continue;
+            if (!IsOnScreen(t1.TargetedPosition(), 0.1f)) continue;
             Debug.Log("3");
             
-            if (!IsLockedOn || (t != null && Vector3.Distance(pc.transform.position, t1.TargetedPosition()) <
-                     Vector3.Distance(pc.transform.position, t.TargetedPosition())))
+            if (t == null || Vector3.Distance(pc.transform.position, t1.TargetedPosition()) <
+                     Vector3.Distance(pc.transform.position, t.TargetedPosition()))
             {
                 t = t1;
             }
@@ -206,22 +212,25 @@ public class CameraController : MonoBehaviour
     }
     
     
-    private bool IsOnScreen(Vector3 position)
+    private bool IsOnScreen(Vector3 position, float edgeOffset)
     {
+        float min = edgeOffset;
+        float max = 1 - edgeOffset;
         Vector3 screenPoint = camBrain.OutputCamera.WorldToViewportPoint(position);
-        return screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
+        return screenPoint.z > min && screenPoint.x > min && screenPoint.x < max && screenPoint.y > min && screenPoint.y < max;
     }
     
-    private float GetViewportOutOfBounds(Vector3 position)
+    private Vector2 GetViewportOutOfBounds(Vector3 position, float edgeOffset)
     {
+        float min = edgeOffset;
+        float max = 1 - edgeOffset;
+        
         Vector3 screenPoint = camBrain.OutputCamera.WorldToViewportPoint(position);
         
-        float x1 = screenPoint.x < 0 ? -screenPoint.x : 0;
-        float x2 = screenPoint.x > 1 ? screenPoint.x - 1 : 0;
-        float y1 = screenPoint.y < 0 ? -screenPoint.y : 0;
-        float y2 = screenPoint.y > 1 ? screenPoint.y - 1 : 0;
+        float x = Math.Max(0, Math.Max(min - screenPoint.x, screenPoint.x - max));
+        float y = Math.Max(0, Math.Max(min - screenPoint.y, screenPoint.y - max));
         
-        return Mathf.Max(x1, x2, y1, y2);
+        return new Vector2(x, y);
     }
     
     #endregion

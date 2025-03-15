@@ -1,7 +1,7 @@
 using System;
 using Animancer;
 using AYellowpaper.SerializedCollections;
-using ExtensionUtils;
+using Extensions.Utils;
 using UnityEngine;
 using Object = System.Object;
 
@@ -90,6 +90,7 @@ public class PlayerAnimator : MonoBehaviour
     public AnimancerState PlayAnimation(ITransition clip)
     {
         currentAnimState = animancer.Play(clip);
+        Debug.Log("Playing: " + clip.FadeDuration);
         return currentAnimState;
     }
     

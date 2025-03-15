@@ -38,6 +38,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9bb4be9573875ed48a7043b5bae428a4, type: 2}
   dodgeAttacks:
   - {fileID: 11400000, guid: 6afab0c4d1daf4f97b63e7c2254ef2a7, type: 2}
+  - {fileID: 11400000, guid: 2695718b17df94f01906f8ee765fe2be, type: 2}
+  - {fileID: 11400000, guid: eb47360b75031404fa51ae4caa159828, type: 2}
+  - {fileID: 11400000, guid: b1c98ab3bacab4aa4bd3102275f5b66e, type: 2}
   enemyStepAttacks:
   - {fileID: 11400000, guid: ad44dd1239c408440a970d6f204734b6, type: 2}
   directionalAttacks:

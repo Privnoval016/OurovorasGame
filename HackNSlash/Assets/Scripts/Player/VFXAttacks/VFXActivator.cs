@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using ExtensionUtils;
+using Extensions.Utils;
 using UnityEngine;
 using UnityEngine.VFX;
 using MEC;

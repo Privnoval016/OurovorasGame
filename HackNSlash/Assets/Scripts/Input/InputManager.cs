@@ -209,13 +209,3 @@ public enum KeyBind
     Dodge,
     Jump,
 }
-
-public enum AttackTypes
-{
-    LightAttack,
-    HeavyAttack,
-    MidairAttack,
-    DirectionalAttack,
-    SpecialAttack,
-    Other
-}

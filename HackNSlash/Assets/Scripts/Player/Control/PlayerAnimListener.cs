@@ -1,4 +1,4 @@
-using ExtensionUtils;
+using Extensions.Utils;
 using UnityEngine;
 
 public class PlayerAnimListener : MonoBehaviour

@@ -1,9 +1,13 @@
+using System.Collections.Generic;
+using System.Linq;
+using Extensions.Utils;
+using MEC;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(StateController))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : KinematicBehaviour
 {
     #region State Machine
     [HideInInspector] public StateController sc;
@@ -12,7 +16,7 @@ public class PlayerController : MonoBehaviour
     #region Components
     
     [HideInInspector] public Rigidbody rb;
-    [FormerlySerializedAs("col")] public CapsuleCollider mainCol;
+    public CapsuleCollider mainCol;
     [HideInInspector] public CapsuleCollider[] allCols;
     
     [HideInInspector] public CameraController cam;
@@ -33,6 +37,8 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        SetKinematicAttributes();
+        
         rb = GetComponent<Rigidbody>();
         wc = GetComponent<WeaponController>();
         pac = GetComponent<PlayerAnimator>();
@@ -64,16 +70,22 @@ public class PlayerController : MonoBehaviour
         model.pc = this;
     }
     
+    private void Update()
+    {
+        UpdateKinematicAttributes();
+    }
+    
     
     #endregion
     
-    public void IgnoreCollision(Collider col, bool ignore)
+    public bool IgnoreCollision(Collider col, bool ignore)
     {
-        Debug.Log("NumCols: " + allCols.Length);
+        if (col == null) return false;
         foreach (CapsuleCollider c in allCols)
         {
             Physics.IgnoreCollision(c, col, ignore);
         }
+        return true;
     }
     
 }

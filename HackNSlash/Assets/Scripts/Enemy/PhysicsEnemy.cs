@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using ExtensionUtils;
+using Extensions.Utils;
 using MEC;
 using UnityEngine;
 using PrimeTween;
@@ -34,7 +34,12 @@ public class PhysicsEnemy : LockOnTarget
     [SerializeField] private LayerMask groundLayer;
     
     #endregion
-    
+
+    public override Vector3 TargetedPosition(float deltaTime = 0)
+    {
+        return base.TargetedPosition(deltaTime) + DeltaPosition(deltaTime);
+    }
+
     public override void OnStart()
     {
         rb = GetComponent<Rigidbody>();
