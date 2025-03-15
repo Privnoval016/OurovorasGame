@@ -97,7 +97,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 84900140109158182}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: efafa11bb1c294d48b25272536b863bf, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -125,8 +125,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ab82e6fa91fd46f88e13c36b2dc4aa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 3
+  col: {fileID: 0}
   tookDamageThisAction: 0
   gravityData: {fileID: 11400000, guid: 5de1e4539ea37ee49aba6ea1c3c40f96, type: 2}
+  pauseGravity: 0
+  rb: {fileID: 0}
+  knockbackImmune: 0
+  physicsInteract: 1
   groundCheckPoint: {fileID: 9011854279037554396}
   groundCheckSize: {x: 0.49, y: 0.3, z: 0.49}
   groundLayer:

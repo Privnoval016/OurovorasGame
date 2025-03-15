@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using ExtensionUtils;
+using Extensions.Utils;
 using MEC;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -64,10 +64,6 @@ public class PlayerStateMachine : MonoBehaviour
     
     [HideInInspector] public Vector2 moveInput;
     [HideInInspector] public Vector3 moveDirection;
-    
-    [HideInInspector] public Vector3 discreteVelocity;
-    [FormerlySerializedAs("moveAcceleration")] [HideInInspector] public Vector3 discreteAcceleration;
-    private Vector3 lastPosition, lastVelocity;
 
     public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).
                                                 Rotate(pc.cam.transform.right.ToVector2().ToAngle()).normalized;
@@ -128,9 +124,6 @@ public class PlayerStateMachine : MonoBehaviour
         
         KeyMap = InputManager.KeyMap;
         
-        lastPosition = transform.position;
-        lastVelocity = pc.rb.linearVelocity;
-        
         pc.sc.ChangeState(new PlayerMoving());
     }
     
@@ -153,12 +146,6 @@ public class PlayerStateMachine : MonoBehaviour
     private void SetMoveValues()
     {
         moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
-        
-        discreteVelocity = (transform.position - lastPosition) / Time.deltaTime;
-        discreteAcceleration = (discreteVelocity - lastVelocity) / Time.deltaTime;
-        
-        lastPosition = transform.position;
-        lastVelocity = discreteVelocity;
 
         dirHoldTimer += Time.deltaTime;
 
@@ -172,8 +159,6 @@ public class PlayerStateMachine : MonoBehaviour
         }
 
         lastInputDir = inputDirQueue.Peek();
-        
-        Debug.Log(lastInputDir);
 
     }
 
@@ -242,6 +227,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             #region Dodge
 
+            List<Attack> validDodges = new();
             if (dodgeTimer > attackData.dodgeCoolDown)
             {
                 foreach (Attack attack in attackData.dodgeAttacks)
@@ -249,7 +235,19 @@ public class PlayerStateMachine : MonoBehaviour
                     if (!AttackIsAvailable(attack)) continue;
 
                     dodgeTimer = 0;
-                    BeginAttack(attack);
+                    validDodges.Add(attack);
+                }
+            }
+            if (validDodges.Count > 0)
+            {
+                Attack action = validDodges.OrderBy(d => Attack.AttackTypePriority.IndexOf(d.attackType)).First();
+                if (action != null)
+                {
+                    foreach (Attack attack in attackData.dodgeAttacks)
+                    {
+                        if (attack != action && NumActionsUsed.ContainsKey(attack)) NumActionsUsed[attack] = attack.maxUses;
+                    }
+                    BeginAttack(action);
                     return true;
                 }
             }

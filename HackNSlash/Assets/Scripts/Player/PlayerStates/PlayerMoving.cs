@@ -2,7 +2,7 @@ using System;
 using Animancer;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using ExtensionUtils;
+using Extensions.Utils;
 using Object = System.Object;
 
 public enum MovingStates

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using ExtensionUtils;
+using Extensions.Utils;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Player/AttackConfig")]

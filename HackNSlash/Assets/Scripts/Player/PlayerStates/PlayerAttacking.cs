@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Animancer;
-using ExtensionUtils;
+using Extensions.Utils;
 using MEC;
 
 public class PlayerAttacking : State
