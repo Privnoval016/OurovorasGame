@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EnemyLock
   m_EditorClassIdentifier: 
   isEnabled: 1
-  attackType: 4
+  attackType: 3
   element: 1
   isLockedOn: 1
   keyBinds: 02000000
@@ -22,6 +22,7 @@ MonoBehaviour:
   applyTargetDirection: 1
   isMidair: 2
   applyRootMotion: 0
+  moveCameraWithAttack: 1
   maxUses: 0
   attackTransitions: []
   attackClips:
@@ -31,6 +32,7 @@ MonoBehaviour:
   clipsToPlay: 1
   exitCondition: 0
   onAttackAction: 10
+  attackEventIndex: 0
   hitInfo:
     onHitActions: 07000000
     hitDetection: 0

@@ -27,6 +27,7 @@ public class PlayerAttacking : State
         pc = (PlayerController) sc.parent;
 
         pc.pac.rootMotion.enabled = attack.applyRootMotion;
+        pc.cam.isFollowingPlayer = attack.moveCameraWithAttack;
         pc.rb.linearVelocity = Vector3.zero;
         
         if (attack.isMidair.IsTrue())
@@ -61,6 +62,7 @@ public class PlayerAttacking : State
         OnAttackEvents.Instance.KillObjectCoroutines();
         pc.psm.pauseComboReset = false;
         pc.pac.rootMotion.enabled = false;
+        pc.cam.isFollowingPlayer = true;
     }
     
     #endregion

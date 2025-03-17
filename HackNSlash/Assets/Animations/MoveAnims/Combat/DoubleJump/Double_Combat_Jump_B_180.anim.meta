@@ -11,5 +11,5 @@ AssetOrigin:
   productId: 271403
   packageName: Dual Sword Animation Pack
   packageVersion: 1.0
-  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/05_Jump/04_Double_Jump_Combat/03_Double_Jump_B_180/Double_Combat_Jump_B_180.anim
+  assetPath: Assets/Animations/MoveAnims/Combat/DoubleJump/Double_Combat_Jump_B_180.anim
   uploadId: 630545

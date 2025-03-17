@@ -129,6 +129,23 @@ namespace Extensions.Utils
             return Quaternion.AngleAxis(angle, axisOfRotation) * u * radius;
         }
         
+        public static Transform GetClosestTransform(this Transform[] transforms, Vector3 v)
+        {
+            Transform closest = null;
+            float minDistance = float.MaxValue;
+            foreach (Transform tr in transforms)
+            {
+                float distance = Vector3.Distance(v, tr.position);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    closest = tr;
+                }
+            }
+
+            return closest;
+        }
+        
         #endregion
         
         

@@ -24,6 +24,8 @@ public class PlayerController : KinematicBehaviour
     [HideInInspector] public WeaponController wc;
     [HideInInspector] public PlayerAnimator pac;
     [HideInInspector] public PlayerStateMachine psm;
+    
+    public Transform cameraFollowTarget;
 
     public PlayerAnimListener model;
     

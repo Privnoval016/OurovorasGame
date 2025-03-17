@@ -21,7 +21,8 @@ MonoBehaviour:
   comboDirection: {x: 0, y: 0}
   applyTargetDirection: 1
   isMidair: 2
-  applyRootMotion: 0
+  applyRootMotion: 1
+  moveCameraWithAttack: 0
   maxUses: 0
   attackTransitions: []
   attackClips:

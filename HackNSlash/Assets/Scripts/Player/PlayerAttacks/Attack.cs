@@ -33,6 +33,7 @@ public class Attack : ScriptableObject
     public bool applyTargetDirection = true;
     public NBool isMidair = NBool.False;
     public bool applyRootMotion = true;
+    [FormerlySerializedAs("applyRootMotionToCamera")] public bool moveCameraWithAttack = true;
 
     public int maxUses = 0;
     
@@ -50,6 +51,7 @@ public class Attack : ScriptableObject
 
     [FormerlySerializedAs("onAttackMethod")] [Header("Events")] 
     public OnAttackActions onAttackAction = OnAttackActions.None;
+    public int attackEventIndex = 0;
     
     
     public HitInfo hitInfo;

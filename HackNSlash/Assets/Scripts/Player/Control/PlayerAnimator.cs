@@ -90,7 +90,7 @@ public class PlayerAnimator : MonoBehaviour
     public AnimancerState PlayAnimation(ITransition clip)
     {
         currentAnimState = animancer.Play(clip);
-        Debug.Log("Playing: " + clip.FadeDuration);
+        //Debug.Log("Playing: " + clip.FadeDuration);
         return currentAnimState;
     }
     

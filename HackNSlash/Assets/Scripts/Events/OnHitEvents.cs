@@ -287,7 +287,7 @@ public class OnHitEvents : MonoBehaviour
     #region Grapple
 
     [Header("Grapple Attack")] 
-    [SerializeField] private float grappleTime = 0.1f;
+    [SerializeField] private float grappleSpeed = 15f;
     
     private void Grapple(PlayerController pc, PhysicsEnemy ec, Attack a)
     {
@@ -302,6 +302,8 @@ public class OnHitEvents : MonoBehaviour
                             pc.transform.position;
 
         Vector3 direction = playerPos - ec.TargetedPosition();
+        
+        float grappleTime = direction.magnitude / grappleSpeed;
 
         ec.TweenKnockback(direction.normalized, direction.magnitude, grappleTime);
 
@@ -312,11 +314,11 @@ public class OnHitEvents : MonoBehaviour
 
     #endregion
     
+    #region Lock Knockback
+    
     [Header("Lock Knockback")]
     [SerializeField] private float releaseKnockbackTime = 2f;
-
-
-    #region Lock Knockback
+    
 
     private void LockPhysics(PlayerController pc, PhysicsEnemy ec, Attack a)
     {

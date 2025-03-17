@@ -18,17 +18,23 @@ MonoBehaviour:
   isLockedOn: 1
   keyBinds: 01000000
   inputDirection: {x: 0, y: -1}
+  comboDirection: {x: 0, y: 0}
   applyTargetDirection: 1
   isMidair: 1
   applyRootMotion: 0
+  moveCameraWithAttack: 1
+  maxUses: 0
   attackTransitions: []
   attackClips:
   - {fileID: 7400000, guid: 0e6b26a4a8d5ac243b26f58d73bc4143, type: 2}
   - {fileID: 7400000, guid: 079ac537b3a75c049abb38f28a22ce30, type: 2}
   - {fileID: 7400000, guid: e844afe95f8e637478d7b20e2a475e58, type: 2}
+  animDelay: 0
+  animFade: 0.1
   clipsToPlay: 0
   exitCondition: 2
   onAttackAction: 3
+  attackEventIndex: 0
   hitInfo:
     onHitActions: 03000000
     hitDetection: 1
@@ -38,9 +44,17 @@ MonoBehaviour:
     damage: 0
     hitForce: 20
     hitDelay: 0
+    lockGravWhileDelayed: 0
     hitDirection: {x: 0, y: 0, z: 0}
+    tweenToPlayer: 0
     elasticCollision: 1
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    hitIndex: 0
     duration: 0.3
-    rotation: {x: 0, y: 0, z: 0, w: 0}
+    delay: 0
+    spawnTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 0, y: 0, z: 0}
