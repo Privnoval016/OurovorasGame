@@ -4,47 +4,30 @@ using Extensions.Utils;
 
 public class ElementalSpirit : KinematicBehaviour
 {
-    private SecondOrderDynamics _dynamics;
-    
-    [Header("Dynamics Parameters")]
-    
-    public SODInfo sodInfo;
+    private SODEvaluator _evaluator;
 
-    public KinematicBehaviour target;
-
-    private float f0, z0, r0;
+    public Transform[] targets;
+    
+    public Transform closestTarget => targets.GetClosestTransform(transform.position);
 
     private void Awake()
     {
-        InitializeDynamics();
+        SetKinematicAttributes();
+        
+        _evaluator = GetComponent<SODEvaluator>(); 
     }
 
     private void Update()
     {
         UpdateKinematicAttributes();
         
-        if (target == null) return;
-        
-        if (sodInfo.frequency != f0 || sodInfo.dampingRatio != z0 || sodInfo.responseTime != r0) 
-            InitializeDynamics();
-        else
-        {
-            Vector3? dynamicsOutput = _dynamics.Update(Time.deltaTime, target.transform.position, target.discreteVelocity);
-            
-            if (dynamicsOutput.Vec3NotNull())
-            {
-                Vector3 output = (Vector3) dynamicsOutput;
-                transform.position = output;
-            }
-        }
-        
-    }
+        _evaluator.SetTargetTransform(closestTarget);
 
-    private void InitializeDynamics()
+        transform.position = _evaluator.output + VerticalBob();
+    }
+    
+    private Vector3 VerticalBob()
     {
-        f0 = sodInfo.frequency;
-        z0 = sodInfo.dampingRatio;
-        r0 = sodInfo.responseTime;
-        _dynamics = new SecondOrderDynamics(f0, z0, r0, transform.position);
+        return Mathf.Sin(Time.time * 2) * 0.1f * Vector3.up;
     }
 }

@@ -11,5 +11,5 @@ AssetOrigin:
   productId: 271403
   packageName: Dual Sword Animation Pack
   packageVersion: 1.0
-  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/01_Idle/01_Idle/Idle.anim
+  assetPath: Assets/Animations/MoveAnims/NonCombat/Idle/Idle.anim
   uploadId: 630545

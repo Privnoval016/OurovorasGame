@@ -159,6 +159,8 @@ public class PlayerStateMachine : MonoBehaviour
         }
 
         lastInputDir = inputDirQueue.Peek();
+        
+        Debug.Log(lastInputDir);
 
     }
 

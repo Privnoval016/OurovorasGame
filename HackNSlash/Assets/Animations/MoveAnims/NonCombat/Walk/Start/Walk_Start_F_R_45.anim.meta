@@ -11,5 +11,5 @@ AssetOrigin:
   productId: 271403
   packageName: Dual Sword Animation Pack
   packageVersion: 1.0
-  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/03_Walk/01_Walk/03_Walk_F_R_45/Walk_Start_F_R_45.anim
+  assetPath: Assets/Animations/MoveAnims/NonCombat/Walk/Start/Walk_Start_F_R_45.anim
   uploadId: 630545

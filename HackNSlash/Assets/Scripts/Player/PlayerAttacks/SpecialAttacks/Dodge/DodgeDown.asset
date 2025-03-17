@@ -18,19 +18,21 @@ MonoBehaviour:
   isLockedOn: 0
   keyBinds: 04000000
   inputDirection: {x: 0, y: -1}
-  comboDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 1}
   applyTargetDirection: 1
-  isMidair: 2
+  isMidair: 1
   applyRootMotion: 0
-  maxUses: 1
+  moveCameraWithAttack: 1
+  maxUses: 3
   attackTransitions:
   - {fileID: 11400000, guid: 982f3aa9e784f4c9784bf6d2de4aa715, type: 2}
   attackClips: []
   animDelay: 0
-  animFade: 0.2
+  animFade: 0.01
   clipsToPlay: 1
   exitCondition: 0
-  onAttackAction: 13
+  onAttackAction: 4
+  attackEventIndex: 2
   hitInfo:
     onHitActions: 00000000
     hitDetection: 0

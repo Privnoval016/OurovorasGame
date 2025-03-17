@@ -19,10 +19,6 @@ public enum OnAttackActions
     Grapple,
     EnemyStep,
     SpawnVFX,
-    RegularDodge,
-    TargetDodge,
-    DodgeDown,
-    TeleportsBehindYou
 }
 
 public class OnAttackEvents : MonoBehaviour
@@ -56,17 +52,13 @@ public class OnAttackEvents : MonoBehaviour
         OnAttackActionMap.Add(OnAttackActions.DashToTarget, DashToTarget);
         OnAttackActionMap.Add(OnAttackActions.LaunchUp, LaunchUp);
         OnAttackActionMap.Add(OnAttackActions.PlungeAttack, PlungeAttack);
-        //OnAttackActionMap.Add(OnAttackActions.DodgeMove, Dodge);
+        OnAttackActionMap.Add(OnAttackActions.DodgeMove, Dodge);
         OnAttackActionMap.Add(OnAttackActions.FloorDash, FloorDash);
         OnAttackActionMap.Add(OnAttackActions.MashAttack, MashAttack);
         OnAttackActionMap.Add(OnAttackActions.BladeBeam, BladeBeam);
         OnAttackActionMap.Add(OnAttackActions.Grapple, Grapple);
         OnAttackActionMap.Add(OnAttackActions.EnemyStep, EnemyStep);
         OnAttackActionMap.Add(OnAttackActions.SpawnVFX, SpawnVFX);
-        OnAttackActionMap.Add(OnAttackActions.RegularDodge, RegularDodge);
-        OnAttackActionMap.Add(OnAttackActions.TargetDodge, TargetDodge);
-        OnAttackActionMap.Add(OnAttackActions.DodgeDown, DodgeDown);
-        OnAttackActionMap.Add(OnAttackActions.TeleportsBehindYou, TeleportsBehindYou);
         
     }
     
@@ -104,7 +96,7 @@ public class OnAttackEvents : MonoBehaviour
 
         if (elapsedTime >= bladeBeamHoldTime && pc.cam.IsLockedOn)
         {
-            pc.pac.PlayAnimation(a.attackClips[2], 0.1f);
+            pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
             
             Vector3 targetPos = pc.cam.TargetPosition;
             
@@ -116,7 +108,7 @@ public class OnAttackEvents : MonoBehaviour
         }
         else
         {
-            pc.pac.PlayAnimation(a.attackClips[1], 0.1f);
+            pc.pac.PlayAnimation(a.attackClips[1], a.animFade);
             
             Vector3 startPos = pc.transform.forward.FindRadialVector3(pc.psm.playerData.mediumRadius, 0) + pc.transform.position;
             Quaternion startRot = pc.transform.rotation;
@@ -160,21 +152,23 @@ public class OnAttackEvents : MonoBehaviour
         
         if (holdKeys.Any(k => !InputManager.KeyMap[k].holdAction()) || pc.psm.IsMidair)
         {
+            pc.pac.PlayAnimation(a.attackClips[0], a.animFade);
+            
             Vector3 targetPos = pc.cam.TargetPosition;
             Quaternion targetRot = Quaternion.LookRotation((pc.transform.position - targetPos).ZeroVector3Axis());
             
             OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(targetPos, targetRot, Vector3.one), a, 1);
             
-            this.RunSegmentCoroutine(ResumeMoving(pc, a, 0.01f, () => pc.psm.pauseComboReset = false));
+            this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
             
         }
         else
         {
-            pc.pac.PlayAnimation(a.attackClips[1], 0.1f);
+            pc.pac.PlayAnimation(a.attackClips[1], a.animFade);
             
             yield return Timing.WaitUntilTrue(() => holdKeys.Any(k => InputManager.KeyMap[k].releaseAction()));
             
-            pc.pac.PlayAnimation(a.attackClips[2], 0.1f);
+            pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
             
             Vector3 startPos = pc.transform.forward.FindRadialVector3(pc.psm.playerData.mediumRadius, 0) + pc.transform.position;
             Quaternion startRot = Quaternion.LookRotation((pc.cam.TargetPosition - pc.transform.position).ZeroVector3Axis());
@@ -187,7 +181,6 @@ public class OnAttackEvents : MonoBehaviour
     }
     
     #endregion
-    
     
     #region Air Dash
 
@@ -206,21 +199,22 @@ public class OnAttackEvents : MonoBehaviour
     {
         yield return Timing.WaitForSeconds(a.animDelay);
         
-        pc.pac.PlayAnimation(a.attackClips[0], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[0], a.animFade);
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
         
         Quaternion originalRotation = pc.pac.animancer.gameObject.transform.rotation;
         
-        pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[1], a.animFade);
        
         pc.rb.linearVelocity = Vector3.zero;
         float minAnimTime = 0.05f;
         float startTime = Time.time;
         Vector3 startPos = pc.transform.position;
+        float dist = Mathf.Max(maxAirDashDistance, Vector3.Distance(startPos, pc.cam.TargetPosition));
         
         Func<bool> loopCondition = () => (Time.time - startTime < minAnimTime || pc.psm.IsMidair &&
             pc.psm.StandardizedMoveDir.normalized.IsInDirectionCone(a.inputDirection.normalized, 92f)) &&
-                                         Vector3.Distance(startPos, pc.transform.position) < maxAirDashDistance;
+                                         Vector3.Distance(startPos, pc.transform.position) < dist;
         
         // rotate the direction downwards by 45 degrees
         Vector3 direction = pc.cam.TargetPosition - pc.transform.position;
@@ -241,7 +235,7 @@ public class OnAttackEvents : MonoBehaviour
         
         pc.rb.linearVelocity = Vector3.zero;
 
-        pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
         this.RunSegmentCoroutine(ResumeMoving(pc, a, a.attackClips[2].length));
         
         pc.pac.animancer.gameObject.transform.rotation = originalRotation;
@@ -311,7 +305,7 @@ public class OnAttackEvents : MonoBehaviour
         yield return Timing.WaitUntilDone(pc.rb.TraverseDistanceInTime(direction.normalized, distance, groundDashTime));
         
 
-        pc.pac.PlayAnimation(a.attackClips[3], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[3], a.animFade);
         
         
         this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
@@ -352,7 +346,7 @@ public class OnAttackEvents : MonoBehaviour
         
         if (!holdKeys.Any(k => InputManager.KeyMap[k].holdAction())) yield break;
         
-        pc.pac.PlayAnimation(a.attackClips[1], 0.01f, false);
+        pc.pac.PlayAnimation(a.attackClips[1], a.animFade, false);
         
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(Vector3.up, launchUpHeight, launchUpTime));
         
@@ -384,11 +378,11 @@ public class OnAttackEvents : MonoBehaviour
         yield return Timing.WaitForSeconds(a.animDelay);
         
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
-        pc.pac.PlayAnimation(a.attackClips[0], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[0], a.animFade);
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
         
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = true;
-        pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
+        pc.pac.PlayAnimation(a.attackClips[1], a.animFade);
         
         pc.rb.linearVelocity = Vector3.zero;
         
@@ -405,7 +399,7 @@ public class OnAttackEvents : MonoBehaviour
 
         if (pc.psm.IsGrounded)
         {
-            pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
+            pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
         }
         
         this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
@@ -453,19 +447,31 @@ public class OnAttackEvents : MonoBehaviour
 
     [SerializeField] private float dodgeTime;
     
-    private void RegularDodge(PlayerController pc, Attack a)
+    private void Dodge(PlayerController pc, Attack a)
     {
-        this.RunSegmentCoroutine(BeginRegularDodge(pc, a));
+        IEnumerator<float> attack = BeginRegularDodge(pc, a);
+        
+        switch (a.attackEventIndex)
+        {
+            case 0:
+                attack = BeginRegularDodge(pc, a);
+                break;
+            case 1:
+                attack = BeginTargetDodge(pc, a);
+                break;
+            case 2:
+                attack = BeginDodgeDown(pc, a);
+                break;
+            case 3:
+                attack = BeginTeleportsBehindYou(pc, a);
+                break;
+        }
+        
+        this.RunSegmentCoroutine(attack);
     }
 
     IEnumerator<float> BeginRegularDodge(PlayerController pc, Attack a)
-    {
-        if (pc.cam.IsLockedOn && pc.psm.StandardizedMoveDir.magnitude < 0.1f)
-        {
-            this.RunSegmentCoroutine(BeginTargetDodge(pc, a));
-            yield break;
-        }
-        
+    { 
         yield return Timing.WaitForSeconds(a.animDelay);
         
         Vector3 dodgeDirection = pc.psm.moveDirection.ZeroVector3Axis().normalized;
@@ -480,11 +486,6 @@ public class OnAttackEvents : MonoBehaviour
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
         yield return Timing.WaitForSeconds(moveTime);
-    }
-    
-    private void TargetDodge(PlayerController pc, Attack a)
-    {
-        this.RunSegmentCoroutine(BeginTargetDodge(pc, a));
     }
     
     IEnumerator<float> BeginTargetDodge(PlayerController pc, Attack a)
@@ -505,11 +506,6 @@ public class OnAttackEvents : MonoBehaviour
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
         yield return Timing.WaitForSeconds(moveTime);
-    }
-    
-    private void TeleportsBehindYou(PlayerController pc, Attack a)
-    {
-        this.RunSegmentCoroutine(BeginTeleportsBehindYou(pc, a));
     }
     
     IEnumerator<float> BeginTeleportsBehindYou(PlayerController pc, Attack a)
@@ -533,11 +529,6 @@ public class OnAttackEvents : MonoBehaviour
         yield return Timing.WaitForSeconds(moveTime);
         
         pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, false);
-    }
-    
-    private void DodgeDown(PlayerController pc, Attack a)
-    {
-        this.RunSegmentCoroutine(BeginDodgeDown(pc, a));
     }
     
     IEnumerator<float> BeginDodgeDown(PlayerController pc, Attack a)
@@ -568,92 +559,6 @@ public class OnAttackEvents : MonoBehaviour
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
         yield return Timing.WaitForSeconds(moveTime);
-    }
-    
-    
-    
-    IEnumerator<float> BeginDodge(PlayerController pc, Attack a)
-    {
-        yield return Timing.WaitForSeconds(a.animDelay);
-        
-        Vector3 dodgeDirection = pc.psm.moveDirection.ZeroVector3Axis().normalized;
-        float distance = dodgeDistance;
-        float moveTime = dodgeTime;
-
-        if (pc.cam.IsLockedOn)
-        {
-            if (pc.psm.StandardizedMoveDir.magnitude < 0.1f)
-            {
-                Vector3 teleportedPosition = pc.cam.TargetedEnemy.transform.position +
-                                             (pc.transform.position - pc.cam.TargetedEnemy.transform.position)
-                                             .ZeroVector3Axis().normalized * pc.psm.playerData.mediumRadius;
-
-                dodgeDirection = teleportedPosition - pc.transform.position;
-
-                distance = dodgeDirection.magnitude;
-                dodgeDirection.Normalize();
-
-                moveTime = dodgeTime / 2;
-            }
-            else if (pc.psm.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, 1), 92f))
-            {
-                if (!pc.psm.lastInputDir.IsInDirectionCone(new Vector2(0, -1), 92f))
-                {
-                    Vector3 teleportedPosition = pc.cam.TargetedEnemy.transform.position +
-                                                 (pc.transform.position - pc.cam.TargetedEnemy.transform.position)
-                                                 .ZeroVector3Axis().normalized * pc.psm.playerData.mediumRadius;
-
-                    dodgeDirection = teleportedPosition - pc.transform.position;
-
-                    distance = dodgeDirection.magnitude;
-                    dodgeDirection.Normalize();
-
-                    moveTime = dodgeTime / 2;
-                }
-                else
-                {
-                    Vector3 targetPos = pc.cam.TargetPosition +
-                                        (pc.cam.TargetPosition - pc.transform.position).ZeroVector3Axis()
-                                        .normalized * (pc.psm.playerData.mediumRadius + pc.cam.TargetedEnemy.radius);
-
-                    dodgeDirection = targetPos - pc.transform.position;
-                    distance = dodgeDirection.magnitude;
-                    dodgeDirection.Normalize();
-
-                    pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, true);
-                }
-            }
-            else if (pc.psm.StandardizedMoveDir.IsInDirectionCone(new Vector2(0, -1), 92f))
-            {
-
-                if (pc.psm.IsMidair)
-                {
-                    Vector3 targetPos = -pc.transform.forward.normalized * dodgeDistance + pc.transform.position;
-                    bool isGround = Physics.Raycast(targetPos, Vector3.down,
-                        out RaycastHit hit, 100f, pc.psm.groundLayer);
-                    Vector3 point = isGround ? hit.point : targetPos;
-
-                    dodgeDirection = point - pc.transform.position;
-                    distance = dodgeDirection.magnitude;
-                    dodgeDirection.Normalize();
-                }
-                else
-                {
-                    dodgeDirection = -pc.transform.forward.normalized;
-                    distance = dodgeDistance;
-                }
-            }
-        }
-        else if (pc.psm.StandardizedMoveDir.magnitude < 0.1f)
-        {
-            dodgeDirection = pc.psm.IsMidair ? Vector3.down : Vector3.up;
-        }
-        
-        this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
-        
-        yield return Timing.WaitForSeconds(moveTime);
-        
-        if (pc.cam.IsLockedOn) pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, false);
     }
     
 
@@ -694,12 +599,12 @@ public class OnAttackEvents : MonoBehaviour
         if (timeSinceLastClick >= mashInterval)
         {
             this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
-            pc.pac.PlayAnimation(a.attackClips[1], 0.01f);
+            pc.pac.PlayAnimation(a.attackClips[1], a.animFade);
         }
         else
         {
             this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown * 2, () => pc.psm.pauseComboReset = false));
-            pc.pac.PlayAnimation(a.attackClips[2], 0.01f);
+            pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
         }
     }
     
