@@ -10,13 +10,12 @@ using UnityEngine.Serialization;
 public class PhysicsEnemy : LockOnTarget
 {
     public EnemyGravity gravityData;
-    
+
     private float gravityScale;
-    [HideInInspector] public bool pauseGravity;
-    
-    [HideInInspector]
-    public Rigidbody rb;
-    
+    private bool pauseGravity;
+
+    [HideInInspector] public Rigidbody rb;
+
     public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
 
@@ -24,15 +23,14 @@ public class PhysicsEnemy : LockOnTarget
     public bool TakeKnockback => !knockbackImmune && physicsInteract;
 
     public bool physicsInteract = true;
-    
+
     #region CHECK PARAMETERS
-   
-    [Header("Checks")] 
-    [SerializeField] public Transform groundCheckPoint;
+
+    [Header("Checks")] [SerializeField] public Transform groundCheckPoint;
     [SerializeField] public Vector3 groundCheckSize = new Vector3(0.49f, 0.3f, 0.49f);
-    
+
     [SerializeField] private LayerMask groundLayer;
-    
+
     #endregion
 
     public override Vector3 TargetedPosition(float deltaTime = 0)
@@ -62,7 +60,7 @@ public class PhysicsEnemy : LockOnTarget
     {
         AvoidPlayerClipping();
     }
-    
+
     private void AvoidPlayerClipping()
     {
         // do at some point (stop enemy from staying clipped into player after attack)
@@ -73,7 +71,7 @@ public class PhysicsEnemy : LockOnTarget
     public void CalculateGravity()
     {
         if (pauseGravity || !physicsInteract) SetGravityScale(0);
-        else if (!IsGrounded && Mathf.Abs(rb.linearVelocity.y) < gravityData.jumpHangTimeThreshold)
+        else if (!IsGrounded && Mathf.Abs(rb.linearVelocity.y) < gravityData.jumpHangSpeedThreshold)
         {
             SetGravityScale(gravityData.gravityScale * gravityData.jumpHangGravityMult);
         }
@@ -82,7 +80,8 @@ public class PhysicsEnemy : LockOnTarget
             //Higher gravity if falling
             SetGravityScale(gravityData.gravityScale * gravityData.fallGravityMult);
             //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -gravityData.maxFallSpeed), rb.linearVelocity.z);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x,
+                Mathf.Max(rb.linearVelocity.y, -gravityData.maxFallSpeed), rb.linearVelocity.z);
         }
         else
         {
@@ -90,7 +89,27 @@ public class PhysicsEnemy : LockOnTarget
             SetGravityScale(gravityData.gravityScale);
         }
     }
-    
+
+    public void PauseGravity(bool pause, float overrideTime = -1f)
+    {
+        if (pause)
+        {
+            pauseGravity = true;
+        }
+        else
+        {
+            this.KillObjectCoroutines("UnpauseGravity");
+            this.RunSegmentCoroutine(UnpauseGravity(overrideTime >= 0 ? overrideTime : gravityData.onHitHangTime), "UnpauseGravity");
+        }
+    }
+
+    IEnumerator<float> UnpauseGravity(float delay)
+    {
+        yield return Timing.WaitForSeconds(delay);
+        
+        pauseGravity = false;
+    }
+
     public void SetGravityScale(float scale)
     {
         gravityScale = scale;

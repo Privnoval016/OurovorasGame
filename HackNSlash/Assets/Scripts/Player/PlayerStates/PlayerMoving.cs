@@ -11,15 +11,13 @@ public enum MovingStates
 	Combat,
 }
 
-public class PlayerMoving : State
+public class PlayerMoving : PlayerState
 {
-	private PlayerController pc;
 	
     #region State Methods
     
     public override void OnEnter()
     {
-	    pc = (PlayerController) sc.parent;
 	    doNotRemove = true;
 	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
@@ -28,7 +26,7 @@ public class PlayerMoving : State
 	    pc.cam.isFollowingPlayer = true;
 	    
 	    pc.psm.canAttack = true;
-	    pc.psm.currentAttack = null;
+	    pc.psm.currentPlayerAttack = null;
 	    
 	    pc.pac.walkingAnim = WalkingAnimStates.Idle;
 	    pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
@@ -83,15 +81,13 @@ public class PlayerMoving : State
 
     public override void OnResume()
     {
-	    Debug.Log("Resuming Moving");
-	    
 	    pc.pac.walkingAnim = WalkingAnimStates.Idle;
 	    pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
 	    
 	    pc.pac.rootMotion.enabled = false;
 	    pc.cam.isFollowingPlayer = true;
 	    
-	    pc.psm.currentAttack = null;
+	    pc.psm.currentPlayerAttack = null;
 	    
 	    pc.psm.TurnToLook();
     }
@@ -160,7 +156,7 @@ public class PlayerMoving : State
 															pc.psm.playerData.runDecelAmount * pc.psm.playerData.decelInAir;
 		
 		
-		if ((pc.psm.isJumping || pc.psm.isJumpFalling) && Mathf.Abs(pc.rb.linearVelocity.y) < pc.psm.playerData.jumpHangTimeThreshold)
+		if ((pc.psm.isJumping || pc.psm.isJumpFalling) && Mathf.Abs(pc.rb.linearVelocity.y) < pc.psm.playerData.jumpHangSpeedThreshold)
 		{
 			accelRate *= pc.psm.playerData.jumpHangAccelerationMult;
 			targetSpeed *= pc.psm.playerData.jumpHangMaxSpeedMult;

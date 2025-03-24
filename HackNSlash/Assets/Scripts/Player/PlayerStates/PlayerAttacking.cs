@@ -4,11 +4,11 @@ using System.Linq;
 using Animancer;
 using Extensions.Utils;
 using MEC;
+using Unity.VisualScripting.FullSerializer;
 
-public class PlayerAttacking : State
+public class PlayerAttacking : PlayerState
 {
-    private PlayerController pc;
-    public Attack attack;
+    private PlayerAttack _playerAttack;
 
     public bool readyToHit = true;
 
@@ -17,26 +17,32 @@ public class PlayerAttacking : State
     
     #region State Methods
     
-    public PlayerAttacking(Attack attack)
+    public PlayerAttacking(PlayerAttack playerAttack)
     {
-        this.attack = attack;
+        this._playerAttack = playerAttack;
     }
     
     public override void OnEnter()
     {
-        pc = (PlayerController) sc.parent;
-
-        pc.pac.rootMotion.enabled = attack.applyRootMotion;
-        pc.cam.isFollowingPlayer = attack.moveCameraWithAttack;
+        pc.pac.rootMotion.enabled = _playerAttack.applyRootMotion;
+        pc.cam.isFollowingPlayer = _playerAttack.moveCameraWithAttack;
         pc.rb.linearVelocity = Vector3.zero;
         
-        if (attack.isMidair.IsTrue())
+        if (_playerAttack.isMidair.IsTrue())
             pc.psm.numMidairAttacks++;
         
         SetAttackGravity();
 
-        if (attack.attackTransitions.Length > 0) LaunchTransitionAttack();
-        else if (attack.attackClips.Length > 0) LaunchClipAttack();
+        pc.psm.canAttack = false;
+        if (_playerAttack.attackTransitions.Length > 0) LaunchTransitionAttack();
+        else if (_playerAttack.attackClips.Length > 0) LaunchClipAttack();
+        
+        pc.psm.InvokeOnAttack(_playerAttack);
+
+        if (_playerAttack.exitCondition == ExitConditions.Immediate)
+        {
+            attackEndTime = _playerAttack.hitInfo.attackCoolDown;
+        }
     }
 
     public override void OnUpdate()
@@ -44,7 +50,7 @@ public class PlayerAttacking : State
         attackCoolDownTime -= Time.deltaTime;
         attackEndTime -= Time.deltaTime;
         
-        if (InputManager.GetHoldable(attack.keyBinds).Length == 0) InputManager.Instance.ReleaseHoldAttacks();
+        if (InputManager.GetHoldable(_playerAttack.keyBinds).Length == 0) InputManager.Instance.ReleaseHoldAttacks();
         
         SetAttackGravity();
         TurnToLookOnAttack();
@@ -60,6 +66,9 @@ public class PlayerAttacking : State
     public override void OnExit()
     {
         OnAttackEvents.Instance.KillObjectCoroutines();
+        
+        pc.rb.linearVelocity = Vector3.zero;
+        
         pc.psm.pauseComboReset = false;
         pc.pac.rootMotion.enabled = false;
         pc.cam.isFollowingPlayer = true;
@@ -71,7 +80,7 @@ public class PlayerAttacking : State
 
     private void CheckAttackExit()
     {
-        if (attack.exitCondition == ExitConditions.ExternalExit)
+        if (_playerAttack.exitCondition == ExitConditions.ExternalExit)
         {
             attackEndTime = 10;
             attackCoolDownTime = 10;
@@ -79,6 +88,10 @@ public class PlayerAttacking : State
             {
                 sc.ResumePrevious();
             }
+        }
+        else if (_playerAttack.exitCondition == ExitConditions.Immediate)
+        {
+            pc.psm.canAttack = true;
         }
         
         if (attackCoolDownTime < 0)
@@ -105,14 +118,13 @@ public class PlayerAttacking : State
 
     private void LaunchClipAttack()
     {
-        pc.psm.canAttack = false;
-        attackCoolDownTime = attack.hitInfo.attackCoolDown;
+        attackCoolDownTime = _playerAttack.hitInfo.attackCoolDown;
 
         List<AnimationClip> clips = new();
         
-        for (int i = 0; i < attack.clipsToPlay; i++)
+        for (int i = 0; i < _playerAttack.clipsToPlay; i++)
         {
-            clips.Add(attack.attackClips[i]);
+            clips.Add(_playerAttack.attackClips[i]);
         }
         
         attackEndTime = 0;
@@ -122,21 +134,17 @@ public class PlayerAttacking : State
         }
 
         pc.RunSegmentCoroutine(AttackWithClip(clips));
-
-        
-        pc.psm.InvokeOnAttack(attack);
     }
 
     private void LaunchTransitionAttack()
     {
-        pc.psm.canAttack = false;
-        attackCoolDownTime = attack.hitInfo.attackCoolDown;
+        attackCoolDownTime = _playerAttack.hitInfo.attackCoolDown;
         
         List<TransitionAsset> transitions = new();
         
-        for (int i = 0; i < attack.clipsToPlay; i++)
+        for (int i = 0; i < _playerAttack.clipsToPlay; i++)
         {
-            transitions.Add(attack.attackTransitions[i]);
+            transitions.Add(_playerAttack.attackTransitions[i]);
         }
         
         attackEndTime = 0;
@@ -146,19 +154,17 @@ public class PlayerAttacking : State
         }
 
         pc.RunSegmentCoroutine(AttackWithTransition(transitions));
-        
-        pc.psm.InvokeOnAttack(attack);
     }
     
     private IEnumerator<float> AttackWithClip(List<AnimationClip> clips)
     {
         if (clips.Count == 0) yield break;
         
-        yield return Timing.WaitForSeconds(attack.animDelay);
+        yield return Timing.WaitForSeconds(_playerAttack.animDelay);
         
         foreach (var clip in clips)
         {
-            pc.pac.PlayAnimation(clip, attack.animFade, true);
+            pc.pac.PlayAnimation(clip, _playerAttack.animFade, true);
             yield return Timing.WaitForSeconds(clip.length);
         }
     }
@@ -167,7 +173,7 @@ public class PlayerAttacking : State
     {
         if (transitions.Count == 0) yield break;
         
-        yield return Timing.WaitForSeconds(attack.animDelay);
+        yield return Timing.WaitForSeconds(_playerAttack.animDelay);
         
         foreach (var clip in transitions)
         {
@@ -178,7 +184,9 @@ public class PlayerAttacking : State
 
     private void SetAttackGravity()
     {
-        if (attack.isMidair.IsTrue())
+        if (_playerAttack.useNormalGravity)
+            pc.psm.CalculateGravity();
+        else if (_playerAttack.isMidair.IsTrue())
             pc.psm.SetGravityScale(pc.psm.GetMidairGravity());
     }
 
@@ -188,51 +196,69 @@ public class PlayerAttacking : State
     
     private void CheckEnemyCollision()
     {
-        
         if (pc.psm.canAttack || !readyToHit) return;
         
-        HashSet<Collider> enemies = new();
-        switch (attack.hitInfo.hitDetection)
+        switch (_playerAttack.hitInfo.hitDetection)
         {
             case HitDetections.WeaponTrail:
-                enemies = EnemiesInWeaponTrail();
+                pc.psm.enemiesHitThisAction = EnemiesInWeaponTrail();
                 break;
             case HitDetections.SphereCast:
-                enemies = EnemiesInSphere();
+                pc.psm.enemiesHitThisAction = EnemiesInSphere();
+                break;
+            case HitDetections.HitScan:
+                pc.psm.enemiesHitThisAction = EnemiesByHitScan();
                 break;
         }
         
-        
-        foreach (Collider enemy in enemies)
+        foreach (LockOnTarget enemy in pc.psm.enemiesHitThisAction)
         {
-            enemy.GetComponent<LockOnTarget>().OnHit(pc, attack);
+            enemy.OnHit(pc, _playerAttack);
+            Debug.Log($"Hit {enemy.name}");
         }
     }
 
-    private HashSet<Collider> EnemiesInWeaponTrail()
+    private HashSet<LockOnTarget> EnemiesInWeaponTrail()
     {
-        HashSet<Collider> enemies = Physics.OverlapSphere(
-            pc.transform.position, 10, pc.psm.enemyLayer).ToHashSet();
-        
-        enemies.RemoveWhere(e => !e.TryGetComponent(out LockOnTarget d) || d.tookDamageThisAction);
-   
-        enemies.RemoveWhere(e => !(e.transform.position - pc.transform.position).ToVector2().
-            IsInDirectionCone(pc.transform.forward.ToVector2(), attack.hitInfo.hitRegisterAngle));
+        HashSet<Collider> enemies = pc.psm
+            .GetAllEnemiesInRadius(_playerAttack.hitInfo.hitRegisterRadius, _playerAttack.hitInfo.hitRegisterAngle)
+            .Select(e => e.GetComponent<Collider>()).ToHashSet();
         
         enemies = enemies.Where(e => pc.wc.IsIntersecting(e)).ToHashSet();
         
+        var e = enemies.Select(e => e.GetComponent<LockOnTarget>()).ToHashSet();
+        e.RemoveWhere(e => e.tookDamageThisAction);
+        
+        return e;
+    }
+    
+    private HashSet<LockOnTarget> EnemiesInSphere()
+    {
+        var enemies = pc.psm.GetAllEnemiesInRadius(_playerAttack.hitInfo.hitRegisterRadius, _playerAttack.hitInfo.hitRegisterAngle)
+            .ToHashSet();
+        
+        enemies.RemoveWhere(e => e.tookDamageThisAction);
+
         return enemies;
     }
     
-    private HashSet<Collider> EnemiesInSphere()
+    private HashSet<LockOnTarget> EnemiesByHitScan()
     {
-        HashSet<Collider> enemies = Physics.OverlapSphere(
-            pc.transform.position, attack.hitInfo.hitRegisterRadius, pc.psm.enemyLayer).ToHashSet();
+        HashSet<LockOnTarget> enemies = new();
         
-        enemies.RemoveWhere(e => !e.TryGetComponent(out LockOnTarget d) || d.tookDamageThisAction);
+        if (pc.cam.IsLockedOn) enemies.Add(pc.psm.NearestHEnemy);
         
-        enemies.RemoveWhere(e => !(e.transform.position - pc.transform.position).ToVector2().
-            IsInDirectionCone(pc.transform.forward.ToVector2(), attack.hitInfo.hitRegisterAngle));
+        int enemiesNeeded = _playerAttack.hitInfo.numTargets - enemies.Count;
+        
+        if (enemiesNeeded > 0)
+        {
+            var enemyList = pc.psm.GetAllEnemiesInRadius(_playerAttack.hitInfo.hitRegisterRadius);
+            enemies = enemies.Union(enemyList[0..enemiesNeeded]).ToHashSet();
+        }
+        
+        enemies.RemoveWhere(e => e.tookDamageThisAction);
+        
+        Debug.Log(enemies.Count);
         
         return enemies;
     }
@@ -243,7 +269,7 @@ public class PlayerAttacking : State
     
     private void TurnToLookOnAttack()
     {
-        if (attack.exitCondition != ExitConditions.AnimationEnd) return;
+        if (_playerAttack.exitCondition != ExitConditions.AnimationEnd) return;
         
        // Debug.Log(pc.NearestEnemy);
         if (pc.psm.NearestHEnemy != null)

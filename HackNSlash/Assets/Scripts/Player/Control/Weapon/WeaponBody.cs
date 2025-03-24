@@ -13,7 +13,7 @@ public class WeaponBody : MonoBehaviour
     private Queue<Vector3[]> trailPositions = new();
     public int trailLength => weaponController.trailLength;
     
-    private Attack lastAttack;
+    private PlayerAttack _lastPlayerAttack;
     private AnimancerState lastAnimation;
 
     private void FixedUpdate()

@@ -18,9 +18,11 @@ MonoBehaviour:
   isLockedOn: 0
   keyBinds: 05000000
   inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
   applyTargetDirection: 1
   isMidair: 1
   applyRootMotion: 0
+  moveCameraWithAttack: 1
   maxUses: 0
   attackTransitions: []
   attackClips:
@@ -28,8 +30,10 @@ MonoBehaviour:
   animDelay: 0
   animFade: 0.01
   clipsToPlay: 1
+  useNormalGravity: 0
   exitCondition: 0
   onAttackAction: 9
+  attackEventIndex: 0
   hitInfo:
     onHitActions: 00000000
     hitDetection: 0
@@ -40,6 +44,5 @@ MonoBehaviour:
     hitForce: 0
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
-    tweenToPlayer: 0
     elasticCollision: 0
   vfxInfos: []

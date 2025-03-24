@@ -2,14 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class InputManager : MonoBehaviour
+public class InputManager : Singleton<InputManager>
 {
-    public static InputManager Instance { get; private set; }
-    
-    
     private PlayerInputActions InputMap;
     public InputAction pause;
     
@@ -48,17 +46,10 @@ public class InputManager : MonoBehaviour
     
     public static readonly Dictionary<KeyBind, KeyBindData> KeyMap = new();
 
-    void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-
+        base.Awake();
+        
         InputMap = new PlayerInputActions();
         AddGameStateInputs();
         

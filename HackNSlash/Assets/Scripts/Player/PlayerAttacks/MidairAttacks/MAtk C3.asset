@@ -32,6 +32,7 @@ MonoBehaviour:
   clipsToPlay: 1
   exitCondition: 0
   onAttackAction: 0
+  attackEventIndex: 0
   hitInfo:
     onHitActions: 00000000
     hitDetection: 1
@@ -48,7 +49,7 @@ MonoBehaviour:
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
     hitIndex: 0
-    duration: 0.3
+    duration: 0.5
     delay: 0
     spawnTarget: 0
     spawnTransform:

@@ -17,9 +17,10 @@ public class VFXController : MonoBehaviour
     [HideInInspector] public MeshRenderer meshRenderer;
     [HideInInspector] public Rigidbody rb;
     
+    [FormerlySerializedAs("attack")]
     [Header("Settings")]
     
-    [HideInInspector] public Attack attack;
+    [HideInInspector] public PlayerAttack playerAttack;
     [HideInInspector] public PlayerController player;
     [HideInInspector] public VFXSpawnInfo vfxSpawnInfo;
     
@@ -69,10 +70,10 @@ public class VFXController : MonoBehaviour
         
     }
     
-    public void InitializeVFX(PlayerController pc, TransformInfo start, Attack a, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
+    public void InitializeVFX(PlayerController pc, TransformInfo start, PlayerAttack a, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
     {
         player = pc;
-        attack = a;
+        playerAttack = a;
         vas = vfx;
         vfxSpawnInfo = v;
         vfxIndex = index;
@@ -145,11 +146,11 @@ public class VFXController : MonoBehaviour
         Debug.Log("Hit");
         if (!activeHitbox || !vfxEnabled) return;
         
-        if (player == null || attack == null) return;
+        if (player == null || playerAttack == null) return;
         
         if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.tookDamageThisAction)
         {
-            enemy.OnHit(player, attack, vfxSpawnInfo.hitIndex);
+            enemy.OnHit(player, playerAttack, vfxSpawnInfo.hitIndex);
         }
     }
 

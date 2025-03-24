@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Extensions.Utils;
 using MEC;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -25,9 +26,8 @@ public enum ElementEffect
     Aether
 }
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    public static GameManager Instance { get; private set; }
 
     [Header("Game State")] 
     
@@ -48,17 +48,10 @@ public class GameManager : MonoBehaviour
 
     #region MonoBehavior Callbacks
     
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-
+        base.Awake();
+        
         if (pc == null)
             GameObject.FindWithTag("Player").TryGetComponent(out pc);
         

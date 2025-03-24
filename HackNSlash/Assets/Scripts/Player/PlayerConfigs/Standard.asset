@@ -33,7 +33,7 @@ MonoBehaviour:
   doubleJumpForce: 37.5
   doubleJumpWaitDuration: 0.1
   jumpHangGravityMult: 0.3
-  jumpHangTimeThreshold: 1
+  jumpHangTimeThreshold: 2
   jumpHangAccelerationMult: 1.88
   jumpHangMaxSpeedMult: 1
   dashForce: 50
@@ -42,3 +42,6 @@ MonoBehaviour:
   lockOnRange: 40
   midairAtkGravScale: 0.5
   maxMidairAtks: 5
+  smallRadius: 1.5
+  mediumRadius: 3
+  largeRadius: 8
