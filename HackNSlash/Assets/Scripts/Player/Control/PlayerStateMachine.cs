@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.Utils;
-using MEC;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -38,8 +37,6 @@ public class PlayerStateMachine : MonoBehaviour
      
     [HideInInspector] public bool isDoubleJumpUsed;
     public bool CanDoubleJump => lastDoubleJumpTime <= 0 && !isDoubleJumpUsed && canAttack && IsMidair;
-
-    [HideInInspector] public bool activateMidairEntry;
     
     //Walk
     public bool IsWalking => moveInput.magnitude > 0;
@@ -57,10 +54,8 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
     
     #region INPUT PARAMETERS
-
-    public int inputQueueLength = 3;
+    
     public float heldDirResetTime = 0.1f;
-    private float dirHoldTimer = 0;
     
     [HideInInspector] public Vector2 moveInput;
     [HideInInspector] public Vector3 moveDirection;
@@ -84,7 +79,9 @@ public class PlayerStateMachine : MonoBehaviour
     #region ATTACK PARAMETERS
 
     [HideInInspector] public bool canAttack;
-    [HideInInspector] public Attack currentAttack;
+    [FormerlySerializedAs("currentAttack")] [HideInInspector] public PlayerAttack currentPlayerAttack;
+    
+    [HideInInspector] public HashSet<LockOnTarget> enemiesHitThisAction = new();
     
     [HideInInspector] public List<ComboAction> comboChain = new();
     [HideInInspector] public float comboResetTimer = 0;
@@ -94,7 +91,7 @@ public class PlayerStateMachine : MonoBehaviour
     [HideInInspector] public int numMidairAttacks;
     public Dictionary<Attack, int> NumActionsUsed = new();
 
-    public LockOnTarget NearestHEnemy => pc.cam.IsLockedOn ? pc.cam.TargetedEnemy : GetEnemyInRadius(playerData.mediumRadius, 190f);
+    public LockOnTarget NearestHEnemy => pc.cam.IsLockedOn ? pc.cam.TargetedEnemy : GetClosestEnemyInRadius(playerData.mediumRadius, 190f);
     
     
     #endregion
@@ -147,8 +144,6 @@ public class PlayerStateMachine : MonoBehaviour
     {
         moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
 
-        dirHoldTimer += Time.deltaTime;
-
         inputDirQueue.Enqueue(StandardizedMoveDir);
         inputTimeQueue.Enqueue(Time.time);
 
@@ -160,11 +155,11 @@ public class PlayerStateMachine : MonoBehaviour
 
         lastInputDir = inputDirQueue.Peek();
         
-        Debug.Log(lastInputDir);
+        //Debug.Log(lastInputDir);
 
     }
 
-    public LockOnTarget GetEnemyInRadius(float radius, float angle = 360f)
+    public LockOnTarget GetClosestEnemyInRadius(float radius, float angle = 360f)
     {
         HashSet<LockOnTarget> enemySet = Physics.OverlapSphere(transform.position, radius, enemyLayer).Select(e =>
         {
@@ -173,7 +168,7 @@ public class PlayerStateMachine : MonoBehaviour
         }).ToHashSet();
         enemySet.RemoveWhere(e => !e);
         
-        if (angle > 359f)
+        if (angle < 360)
         {
             enemySet.RemoveWhere(e => !(e.TargetedPosition() - pc.transform.position).ToVector2().
                 IsInDirectionCone(pc.transform.forward.ToVector2(), angle));
@@ -183,11 +178,30 @@ public class PlayerStateMachine : MonoBehaviour
         return enemySet.FirstOrDefault();
     }
     
+    public LockOnTarget[] GetAllEnemiesInRadius(float radius, float angle = 360f)
+    {
+        HashSet<LockOnTarget> enemySet = Physics.OverlapSphere(transform.position, radius, enemyLayer).Select(e =>
+        {
+            e.TryGetComponent(out LockOnTarget d);
+            return d;
+        }).ToHashSet();
+        enemySet.RemoveWhere(e => !e);
+        
+        if (angle < 360)
+        {
+            enemySet.RemoveWhere(e => !(e.TargetedPosition() - pc.transform.position).ToVector2().
+                IsInDirectionCone(pc.transform.forward.ToVector2(), angle));
+        }
+
+        enemySet = enemySet.OrderBy(e => Vector3.Distance(pc.transform.position, e.TargetedPosition())).ToHashSet();
+        return enemySet.ToArray();
+    }
+    
     #endregion
     
     #region Attack Methods
 
-    public void InvokeOnAttack(Attack a)
+    public void InvokeOnAttack(PlayerAttack a)
     {
         OnAttackEvents.OnAttackActionMap[a.onAttackAction](pc, a);
     }
@@ -229,10 +243,10 @@ public class PlayerStateMachine : MonoBehaviour
         {
             #region Dodge
 
-            List<Attack> validDodges = new();
+            List<PlayerAttack> validDodges = new();
             if (dodgeTimer > attackData.dodgeCoolDown)
             {
-                foreach (Attack attack in attackData.dodgeAttacks)
+                foreach (PlayerAttack attack in attackData.dodgeAttacks)
                 {
                     if (!AttackIsAvailable(attack)) continue;
 
@@ -242,10 +256,10 @@ public class PlayerStateMachine : MonoBehaviour
             }
             if (validDodges.Count > 0)
             {
-                Attack action = validDodges.OrderBy(d => Attack.AttackTypePriority.IndexOf(d.attackType)).First();
+                PlayerAttack action = validDodges.OrderBy(d => Attack.AttackTypePriority.IndexOf(d.attackType)).First();
                 if (action != null)
                 {
-                    foreach (Attack attack in attackData.dodgeAttacks)
+                    foreach (PlayerAttack attack in attackData.dodgeAttacks)
                     {
                         if (attack != action && NumActionsUsed.ContainsKey(attack)) NumActionsUsed[attack] = attack.maxUses;
                     }
@@ -258,13 +272,13 @@ public class PlayerStateMachine : MonoBehaviour
 
             #region Enemy Step
 
-            foreach (Attack attack in attackData.enemyStepAttacks)
+            foreach (PlayerAttack attack in attackData.enemyStepAttacks)
             {
                 if (!AttackIsAvailable(attack)) continue;
                 
-                if (comboChain.LastOrDefault()?.attack == attack) continue;
+                if (comboChain.LastOrDefault()?.playerAttack == attack) continue;
 
-                if (IsGrounded || GetEnemyInRadius(playerData.mediumRadius) == null) continue;
+                if (IsGrounded || GetClosestEnemyInRadius(playerData.mediumRadius) == null) continue;
 
                 ResetActions();
                 BeginAttack(attack);
@@ -297,37 +311,85 @@ public class PlayerStateMachine : MonoBehaviour
         if (CheckMobilityAction()) return;
         
         if (movingState != MovingStates.Combat || pauseMovement) return;
-        
-        if (!canAttack) return;
+
+        PlayerAttack a = null;
+        ComboAction possibleCombo = CheckComboAction();
+        PlayerAttack starter = null;
         
         #region Directional Attacks
 
-        foreach (Attack attack in attackData.directionalAttacks)
+        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Directional])
         {
             if (!AttackIsAvailable(attack)) continue;
             
-            comboChain.Clear();
-            BeginAttack(attack);
-            return;
+            a = attack;
         }
         
         #endregion
                 
         #region Special Attacks
 
-        foreach (Attack attack in attackData.specialAttacks)
+        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Special])
         {
             if (!AttackIsAvailable(attack)) continue;
             
-            comboChain.Clear();
-            BeginAttack(attack);
-            return;
+            a = attack;
         }
         
         #endregion
-
-        #region Combo Attacks
         
+        #region Combo Starters
+
+        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Heavy])
+        {
+            if (!AttackIsAvailable(attack)) continue;
+            
+            starter = attack;
+        }
+        
+        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Light])
+        {
+            if (!AttackIsAvailable(attack)) continue;
+            
+            starter = attack;
+        }
+        
+        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Midair])
+        {
+            if (!AttackIsAvailable(attack)) continue;
+            
+            starter = attack;
+        }
+        
+        #endregion
+        
+        if (!a && possibleCombo == null && !starter)
+            pc.spirit.CheckSpiritAction();
+        
+        if (!canAttack) return;
+
+        if (a != null)
+        {
+            comboChain.Clear();
+            BeginAttack(a);
+            return;
+        }
+        
+        if (possibleCombo != null)
+        {
+            BeginComboAttack(possibleCombo);
+            return;
+        }
+        
+        if (starter != null)
+        {
+            BeginAttack(starter, ComboActionType.Press);
+        }
+
+    }
+
+    private ComboAction CheckComboAction()
+    {
         List<ComboAction> possibleActions = new();
         
         foreach (ComboConfig combo in attackData.comboAttacks)
@@ -335,9 +397,9 @@ public class PlayerStateMachine : MonoBehaviour
             if (!combo.isEnabled) continue;
             if (comboChain.Count >= combo.comboActions.Length) continue;
 
-            List<Attack> attacks = combo.comboActions.Select(a => a.attack).ToList();
+            List<PlayerAttack> attacks = combo.comboActions.Select(a => a.playerAttack).ToList();
             attacks = attacks.Take(comboChain.Count).ToList();
-            List<Attack> comboAttacks = comboChain.Select(a => a.attack).ToList();
+            List<PlayerAttack> comboAttacks = comboChain.Select(a => a.playerAttack).ToList();
             if (comboAttacks.Except(attacks).Any()) continue;
             
             ComboAction nextAction = combo.comboActions[comboChain.Count];
@@ -345,13 +407,13 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 case ComboActionType.Press:
                 case ComboActionType.Release:
-                    if (!AttackIsAvailable(nextAction.attack)) continue;
+                    if (!AttackIsAvailable(nextAction.playerAttack)) continue;
                     possibleActions.Add(nextAction);
                     
                     break;
                 
                 case ComboActionType.Hold:
-                    KeyBind pressedKey = nextAction.attack.keyBinds.Contains(KeyBind.LightAttack) ? KeyBind.LightAttack : KeyBind.HeavyAttack;
+                    KeyBind pressedKey = nextAction.playerAttack.keyBinds.Contains(KeyBind.LightAttack) ? KeyBind.LightAttack : KeyBind.HeavyAttack;
                     if (KeyMap[pressedKey].holdTime > nextAction.time)
                     {
                         possibleActions.Add(nextAction);
@@ -368,7 +430,7 @@ public class PlayerStateMachine : MonoBehaviour
                     break;
                 
                 case ComboActionType.Mash:
-                    KeyBind mashKey = nextAction.attack.keyBinds.Contains(KeyBind.LightAttack) ? KeyBind.LightAttack : KeyBind.HeavyAttack;
+                    KeyBind mashKey = nextAction.playerAttack.keyBinds.Contains(KeyBind.LightAttack) ? KeyBind.LightAttack : KeyBind.HeavyAttack;
                     
                     if (KeyMap[mashKey].lastTime < nextAction.time && KeyMap[mashKey].action())
                     {
@@ -382,36 +444,17 @@ public class PlayerStateMachine : MonoBehaviour
         if (possibleActions.Count > 0)
         {
             ComboAction action = possibleActions.OrderBy(a => ComboConfig.ComboActionPriority.IndexOf(a.actionType)).First();
-            BeginComboAttack(action);
-            return;
-        }
-
-        #endregion
-        
-        #region Combo Starters
-        
-        if (IsMidair && KeyMap[KeyBind.LightAttack].action())
-        {
-            comboChain.Clear();
-            BeginAttack(attackData.midairAttacks[0], ComboActionType.Press);
-
-            return;
-        }
-        if (KeyMap[KeyBind.LightAttack].action())
-        {
-            comboChain.Clear();
-            BeginAttack(attackData.lightComboAttacks[0], ComboActionType.Press);
-            return;
-        }
-        if (KeyMap[KeyBind.HeavyAttack].action())
-        {
-            comboChain.Clear();
-            BeginAttack(attackData.heavyComboAttacks[0], ComboActionType.Press);
-            return;
+            return action;
         }
         
-        #endregion
+        return null;
+    }
+    
+    private void BeginSpiritAttack(SpiritAttack spiritAttack)
+    {
+        if (spiritAttack == null) return;
         
+        pc.spirit.InvokeOnSpiritAttack(spiritAttack);
     }
 
     private void BeginComboAttack(ComboAction action)
@@ -421,53 +464,53 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (action == null) return;
         
-        currentAttack = action.attack;
+        currentPlayerAttack = action.playerAttack;
         
         pc.rb.linearVelocity = Vector3.zero;
         
-        if (NumActionsUsed.ContainsKey(action.attack)) NumActionsUsed[action.attack]++;
+        if (NumActionsUsed.ContainsKey(action.playerAttack)) NumActionsUsed[action.playerAttack]++;
         
         if (pc.sc.GetCurrentState() is PlayerMoving)
         {
-            pc.sc.Interrupt(new PlayerAttacking(action.attack));
+            pc.sc.Interrupt(new PlayerAttacking(action.playerAttack));
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
             OnAttackEvents.Instance.KillObjectCoroutines();
-            pc.sc.ChangeState(new PlayerAttacking(action.attack));
+            pc.sc.ChangeState(new PlayerAttacking(action.playerAttack));
         }
     }
 
-    private void BeginAttack(Attack attack, ComboActionType type = ComboActionType.Special, float actionTime = 0)
+    private void BeginAttack(PlayerAttack playerAttack, ComboActionType type = ComboActionType.Special, float actionTime = 0)
     {
         comboResetTimer = 0;
         comboChain.Add(new ComboAction()
         {
             actionType = type,
-            attack = attack,
+            playerAttack = playerAttack,
             time = actionTime
         });
         
-        currentAttack = attack;
+        currentPlayerAttack = playerAttack;
         
-        if (attack == null) return;
+        if (playerAttack == null) return;
         
         pc.rb.linearVelocity = Vector3.zero;
         
-        if (NumActionsUsed.ContainsKey(attack)) NumActionsUsed[attack]++;
+        if (NumActionsUsed.ContainsKey(playerAttack)) NumActionsUsed[playerAttack]++;
         
         if (pc.sc.GetCurrentState() is PlayerMoving)
         {
-            pc.sc.Interrupt(new PlayerAttacking(attack));
+            pc.sc.Interrupt(new PlayerAttacking(playerAttack));
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
             OnAttackEvents.Instance.KillObjectCoroutines();
-            pc.sc.ChangeState(new PlayerAttacking(attack));
+            pc.sc.ChangeState(new PlayerAttacking(playerAttack));
         }
     }
     
-    private bool AttackIsAvailable(Attack attack)
+    public bool AttackIsAvailable(Attack attack)
     {
         if (!attack.isEnabled) return false;
         
@@ -534,21 +577,11 @@ public class PlayerStateMachine : MonoBehaviour
             pc.psm.isJumping = false;
             pc.psm.isJumpFalling = true;
         }
-	    
-        if (pc.psm.activateMidairEntry)
-        {
-            pc.psm.isJumping = true;
-            pc.psm.lastPressedJumpTime = 0;
-            pc.psm.lastOnGroundTime = 0;
-            pc.psm.isJumpFalling = false;
-		    
-            pc.psm.activateMidairEntry = false;
-        }
     }
     
     public void CalculateGravity()
     {
-        if (IsMidair && Mathf.Abs(pc.rb.linearVelocity.y) < playerData.jumpHangTimeThreshold)
+        if (IsMidair && Mathf.Abs(pc.rb.linearVelocity.y) < playerData.jumpHangSpeedThreshold)
         {
             SetGravityScale(playerData.gravityScale * playerData.jumpHangGravityMult);
         }

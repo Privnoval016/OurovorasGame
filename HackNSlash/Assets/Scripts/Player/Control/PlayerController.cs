@@ -1,16 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.StateMachine;
 using Extensions.Utils;
 using MEC;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(StateController))]
+[RequireComponent(typeof(StateController<PlayerState>))]
 public class PlayerController : KinematicBehaviour
 {
     #region State Machine
-    [HideInInspector] public StateController sc;
+    [HideInInspector] public StateController<PlayerState> sc;
     #endregion
     
     #region Components
@@ -24,6 +25,8 @@ public class PlayerController : KinematicBehaviour
     [HideInInspector] public WeaponController wc;
     [HideInInspector] public PlayerAnimator pac;
     [HideInInspector] public PlayerStateMachine psm;
+    
+    public ElementalSpirit spirit;
     
     public Transform cameraFollowTarget;
 
@@ -58,9 +61,11 @@ public class PlayerController : KinematicBehaviour
                 break;
             }
         }
-
-        sc = GetComponent<StateController>();
-        sc.parent = this;
+        
+        spirit.pc = this;
+        
+        sc = new StateController<PlayerState>(this);
+        
         
         if (Camera.main != null)
             Camera.main.TryGetComponent(out cam);

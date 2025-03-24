@@ -1,33 +1,108 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Extensions.CustomMath;
+using Extensions.StateMachine;
 using Extensions.Utils;
 
 public class ElementalSpirit : KinematicBehaviour
 {
-    private SODEvaluator _evaluator;
+    #region State Machine
+   
+    [HideInInspector] public StateController<SpiritState> sc;
+    
+    #endregion
+    
+    #region Components
+
+    [HideInInspector] public PlayerController pc;
+    
+    #endregion
+    
+    #region Attack Parameters
+
+    public bool canAttack = true;
+    
+    #endregion
+    
+    #region Movement Parameters
+    
+    [HideInInspector] public SODEvaluator evaluator;
 
     public Transform[] targets;
     
-    public Transform closestTarget => targets.GetClosestTransform(transform.position);
+    public Transform ClosestTarget => targets.GetClosestTransform(transform.position);
+    
+    #endregion
 
     private void Awake()
     {
         SetKinematicAttributes();
         
-        _evaluator = GetComponent<SODEvaluator>(); 
+        evaluator = GetComponent<SODEvaluator>(); 
+        
+        sc = new StateController<SpiritState>(this);
+        
+        sc.ChangeState(new SpiritFollowing());
     }
 
     private void Update()
     {
         UpdateKinematicAttributes();
-        
-        _evaluator.SetTargetTransform(closestTarget);
-
-        transform.position = _evaluator.output + VerticalBob();
     }
     
-    private Vector3 VerticalBob()
+    #region Attack Methods
+    
+    public void InvokeOnSpiritAttack(SpiritAttack a)
+    {
+        if (a.onSpiritAction == OnSpiritActions.Follow) return;
+        
+        sc.ChangeState(new SpiritAttacking(a));
+    }
+
+    public bool CheckSpiritAction()
+    {
+        if (!canAttack) return false;
+
+        foreach (SpiritAttack a in pc.psm.attackData.AttackMap[AttackTypes.Spirit])
+        {
+            if (!pc.psm.AttackIsAvailable(a)) continue;
+            
+            InvokeOnSpiritAttack(a);
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    #endregion
+    
+    #region Utility Methods
+    
+    public HashSet<LockOnTarget> HitScanEnemies(int numTargets, float radius, float angle)
+    {
+        HashSet<LockOnTarget> enemies = new();
+        
+        if (pc.cam.IsLockedOn) enemies.Add(pc.psm.NearestHEnemy);
+        
+        int enemiesNeeded = numTargets - enemies.Count;
+        
+        if (enemiesNeeded > 0)
+        {
+            var enemyList = pc.psm.GetAllEnemiesInRadius(radius, angle);
+            enemies = enemies.Union(enemyList[0..enemiesNeeded]).ToHashSet();
+        }
+        
+        enemies.RemoveWhere(e => e.tookDamageThisAction);
+        
+        return enemies;
+    }
+    
+    public Vector3 VerticalBob()
     {
         return Mathf.Sin(Time.time * 2) * 0.1f * Vector3.up;
     }
+    
+    #endregion
 }

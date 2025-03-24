@@ -22,6 +22,7 @@ MonoBehaviour:
   applyTargetDirection: 1
   isMidair: 1
   applyRootMotion: 1
+  moveCameraWithAttack: 1
   maxUses: 0
   attackTransitions: []
   attackClips:
@@ -29,8 +30,10 @@ MonoBehaviour:
   animDelay: 0
   animFade: 0.2
   clipsToPlay: 1
+  useNormalGravity: 0
   exitCondition: 0
   onAttackAction: 0
+  attackEventIndex: 0
   hitInfo:
     onHitActions: 02000000
     hitDetection: 1
@@ -40,14 +43,12 @@ MonoBehaviour:
     damage: 0
     hitForce: 70
     hitDelay: 0.3
-    lockGravWhileDelayed: 0
     hitDirection: {x: 0, y: -1, z: 0.3}
-    tweenToPlayer: 1
     elasticCollision: 1
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
     hitIndex: 0
-    duration: 0.3
+    duration: 0.5
     delay: 0
     spawnTarget: 0
     spawnTransform:

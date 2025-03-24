@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Enemy/EnemyGravity")]
 public class EnemyGravity : ScriptableObject
@@ -13,9 +14,9 @@ public class EnemyGravity : ScriptableObject
     [Header("Jump Apex Hang Time")]
     
     [Range(0f, 1)] public float jumpHangGravityMult; //Reduces gravity while close to the apex (desired max height) of the jump
-    public float jumpHangTimeThreshold; //Speeds (close to 0) where the player will experience extra "jump hang". The player's velocity.y is closest to 0 at the jump's apex (think of the gradient of a parabola or quadratic function)
-  
-    
+    [FormerlySerializedAs("jumpHangTimeThreshold")] public float jumpHangSpeedThreshold; //Speeds (close to 0) where the player will experience extra "jump hang". The player's velocity.y is closest to 0 at the jump's apex (think of the gradient of a parabola or quadratic function)
+
+    public float onHitHangTime = 0.2f;
     
     //Unity Callback, called when the inspector updates
     private void OnValidate()

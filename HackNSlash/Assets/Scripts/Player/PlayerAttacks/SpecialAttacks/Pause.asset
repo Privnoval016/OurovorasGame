@@ -22,6 +22,7 @@ MonoBehaviour:
   applyTargetDirection: 1
   isMidair: 0
   applyRootMotion: 1
+  moveCameraWithAttack: 1
   maxUses: 0
   attackTransitions: []
   attackClips: []
@@ -30,10 +31,11 @@ MonoBehaviour:
   clipsToPlay: 1
   exitCondition: 0
   onAttackAction: 0
+  attackEventIndex: 0
   hitInfo:
     onHitActions: 00000000
     hitDetection: 0
-    hitRegisterRadius: 3
+    hitRegisterRadius: 0
     hitRegisterAngle: 120
     attackCoolDown: 0
     damage: 0

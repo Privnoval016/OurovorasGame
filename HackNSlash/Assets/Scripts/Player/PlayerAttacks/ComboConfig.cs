@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Player/ComboConfig")]
 public class ComboConfig : ScriptableObject
@@ -29,7 +30,7 @@ public class ComboConfig : ScriptableObject
         {
             if (comboAction.actionType == ComboActionType.Pause)
             {
-                comboAction.attack = null;
+                comboAction.playerAttack = null;
             }
         }
     }
@@ -39,7 +40,7 @@ public class ComboConfig : ScriptableObject
 public class ComboAction
 {
     public ComboActionType actionType;
-    public Attack attack;
+    [FormerlySerializedAs("attack")] public PlayerAttack playerAttack;
     public float time; // cooldown if press, hold time if hold, pause time if pause
 }
 

@@ -652,6 +652,7 @@ namespace Extensions.Utils
                 return Vector2.Angle(direction, targetDirection) < angle;
             }
         }
+        
     
         #endregion
     }
