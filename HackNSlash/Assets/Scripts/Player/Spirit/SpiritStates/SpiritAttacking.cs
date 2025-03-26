@@ -22,5 +22,17 @@ public class SpiritAttacking : SpiritState
         {
             sc.ResumePrevious();
         }
+
+        UpdateSpiritMovement();
+    }
+    
+    private void UpdateSpiritMovement()
+    {
+        switch (_playerAttack.onSpiritMovement)
+        {
+            case OnSpiritMovement.Follow:
+                spirit.FollowPlayer();
+                break;
+        }
     }
 }

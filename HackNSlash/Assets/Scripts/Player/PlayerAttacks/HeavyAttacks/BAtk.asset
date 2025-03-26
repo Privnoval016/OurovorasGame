@@ -20,7 +20,7 @@ MonoBehaviour:
   inputDirection: {x: 0, y: 0}
   comboDirection: {x: 0, y: 0}
   applyTargetDirection: 1
-  isMidair: 0
+  isMidair: 2
   maxUses: 0
   hitInfo:
     onHitActions: 0000000001000000
@@ -34,4 +34,5 @@ MonoBehaviour:
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  onSpiritMovement: 0
   onSpiritAction: 1

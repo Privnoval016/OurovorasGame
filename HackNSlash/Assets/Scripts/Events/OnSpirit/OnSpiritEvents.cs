@@ -7,7 +7,7 @@ using MEC;
 
 public enum OnSpiritActions
 {
-    Follow,
+    None,
     RangedAttack,
 }
 
@@ -27,7 +27,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     
     private void AddOnSpiritEvents()
     {
-        OnSpiritActionMap.Add(OnSpiritActions.Follow, (spirit, a) => { });
+        OnSpiritActionMap.Add(OnSpiritActions.None, (spirit, a) => { });
         OnSpiritActionMap.Add(OnSpiritActions.RangedAttack, RangedAttack);
     }
     

@@ -329,38 +329,44 @@ public class PlayerStateMachine : MonoBehaviour
                 
         #region Special Attacks
 
-        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Special])
+        if (a == null)
         {
-            if (!AttackIsAvailable(attack)) continue;
-            
-            a = attack;
+            foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Special])
+            {
+                if (!AttackIsAvailable(attack)) continue;
+
+                a = attack;
+            }
         }
-        
+
         #endregion
         
         #region Combo Starters
 
-        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Heavy])
+        if (possibleCombo == null)
         {
-            if (!AttackIsAvailable(attack)) continue;
-            
-            starter = attack;
+            foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Heavy])
+            {
+                if (!AttackIsAvailable(attack)) continue;
+
+                starter = attack;
+            }
+
+            foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Light])
+            {
+                if (!AttackIsAvailable(attack)) continue;
+
+                starter = attack;
+            }
+
+            foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Midair])
+            {
+                if (!AttackIsAvailable(attack)) continue;
+
+                starter = attack;
+            }
         }
-        
-        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Light])
-        {
-            if (!AttackIsAvailable(attack)) continue;
-            
-            starter = attack;
-        }
-        
-        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Midair])
-        {
-            if (!AttackIsAvailable(attack)) continue;
-            
-            starter = attack;
-        }
-        
+
         #endregion
         
         if (!a && possibleCombo == null && !starter)
@@ -383,6 +389,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (starter != null)
         {
+            comboChain.Clear();
             BeginAttack(starter, ComboActionType.Press);
         }
 
