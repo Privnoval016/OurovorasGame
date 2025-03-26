@@ -35,6 +35,7 @@ public class ElementalSpirit : KinematicBehaviour
     
     #endregion
 
+    #region MonoBehaviour Callbacks
     private void Awake()
     {
         SetKinematicAttributes();
@@ -51,11 +52,24 @@ public class ElementalSpirit : KinematicBehaviour
         UpdateKinematicAttributes();
     }
     
+    #endregion
+    
+    #region Movement Methods
+    
+    public void FollowPlayer()
+    {
+        evaluator.SetTargetTransform(ClosestTarget);
+
+        transform.position = evaluator.output + VerticalBob();
+    }
+    
+    #endregion
+    
     #region Attack Methods
     
     public void InvokeOnSpiritAttack(SpiritAttack a)
     {
-        if (a.onSpiritAction == OnSpiritActions.Follow) return;
+        if (a.onSpiritAction == OnSpiritActions.None) return;
         
         sc.ChangeState(new SpiritAttacking(a));
     }

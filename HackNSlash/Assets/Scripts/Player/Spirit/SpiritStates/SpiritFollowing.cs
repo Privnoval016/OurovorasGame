@@ -9,13 +9,6 @@ public class SpiritFollowing : SpiritState
 
     public override void OnUpdate()
     {
-        FollowPlayer();
-    }
-
-    private void FollowPlayer()
-    {
-        spirit.evaluator.SetTargetTransform(spirit.ClosestTarget);
-
-        spirit.transform.position = spirit.evaluator.output + spirit.VerticalBob();
+        spirit.FollowPlayer();
     }
 }

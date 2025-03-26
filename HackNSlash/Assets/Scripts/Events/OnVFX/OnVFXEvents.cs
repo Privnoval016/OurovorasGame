@@ -60,11 +60,11 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     private VFXController InstantiateVFX(PlayerController pc, TransformInfo start, PlayerAttack a, int vfxIndex = 0)
     {
         if (a.vfxInfos.Length <= vfxIndex) return null;
+        Quaternion rotation = a.vfxInfos[vfxIndex].spawnTransform.Rotation.eulerAngles != Vector3.zero
+            ? start.Rotation * a.vfxInfos[vfxIndex].spawnTransform.Rotation
+            : start.Rotation;
 
-        TransformInfo realStart = new(start.Position,
-            a.vfxInfos[vfxIndex].spawnTransform.Rotation.eulerAngles != Vector3.zero
-                ? start.Rotation * a.vfxInfos[vfxIndex].spawnTransform.Rotation
-                : start.Rotation,
+        TransformInfo realStart = new(start.Position, rotation,
             start.Scale.ScaledBy(a.vfxInfos[vfxIndex].spawnTransform.Scale));
 
         VFXSpawnInfo v = a.vfxInfos[vfxIndex];
@@ -102,7 +102,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             vfxInstance.transform.localScale = vfxData.localTransform.Scale;
         }
         
-        vc.InitializeVFX(pc, start, a, v, vfxs.ToArray(), vfxIndex, v.vfxAttack.canCollide);
+        vc.InitializeVFX(pc, realStart, a, v, vfxs.ToArray(), vfxIndex, v.vfxAttack.canCollide);
         return vc;
     }
     
