@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.StateMachine;
@@ -37,6 +38,9 @@ public class PlayerController : KinematicBehaviour
     public ElementEffect CurrentElementEffect = ElementEffect.None;
     public ElementData CurrentElementData => GameManager.ElementMap[CurrentElementEffect]();
     
+    public ElementEffect[] elementEffects = Array.Empty<ElementEffect>();
+    public CircularList<ElementEffect> elementEffectOrder;
+    
     
     #region MonoBehaviour Callbacks
 
@@ -61,6 +65,8 @@ public class PlayerController : KinematicBehaviour
                 break;
             }
         }
+
+        elementEffectOrder = new CircularList<ElementEffect>(elementEffects.ToList());
         
         spirit.pc = this;
         

@@ -16,14 +16,14 @@ MonoBehaviour:
   attackType: 0
   comboActions:
   - actionType: 0
-    attack: {fileID: 11400000, guid: cca959ef9f66dff40971bae6e0bb23dc, type: 2}
+    playerAttack: {fileID: 11400000, guid: cca959ef9f66dff40971bae6e0bb23dc, type: 2}
     time: 0
   - actionType: 0
-    attack: {fileID: 11400000, guid: 5d1bf1100f403ef46bbef808161486bb, type: 2}
+    playerAttack: {fileID: 11400000, guid: 5d1bf1100f403ef46bbef808161486bb, type: 2}
     time: 0
   - actionType: 0
-    attack: {fileID: 11400000, guid: 9bb4be9573875ed48a7043b5bae428a4, type: 2}
+    playerAttack: {fileID: 11400000, guid: 64797e17c3b3543e7bc18027d93f6abb, type: 2}
     time: 0
   - actionType: 1
-    attack: {fileID: 11400000, guid: 506a0a9488fff57409f93ca2ae2728c5, type: 2}
+    playerAttack: {fileID: 11400000, guid: 506a0a9488fff57409f93ca2ae2728c5, type: 2}
     time: 0.2

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Extensions.Utils;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 public class PlayerStateMachine : MonoBehaviour
@@ -66,6 +67,7 @@ public class PlayerStateMachine : MonoBehaviour
     public Queue<Vector2> inputDirQueue = new();
     public Queue<float> inputTimeQueue = new();
     [HideInInspector] public Vector2 lastInputDir;
+    
     #endregion
     
     #region GROUND CHECK PARAMETERS
@@ -93,10 +95,9 @@ public class PlayerStateMachine : MonoBehaviour
 
     public LockOnTarget NearestHEnemy => pc.cam.IsLockedOn ? pc.cam.TargetedEnemy : GetClosestEnemyInRadius(playerData.mediumRadius, 190f);
     
+    [HideInInspector] public float dodgeTimer = 0;
     
     #endregion
-    
-    [HideInInspector] public float dodgeTimer = 0;
 
     
     #region LAYERS & TAGS
@@ -122,6 +123,9 @@ public class PlayerStateMachine : MonoBehaviour
         KeyMap = InputManager.KeyMap;
         
         pc.sc.ChangeState(new PlayerMoving());
+
+        InputManager.Instance.swapElementLeft.performed += OnSwapElementLeft;
+        InputManager.Instance.swapElementRight.performed += OnSwapElementRight;
     }
     
     private void Update()
@@ -134,6 +138,22 @@ public class PlayerStateMachine : MonoBehaviour
     private void FixedUpdate()
     {
         ApplyGravity();
+    }
+    
+    #endregion
+    
+    #region Input Callbacks
+
+    private void OnSwapElementLeft(InputAction.CallbackContext context)
+    {
+        int index = pc.elementEffectOrder.IndexOf(pc.CurrentElementEffect);
+        pc.CurrentElementEffect = pc.elementEffectOrder.ShiftIndex(index, -1);
+    }
+    
+    private void OnSwapElementRight(InputAction.CallbackContext context)
+    {
+        int index = pc.elementEffectOrder.IndexOf(pc.CurrentElementEffect);
+        pc.CurrentElementEffect = pc.elementEffectOrder.ShiftIndex(index, 1);
     }
     
     #endregion
@@ -547,6 +567,22 @@ public class PlayerStateMachine : MonoBehaviour
 
     #endregion
     
+    #region Hit Methods
+
+    public void PlayerIsHit(HitInstance hit)
+    {
+        if (pc.sc.GetCurrentState() is PlayerMoving)
+        {
+            pc.sc.Interrupt(new PlayerHit(hit));
+        }
+        else
+        {
+            OnAttackEvents.Instance.KillObjectCoroutines();
+            pc.sc.ChangeState(new PlayerHit(hit));
+        }
+    }
+    
+    #endregion
     
     #region Gravity Methods
 

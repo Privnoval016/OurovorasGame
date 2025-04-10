@@ -31,6 +31,9 @@ public class InputManager : Singleton<InputManager>
 
     public InputAction swapMode;
 
+    public InputAction swapElementLeft;
+    public InputAction swapElementRight;
+
     private bool lightAttacking, heavyAttacking;
     
     #endregion
@@ -100,6 +103,8 @@ public class InputManager : Singleton<InputManager>
         lockOn = InputMap.Player.LockOn;
         retarget = InputMap.Player.Retarget;
         swapMode = InputMap.Player.EnterCombat;
+        swapElementLeft = InputMap.Player.SwapElementLeft;
+        swapElementRight = InputMap.Player.SwapElementRight;
 
         KeyMap.Add(KeyBind.None, new KeyBindData() {action = () => true});
 

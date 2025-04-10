@@ -24,7 +24,7 @@ public class PlayerAttacking : PlayerState
     
     public override void OnEnter()
     {
-        pc.pac.rootMotion.enabled = _playerAttack.applyRootMotion;
+        pc.pac.RootMotionEnabled(_playerAttack.applyRootMotion);
         pc.cam.isFollowingPlayer = _playerAttack.moveCameraWithAttack;
         pc.rb.linearVelocity = Vector3.zero;
         
@@ -70,7 +70,7 @@ public class PlayerAttacking : PlayerState
         pc.rb.linearVelocity = Vector3.zero;
         
         pc.psm.pauseComboReset = false;
-        pc.pac.rootMotion.enabled = false;
+        pc.pac.RootMotionEnabled(false);
         pc.cam.isFollowingPlayer = true;
     }
     

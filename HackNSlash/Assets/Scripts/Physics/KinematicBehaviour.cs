@@ -27,5 +27,4 @@ public class KinematicBehaviour : MonoBehaviour
     {
         return (discreteVelocity * time) + (0.5f * time * time * discreteAcceleration);
     }
-    
 }

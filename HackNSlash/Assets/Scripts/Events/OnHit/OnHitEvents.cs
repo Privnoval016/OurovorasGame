@@ -312,7 +312,16 @@ public class OnHitEvents : Singleton<OnHitEvents>
 
     IEnumerator<float> ReleasePhysicsLock(PhysicsEnemy ec)
     {
-        yield return Timing.WaitForSeconds(parameters.releaseKnockbackTime);
+        float startTime = Time.time;
+        
+        bool? damageTaken = null;
+
+        while (Time.time - startTime < parameters.releaseKnockbackTime && damageTaken != true)
+        {
+            if (!ec.tookDamageThisAction) damageTaken = false;
+            else if (damageTaken == false && ec.tookDamageThisAction) damageTaken = true;
+            yield return Timing.WaitForOneFrame;
+        }
         
         ec.physicsInteract = true;
     }

@@ -3,9 +3,17 @@ using Animancer;
 using AYellowpaper.SerializedCollections;
 using Extensions.Utils;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Object = System.Object;
 
-public class PlayerAnimator : MonoBehaviour
+[Serializable]
+public class AnimContainer
+{
+	public MoveAnimData moveAnimData;
+	public HitAnimData hitAnimData;
+}
+
+public class PlayerAnimator : EntityAnimator
 {
     #region Inspector Variables
     
@@ -14,20 +22,13 @@ public class PlayerAnimator : MonoBehaviour
 
     public StringAsset[] parameterNames;
     
-    public AnimancerComponent animancer;
-    public RedirectRootMotionToRigidbody rootMotion;
-    
-    
-    [SerializedDictionary("Move State", "Animation Data")]
-    public SerializedDictionary<MovingStates, MoveAnimData> moveAnimDataDict;
-    
+    [FormerlySerializedAs("moveAnimDataDict")] [SerializedDictionary("Move State", "Animation Data")]
+    public SerializedDictionary<MovingStates, AnimContainer> animDataDict;
     
     #endregion
-
-
-    [HideInInspector] public AnimancerState currentAnimState;
     
-    public MoveAnimData MovingAnims => moveAnimDataDict[pc != null ? pc.psm.movingState : MovingStates.NonCombat];
+    public MoveAnimData MovingAnims => animDataDict[pc != null ? pc.psm.movingState : MovingStates.NonCombat].moveAnimData;
+    public HitAnimData HitAnims => animDataDict[pc != null ? pc.psm.movingState : MovingStates.NonCombat].hitAnimData;
     
     [HideInInspector]
     public WalkingAnimStates walkingAnim;
@@ -49,9 +50,6 @@ public class PlayerAnimator : MonoBehaviour
 
     #endregion
 
-
-    #region Animator Methods
-
     private void UpdateAnimatorState()
     {
         foreach (StringAsset parameterName in parameterNames)
@@ -60,71 +58,15 @@ public class PlayerAnimator : MonoBehaviour
             
             if (parameterName == "MoveX")
             {
-                param.Value = EaseUtil.Damp(param.Value, pc.psm.StandardizedMoveDir.normalized.x, 2f, Time.deltaTime);
+	            SetAnimancerParam("MoveX", pc.psm.StandardizedMoveDir.normalized.x);
             }
             else if (parameterName == "MoveZ")
             {
-                param.Value = EaseUtil.Damp(param.Value, pc.psm.StandardizedMoveDir.normalized.y, 2f, Time.deltaTime);
+	            SetAnimancerParam("MoveZ", pc.psm.StandardizedMoveDir.normalized.y);
             }
         }
         
     }
-    
-    public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, bool canInterrupt = true, FadeMode mode = FadeMode.FixedSpeed)
-    {
-        if (canInterrupt && (animancer.States.Current.Clip && animancer.States.Current.Clip == clip))
-        {
-	        animancer.Stop();
-        }
-        
-        currentAnimState = animancer.Play(clip, fadeDuration, mode);
-        return currentAnimState;
-    }
-    
-    public AnimancerState PlayAnimation(TransitionAsset clip)
-    {
-        currentAnimState = animancer.Play(clip);
-        return currentAnimState;
-    }
-    
-    public AnimancerState PlayAnimation(ITransition clip)
-    {
-        currentAnimState = animancer.Play(clip);
-        //Debug.Log("Playing: " + clip.FadeDuration);
-        return currentAnimState;
-    }
-    
-    
-    public void ExitTimeAnimation(ITransition currentAnim, ITransition nextAnim, Action onExit = null)
-    {
-        AnimancerState state = PlayAnimation(currentAnim);
-        state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
-    }
-	
-    public void OnAnimExit(ITransition nextAnim, Action onExit = null)
-    {
-        if (nextAnim != null) PlayAnimation(nextAnim);
-        onExit?.Invoke();
-    }
-    
-    public void ExitTimeAnimation(AnimationClip currentAnim, AnimationClip nextAnim, Action onExit = null)
-    {
-        AnimancerState state = PlayAnimation(currentAnim, -1F, false);
-        state.Events(this).OnEnd ??= () => OnAnimExit(nextAnim, onExit);
-    }
-	
-    public void OnAnimExit(AnimationClip nextAnim, Action onExit = null)
-    {
-        if (nextAnim != null) PlayAnimation(nextAnim, -1F, false);
-        onExit?.Invoke();
-    }
-    
-    public void StopCurrentAnimation()
-    {
-        animancer.Stop();
-    }
-
-    #endregion
     
     
     #region PlayerMoving Methods

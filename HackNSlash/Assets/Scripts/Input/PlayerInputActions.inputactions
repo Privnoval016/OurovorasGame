@@ -85,6 +85,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "SwapElementLeft",
+                    "type": "Button",
+                    "id": "bba850a4-ba15-41b0-a0d8-34de5509e31f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SwapElementRight",
+                    "type": "Button",
+                    "id": "53e85645-8f34-42cf-a215-181ad767a0f7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -179,7 +197,7 @@
                 {
                     "name": "",
                     "id": "2403e5a4-8c91-4b61-9838-347a2936293d",
-                    "path": "<Gamepad>/rightTrigger",
+                    "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -201,7 +219,7 @@
                 {
                     "name": "",
                     "id": "4afb6b01-1552-4303-bc2f-fd971e3a043c",
-                    "path": "<Gamepad>/leftTrigger",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -349,6 +367,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "EnterCombat",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "82156a3c-92b6-4a1c-b4d3-576a11093d3c",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwapElementLeft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "34d4e0ea-ea6c-4762-a6c3-5b50dc51faa9",
+                    "path": "<Keyboard>/8",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwapElementLeft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4ccb0ea6-fe7a-41e6-8060-074c1d5c61a1",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwapElementRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "df030b70-126e-4d79-80a4-d58984e2ee6b",
+                    "path": "<Keyboard>/9",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwapElementRight",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

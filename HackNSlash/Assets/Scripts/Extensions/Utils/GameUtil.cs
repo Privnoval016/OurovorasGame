@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using MEC;
 using UnityEngine;
@@ -10,6 +11,8 @@ namespace Extensions.Utils
 {
     public static class GameUtil
     {
+        
+        #region Coroutines
         
         public static IEnumerator<float> RunAfterDelay(float delay, Action action)
         {
@@ -39,8 +42,7 @@ namespace Extensions.Utils
             Timing.KillCoroutines(m.GetInstanceID(), tag);
         }
 
-        
-        
+        #endregion
         
         /* 
          *  Converts the target vector to a vector relative to the basis vector (treated as the forward vector)
@@ -147,7 +149,6 @@ namespace Extensions.Utils
         }
         
         #endregion
-        
         
         #region VFX Graph
         
@@ -287,10 +288,43 @@ namespace Extensions.Utils
         
         #endregion
         
+        #region GameObject Functions
+
+        public static void LookInDirection(this GameObject go, Vector3 direction)
+        {
+            go.transform.LookAt(direction + go.transform.position);
+        }
+        
+        #endregion
+        
         public static bool TryGetComponentInChildren<T>(this GameObject go, out T component) where T : Component
         {
             component = go.GetComponentInChildren<T>();
             return component != null;
+        }
+    }
+    
+    [Serializable]
+    public class CircularList<T> : List<T>
+    {
+        public CircularList() : base()
+        {
+        }
+        
+        public CircularList(List<T> list) : base(list)
+        {
+        }
+        
+        
+        // Returns the element at the index shifted by the shift value
+        public T ShiftIndex(int current, int shift)
+        {
+            int index = (current + shift) % Count;
+            if (index < 0)
+            {
+                index = Count + index;
+            }
+            return this[index];
         }
     }
 }
