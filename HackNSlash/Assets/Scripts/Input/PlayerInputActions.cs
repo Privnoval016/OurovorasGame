@@ -107,6 +107,24 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwapElementLeft"",
+                    ""type"": ""Button"",
+                    ""id"": ""bba850a4-ba15-41b0-a0d8-34de5509e31f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwapElementRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""53e85645-8f34-42cf-a215-181ad767a0f7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -201,7 +219,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""2403e5a4-8c91-4b61-9838-347a2936293d"",
-                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -223,7 +241,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""4afb6b01-1552-4303-bc2f-fd971e3a043c"",
-                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -371,6 +389,50 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""EnterCombat"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""82156a3c-92b6-4a1c-b4d3-576a11093d3c"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwapElementLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""34d4e0ea-ea6c-4762-a6c3-5b50dc51faa9"",
+                    ""path"": ""<Keyboard>/8"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwapElementLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4ccb0ea6-fe7a-41e6-8060-074c1d5c61a1"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwapElementRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""df030b70-126e-4d79-80a4-d58984e2ee6b"",
+                    ""path"": ""<Keyboard>/9"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwapElementRight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -591,6 +653,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_HeavyAttack = m_Player.FindAction("HeavyAttack", throwIfNotFound: true);
         m_Player_Retarget = m_Player.FindAction("Retarget", throwIfNotFound: true);
         m_Player_EnterCombat = m_Player.FindAction("EnterCombat", throwIfNotFound: true);
+        m_Player_SwapElementLeft = m_Player.FindAction("SwapElementLeft", throwIfNotFound: true);
+        m_Player_SwapElementRight = m_Player.FindAction("SwapElementRight", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_Navigate = m_Menu.FindAction("Navigate", throwIfNotFound: true);
@@ -676,6 +740,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_HeavyAttack;
     private readonly InputAction m_Player_Retarget;
     private readonly InputAction m_Player_EnterCombat;
+    private readonly InputAction m_Player_SwapElementLeft;
+    private readonly InputAction m_Player_SwapElementRight;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -689,6 +755,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         public InputAction @HeavyAttack => m_Wrapper.m_Player_HeavyAttack;
         public InputAction @Retarget => m_Wrapper.m_Player_Retarget;
         public InputAction @EnterCombat => m_Wrapper.m_Player_EnterCombat;
+        public InputAction @SwapElementLeft => m_Wrapper.m_Player_SwapElementLeft;
+        public InputAction @SwapElementRight => m_Wrapper.m_Player_SwapElementRight;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -725,6 +793,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @EnterCombat.started += instance.OnEnterCombat;
             @EnterCombat.performed += instance.OnEnterCombat;
             @EnterCombat.canceled += instance.OnEnterCombat;
+            @SwapElementLeft.started += instance.OnSwapElementLeft;
+            @SwapElementLeft.performed += instance.OnSwapElementLeft;
+            @SwapElementLeft.canceled += instance.OnSwapElementLeft;
+            @SwapElementRight.started += instance.OnSwapElementRight;
+            @SwapElementRight.performed += instance.OnSwapElementRight;
+            @SwapElementRight.canceled += instance.OnSwapElementRight;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -756,6 +830,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @EnterCombat.started -= instance.OnEnterCombat;
             @EnterCombat.performed -= instance.OnEnterCombat;
             @EnterCombat.canceled -= instance.OnEnterCombat;
+            @SwapElementLeft.started -= instance.OnSwapElementLeft;
+            @SwapElementLeft.performed -= instance.OnSwapElementLeft;
+            @SwapElementLeft.canceled -= instance.OnSwapElementLeft;
+            @SwapElementRight.started -= instance.OnSwapElementRight;
+            @SwapElementRight.performed -= instance.OnSwapElementRight;
+            @SwapElementRight.canceled -= instance.OnSwapElementRight;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -901,6 +981,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         void OnHeavyAttack(InputAction.CallbackContext context);
         void OnRetarget(InputAction.CallbackContext context);
         void OnEnterCombat(InputAction.CallbackContext context);
+        void OnSwapElementLeft(InputAction.CallbackContext context);
+        void OnSwapElementRight(InputAction.CallbackContext context);
     }
     public interface IMenuActions
     {

@@ -1034,6 +1034,7 @@ MonoBehaviour:
   cameraFollowTarget: {fileID: 34867868}
   model: {fileID: 5866666020638784867}
   CurrentElementEffect: 6
+  elementEffects: 0200000003000000040000000500000006000000
 --- !u!114 &845412131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1068,18 +1069,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7060d6f1c406045a438c018ac61586, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animancer: {fileID: 5866666020638784866}
   pc: {fileID: 0}
   parameterNames:
   - {fileID: 11400000, guid: 388a46bfede854feea0463faa2ce8881, type: 2}
   - {fileID: 11400000, guid: 5bbd3289517d44f308c4c0ef74b896ef, type: 2}
-  animancer: {fileID: 5866666020638784866}
-  rootMotion: {fileID: 1210943192}
-  moveAnimDataDict:
+  animDataDict:
     _serializedList:
     - Key: 0
-      Value: {fileID: 11400000, guid: eb901f98a0d7b3f408722cb48aed75d0, type: 2}
+      Value:
+        moveAnimData: {fileID: 11400000, guid: eb901f98a0d7b3f408722cb48aed75d0, type: 2}
+        hitAnimData: {fileID: 11400000, guid: 7e53a68345bad4dac8f1dfa4153d86c1, type: 2}
     - Key: 1
-      Value: {fileID: 11400000, guid: fd6a31838b2c04777827e0d41dd8b298, type: 2}
+      Value:
+        moveAnimData: {fileID: 11400000, guid: fd6a31838b2c04777827e0d41dd8b298, type: 2}
+        hitAnimData: {fileID: 11400000, guid: 01645fa9fadbe474e819ab7958a6a4a4, type: 2}
   walkingAnim: 0
 --- !u!114 &845412133
 MonoBehaviour:
@@ -2196,6 +2200,24 @@ MonoBehaviour:
     m_Type: 0
     m_ExpectedControlType: 
     m_Id: 2e5e70bf-fa4b-4ee5-8142-377169a4d11f
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  swapElementLeft:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: c79f781c-11db-47fd-9936-c5818586d85f
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  swapElementRight:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 5531163e-511d-4ba4-b586-a77ff1bff6b1
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []

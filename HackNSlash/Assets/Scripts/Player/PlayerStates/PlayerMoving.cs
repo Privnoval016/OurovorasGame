@@ -22,7 +22,7 @@ public class PlayerMoving : PlayerState
 	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
 	    InputManager.Instance.swapMode.performed += OnSwitchAction;
-	    pc.pac.rootMotion.enabled = false;
+	    pc.pac.RootMotionEnabled(false);
 	    pc.cam.isFollowingPlayer = true;
 	    
 	    pc.psm.canAttack = true;
@@ -84,7 +84,7 @@ public class PlayerMoving : PlayerState
 	    pc.pac.walkingAnim = WalkingAnimStates.Idle;
 	    pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
 	    
-	    pc.pac.rootMotion.enabled = false;
+	    pc.pac.RootMotionEnabled(false);
 	    pc.cam.isFollowingPlayer = true;
 	    
 	    pc.psm.currentPlayerAttack = null;

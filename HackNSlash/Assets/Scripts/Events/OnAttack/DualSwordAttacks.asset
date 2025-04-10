@@ -25,7 +25,7 @@ MonoBehaviour:
   launchUpTime: 0.3
   launchUpHeight: 15
   plungeSpeed: 75
-  enemyStepPushBack: 0.2
+  enemyStepPushBack: 1
   enemyStepTime: 0.3
   enemyStepHeight: 1
   dodgeDistance: 8
