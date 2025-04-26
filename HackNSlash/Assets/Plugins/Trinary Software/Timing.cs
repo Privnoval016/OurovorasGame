@@ -10,7 +10,7 @@ using UnityEngine.Profiling;
 
 // /////////////////////////////////////////////////////////////////////////////////////////
 //                              More Effective Coroutines Pro
-//                                        v3.11.0
+//                                        v3.13.0
 // 
 // This is an improved implementation of coroutines that boasts zero per-frame memory allocations,
 // runs about twice as fast as Unity's built in coroutines, and has a range of extra features.
@@ -49,11 +49,6 @@ namespace MEC
         [Tooltip("A count of the number of Update coroutines that are currently running."), Space(12)]
         public int UpdateCoroutines;
         /// <summary>
-        /// The number of coroutines that are being run in the FixedUpdate segment.
-        /// </summary>
-        [Tooltip("A count of the number of FixedUpdate coroutines that are currently running.")]
-        public int FixedUpdateCoroutines;
-        /// <summary>
         /// The number of coroutines that are being run in the LateUpdate segment.
         /// </summary>
         [Tooltip("A count of the number of LateUpdate coroutines that are currently running.")]
@@ -69,15 +64,15 @@ namespace MEC
         [Tooltip("A count of the number of RealtimeUpdate coroutines that are currently running.")]
         public int RealtimeUpdateCoroutines;
         /// <summary>
-        /// The number of coroutines that are being run in the EditorUpdate segment.
+        /// The number of coroutines that are being run in the FixedUpdate segment.
         /// </summary>
-        [Tooltip("A count of the number of EditorUpdate coroutines that are currently running.")]
-        public int EditorUpdateCoroutines;
+        [Tooltip("A count of the number of FixedUpdate coroutines that are currently running.")]
+        public int FixedUpdateCoroutines;
         /// <summary>
-        /// The number of coroutines that are being run in the EditorSlowUpdate segment.
+        /// The number of coroutines that are being run in the LateFixedUpdate segment.
         /// </summary>
-        [Tooltip("A count of the number of EditorSlowUpdate coroutines that are currently running.")]
-        public int EditorSlowUpdateCoroutines;
+        [Tooltip("A count of the number of FixedUpdate coroutines that are currently running.")]
+        public int LateFixedUpdateCoroutines;
         /// <summary>
         /// The number of coroutines that are being run in the EndOfFrame segment.
         /// </summary>
@@ -161,43 +156,35 @@ namespace MEC
         private int _nextUpdateProcessSlot;
         private int _nextLateUpdateProcessSlot;
         private int _nextFixedUpdateProcessSlot;
+        private int _nextLateFixedUpdateProcessSlot;
         private int _nextSlowUpdateProcessSlot;
         private int _nextRealtimeUpdateProcessSlot;
-        private int _nextEditorUpdateProcessSlot;
-        private int _nextEditorSlowUpdateProcessSlot;
         private int _nextEndOfFrameProcessSlot;
         private int _nextManualTimeframeProcessSlot;
         private int _lastUpdateProcessSlot;
         private int _lastLateUpdateProcessSlot;
         private int _lastFixedUpdateProcessSlot;
+        private int _lastLateFixedUpdateProcessSlot;
         private int _lastSlowUpdateProcessSlot;
         private int _lastRealtimeUpdateProcessSlot;
-#if UNITY_EDITOR
-        private int _lastEditorUpdateProcessSlot;
-        private int _lastEditorSlowUpdateProcessSlot;
-#endif
         private int _lastEndOfFrameProcessSlot;
         private int _lastManualTimeframeProcessSlot;
         private float _lastUpdateTime;
         private float _lastLateUpdateTime;
         private float _lastFixedUpdateTime;
+        private float _lastLateFixedUpdateTime;
         private float _lastSlowUpdateTime;
         private float _lastRealtimeUpdateTime;
-#if UNITY_EDITOR
-        private float _lastEditorUpdateTime;
-        private float _lastEditorSlowUpdateTime;
-#endif
         private float _lastEndOfFrameTime;
         private float _lastManualTimeframeTime;
         private float _lastSlowUpdateDeltaTime;
-        private float _lastEditorUpdateDeltaTime;
-        private float _lastEditorSlowUpdateDeltaTime;
         private float _lastManualTimeframeDeltaTime;
         private ushort _framesSinceUpdate;
         private ushort _expansions = 1;
         [SerializeField, HideInInspector]
         private byte _instanceID;
         private bool _EOFPumpRan;
+        private bool _fixedUpdateRan;
 
         private static readonly Dictionary<CoroutineHandle, HashSet<CoroutineHandle>> Links = new Dictionary<CoroutineHandle, HashSet<CoroutineHandle>>();
         private static readonly WaitForEndOfFrame EofWaitObject = new WaitForEndOfFrame();
@@ -212,31 +199,28 @@ namespace MEC
 
         private IEnumerator<float>[] UpdateProcesses = new IEnumerator<float>[InitialBufferSizeLarge];
         private IEnumerator<float>[] LateUpdateProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
-        private IEnumerator<float>[] FixedUpdateProcesses = new IEnumerator<float>[InitialBufferSizeMedium];
         private IEnumerator<float>[] SlowUpdateProcesses = new IEnumerator<float>[InitialBufferSizeMedium];
         private IEnumerator<float>[] RealtimeUpdateProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
-        private IEnumerator<float>[] EditorUpdateProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
-        private IEnumerator<float>[] EditorSlowUpdateProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
+        private IEnumerator<float>[] FixedUpdateProcesses = new IEnumerator<float>[InitialBufferSizeMedium];
+        private IEnumerator<float>[] LateFixedUpdateProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
         private IEnumerator<float>[] EndOfFrameProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
         private IEnumerator<float>[] ManualTimeframeProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
 
         private bool[] UpdatePaused = new bool[InitialBufferSizeLarge];
         private bool[] LateUpdatePaused = new bool[InitialBufferSizeSmall];
-        private bool[] FixedUpdatePaused = new bool[InitialBufferSizeMedium];
         private bool[] SlowUpdatePaused = new bool[InitialBufferSizeMedium];
         private bool[] RealtimeUpdatePaused = new bool[InitialBufferSizeSmall];
-        private bool[] EditorUpdatePaused = new bool[InitialBufferSizeSmall];
-        private bool[] EditorSlowUpdatePaused = new bool[InitialBufferSizeSmall];
+        private bool[] FixedUpdatePaused = new bool[InitialBufferSizeMedium];
+        private bool[] LateFixedUpdatePaused = new bool[InitialBufferSizeSmall];
         private bool[] EndOfFramePaused = new bool[InitialBufferSizeSmall];
         private bool[] ManualTimeframePaused = new bool[InitialBufferSizeSmall];
 
         private bool[] UpdateHeld = new bool[InitialBufferSizeLarge];
         private bool[] LateUpdateHeld = new bool[InitialBufferSizeSmall];
-        private bool[] FixedUpdateHeld = new bool[InitialBufferSizeMedium];
         private bool[] SlowUpdateHeld = new bool[InitialBufferSizeMedium];
         private bool[] RealtimeUpdateHeld = new bool[InitialBufferSizeSmall];
-        private bool[] EditorUpdateHeld = new bool[InitialBufferSizeSmall];
-        private bool[] EditorSlowUpdateHeld = new bool[InitialBufferSizeSmall];
+        private bool[] FixedUpdateHeld = new bool[InitialBufferSizeMedium];
+        private bool[] LateFixedUpdateHeld = new bool[InitialBufferSizeSmall];
         private bool[] EndOfFrameHeld = new bool[InitialBufferSizeSmall];
         private bool[] ManualTimeframeHeld = new bool[InitialBufferSizeSmall];
 
@@ -246,6 +230,7 @@ namespace MEC
         private const int InitialBufferSizeLarge = 256;
         private const int InitialBufferSizeMedium = 64;
         private const int InitialBufferSizeSmall = 8;
+        private const float ASmallNumber = 0.00048828125f;
 
 
         private static Timing[] ActiveInstances = new Timing[16];
@@ -292,9 +277,6 @@ namespace MEC
             if (MainThread == null)
                 MainThread = System.Threading.Thread.CurrentThread;
 
-            if (_nextEditorUpdateProcessSlot > 0 || _nextEditorSlowUpdateProcessSlot > 0)
-                OnEditorStart();
-
             InitializeInstanceID();
 
             if (_nextEndOfFrameProcessSlot > 0)
@@ -335,6 +317,60 @@ namespace MEC
         {
             if (OnPreExecute != null)
                 OnPreExecute();
+
+            if (_fixedUpdateRan && _nextLateFixedUpdateProcessSlot > 0)
+            {
+                _fixedUpdateRan = false;
+
+                ProcessIndex coindex = new ProcessIndex { seg = Segment.LateFixedUpdate };
+                if (UpdateTimeValues(coindex.seg))
+                    _lastLateFixedUpdateProcessSlot = _nextLateFixedUpdateProcessSlot;
+
+                for (coindex.i = 0; coindex.i < _lastLateFixedUpdateProcessSlot; coindex.i++)
+                {
+                    try
+                    {
+                        if (!LateFixedUpdatePaused[coindex.i] && !LateFixedUpdateHeld[coindex.i] && LateFixedUpdateProcesses[coindex.i] != null && !(localTime < LateFixedUpdateProcesses[coindex.i].Current))
+                        {
+                            currentCoroutine = _indexToHandle[coindex];
+
+                            if (ProfilerDebugAmount != DebugInfoType.None && _indexToHandle.ContainsKey(coindex))
+                            {
+                                Profiler.BeginSample(ProfilerDebugAmount == DebugInfoType.SeperateTags ? ("Processing Coroutine, " +
+                                        (_processLayers.ContainsKey(_indexToHandle[coindex]) ? "layer " + _processLayers[_indexToHandle[coindex]] : "no layer") +
+                                        (_processTags.ContainsKey(_indexToHandle[coindex]) ? ", tag " + _processTags[_indexToHandle[coindex]] : ", no tag"))
+                                        : "Processing Coroutine");
+                            }
+
+                            if (!LateFixedUpdateProcesses[coindex.i].MoveNext())
+                            {
+                                if (_indexToHandle.ContainsKey(coindex))
+                                    KillCoroutinesOnInstance(_indexToHandle[coindex]);
+                            }
+                            else if (LateFixedUpdateProcesses[coindex.i] != null && float.IsNaN(LateFixedUpdateProcesses[coindex.i].Current))
+                            {
+                                if (ReplacementFunction != null)
+                                {
+                                    LateFixedUpdateProcesses[coindex.i] = ReplacementFunction(LateFixedUpdateProcesses[coindex.i], _indexToHandle[coindex]);
+                                    ReplacementFunction = null;
+                                }
+                                coindex.i--;
+                            }
+
+                            if (ProfilerDebugAmount != DebugInfoType.None)
+                                Profiler.EndSample();
+                        }
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogException(ex);
+
+                        if (ex is MissingReferenceException)
+                            Debug.LogError("This exception can probably be fixed by adding \"CancelWith(gameObject)\" when you run the coroutine.\n"
+                                + "Example: Timing.RunCoroutine(_foo().CancelWith(gameObject), Segment.LateFixedUpdate);");
+                    }
+                }
+            }
 
             if (_lastSlowUpdateTime + TimeBetweenSlowUpdateCalls < Time.realtimeSinceStartup && _nextSlowUpdateProcessSlot > 0)
             {
@@ -520,6 +556,8 @@ namespace MEC
         {
             if (OnPreExecute != null)
                 OnPreExecute();
+
+            _fixedUpdateRan = true;
 
             if (_nextFixedUpdateProcessSlot > 0)
             {
@@ -715,142 +753,6 @@ namespace MEC
             currentCoroutine = default(CoroutineHandle);
         }
 
-        private bool OnEditorStart()
-        {
-#if UNITY_EDITOR
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-                return false;
-
-            if (_lastEditorUpdateTime < 0.001)
-                _lastEditorUpdateTime = (float)EditorApplication.timeSinceStartup;
-
-            if (ActiveInstances[_instanceID] == null)
-                OnEnable();
-
-            EditorApplication.update -= OnEditorUpdate;
-
-            EditorApplication.update += OnEditorUpdate;
-
-            return true;
-#else
-            return false;
-#endif
-        }
-
-#if UNITY_EDITOR
-        private void OnEditorUpdate()
-        {
-            if (OnPreExecute != null)
-                OnPreExecute();
-
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-            {
-                for (int i = 0; i < _nextEditorUpdateProcessSlot; i++)
-                    EditorUpdateProcesses[i] = null;
-                _nextEditorUpdateProcessSlot = 0;
-                for (int i = 0; i < _nextEditorSlowUpdateProcessSlot; i++)
-                    EditorSlowUpdateProcesses[i] = null;
-                _nextEditorSlowUpdateProcessSlot = 0;
-
-                EditorApplication.update -= OnEditorUpdate;
-                _instance = null;
-            }
-
-            if (_lastEditorSlowUpdateTime + TimeBetweenSlowUpdateCalls < EditorApplication.timeSinceStartup && _nextEditorSlowUpdateProcessSlot > 0)
-            {
-                ProcessIndex coindex = new ProcessIndex { seg = Segment.EditorSlowUpdate };
-                if (UpdateTimeValues(coindex.seg))
-                    _lastEditorSlowUpdateProcessSlot = _nextEditorSlowUpdateProcessSlot;
-
-                for (coindex.i = 0; coindex.i < _lastEditorSlowUpdateProcessSlot; coindex.i++)
-                {
-                    currentCoroutine = _indexToHandle[coindex];
-
-                    try
-                    {
-                        if (!EditorSlowUpdatePaused[coindex.i] && !EditorSlowUpdateHeld[coindex.i] && EditorSlowUpdateProcesses[coindex.i] != null &&
-                            !(EditorApplication.timeSinceStartup < EditorSlowUpdateProcesses[coindex.i].Current))
-                        {
-                            if (!EditorSlowUpdateProcesses[coindex.i].MoveNext())
-                            {
-                                if (_indexToHandle.ContainsKey(coindex))
-                                    KillCoroutinesOnInstance(_indexToHandle[coindex]);
-                            }
-                            else if (EditorSlowUpdateProcesses[coindex.i] != null && float.IsNaN(EditorSlowUpdateProcesses[coindex.i].Current))
-                            {
-                                if (ReplacementFunction != null)
-                                {
-                                    EditorSlowUpdateProcesses[coindex.i] = ReplacementFunction(EditorSlowUpdateProcesses[coindex.i], _indexToHandle[coindex]);
-                                    ReplacementFunction = null;
-                                }
-                                coindex.i--;
-                            }
-                        }
-                    }
-                    catch (System.Exception ex)
-                    {
-                        Debug.LogException(ex);
-
-                        if (ex is MissingReferenceException)
-                            Debug.LogError("This exception can probably be fixed by adding \"CancelWith(gameObject)\" when you run the coroutine.\n"
-                                + "Example: Timing.RunCoroutine(_foo().CancelWith(gameObject), Segment.EditorUpdate);");
-                    }
-                }
-            }
-
-            if (_nextEditorUpdateProcessSlot > 0)
-            {
-                ProcessIndex coindex = new ProcessIndex { seg = Segment.EditorUpdate };
-                if (UpdateTimeValues(coindex.seg))
-                    _lastEditorUpdateProcessSlot = _nextEditorUpdateProcessSlot;
-
-                for (coindex.i = 0; coindex.i < _lastEditorUpdateProcessSlot; coindex.i++)
-                {
-                    currentCoroutine = _indexToHandle[coindex];
-
-                    try
-                    {
-                        if (!EditorUpdatePaused[coindex.i] && !EditorUpdateHeld[coindex.i] && EditorUpdateProcesses[coindex.i] != null &&
-                            !(EditorApplication.timeSinceStartup < EditorUpdateProcesses[coindex.i].Current))
-                        {
-                            if (!EditorUpdateProcesses[coindex.i].MoveNext())
-                            {
-                                if (_indexToHandle.ContainsKey(coindex))
-                                    KillCoroutinesOnInstance(_indexToHandle[coindex]);
-                            }
-                            else if (EditorUpdateProcesses[coindex.i] != null && float.IsNaN(EditorUpdateProcesses[coindex.i].Current))
-                            {
-                                if (ReplacementFunction != null)
-                                {
-                                    EditorUpdateProcesses[coindex.i] = ReplacementFunction(EditorUpdateProcesses[coindex.i], _indexToHandle[coindex]);
-                                    ReplacementFunction = null;
-                                }
-                                coindex.i--;
-                            }
-                        }
-                    }
-                    catch (System.Exception ex)
-                    {
-                        Debug.LogException(ex);
-
-                        if (ex is MissingReferenceException)
-                            Debug.LogError("This exception can probably be fixed by adding \"CancelWith(gameObject)\" when you run the coroutine.\n"
-                                + "Example: Timing.RunCoroutine(_foo().CancelWith(gameObject), Segment.EditorUpdate);");
-                    }
-                }
-            }
-
-            if (++_framesSinceUpdate > FramesUntilMaintenance)
-            {
-                _framesSinceUpdate = 0;
-
-                EditorRemoveUnused();
-            }
-
-            currentCoroutine = default(CoroutineHandle);
-        }
-#endif
-
         private IEnumerator<float> _EOFPumpWatcher()
         {
             while (_nextEndOfFrameProcessSlot > 0)
@@ -988,47 +890,6 @@ namespace MEC
             }
 
             UpdateCoroutines = _nextUpdateProcessSlot = inner.i;
-
-            outer.seg = inner.seg = Segment.FixedUpdate;
-            for (outer.i = inner.i = 0; outer.i < _nextFixedUpdateProcessSlot; outer.i++)
-            {
-                if (FixedUpdateProcesses[outer.i] != null)
-                {
-                    if (outer.i != inner.i)
-                    {
-                        FixedUpdateProcesses[inner.i] = FixedUpdateProcesses[outer.i];
-                        FixedUpdatePaused[inner.i] = FixedUpdatePaused[outer.i];
-                        FixedUpdateHeld[inner.i] = FixedUpdateHeld[outer.i];
-
-                        if (_indexToHandle.ContainsKey(inner))
-                        {
-                            RemoveGraffiti(_indexToHandle[inner]);
-                            _handleToIndex.Remove(_indexToHandle[inner]);
-                            _indexToHandle.Remove(inner);
-                        }
-
-                        _handleToIndex[_indexToHandle[outer]] = inner;
-                        _indexToHandle.Add(inner, _indexToHandle[outer]);
-                        _indexToHandle.Remove(outer);
-                    }
-                    inner.i++;
-                }
-            }
-            for (outer.i = inner.i; outer.i < _nextFixedUpdateProcessSlot; outer.i++)
-            {
-                FixedUpdateProcesses[outer.i] = null;
-                FixedUpdatePaused[outer.i] = false;
-                FixedUpdateHeld[outer.i] = false;
-                if (_indexToHandle.ContainsKey(outer))
-                {
-                    RemoveGraffiti(_indexToHandle[outer]);
-
-                    _handleToIndex.Remove(_indexToHandle[outer]);
-                    _indexToHandle.Remove(outer);
-                }
-            }
-
-            FixedUpdateCoroutines = _nextFixedUpdateProcessSlot = inner.i;
 
             outer.seg = inner.seg = Segment.LateUpdate;
             for (outer.i = inner.i = 0; outer.i < _nextLateUpdateProcessSlot; outer.i++)
@@ -1192,6 +1053,88 @@ namespace MEC
                 }
             }
 
+            outer.seg = inner.seg = Segment.FixedUpdate;
+            for (outer.i = inner.i = 0; outer.i < _nextFixedUpdateProcessSlot; outer.i++)
+            {
+                if (FixedUpdateProcesses[outer.i] != null)
+                {
+                    if (outer.i != inner.i)
+                    {
+                        FixedUpdateProcesses[inner.i] = FixedUpdateProcesses[outer.i];
+                        FixedUpdatePaused[inner.i] = FixedUpdatePaused[outer.i];
+                        FixedUpdateHeld[inner.i] = FixedUpdateHeld[outer.i];
+
+                        if (_indexToHandle.ContainsKey(inner))
+                        {
+                            RemoveGraffiti(_indexToHandle[inner]);
+                            _handleToIndex.Remove(_indexToHandle[inner]);
+                            _indexToHandle.Remove(inner);
+                        }
+
+                        _handleToIndex[_indexToHandle[outer]] = inner;
+                        _indexToHandle.Add(inner, _indexToHandle[outer]);
+                        _indexToHandle.Remove(outer);
+                    }
+                    inner.i++;
+                }
+            }
+            for (outer.i = inner.i; outer.i < _nextFixedUpdateProcessSlot; outer.i++)
+            {
+                FixedUpdateProcesses[outer.i] = null;
+                FixedUpdatePaused[outer.i] = false;
+                FixedUpdateHeld[outer.i] = false;
+                if (_indexToHandle.ContainsKey(outer))
+                {
+                    RemoveGraffiti(_indexToHandle[outer]);
+
+                    _handleToIndex.Remove(_indexToHandle[outer]);
+                    _indexToHandle.Remove(outer);
+                }
+            }
+
+            FixedUpdateCoroutines = _nextFixedUpdateProcessSlot = inner.i;
+
+            outer.seg = inner.seg = Segment.LateFixedUpdate;
+            for (outer.i = inner.i = 0; outer.i < _nextLateFixedUpdateProcessSlot; outer.i++)
+            {
+                if (LateFixedUpdateProcesses[outer.i] != null)
+                {
+                    if (outer.i != inner.i)
+                    {
+                        LateFixedUpdateProcesses[inner.i] = LateFixedUpdateProcesses[outer.i];
+                        LateFixedUpdatePaused[inner.i] = LateFixedUpdatePaused[outer.i];
+                        LateFixedUpdateHeld[inner.i] = LateFixedUpdateHeld[outer.i];
+
+                        if (_indexToHandle.ContainsKey(inner))
+                        {
+                            RemoveGraffiti(_indexToHandle[inner]);
+                            _handleToIndex.Remove(_indexToHandle[inner]);
+                            _indexToHandle.Remove(inner);
+                        }
+
+                        _handleToIndex[_indexToHandle[outer]] = inner;
+                        _indexToHandle.Add(inner, _indexToHandle[outer]);
+                        _indexToHandle.Remove(outer);
+                    }
+                    inner.i++;
+                }
+            }
+            for (outer.i = inner.i; outer.i < _nextLateFixedUpdateProcessSlot; outer.i++)
+            {
+                LateFixedUpdateProcesses[outer.i] = null;
+                LateFixedUpdatePaused[outer.i] = false;
+                LateFixedUpdateHeld[outer.i] = false;
+                if (_indexToHandle.ContainsKey(outer))
+                {
+                    RemoveGraffiti(_indexToHandle[outer]);
+
+                    _handleToIndex.Remove(_indexToHandle[outer]);
+                    _indexToHandle.Remove(outer);
+                }
+            }
+
+            LateFixedUpdateCoroutines = _nextLateFixedUpdateProcessSlot = inner.i;
+
             EndOfFrameCoroutines = _nextEndOfFrameProcessSlot = inner.i;
 
             outer.seg = inner.seg = Segment.ManualTimeframe;
@@ -1234,102 +1177,6 @@ namespace MEC
             }
 
             ManualTimeframeCoroutines = _nextManualTimeframeProcessSlot = inner.i;
-        }
-
-        private void EditorRemoveUnused()
-        {
-            var waitTrigsEnum = _waitingTriggers.GetEnumerator();
-            while (waitTrigsEnum.MoveNext())
-            {
-                if (_handleToIndex.ContainsKey(waitTrigsEnum.Current.Key) && CoindexIsNull(_handleToIndex[waitTrigsEnum.Current.Key]))
-                {
-                    CloseWaitingProcess(waitTrigsEnum.Current.Key);
-                    waitTrigsEnum = _waitingTriggers.GetEnumerator();
-                }
-            }
-
-            ProcessIndex outer, inner;
-            outer.seg = inner.seg = Segment.EditorUpdate;
-            for (outer.i = inner.i = 0; outer.i < _nextEditorUpdateProcessSlot; outer.i++)
-            {
-                if (EditorUpdateProcesses[outer.i] != null)
-                {
-                    if (outer.i != inner.i)
-                    {
-                        EditorUpdateProcesses[inner.i] = EditorUpdateProcesses[outer.i];
-                        EditorUpdatePaused[inner.i] = EditorUpdatePaused[outer.i];
-                        EditorUpdateHeld[inner.i] = EditorUpdateHeld[outer.i];
-
-                        if (_indexToHandle.ContainsKey(inner))
-                        {
-                            RemoveGraffiti(_indexToHandle[inner]);
-                            _handleToIndex.Remove(_indexToHandle[inner]);
-                            _indexToHandle.Remove(inner);
-                        }
-
-                        _handleToIndex[_indexToHandle[outer]] = inner;
-                        _indexToHandle.Add(inner, _indexToHandle[outer]);
-                        _indexToHandle.Remove(outer);
-                    }
-                    inner.i++;
-                }
-            }
-            for (outer.i = inner.i; outer.i < _nextEditorUpdateProcessSlot; outer.i++)
-            {
-                EditorUpdateProcesses[outer.i] = null;
-                EditorUpdatePaused[outer.i] = false;
-                EditorUpdateHeld[outer.i] = false;
-                if (_indexToHandle.ContainsKey(outer))
-                {
-                    RemoveGraffiti(_indexToHandle[outer]);
-
-                    _handleToIndex.Remove(_indexToHandle[outer]);
-                    _indexToHandle.Remove(outer);
-                }
-            }
-
-            EditorUpdateCoroutines = _nextEditorUpdateProcessSlot = inner.i;
-
-            outer.seg = inner.seg = Segment.EditorSlowUpdate;
-            for (outer.i = inner.i = 0; outer.i < _nextEditorSlowUpdateProcessSlot; outer.i++)
-            {
-                if (EditorSlowUpdateProcesses[outer.i] != null)
-                {
-                    if (outer.i != inner.i)
-                    {
-                        EditorSlowUpdateProcesses[inner.i] = EditorSlowUpdateProcesses[outer.i];
-                        EditorUpdatePaused[inner.i] = EditorUpdatePaused[outer.i];
-                        EditorUpdateHeld[inner.i] = EditorUpdateHeld[outer.i];
-
-                        if (_indexToHandle.ContainsKey(inner))
-                        {
-                            RemoveGraffiti(_indexToHandle[inner]);
-                            _handleToIndex.Remove(_indexToHandle[inner]);
-                            _indexToHandle.Remove(inner);
-                        }
-
-                        _handleToIndex[_indexToHandle[outer]] = inner;
-                        _indexToHandle.Add(inner, _indexToHandle[outer]);
-                        _indexToHandle.Remove(outer);
-                    }
-                    inner.i++;
-                }
-            }
-            for (outer.i = inner.i; outer.i < _nextEditorSlowUpdateProcessSlot; outer.i++)
-            {
-                EditorSlowUpdateProcesses[outer.i] = null;
-                EditorSlowUpdatePaused[outer.i] = false;
-                EditorSlowUpdateHeld[outer.i] = false;
-                if (_indexToHandle.ContainsKey(outer))
-                {
-                    RemoveGraffiti(_indexToHandle[outer]);
-
-                    _handleToIndex.Remove(_indexToHandle[outer]);
-                    _indexToHandle.Remove(outer);
-                }
-            }
-
-            EditorSlowUpdateCoroutines = _nextEditorSlowUpdateProcessSlot = inner.i;
         }
 
         /// <summary>
@@ -2519,67 +2366,6 @@ namespace MEC
 
                         break;
 
-                    case Segment.FixedUpdate:
-
-                        if (_nextFixedUpdateProcessSlot >= FixedUpdateProcesses.Length)
-                        {
-                            IEnumerator<float>[] oldProcArray = FixedUpdateProcesses;
-                            bool[] oldPausedArray = FixedUpdatePaused;
-                            bool[] oldHeldArray = FixedUpdateHeld;
-
-                            FixedUpdateProcesses = new IEnumerator<float>[FixedUpdateProcesses.Length + (ProcessArrayChunkSize * _expansions++)];
-                            FixedUpdatePaused = new bool[FixedUpdateProcesses.Length];
-                            FixedUpdateHeld = new bool[FixedUpdateProcesses.Length];
-
-                            for (int i = 0; i < oldProcArray.Length; i++)
-                            {
-                                FixedUpdateProcesses[i] = oldProcArray[i];
-                                FixedUpdatePaused[i] = oldPausedArray[i];
-                                FixedUpdateHeld[i] = oldHeldArray[i];
-                            }
-                        }
-
-                        if (UpdateTimeValues(slot.seg))
-                            _lastFixedUpdateProcessSlot = _nextFixedUpdateProcessSlot;
-
-                        slot.i = _nextFixedUpdateProcessSlot++;
-                        FixedUpdateProcesses[slot.i] = coroutine;
-
-                        if (null != tag)
-                            AddTagOnInstance(tag, handle);
-
-                        if (layerHasValue)
-                            AddLayerOnInstance(layer, handle);
-
-                        _indexToHandle.Add(slot, handle);
-                        _handleToIndex.Add(handle, slot);
-
-                        while (prewarm)
-                        {
-                            if (!FixedUpdateProcesses[slot.i].MoveNext())
-                            {
-                                if (_indexToHandle.ContainsKey(slot))
-                                    KillCoroutinesOnInstance(_indexToHandle[slot]);
-
-                                prewarm = false;
-                            }
-                            else if (FixedUpdateProcesses[slot.i] != null && float.IsNaN(FixedUpdateProcesses[slot.i].Current))
-                            {
-                                if (ReplacementFunction != null)
-                                {
-                                    FixedUpdateProcesses[slot.i] = ReplacementFunction(FixedUpdateProcesses[slot.i], _indexToHandle[slot]);
-                                    ReplacementFunction = null;
-                                }
-                                prewarm = !FixedUpdatePaused[slot.i] && !FixedUpdateHeld[slot.i];
-                            }
-                            else
-                            {
-                                prewarm = false;
-                            }
-                        }
-
-                        break;
-
                     case Segment.LateUpdate:
 
                         if (_nextLateUpdateProcessSlot >= LateUpdateProcesses.Length)
@@ -2702,6 +2488,128 @@ namespace MEC
 
                         break;
 
+                    case Segment.FixedUpdate:
+
+                        if (_nextFixedUpdateProcessSlot >= FixedUpdateProcesses.Length)
+                        {
+                            IEnumerator<float>[] oldProcArray = FixedUpdateProcesses;
+                            bool[] oldPausedArray = FixedUpdatePaused;
+                            bool[] oldHeldArray = FixedUpdateHeld;
+
+                            FixedUpdateProcesses = new IEnumerator<float>[FixedUpdateProcesses.Length + (ProcessArrayChunkSize * _expansions++)];
+                            FixedUpdatePaused = new bool[FixedUpdateProcesses.Length];
+                            FixedUpdateHeld = new bool[FixedUpdateProcesses.Length];
+
+                            for (int i = 0; i < oldProcArray.Length; i++)
+                            {
+                                FixedUpdateProcesses[i] = oldProcArray[i];
+                                FixedUpdatePaused[i] = oldPausedArray[i];
+                                FixedUpdateHeld[i] = oldHeldArray[i];
+                            }
+                        }
+
+                        if (UpdateTimeValues(slot.seg))
+                            _lastFixedUpdateProcessSlot = _nextFixedUpdateProcessSlot;
+
+                        slot.i = _nextFixedUpdateProcessSlot++;
+                        FixedUpdateProcesses[slot.i] = coroutine;
+
+                        if (null != tag)
+                            AddTagOnInstance(tag, handle);
+
+                        if (layerHasValue)
+                            AddLayerOnInstance(layer, handle);
+
+                        _indexToHandle.Add(slot, handle);
+                        _handleToIndex.Add(handle, slot);
+
+                        while (prewarm)
+                        {
+                            if (!FixedUpdateProcesses[slot.i].MoveNext())
+                            {
+                                if (_indexToHandle.ContainsKey(slot))
+                                    KillCoroutinesOnInstance(_indexToHandle[slot]);
+
+                                prewarm = false;
+                            }
+                            else if (FixedUpdateProcesses[slot.i] != null && float.IsNaN(FixedUpdateProcesses[slot.i].Current))
+                            {
+                                if (ReplacementFunction != null)
+                                {
+                                    FixedUpdateProcesses[slot.i] = ReplacementFunction(FixedUpdateProcesses[slot.i], _indexToHandle[slot]);
+                                    ReplacementFunction = null;
+                                }
+                                prewarm = !FixedUpdatePaused[slot.i] && !FixedUpdateHeld[slot.i];
+                            }
+                            else
+                            {
+                                prewarm = false;
+                            }
+                        }
+
+                        break;
+
+                    case Segment.LateFixedUpdate:
+
+                        if (_nextLateFixedUpdateProcessSlot >= LateFixedUpdateProcesses.Length)
+                        {
+                            IEnumerator<float>[] oldProcArray = LateFixedUpdateProcesses;
+                            bool[] oldPausedArray = LateFixedUpdatePaused;
+                            bool[] oldHeldArray = LateFixedUpdateHeld;
+
+                            LateFixedUpdateProcesses = new IEnumerator<float>[LateFixedUpdateProcesses.Length + (ProcessArrayChunkSize * _expansions++)];
+                            LateFixedUpdatePaused = new bool[LateFixedUpdateProcesses.Length];
+                            LateFixedUpdateHeld = new bool[LateFixedUpdateProcesses.Length];
+
+                            for (int i = 0; i < oldProcArray.Length; i++)
+                            {
+                                LateFixedUpdateProcesses[i] = oldProcArray[i];
+                                LateFixedUpdatePaused[i] = oldPausedArray[i];
+                                LateFixedUpdateHeld[i] = oldHeldArray[i];
+                            }
+                        }
+
+                        if (UpdateTimeValues(slot.seg))
+                            _lastLateFixedUpdateProcessSlot = _nextLateFixedUpdateProcessSlot;
+
+                        slot.i = _nextLateFixedUpdateProcessSlot++;
+                        LateFixedUpdateProcesses[slot.i] = coroutine;
+
+                        if (null != tag)
+                            AddTagOnInstance(tag, handle);
+
+                        if (layerHasValue)
+                            AddLayerOnInstance(layer, handle);
+
+                        _indexToHandle.Add(slot, handle);
+                        _handleToIndex.Add(handle, slot);
+
+                        while (prewarm)
+                        {
+                            if (!LateFixedUpdateProcesses[slot.i].MoveNext())
+                            {
+                                if (_indexToHandle.ContainsKey(slot))
+                                    KillCoroutinesOnInstance(_indexToHandle[slot]);
+
+                                prewarm = false;
+                            }
+                            else if (LateFixedUpdateProcesses[slot.i] != null && float.IsNaN(LateFixedUpdateProcesses[slot.i].Current))
+                            {
+                                if (ReplacementFunction != null)
+                                {
+                                    LateFixedUpdateProcesses[slot.i] = ReplacementFunction(LateFixedUpdateProcesses[slot.i], _indexToHandle[slot]);
+                                    ReplacementFunction = null;
+                                }
+                                prewarm = !LateFixedUpdatePaused[slot.i] && !LateFixedUpdateHeld[slot.i];
+                            }
+                            else
+                            {
+                                prewarm = false;
+                            }
+                        }
+
+                        break;
+
                     case Segment.RealtimeUpdate:
 
                         if (_nextRealtimeUpdateProcessSlot >= RealtimeUpdateProcesses.Length)
@@ -2762,141 +2670,7 @@ namespace MEC
                         }
 
                         break;
-#if UNITY_EDITOR
-                    case Segment.EditorUpdate:
 
-                        if (!OnEditorStart())
-                            return new CoroutineHandle();
-
-                        if (handle.Key == 0)
-                            handle = new CoroutineHandle(_instanceID);
-
-                        if (_nextEditorUpdateProcessSlot >= EditorUpdateProcesses.Length)
-                        {
-                            IEnumerator<float>[] oldProcArray = EditorUpdateProcesses;
-                            bool[] oldPausedArray = EditorUpdatePaused;
-                            bool[] oldHeldArray = EditorUpdateHeld;
-
-                            EditorUpdateProcesses = new IEnumerator<float>[EditorUpdateProcesses.Length + (ProcessArrayChunkSize * _expansions++)];
-                            EditorUpdatePaused = new bool[EditorUpdateProcesses.Length];
-                            EditorUpdateHeld = new bool[EditorUpdateProcesses.Length];
-
-                            for (int i = 0; i < oldProcArray.Length; i++)
-                            {
-                                EditorUpdateProcesses[i] = oldProcArray[i];
-                                EditorUpdatePaused[i] = oldPausedArray[i];
-                                EditorUpdateHeld[i] = oldHeldArray[i];
-                            }
-                        }
-
-                        if (UpdateTimeValues(slot.seg))
-                            _lastEditorUpdateProcessSlot = _nextEditorUpdateProcessSlot;
-
-                        slot.i = _nextEditorUpdateProcessSlot++;
-                        EditorUpdateProcesses[slot.i] = coroutine;
-
-                        if (null != tag)
-                            AddTagOnInstance(tag, handle);
-
-                        if (layerHasValue)
-                            AddLayerOnInstance(layer, handle);
-
-                        _indexToHandle.Add(slot, handle);
-                        _handleToIndex.Add(handle, slot);
-
-                        while (prewarm)
-                        {
-                            if (!EditorUpdateProcesses[slot.i].MoveNext())
-                            {
-                                if (_indexToHandle.ContainsKey(slot))
-                                    KillCoroutinesOnInstance(_indexToHandle[slot]);
-
-                                prewarm = false;
-                            }
-                            else if (EditorUpdateProcesses[slot.i] != null && float.IsNaN(EditorUpdateProcesses[slot.i].Current))
-                            {
-                                if (ReplacementFunction != null)
-                                {
-                                    EditorUpdateProcesses[slot.i] = ReplacementFunction(EditorUpdateProcesses[slot.i], _indexToHandle[slot]);
-                                    ReplacementFunction = null;
-                                }
-                                prewarm = !EditorUpdatePaused[slot.i] && !EditorUpdateHeld[slot.i];
-                            }
-                            else
-                            {
-                                prewarm = false;
-                            }
-                        }
-
-                        break;
-
-                    case Segment.EditorSlowUpdate:
-
-                        if (!OnEditorStart())
-                            return new CoroutineHandle();
-
-                        if (handle.Key == 0)
-                            handle = new CoroutineHandle(_instanceID);
-
-                        if (_nextEditorSlowUpdateProcessSlot >= EditorSlowUpdateProcesses.Length)
-                        {
-                            IEnumerator<float>[] oldProcArray = EditorSlowUpdateProcesses;
-                            bool[] oldPausedArray = EditorSlowUpdatePaused;
-                            bool[] oldHeldArray = EditorSlowUpdateHeld;
-
-                            EditorSlowUpdateProcesses = new IEnumerator<float>[EditorSlowUpdateProcesses.Length + (ProcessArrayChunkSize * _expansions++)];
-                            EditorSlowUpdatePaused = new bool[EditorSlowUpdateProcesses.Length];
-                            EditorSlowUpdateHeld = new bool[EditorSlowUpdateProcesses.Length];
-
-                            for (int i = 0; i < oldProcArray.Length; i++)
-                            {
-                                EditorSlowUpdateProcesses[i] = oldProcArray[i];
-                                EditorSlowUpdatePaused[i] = oldPausedArray[i];
-                                EditorSlowUpdateHeld[i] = oldHeldArray[i];
-                            }
-                        }
-
-                        if (UpdateTimeValues(slot.seg))
-                            _lastEditorSlowUpdateProcessSlot = _nextEditorSlowUpdateProcessSlot;
-
-                        slot.i = _nextEditorSlowUpdateProcessSlot++;
-                        EditorSlowUpdateProcesses[slot.i] = coroutine;
-
-                        if (null != tag)
-                            AddTagOnInstance(tag, handle);
-
-                        if (layerHasValue)
-                            AddLayerOnInstance(layer, handle);
-
-                        _indexToHandle.Add(slot, handle);
-                        _handleToIndex.Add(handle, slot);
-
-                        while (prewarm)
-                        {
-                            if (!EditorSlowUpdateProcesses[slot.i].MoveNext())
-                            {
-                                if (_indexToHandle.ContainsKey(slot))
-                                    KillCoroutinesOnInstance(_indexToHandle[slot]);
-
-                                prewarm = false;
-                            }
-                            else if (EditorSlowUpdateProcesses[slot.i] != null && float.IsNaN(EditorSlowUpdateProcesses[slot.i].Current))
-                            {
-                                if (ReplacementFunction != null)
-                                {
-                                    EditorSlowUpdateProcesses[slot.i] = ReplacementFunction(EditorSlowUpdateProcesses[slot.i], _indexToHandle[slot]);
-                                    ReplacementFunction = null;
-                                }
-                                prewarm = !EditorSlowUpdatePaused[slot.i] && !EditorSlowUpdateHeld[slot.i];
-                            }
-                            else
-                            {
-                                prewarm = false;
-                            }
-                        }
-
-                        break;
-#endif
                     case Segment.EndOfFrame:
 
                         if (_nextEndOfFrameProcessSlot >= EndOfFrameProcesses.Length)
@@ -3011,8 +2785,7 @@ namespace MEC
         public int KillCoroutinesOnInstance()
         {
             int retVal = _nextUpdateProcessSlot + _nextLateUpdateProcessSlot + _nextFixedUpdateProcessSlot + _nextSlowUpdateProcessSlot +
-                         _nextRealtimeUpdateProcessSlot + _nextEditorUpdateProcessSlot + _nextEditorSlowUpdateProcessSlot +
-                         _nextEndOfFrameProcessSlot + _nextManualTimeframeProcessSlot;
+                         _nextRealtimeUpdateProcessSlot + _nextEndOfFrameProcessSlot + _nextManualTimeframeProcessSlot;
 
             UpdateProcesses = new IEnumerator<float>[InitialBufferSizeLarge];
             UpdatePaused = new bool[InitialBufferSizeLarge];
@@ -3026,12 +2799,6 @@ namespace MEC
             LateUpdateCoroutines = 0;
             _nextLateUpdateProcessSlot = 0;
 
-            FixedUpdateProcesses = new IEnumerator<float>[InitialBufferSizeMedium];
-            FixedUpdatePaused = new bool[InitialBufferSizeMedium];
-            FixedUpdateHeld = new bool[InitialBufferSizeMedium];
-            FixedUpdateCoroutines = 0;
-            _nextFixedUpdateProcessSlot = 0;
-
             SlowUpdateProcesses = new IEnumerator<float>[InitialBufferSizeMedium];
             SlowUpdatePaused = new bool[InitialBufferSizeMedium];
             SlowUpdateHeld = new bool[InitialBufferSizeMedium];
@@ -3044,17 +2811,17 @@ namespace MEC
             RealtimeUpdateCoroutines = 0;
             _nextRealtimeUpdateProcessSlot = 0;
 
-            EditorUpdateProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
-            EditorUpdatePaused = new bool[InitialBufferSizeSmall];
-            EditorUpdateHeld = new bool[InitialBufferSizeSmall];
-            EditorUpdateCoroutines = 0;
-            _nextEditorUpdateProcessSlot = 0;
+            FixedUpdateProcesses = new IEnumerator<float>[InitialBufferSizeMedium];
+            FixedUpdatePaused = new bool[InitialBufferSizeMedium];
+            FixedUpdateHeld = new bool[InitialBufferSizeMedium];
+            FixedUpdateCoroutines = 0;
+            _nextFixedUpdateProcessSlot = 0;
 
-            EditorSlowUpdateProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
-            EditorSlowUpdatePaused = new bool[InitialBufferSizeSmall];
-            EditorSlowUpdateHeld = new bool[InitialBufferSizeSmall];
-            EditorSlowUpdateCoroutines = 0;
-            _nextEditorSlowUpdateProcessSlot = 0;
+            LateFixedUpdateProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
+            LateFixedUpdatePaused = new bool[InitialBufferSizeSmall];
+            LateFixedUpdateHeld = new bool[InitialBufferSizeSmall];
+            LateFixedUpdateCoroutines = 0;
+            _nextLateFixedUpdateProcessSlot = 0;
 
             EndOfFrameProcesses = new IEnumerator<float>[InitialBufferSizeSmall];
             EndOfFramePaused = new bool[InitialBufferSizeSmall];
@@ -3078,9 +2845,6 @@ namespace MEC
             _expansions = (ushort)((_expansions / 2) + 1);
             Links.Clear();
 
-#if UNITY_EDITOR
-            EditorApplication.update -= OnEditorUpdate;
-#endif
             return retVal;
         }
 
@@ -3396,17 +3160,6 @@ namespace MEC
                         localTime = _lastLateUpdateTime;
                         return false;
                     }
-                case Segment.FixedUpdate:
-                    deltaTime = Time.fixedDeltaTime;
-                    localTime = Time.fixedTime;
-
-                    if (_lastFixedUpdateTime + 0.0001f < Time.fixedTime)
-                    {
-                        _lastFixedUpdateTime = Time.fixedTime;
-                        return true;
-                    }
-
-                    return false;
                 case Segment.SlowUpdate:
                     if (_currentSlowUpdateFrame != Time.frameCount)
                     {
@@ -3436,39 +3189,31 @@ namespace MEC
                         localTime = _lastRealtimeUpdateTime;
                         return false;
                     }
-#if UNITY_EDITOR
-                case Segment.EditorUpdate:
-                    if (_lastEditorUpdateTime + 0.0001 < EditorApplication.timeSinceStartup)
-                    {
-                        _lastEditorUpdateDeltaTime = (float)EditorApplication.timeSinceStartup - _lastEditorUpdateTime;
-                        if (_lastEditorUpdateDeltaTime > Time.maximumDeltaTime)
-                            _lastEditorUpdateDeltaTime = Time.maximumDeltaTime;
 
-                        deltaTime = _lastEditorUpdateDeltaTime;
-                        localTime = _lastEditorUpdateTime = (float)EditorApplication.timeSinceStartup;
+                case Segment.FixedUpdate:
+                    deltaTime = Time.fixedDeltaTime;
+                    localTime = Time.fixedTime;
+
+                    if (_lastFixedUpdateTime + ASmallNumber < Time.fixedTime)
+                    {
+                        _lastFixedUpdateTime = Time.fixedTime;
                         return true;
                     }
-                    else
+
+                    return false;
+
+                case Segment.LateFixedUpdate:
+                    deltaTime = Time.fixedDeltaTime;
+                    localTime = Time.fixedTime;
+
+                    if (_lastLateFixedUpdateTime + ASmallNumber < Time.fixedTime)
                     {
-                        deltaTime = _lastEditorUpdateDeltaTime;
-                        localTime = _lastEditorUpdateTime;
-                        return false;
-                    }
-                case Segment.EditorSlowUpdate:
-                    if (_lastEditorSlowUpdateTime + 0.0001 < EditorApplication.timeSinceStartup)
-                    {
-                        _lastEditorSlowUpdateDeltaTime = (float)EditorApplication.timeSinceStartup - _lastEditorSlowUpdateTime;
-                        deltaTime = _lastEditorSlowUpdateDeltaTime;
-                        localTime = _lastEditorSlowUpdateTime = (float)EditorApplication.timeSinceStartup;
+                        _lastLateFixedUpdateTime = Time.fixedTime;
                         return true;
                     }
-                    else
-                    {
-                        deltaTime = _lastEditorSlowUpdateDeltaTime;
-                        localTime = _lastEditorSlowUpdateTime;
-                        return false;
-                    }
-#endif
+
+                    return false;
+
                 case Segment.EndOfFrame:
                     if (_currentEndOfFrameFrame != Time.frameCount)
                     {
@@ -3486,7 +3231,7 @@ namespace MEC
                     }
                 case Segment.ManualTimeframe:
                     float timeCalculated = SetManualTimeframeTime == null ? Time.time : SetManualTimeframeTime(_lastManualTimeframeTime);
-                    if (_lastManualTimeframeTime + 0.0001 < timeCalculated && _lastManualTimeframeTime - 0.0001 > timeCalculated)
+                    if (_lastManualTimeframeTime + ASmallNumber < timeCalculated || _lastManualTimeframeTime - ASmallNumber > timeCalculated)
                     {
                         localTime = timeCalculated;
                         deltaTime = localTime - _lastManualTimeframeTime;
@@ -3523,6 +3268,7 @@ namespace MEC
                     else
                         return _lastLateUpdateTime + Time.deltaTime;
                 case Segment.FixedUpdate:
+                case Segment.LateFixedUpdate:
                     return Time.fixedTime;
                 case Segment.SlowUpdate:
                     return Time.realtimeSinceStartup;
@@ -3531,11 +3277,6 @@ namespace MEC
                         return _lastRealtimeUpdateTime;
                     else
                         return _lastRealtimeUpdateTime + Time.unscaledDeltaTime;
-#if UNITY_EDITOR
-                case Segment.EditorUpdate:
-                case Segment.EditorSlowUpdate:
-                    return (float)EditorApplication.timeSinceStartup;
-#endif
                 case Segment.EndOfFrame:
                     if (_currentUpdateFrame == Time.frameCount)
                         return _lastEndOfFrameTime;
@@ -3604,6 +3345,19 @@ namespace MEC
                 }
             }
 
+            for (i = 0; i < _nextLateFixedUpdateProcessSlot; i++)
+            {
+                if (!LateFixedUpdatePaused[i] && LateFixedUpdateProcesses[i] != null)
+                {
+                    count++;
+                    LateFixedUpdatePaused[i] = true;
+
+                    if (LateFixedUpdateProcesses[i].Current > GetSegmentTime(Segment.LateFixedUpdate))
+                        LateFixedUpdateProcesses[i] = _InjectDelay(LateFixedUpdateProcesses[i],
+                            LateFixedUpdateProcesses[i].Current - GetSegmentTime(Segment.LateFixedUpdate));
+                }
+            }
+
             for (i = 0; i < _nextSlowUpdateProcessSlot; i++)
             {
                 if (!SlowUpdatePaused[i] && SlowUpdateProcesses[i] != null)
@@ -3627,32 +3381,6 @@ namespace MEC
                     if (RealtimeUpdateProcesses[i].Current > GetSegmentTime(Segment.RealtimeUpdate))
                         RealtimeUpdateProcesses[i] = _InjectDelay(RealtimeUpdateProcesses[i],
                             RealtimeUpdateProcesses[i].Current - GetSegmentTime(Segment.RealtimeUpdate));
-                }
-            }
-
-            for (i = 0; i < _nextEditorUpdateProcessSlot; i++)
-            {
-                if (!EditorUpdatePaused[i] && EditorUpdateProcesses[i] != null)
-                {
-                    count++;
-                    EditorUpdatePaused[i] = true;
-
-                    if (EditorUpdateProcesses[i].Current > GetSegmentTime(Segment.EditorUpdate))
-                        EditorUpdateProcesses[i] = _InjectDelay(EditorUpdateProcesses[i],
-                            EditorUpdateProcesses[i].Current - GetSegmentTime(Segment.EditorUpdate));
-                }
-            }
-
-            for (i = 0; i < _nextEditorSlowUpdateProcessSlot; i++)
-            {
-                if (!EditorSlowUpdatePaused[i] && EditorSlowUpdateProcesses[i] != null)
-                {
-                    count++;
-                    EditorSlowUpdatePaused[i] = true;
-
-                    if (EditorSlowUpdateProcesses[i].Current > GetSegmentTime(Segment.EditorSlowUpdate))
-                        EditorSlowUpdateProcesses[i] = _InjectDelay(EditorSlowUpdateProcesses[i],
-                            EditorSlowUpdateProcesses[i].Current - GetSegmentTime(Segment.EditorSlowUpdate));
                 }
             }
 
@@ -3966,6 +3694,15 @@ namespace MEC
                 }
             }
 
+            for (coindex.i = 0, coindex.seg = Segment.LateFixedUpdate; coindex.i < _nextLateFixedUpdateProcessSlot; coindex.i++)
+            {
+                if (LateFixedUpdatePaused[coindex.i] && LateFixedUpdateProcesses[coindex.i] != null)
+                {
+                    LateFixedUpdatePaused[coindex.i] = false;
+                    count++;
+                }
+            }
+
             for (coindex.i = 0, coindex.seg = Segment.SlowUpdate; coindex.i < _nextSlowUpdateProcessSlot; coindex.i++)
             {
                 if (SlowUpdatePaused[coindex.i] && SlowUpdateProcesses[coindex.i] != null)
@@ -3980,24 +3717,6 @@ namespace MEC
                 if (RealtimeUpdatePaused[coindex.i] && RealtimeUpdateProcesses[coindex.i] != null)
                 {
                     RealtimeUpdatePaused[coindex.i] = false;
-                    count++;
-                }
-            }
-
-            for (coindex.i = 0, coindex.seg = Segment.EditorUpdate; coindex.i < _nextEditorUpdateProcessSlot; coindex.i++)
-            {
-                if (EditorUpdatePaused[coindex.i] && EditorUpdateProcesses[coindex.i] != null)
-                {
-                    EditorUpdatePaused[coindex.i] = false;
-                    count++;
-                }
-            }
-
-            for (coindex.i = 0, coindex.seg = Segment.EditorSlowUpdate; coindex.i < _nextEditorSlowUpdateProcessSlot; coindex.i++)
-            {
-                if (EditorSlowUpdatePaused[coindex.i] && EditorSlowUpdateProcesses[coindex.i] != null)
-                {
-                    EditorSlowUpdatePaused[coindex.i] = false;
                     count++;
                 }
             }
@@ -4526,10 +4245,6 @@ namespace MEC
                     retVal = UpdateProcesses[coindex.i];
                     UpdateProcesses[coindex.i] = null;
                     return retVal;
-                case Segment.FixedUpdate:
-                    retVal = FixedUpdateProcesses[coindex.i];
-                    FixedUpdateProcesses[coindex.i] = null;
-                    return retVal;
                 case Segment.LateUpdate:
                     retVal = LateUpdateProcesses[coindex.i];
                     LateUpdateProcesses[coindex.i] = null;
@@ -4542,13 +4257,13 @@ namespace MEC
                     retVal = RealtimeUpdateProcesses[coindex.i];
                     RealtimeUpdateProcesses[coindex.i] = null;
                     return retVal;
-                case Segment.EditorUpdate:
-                    retVal = EditorUpdateProcesses[coindex.i];
-                    EditorUpdateProcesses[coindex.i] = null;
+                case Segment.FixedUpdate:
+                    retVal = FixedUpdateProcesses[coindex.i];
+                    FixedUpdateProcesses[coindex.i] = null;
                     return retVal;
-                case Segment.EditorSlowUpdate:
-                    retVal = EditorSlowUpdateProcesses[coindex.i];
-                    EditorSlowUpdateProcesses[coindex.i] = null;
+                case Segment.LateFixedUpdate:
+                    retVal = LateFixedUpdateProcesses[coindex.i];
+                    LateFixedUpdateProcesses[coindex.i] = null;
                     return retVal;
                 case Segment.EndOfFrame:
                     retVal = EndOfFrameProcesses[coindex.i];
@@ -4569,18 +4284,16 @@ namespace MEC
             {
                 case Segment.Update:
                     return UpdateProcesses[coindex.i] == null;
-                case Segment.FixedUpdate:
-                    return FixedUpdateProcesses[coindex.i] == null;
                 case Segment.LateUpdate:
                     return LateUpdateProcesses[coindex.i] == null;
                 case Segment.SlowUpdate:
                     return SlowUpdateProcesses[coindex.i] == null;
                 case Segment.RealtimeUpdate:
                     return RealtimeUpdateProcesses[coindex.i] == null;
-                case Segment.EditorUpdate:
-                    return EditorUpdateProcesses[coindex.i] == null;
-                case Segment.EditorSlowUpdate:
-                    return EditorSlowUpdateProcesses[coindex.i] == null;
+                case Segment.FixedUpdate:
+                    return FixedUpdateProcesses[coindex.i] == null;
+                case Segment.LateFixedUpdate:
+                    return LateFixedUpdateProcesses[coindex.i] == null;
                 case Segment.EndOfFrame:
                     return EndOfFrameProcesses[coindex.i] == null;
                 case Segment.ManualTimeframe:
@@ -4596,18 +4309,16 @@ namespace MEC
             {
                 case Segment.Update:
                     return UpdateProcesses[coindex.i];
-                case Segment.FixedUpdate:
-                    return FixedUpdateProcesses[coindex.i];
                 case Segment.LateUpdate:
                     return LateUpdateProcesses[coindex.i];
                 case Segment.SlowUpdate:
                     return SlowUpdateProcesses[coindex.i];
                 case Segment.RealtimeUpdate:
                     return RealtimeUpdateProcesses[coindex.i];
-                case Segment.EditorUpdate:
-                    return EditorUpdateProcesses[coindex.i];
-                case Segment.EditorSlowUpdate:
-                    return EditorSlowUpdateProcesses[coindex.i];
+                case Segment.FixedUpdate:
+                    return FixedUpdateProcesses[coindex.i];
+                case Segment.LateFixedUpdate:
+                    return LateFixedUpdateProcesses[coindex.i];
                 case Segment.EndOfFrame:
                     return EndOfFrameProcesses[coindex.i];
                 case Segment.ManualTimeframe:
@@ -4634,10 +4345,6 @@ namespace MEC
                     retVal = UpdateProcesses[coindex.i] != null;
                     UpdateProcesses[coindex.i] = null;
                     return retVal;
-                case Segment.FixedUpdate:
-                    retVal = FixedUpdateProcesses[coindex.i] != null;
-                    FixedUpdateProcesses[coindex.i] = null;
-                    return retVal;
                 case Segment.LateUpdate:
                     retVal = LateUpdateProcesses[coindex.i] != null;
                     LateUpdateProcesses[coindex.i] = null;
@@ -4650,13 +4357,13 @@ namespace MEC
                     retVal = RealtimeUpdateProcesses[coindex.i] != null;
                     RealtimeUpdateProcesses[coindex.i] = null;
                     return retVal;
-                case Segment.EditorUpdate:
-                    retVal = UpdateProcesses[coindex.i] != null;
-                    EditorUpdateProcesses[coindex.i] = null;
+                case Segment.FixedUpdate:
+                    retVal = FixedUpdateProcesses[coindex.i] != null;
+                    FixedUpdateProcesses[coindex.i] = null;
                     return retVal;
-                case Segment.EditorSlowUpdate:
-                    retVal = EditorSlowUpdateProcesses[coindex.i] != null;
-                    EditorSlowUpdateProcesses[coindex.i] = null;
+                case Segment.LateFixedUpdate:
+                    retVal = LateFixedUpdateProcesses[coindex.i] != null;
+                    LateFixedUpdateProcesses[coindex.i] = null;
                     return retVal;
                 case Segment.EndOfFrame:
                     retVal = EndOfFrameProcesses[coindex.i] != null;
@@ -4689,15 +4396,6 @@ namespace MEC
                             UpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return isPaused;
-                case Segment.FixedUpdate:
-                    isPaused = FixedUpdatePaused[coindex.i];
-                    FixedUpdatePaused[coindex.i] = newPausedState;
-
-                    if (newPausedState && FixedUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
-                        FixedUpdateProcesses[coindex.i] = _InjectDelay(FixedUpdateProcesses[coindex.i],
-                            FixedUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
-
-                    return isPaused;
                 case Segment.LateUpdate:
                     isPaused = LateUpdatePaused[coindex.i];
                     LateUpdatePaused[coindex.i] = newPausedState;
@@ -4725,22 +4423,22 @@ namespace MEC
                             RealtimeUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return isPaused;
-                case Segment.EditorUpdate:
-                    isPaused = EditorUpdatePaused[coindex.i];
-                    EditorUpdatePaused[coindex.i] = newPausedState;
+                case Segment.FixedUpdate:
+                    isPaused = FixedUpdatePaused[coindex.i];
+                    FixedUpdatePaused[coindex.i] = newPausedState;
 
-                    if (newPausedState && EditorUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
-                        EditorUpdateProcesses[coindex.i] = _InjectDelay(EditorUpdateProcesses[coindex.i],
-                            EditorUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
+                    if (newPausedState && FixedUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
+                        FixedUpdateProcesses[coindex.i] = _InjectDelay(FixedUpdateProcesses[coindex.i],
+                            FixedUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return isPaused;
-                case Segment.EditorSlowUpdate:
-                    isPaused = EditorSlowUpdatePaused[coindex.i];
-                    EditorSlowUpdatePaused[coindex.i] = newPausedState;
+                case Segment.LateFixedUpdate:
+                    isPaused = LateFixedUpdatePaused[coindex.i];
+                    LateFixedUpdatePaused[coindex.i] = newPausedState;
 
-                    if (newPausedState && EditorSlowUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
-                        EditorSlowUpdateProcesses[coindex.i] = _InjectDelay(EditorSlowUpdateProcesses[coindex.i],
-                            EditorSlowUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
+                    if (newPausedState && LateFixedUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
+                        LateFixedUpdateProcesses[coindex.i] = _InjectDelay(LateFixedUpdateProcesses[coindex.i],
+                            LateFixedUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return isPaused;
                 case Segment.EndOfFrame:
@@ -4784,15 +4482,6 @@ namespace MEC
                             UpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return isHeld;
-                case Segment.FixedUpdate:
-                    isHeld = FixedUpdateHeld[coindex.i];
-                    FixedUpdateHeld[coindex.i] = newHeldState;
-
-                    if (newHeldState && FixedUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
-                        FixedUpdateProcesses[coindex.i] = _InjectDelay(FixedUpdateProcesses[coindex.i],
-                            FixedUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
-
-                    return isHeld;
                 case Segment.LateUpdate:
                     isHeld = LateUpdateHeld[coindex.i];
                     LateUpdateHeld[coindex.i] = newHeldState;
@@ -4820,22 +4509,22 @@ namespace MEC
                             RealtimeUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return isHeld;
-                case Segment.EditorUpdate:
-                    isHeld = EditorUpdateHeld[coindex.i];
-                    EditorUpdateHeld[coindex.i] = newHeldState;
+                case Segment.FixedUpdate:
+                    isHeld = FixedUpdateHeld[coindex.i];
+                    FixedUpdateHeld[coindex.i] = newHeldState;
 
-                    if (newHeldState && EditorUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
-                        EditorUpdateProcesses[coindex.i] = _InjectDelay(EditorUpdateProcesses[coindex.i],
-                            EditorUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
+                    if (newHeldState && FixedUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
+                        FixedUpdateProcesses[coindex.i] = _InjectDelay(FixedUpdateProcesses[coindex.i],
+                            FixedUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return isHeld;
-                case Segment.EditorSlowUpdate:
-                    isHeld = EditorSlowUpdateHeld[coindex.i];
-                    EditorSlowUpdateHeld[coindex.i] = newHeldState;
+                case Segment.LateFixedUpdate:
+                    isHeld = LateFixedUpdateHeld[coindex.i];
+                    LateFixedUpdateHeld[coindex.i] = newHeldState;
 
-                    if (newHeldState && EditorSlowUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
-                        EditorSlowUpdateProcesses[coindex.i] = _InjectDelay(EditorSlowUpdateProcesses[coindex.i],
-                            EditorSlowUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
+                    if (newHeldState && LateFixedUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
+                        LateFixedUpdateProcesses[coindex.i] = _InjectDelay(LateFixedUpdateProcesses[coindex.i],
+                            LateFixedUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return isHeld;
                 case Segment.EndOfFrame:
@@ -4875,14 +4564,6 @@ namespace MEC
                         coptr = _InjectDelay(UpdateProcesses[coindex.i], UpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return coptr;
-                case Segment.FixedUpdate:
-                    FixedUpdateHeld[coindex.i] = true;
-
-                    if (FixedUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
-                        coptr = _InjectDelay(FixedUpdateProcesses[coindex.i],
-                            FixedUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
-
-                    return coptr;
                 case Segment.LateUpdate:
                     LateUpdateHeld[coindex.i] = true;
 
@@ -4907,20 +4588,20 @@ namespace MEC
                             RealtimeUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return coptr;
-                case Segment.EditorUpdate:
-                    EditorUpdateHeld[coindex.i] = true;
+                case Segment.FixedUpdate:
+                    FixedUpdateHeld[coindex.i] = true;
 
-                    if (EditorUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
-                        coptr = _InjectDelay(EditorUpdateProcesses[coindex.i],
-                            EditorUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
+                    if (FixedUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
+                        coptr = _InjectDelay(FixedUpdateProcesses[coindex.i],
+                            FixedUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return coptr;
-                case Segment.EditorSlowUpdate:
-                    EditorSlowUpdateHeld[coindex.i] = true;
+                case Segment.LateFixedUpdate:
+                    LateFixedUpdateHeld[coindex.i] = true;
 
-                    if (EditorSlowUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
-                        coptr = _InjectDelay(EditorSlowUpdateProcesses[coindex.i],
-                            EditorSlowUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
+                    if (LateFixedUpdateProcesses[coindex.i].Current > GetSegmentTime(coindex.seg))
+                        coptr = _InjectDelay(LateFixedUpdateProcesses[coindex.i],
+                            LateFixedUpdateProcesses[coindex.i].Current - GetSegmentTime(coindex.seg));
 
                     return coptr;
                 case Segment.EndOfFrame:
@@ -4950,18 +4631,16 @@ namespace MEC
             {
                 case Segment.Update:
                     return UpdatePaused[coindex.i];
-                case Segment.FixedUpdate:
-                    return FixedUpdatePaused[coindex.i];
                 case Segment.LateUpdate:
                     return LateUpdatePaused[coindex.i];
                 case Segment.SlowUpdate:
                     return SlowUpdatePaused[coindex.i];
                 case Segment.RealtimeUpdate:
                     return RealtimeUpdatePaused[coindex.i];
-                case Segment.EditorUpdate:
-                    return EditorUpdatePaused[coindex.i];
-                case Segment.EditorSlowUpdate:
-                    return EditorSlowUpdatePaused[coindex.i];
+                case Segment.FixedUpdate:
+                    return FixedUpdatePaused[coindex.i];
+                case Segment.LateFixedUpdate:
+                    return LateFixedUpdatePaused[coindex.i];
                 case Segment.EndOfFrame:
                     return EndOfFramePaused[coindex.i];
                 case Segment.ManualTimeframe:
@@ -4977,18 +4656,16 @@ namespace MEC
             {
                 case Segment.Update:
                     return UpdateHeld[coindex.i];
-                case Segment.FixedUpdate:
-                    return FixedUpdateHeld[coindex.i];
                 case Segment.LateUpdate:
                     return LateUpdateHeld[coindex.i];
                 case Segment.SlowUpdate:
                     return SlowUpdateHeld[coindex.i];
                 case Segment.RealtimeUpdate:
                     return RealtimeUpdateHeld[coindex.i];
-                case Segment.EditorUpdate:
-                    return EditorUpdateHeld[coindex.i];
-                case Segment.EditorSlowUpdate:
-                    return EditorSlowUpdateHeld[coindex.i];
+                case Segment.FixedUpdate:
+                    return FixedUpdateHeld[coindex.i];
+                case Segment.LateFixedUpdate:
+                    return LateFixedUpdateHeld[coindex.i];
                 case Segment.EndOfFrame:
                     return EndOfFrameHeld[coindex.i];
                 case Segment.ManualTimeframe:
@@ -5005,9 +4682,6 @@ namespace MEC
                 case Segment.Update:
                     UpdateProcesses[coindex.i] = replacement;
                     return;
-                case Segment.FixedUpdate:
-                    FixedUpdateProcesses[coindex.i] = replacement;
-                    return;
                 case Segment.LateUpdate:
                     LateUpdateProcesses[coindex.i] = replacement;
                     return;
@@ -5017,11 +4691,11 @@ namespace MEC
                 case Segment.RealtimeUpdate:
                     RealtimeUpdateProcesses[coindex.i] = replacement;
                     return;
-                case Segment.EditorUpdate:
-                    EditorUpdateProcesses[coindex.i] = replacement;
+                case Segment.FixedUpdate:
+                    FixedUpdateProcesses[coindex.i] = replacement;
                     return;
-                case Segment.EditorSlowUpdate:
-                    EditorSlowUpdateProcesses[coindex.i] = replacement;
+                case Segment.LateFixedUpdate:
+                    LateFixedUpdateProcesses[coindex.i] = replacement;
                     return;
                 case Segment.EndOfFrame:
                     EndOfFrameProcesses[coindex.i] = replacement;
@@ -5362,37 +5036,6 @@ namespace MEC
         {
             return _tmpRef as IEnumerator<float>;
         }
-
-#if !UNITY_2018_3_OR_NEWER
-        /// <summary>
-        /// Use the command "yield return Timing.WaitUntilDone(wwwObject);" to pause the current 
-        /// coroutine until the wwwObject is done.
-        /// </summary>
-        /// <param name="wwwObject">The www object to pause for.</param>
-        public static float WaitUntilDone(WWW wwwObject)
-        {
-            if (wwwObject == null || wwwObject.isDone) return 0f;
-
-            _tmpRef = wwwObject;
-            ReplacementFunction = WaitUntilDoneWwwHelper;
-            return float.NaN;
-        }
-
-        private static IEnumerator<float> WaitUntilDoneWwwHelper(IEnumerator<float> coptr, CoroutineHandle handle)
-        {
-            return _StartWhenDone(_tmpRef as WWW, coptr);
-        }
-
-        private static IEnumerator<float> _StartWhenDone(WWW wwwObject, IEnumerator<float> pausedProc)
-        {
-            while (!wwwObject.isDone)
-                yield return WaitForOneFrame;
-
-            _tmpRef = pausedProc;
-            ReplacementFunction = ReturnTmpRefForRepFunc;
-            yield return float.NaN;
-        }
-#endif
 
         /// <summary>
         /// Use the command "yield return Timing.WaitUntilDone(operation);" to pause the current 
@@ -6673,10 +6316,6 @@ namespace MEC
         /// </summary>
         Update,
         /// <summary>
-        /// This is primarily used for physics calculations
-        /// </summary>
-        FixedUpdate,
-        /// <summary>
         /// This is run immediately after update
         /// </summary>
         LateUpdate,
@@ -6689,17 +6328,18 @@ namespace MEC
         /// </summary>
         RealtimeUpdate,
         /// <summary>
-        /// This is a coroutine that runs in the unity editor while your app is not in play mode
-        /// </summary>
-        EditorUpdate,
-        /// <summary>
-        /// This executes in the unity editor about as quickly as the eye can detect changes in a text field
-        /// </summary>
-        EditorSlowUpdate,
-        /// <summary>
         /// This segment executes as the very last action before the frame is done
         /// </summary>
         EndOfFrame,
+        /// <summary>
+        /// This is primarily used for physics calculations
+        /// </summary>
+        FixedUpdate,
+        /// <summary>
+        /// This segment will execute when FixedUpdate happens, but after it has finished its work. 
+        /// NOTE: LateFixedUpdate does not trigger as often as FixedUpdate, but it always triggers before a frame is displayed after FixedUpdate has been shown.
+        /// </summary>
+        LateFixedUpdate,
         /// <summary>
         /// This segment can be configured to execute and/or define its notion of time in custom ways
         /// </summary>
