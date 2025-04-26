@@ -388,8 +388,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     {
         yield return Timing.WaitForSeconds(a.animDelay);
         
-        Vector3 enemyPos = pc.psm.GetClosestEnemyInRadius(pc.psm.playerData.mediumRadius) != null ? 
-            pc.psm.GetClosestEnemyInRadius(pc.psm.playerData.mediumRadius).TargetedPosition() : pc.transform.position;
+        Vector3 enemyPos = pc.psm.GetClosestEnemyInCapsule(pc.psm.playerData.mediumRadius, pc.psm.playerData.heightRadius) != null ? 
+            pc.psm.GetClosestEnemyInCapsule(pc.psm.playerData.mediumRadius, pc.psm.playerData.heightRadius).TargetedPosition() : pc.transform.position;
         Vector3 direction = (pc.transform.position - enemyPos).ZeroVector3Axis().normalized;
         direction = (Vector3.up + direction * attackParameters.enemyStepPushBack).normalized;
         

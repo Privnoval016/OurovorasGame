@@ -77,6 +77,8 @@ public class PlayerData : ScriptableObject
 	public float smallRadius = 1.5f;
 	public float mediumRadius = 3f;
 	public float largeRadius = 8f;
+	
+	public float heightRadius = 3f;
 
 	//Unity Callback, called when the inspector updates
     private void OnValidate()

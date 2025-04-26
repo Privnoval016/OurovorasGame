@@ -72,7 +72,8 @@ public class HitInfo
     
     [Header ("Hit Detection")]
     public HitDetections hitDetection;
-    public float hitRegisterRadius = 3;
+    public float lateralRadius = 3;
+    public float verticalRadius = 3;
     public float hitRegisterAngle = 120;
     public int numTargets = 1;
     

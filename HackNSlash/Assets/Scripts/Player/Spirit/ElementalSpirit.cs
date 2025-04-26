@@ -94,7 +94,7 @@ public class ElementalSpirit : KinematicBehaviour
     
     #region Utility Methods
     
-    public HashSet<LockOnTarget> HitScanEnemies(int numTargets, float radius, float angle)
+    public HashSet<LockOnTarget> HitScanEnemies(int numTargets, float radius, float height, float angle)
     {
         HashSet<LockOnTarget> enemies = new();
         
@@ -104,7 +104,7 @@ public class ElementalSpirit : KinematicBehaviour
         
         if (enemiesNeeded > 0)
         {
-            var enemyList = pc.psm.GetAllEnemiesInRadius(radius, angle);
+            var enemyList = pc.psm.GetAllEnemiesInCapsule(radius, height, angle);
             enemies = enemies.Union(enemyList[0..enemiesNeeded]).ToHashSet();
         }
         
