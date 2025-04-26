@@ -1,4 +1,4 @@
-// Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2024 Kybernetik //
+// Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2025 Kybernetik //
 
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value.
 
@@ -90,7 +90,8 @@ namespace Animancer.Samples.AnimatorControllers
                     Debug.LogWarning(
                         $"A Native Animator Controller is assigned to the Animator component" +
                         $" and a Hybrid Animator Controller is also assigned to the {nameof(HybridAnimancerComponent)}." +
-                        $" That's not necessarily a problem, but using both systems at the same time is very unusual.",
+                        $" That's not necessarily a problem, but using both systems at the same time is very unusual" +
+                        $" and likely a waste of performance if you don't need to play both Animator Controllers at once.",
                         this);
                 }
 

@@ -1,4 +1,4 @@
-// Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2024 Kybernetik //
+// Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2025 Kybernetik //
 
 using Animancer.Units;
 using System;
@@ -12,9 +12,6 @@ namespace Animancer
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer/PlayableAssetTransition
     [Serializable]
-#if ! UNITY_EDITOR
-    [System.Obsolete(Validate.ProOnlyMessage)]
-#endif
     public class PlayableAssetTransition : Transition<PlayableAssetState>,
         IAnimationClipCollection,
         ICopyable<PlayableAssetTransition>
@@ -25,7 +22,22 @@ namespace Animancer
         private PlayableAsset _Asset;
 
         /// <summary>[<see cref="SerializeField"/>] The asset to play.</summary>
-        public ref PlayableAsset Asset => ref _Asset;
+        /// <remarks>
+        /// If you set this property and this transition has been played on multiple characters,
+        /// you will need to call <see cref="Transition{T}.ReconcileMainObject(AnimancerGraph)"/>
+        /// for each of them to create new states for the newly assigned object.
+        /// </remarks>
+        public PlayableAsset Asset
+        {
+            get => _Asset;
+            set
+            {
+                _Asset = value;
+
+                if (BaseState != null)
+                    ReconcileMainObject(BaseState);
+            }
+        }
 
         /// <summary>The name of the serialized backing field of <see cref="Asset"/>.</summary>
         public const string AssetField = nameof(_Asset);
@@ -73,11 +85,7 @@ namespace Animancer
 
         /// <inheritdoc/>
         public override bool IsValid
-#if UNITY_EDITOR
             => _Asset != null;
-#else
-            => false;
-#endif
 
         /************************************************************************************************************************/
 
@@ -146,6 +154,20 @@ namespace Animancer
             {
                 Asset = asset,
             };
+
+        /************************************************************************************************************************/
+
+#if UNITY_EDITOR
+        /// <summary>[Editor-Only] Validates that the `command` is targeting an asset.</summary>
+        [UnityEditor.MenuItem("CONTEXT/" + nameof(PlayableAsset) + "/Create Transition Asset", validate = true)]
+        private static bool ValidateCreateTransitionAsset(UnityEditor.MenuCommand command)
+            => TryCreateTransitionAttribute.CanCreateAndSave(command.context);
+
+        /// <summary>[Editor-Only] Tries to create an asset containing an appropriate transition for the `command`.</summary>
+        [UnityEditor.MenuItem("CONTEXT/" + nameof(PlayableAsset) + "/Create Transition Asset")]
+        private static void CreateTransitionAsset(UnityEditor.MenuCommand command)
+            => TryCreateTransitionAttribute.TryCreateTransitionAsset(command.context, true);
+#endif
 
         /************************************************************************************************************************/
     }
