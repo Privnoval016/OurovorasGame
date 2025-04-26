@@ -18,31 +18,44 @@ MonoBehaviour:
   isLockedOn: 0
   keyBinds: 01000000
   inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
   applyTargetDirection: 1
   isMidair: 0
-  applyRootMotion: 1
-  attackTransitions: []
-  attackClips:
-  - {fileID: 7400000, guid: 39bcadf38a1687444b94e74b3b99f8c6, type: 2}
-  - {fileID: 7400000, guid: da628daa126bfb74e832667778b478e2, type: 2}
-  - {fileID: 7400000, guid: 278209b4cf35b904192c33d731d5cf74, type: 2}
-  clipsToPlay: 1
-  exitCondition: 2
-  onAttackAction: 6
+  maxUses: 0
   hitInfo:
     onHitActions: 00000000
     hitDetection: 1
-    hitRegisterRadius: 5
+    lateralRadius: 5
+    verticalRadius: 3
     hitRegisterAngle: 120
+    numTargets: 1
     attackCoolDown: 0.5
     damage: 0
     hitForce: 20
     hitDelay: 1.7
     hitDirection: {x: 0, y: 0, z: 0}
-    tweenToPlayer: 0
     elasticCollision: 0
+  onAttackAction: 6
+  attackEventIndex: 0
+  applyRootMotion: 1
+  moveCameraWithAttack: 1
+  attackTransitions: []
+  attackClips:
+  - {fileID: 7400000, guid: 39bcadf38a1687444b94e74b3b99f8c6, type: 2}
+  - {fileID: 7400000, guid: da628daa126bfb74e832667778b478e2, type: 2}
+  - {fileID: 7400000, guid: 278209b4cf35b904192c33d731d5cf74, type: 2}
+  animDelay: 0
+  animFade: 0.2
+  clipsToPlay: 1
+  useNormalGravity: 0
+  exitCondition: 2
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    hitIndex: 0
     duration: 0.3
     delay: 0
-    rotation: {x: 0, y: 0, z: 0, w: 0}
+    spawnTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 0, y: 0, z: 0}

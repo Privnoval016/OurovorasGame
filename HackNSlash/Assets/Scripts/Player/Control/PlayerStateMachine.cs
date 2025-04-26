@@ -93,7 +93,8 @@ public class PlayerStateMachine : MonoBehaviour
     [HideInInspector] public int numMidairAttacks;
     public Dictionary<Attack, int> NumActionsUsed = new();
 
-    public LockOnTarget NearestHEnemy => pc.cam.IsLockedOn ? pc.cam.TargetedEnemy : GetClosestEnemyInRadius(playerData.mediumRadius, 190f);
+    public LockOnTarget NearestHEnemy => pc.cam.IsLockedOn ? pc.cam.TargetedEnemy : 
+        GetClosestEnemyInCapsule(playerData.mediumRadius, playerData.heightRadius, 190f);
     
     [HideInInspector] public float dodgeTimer = 0;
     
@@ -179,9 +180,10 @@ public class PlayerStateMachine : MonoBehaviour
 
     }
 
-    public LockOnTarget GetClosestEnemyInRadius(float radius, float angle = 360f)
+    public LockOnTarget GetClosestEnemyInCapsule(float radius, float height, float angle = 360f)
     {
-        HashSet<LockOnTarget> enemySet = Physics.OverlapSphere(transform.position, radius, enemyLayer).Select(e =>
+        HashSet<LockOnTarget> enemySet = Physics.OverlapCapsule(groundCheckPoint.position - Vector3.up * height, 
+            groundCheckPoint.position + Vector3.up * height, radius, enemyLayer).Select(e =>
         {
             e.TryGetComponent(out LockOnTarget d);
             return d;
@@ -198,9 +200,10 @@ public class PlayerStateMachine : MonoBehaviour
         return enemySet.FirstOrDefault();
     }
     
-    public LockOnTarget[] GetAllEnemiesInRadius(float radius, float angle = 360f)
+    public LockOnTarget[] GetAllEnemiesInCapsule(float radius, float height, float angle = 360f)
     {
-        HashSet<LockOnTarget> enemySet = Physics.OverlapSphere(transform.position, radius, enemyLayer).Select(e =>
+        HashSet<LockOnTarget> enemySet = Physics.OverlapCapsule(groundCheckPoint.position - Vector3.up * height, 
+            groundCheckPoint.position + Vector3.up * height, radius, enemyLayer).Select(e =>
         {
             e.TryGetComponent(out LockOnTarget d);
             return d;
@@ -298,7 +301,7 @@ public class PlayerStateMachine : MonoBehaviour
                 
                 if (comboChain.LastOrDefault()?.playerAttack == attack) continue;
 
-                if (IsGrounded || GetClosestEnemyInRadius(playerData.mediumRadius) == null) continue;
+                if (IsGrounded || GetClosestEnemyInCapsule(playerData.mediumRadius, playerData.heightRadius) == null) continue;
 
                 ResetActions();
                 BeginAttack(attack);

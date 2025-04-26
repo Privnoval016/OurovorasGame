@@ -47,7 +47,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     
     private IEnumerator<float> BeginRangedAttack(ElementalSpirit spirit, SpiritAttack a)
     {
-        HashSet<LockOnTarget> enemies = spirit.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.hitRegisterRadius, a.hitInfo.hitRegisterAngle);
+        HashSet<LockOnTarget> enemies = spirit.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle);
         
         KeyBind[] holdKeys = InputManager.GetReleaseable(a.keyBinds);
         float startTime = Time.time;

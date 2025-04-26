@@ -22,6 +22,21 @@ MonoBehaviour:
   applyTargetDirection: 1
   isMidair: 2
   maxUses: 0
+  hitInfo:
+    onHitActions: 08000000
+    hitDetection: 1
+    lateralRadius: 8
+    verticalRadius: 3
+    hitRegisterAngle: 120
+    numTargets: 1
+    attackCoolDown: 0.3
+    damage: 0
+    hitForce: 20
+    hitDelay: 0.3
+    hitDirection: {x: 0, y: 0, z: 0}
+    elasticCollision: 1
+  onAttackAction: 0
+  attackEventIndex: 0
   applyRootMotion: 0
   moveCameraWithAttack: 1
   attackTransitions: []
@@ -32,20 +47,6 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 0
-  onAttackAction: 0
-  attackEventIndex: 0
-  hitInfo:
-    onHitActions: 08000000
-    hitDetection: 1
-    hitRegisterRadius: 8.5
-    hitRegisterAngle: 120
-    numTargets: 1
-    attackCoolDown: 0.3
-    damage: 0
-    hitForce: 20
-    hitDelay: 0.3
-    hitDirection: {x: 0, y: 0, z: 0}
-    elasticCollision: 1
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
     hitIndex: 0

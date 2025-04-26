@@ -342,7 +342,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
         ec.PauseGravity(true);
 
         Vector3 direction = pc.transform.forward;
-        float distance = a.hitInfo.hitRegisterRadius - (ec.TargetedPosition() - pc.transform.position).magnitude;
+        float distance = a.hitInfo.lateralRadius - (ec.TargetedPosition() - pc.transform.position).magnitude;
         
         ec.TraverseDistKnockback(direction.normalized, distance, a.hitInfo.hitDelay);
         
