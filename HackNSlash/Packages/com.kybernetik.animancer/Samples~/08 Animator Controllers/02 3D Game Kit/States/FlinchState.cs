@@ -1,8 +1,5 @@
-// Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2024 Kybernetik //
+// Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2025 Kybernetik //
 
-#if ! UNITY_EDITOR
-#pragma warning disable CS0618 // Type or member is obsolete (for MixerState in Animancer Lite).
-#endif
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value.
 #pragma warning disable UNT0028 // Use non-allocating physics APIs.
 
@@ -105,7 +102,7 @@ namespace Animancer.Samples.AnimatorControllers.GameKit
 
         protected virtual void Awake()
         {
-            SampleReadMe.LogMissingPhysics3DModuleError(this);
+            SampleModules.LogMissingPhysics3DModuleError(this);
         }
 
         /************************************************************************************************************************/

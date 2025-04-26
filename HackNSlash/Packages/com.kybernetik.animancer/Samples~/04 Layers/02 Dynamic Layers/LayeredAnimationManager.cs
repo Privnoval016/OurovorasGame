@@ -1,8 +1,5 @@
-// Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2024 Kybernetik //
+// Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2025 Kybernetik //
 
-#if ! UNITY_EDITOR
-#pragma warning disable CS0618 // Type or member is obsolete (for Layers in Animancer Lite).
-#endif
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value.
 
 using Animancer.Units;
@@ -11,8 +8,8 @@ using UnityEngine;
 namespace Animancer.Samples.Layers
 {
     /// <summary>
-    /// Demonstrates how to use layers to play multiple
-    /// independent animations at the same time on different body parts.
+    /// Demonstrates how to use layers to play multiple independent animations
+    /// at the same time on different body parts.
     /// </summary>
     /// 
     /// <remarks>
@@ -36,6 +33,9 @@ namespace Animancer.Samples.Layers
         private AnimancerLayer _BaseLayer;
         private AnimancerLayer _ActionLayer;
         private bool _CanPlayActionFullBody;
+
+        public AnimancerComponent Animancer
+            => _Animancer;
 
         /************************************************************************************************************************/
 
