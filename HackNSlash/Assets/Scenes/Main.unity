@@ -3316,12 +3316,11 @@ MonoBehaviour:
   ProfilerDebugAmount: 0
   AutoTriggerManualTimeframe: 1
   UpdateCoroutines: 0
-  FixedUpdateCoroutines: 0
   LateUpdateCoroutines: 0
   SlowUpdateCoroutines: 0
   RealtimeUpdateCoroutines: 0
-  EditorUpdateCoroutines: 0
-  EditorSlowUpdateCoroutines: 0
+  FixedUpdateCoroutines: 0
+  LateFixedUpdateCoroutines: 0
   EndOfFrameCoroutines: 0
   ManualTimeframeCoroutines: 0
   _instanceID: 1
