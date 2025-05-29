@@ -27,4 +27,14 @@ public class KinematicBehaviour : MonoBehaviour
     {
         return (discreteVelocity * time) + (0.5f * time * time * discreteAcceleration);
     }
+    
+    public Vector3 SinusoidalBob(Vector3 direction = default, float amplitude = 0.1f, float frequency = 2f)
+    {
+        if (direction == default)
+        {
+            direction = Vector3.up;
+        }
+        
+        return Mathf.Sin(Time.time * frequency) * amplitude * direction;
+    }
 }

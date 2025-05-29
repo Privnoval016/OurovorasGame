@@ -60,7 +60,7 @@ public class ElementalSpirit : KinematicBehaviour
     {
         evaluator.SetTargetTransform(ClosestTarget);
 
-        transform.position = evaluator.output + VerticalBob();
+        transform.position = evaluator.output + SinusoidalBob();
     }
     
     #endregion
@@ -105,17 +105,13 @@ public class ElementalSpirit : KinematicBehaviour
         if (enemiesNeeded > 0)
         {
             var enemyList = pc.psm.GetAllEnemiesInCapsule(radius, height, angle);
-            enemies = enemies.Union(enemyList[0..enemiesNeeded]).ToHashSet();
+            if (enemyList != null && enemyList.Length > 0)
+                enemies = enemies.Union(enemyList[0..enemiesNeeded]).ToHashSet();
         }
         
         enemies.RemoveWhere(e => e.tookDamageThisAction);
         
         return enemies;
-    }
-    
-    public Vector3 VerticalBob()
-    {
-        return Mathf.Sin(Time.time * 2) * 0.1f * Vector3.up;
     }
     
     #endregion

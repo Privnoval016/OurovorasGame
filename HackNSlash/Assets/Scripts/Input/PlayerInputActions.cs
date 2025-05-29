@@ -91,6 +91,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""ElementAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""afa6bd90-365a-4401-9fab-d28fb3c082fe"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Retarget"",
                     ""type"": ""Button"",
                     ""id"": ""d3df60c0-e15d-49fc-8f47-0cf776461921"",
@@ -103,6 +112,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""EnterCombat"",
                     ""type"": ""Button"",
                     ""id"": ""7ecf1276-9751-4342-b69c-2476fac5c22b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ActivateUltimate"",
+                    ""type"": ""Button"",
+                    ""id"": ""2323b44f-697b-4620-85f7-1d7e9dea60c6"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -435,6 +453,50 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""SwapElementRight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""26f0d564-8b21-4bb8-93e2-b1a99145e7fb"",
+                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ActivateUltimate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4211af52-7929-4e34-9f7e-7335f1f8586b"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ActivateUltimate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5ecaa29f-b8e8-48f6-99dd-60faa2498f9b"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ElementAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""df9b2cce-3570-493c-bed8-aa3a1fcfb7e0"",
+                    ""path"": ""<Keyboard>/l"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ElementAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -606,6 +668,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Debug"",
+                    ""type"": ""Button"",
+                    ""id"": ""f480b501-c4a6-4ff0-a812-ab62a04891fb"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -630,6 +701,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ec8d5399-77d0-4c64-b648-f9fa80b8692d"",
+                    ""path"": ""<Keyboard>/backquote"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Debug"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f8a40a72-9d3d-44e7-88d3-c99e0f13c9db"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Debug"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -651,8 +744,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_Dodge = m_Player.FindAction("Dodge", throwIfNotFound: true);
         m_Player_LightAttack = m_Player.FindAction("LightAttack", throwIfNotFound: true);
         m_Player_HeavyAttack = m_Player.FindAction("HeavyAttack", throwIfNotFound: true);
+        m_Player_ElementAttack = m_Player.FindAction("ElementAttack", throwIfNotFound: true);
         m_Player_Retarget = m_Player.FindAction("Retarget", throwIfNotFound: true);
         m_Player_EnterCombat = m_Player.FindAction("EnterCombat", throwIfNotFound: true);
+        m_Player_ActivateUltimate = m_Player.FindAction("ActivateUltimate", throwIfNotFound: true);
         m_Player_SwapElementLeft = m_Player.FindAction("SwapElementLeft", throwIfNotFound: true);
         m_Player_SwapElementRight = m_Player.FindAction("SwapElementRight", throwIfNotFound: true);
         // Menu
@@ -663,6 +758,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         // StateControl
         m_StateControl = asset.FindActionMap("StateControl", throwIfNotFound: true);
         m_StateControl_Pause = m_StateControl.FindAction("Pause", throwIfNotFound: true);
+        m_StateControl_Debug = m_StateControl.FindAction("Debug", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -738,8 +834,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Dodge;
     private readonly InputAction m_Player_LightAttack;
     private readonly InputAction m_Player_HeavyAttack;
+    private readonly InputAction m_Player_ElementAttack;
     private readonly InputAction m_Player_Retarget;
     private readonly InputAction m_Player_EnterCombat;
+    private readonly InputAction m_Player_ActivateUltimate;
     private readonly InputAction m_Player_SwapElementLeft;
     private readonly InputAction m_Player_SwapElementRight;
     public struct PlayerActions
@@ -753,8 +851,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         public InputAction @Dodge => m_Wrapper.m_Player_Dodge;
         public InputAction @LightAttack => m_Wrapper.m_Player_LightAttack;
         public InputAction @HeavyAttack => m_Wrapper.m_Player_HeavyAttack;
+        public InputAction @ElementAttack => m_Wrapper.m_Player_ElementAttack;
         public InputAction @Retarget => m_Wrapper.m_Player_Retarget;
         public InputAction @EnterCombat => m_Wrapper.m_Player_EnterCombat;
+        public InputAction @ActivateUltimate => m_Wrapper.m_Player_ActivateUltimate;
         public InputAction @SwapElementLeft => m_Wrapper.m_Player_SwapElementLeft;
         public InputAction @SwapElementRight => m_Wrapper.m_Player_SwapElementRight;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -787,12 +887,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @HeavyAttack.started += instance.OnHeavyAttack;
             @HeavyAttack.performed += instance.OnHeavyAttack;
             @HeavyAttack.canceled += instance.OnHeavyAttack;
+            @ElementAttack.started += instance.OnElementAttack;
+            @ElementAttack.performed += instance.OnElementAttack;
+            @ElementAttack.canceled += instance.OnElementAttack;
             @Retarget.started += instance.OnRetarget;
             @Retarget.performed += instance.OnRetarget;
             @Retarget.canceled += instance.OnRetarget;
             @EnterCombat.started += instance.OnEnterCombat;
             @EnterCombat.performed += instance.OnEnterCombat;
             @EnterCombat.canceled += instance.OnEnterCombat;
+            @ActivateUltimate.started += instance.OnActivateUltimate;
+            @ActivateUltimate.performed += instance.OnActivateUltimate;
+            @ActivateUltimate.canceled += instance.OnActivateUltimate;
             @SwapElementLeft.started += instance.OnSwapElementLeft;
             @SwapElementLeft.performed += instance.OnSwapElementLeft;
             @SwapElementLeft.canceled += instance.OnSwapElementLeft;
@@ -824,12 +930,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @HeavyAttack.started -= instance.OnHeavyAttack;
             @HeavyAttack.performed -= instance.OnHeavyAttack;
             @HeavyAttack.canceled -= instance.OnHeavyAttack;
+            @ElementAttack.started -= instance.OnElementAttack;
+            @ElementAttack.performed -= instance.OnElementAttack;
+            @ElementAttack.canceled -= instance.OnElementAttack;
             @Retarget.started -= instance.OnRetarget;
             @Retarget.performed -= instance.OnRetarget;
             @Retarget.canceled -= instance.OnRetarget;
             @EnterCombat.started -= instance.OnEnterCombat;
             @EnterCombat.performed -= instance.OnEnterCombat;
             @EnterCombat.canceled -= instance.OnEnterCombat;
+            @ActivateUltimate.started -= instance.OnActivateUltimate;
+            @ActivateUltimate.performed -= instance.OnActivateUltimate;
+            @ActivateUltimate.canceled -= instance.OnActivateUltimate;
             @SwapElementLeft.started -= instance.OnSwapElementLeft;
             @SwapElementLeft.performed -= instance.OnSwapElementLeft;
             @SwapElementLeft.canceled -= instance.OnSwapElementLeft;
@@ -920,11 +1032,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_StateControl;
     private List<IStateControlActions> m_StateControlActionsCallbackInterfaces = new List<IStateControlActions>();
     private readonly InputAction m_StateControl_Pause;
+    private readonly InputAction m_StateControl_Debug;
     public struct StateControlActions
     {
         private @PlayerInputActions m_Wrapper;
         public StateControlActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Pause => m_Wrapper.m_StateControl_Pause;
+        public InputAction @Debug => m_Wrapper.m_StateControl_Debug;
         public InputActionMap Get() { return m_Wrapper.m_StateControl; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -937,6 +1051,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Pause.started += instance.OnPause;
             @Pause.performed += instance.OnPause;
             @Pause.canceled += instance.OnPause;
+            @Debug.started += instance.OnDebug;
+            @Debug.performed += instance.OnDebug;
+            @Debug.canceled += instance.OnDebug;
         }
 
         private void UnregisterCallbacks(IStateControlActions instance)
@@ -944,6 +1061,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Pause.started -= instance.OnPause;
             @Pause.performed -= instance.OnPause;
             @Pause.canceled -= instance.OnPause;
+            @Debug.started -= instance.OnDebug;
+            @Debug.performed -= instance.OnDebug;
+            @Debug.canceled -= instance.OnDebug;
         }
 
         public void RemoveCallbacks(IStateControlActions instance)
@@ -979,8 +1099,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         void OnDodge(InputAction.CallbackContext context);
         void OnLightAttack(InputAction.CallbackContext context);
         void OnHeavyAttack(InputAction.CallbackContext context);
+        void OnElementAttack(InputAction.CallbackContext context);
         void OnRetarget(InputAction.CallbackContext context);
         void OnEnterCombat(InputAction.CallbackContext context);
+        void OnActivateUltimate(InputAction.CallbackContext context);
         void OnSwapElementLeft(InputAction.CallbackContext context);
         void OnSwapElementRight(InputAction.CallbackContext context);
     }
@@ -993,5 +1115,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     public interface IStateControlActions
     {
         void OnPause(InputAction.CallbackContext context);
+        void OnDebug(InputAction.CallbackContext context);
     }
 }

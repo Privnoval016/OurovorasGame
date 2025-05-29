@@ -7,7 +7,10 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Player/AttackConfig")]
 public class AttackConfig : ScriptableObject
 {
+    public MovingStates movingState = MovingStates.NonCombat;
+    
     public Dictionary<AttackTypes, Attack[]> AttackMap = new Dictionary<AttackTypes, Attack[]>();
+    public HashSet<Attack> allAttacks = new HashSet<Attack>();
     
     [Header("Unlock Parameters")] 
     
@@ -38,22 +41,23 @@ public class AttackConfig : ScriptableObject
     
     public Attack[] enemyStepAttacks;
     
-    [SerializeField] private Attack[] elementalAttacks;
-    
     [SerializeField] private Attack[] specialAttacks; // priority 2
-
 
     private void OnValidate()
     {
+        RefreshAttackData();
+    }
+
+    public void RefreshAttackData()
+    {
         AttackMap.Clear();
         
-        HashSet<Attack> allAttacks = new HashSet<Attack>();
+        allAttacks = new HashSet<Attack>();
         
         allAttacks.UnionWith(lightComboAttacks);
         allAttacks.UnionWith(heavyComboAttacks);
         allAttacks.UnionWith(midairAttacks);
         allAttacks.UnionWith(specialAttacks);
-        allAttacks.UnionWith(elementalAttacks);
         
         foreach (var attack in allAttacks)
         {
@@ -64,8 +68,6 @@ public class AttackConfig : ScriptableObject
             
             AttackMap[attack.attackType] = AttackMap[attack.attackType].Append(attack).ToArray();
         }
-        
     }
-
 }
 

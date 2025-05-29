@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07952d1e0c0ab954082f7a9fbf4ad70c, type: 3}
   m_Name: DualSwordAttacks
   m_EditorClassIdentifier: 
+  movingState: 1
   bladeBeamHoldTime: 0.2
   bladeBeamInterval: 0.3
   crossSlashDuration: 0.3

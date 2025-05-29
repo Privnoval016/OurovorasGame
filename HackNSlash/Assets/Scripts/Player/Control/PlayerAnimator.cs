@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Animancer;
 using AYellowpaper.SerializedCollections;
 using Extensions.Utils;
@@ -9,6 +10,7 @@ using Object = System.Object;
 [Serializable]
 public class AnimContainer
 {
+	public MovingStates movingState;
 	public MoveAnimData moveAnimData;
 	public HitAnimData hitAnimData;
 }
@@ -22,8 +24,9 @@ public class PlayerAnimator : EntityAnimator
 
     public StringAsset[] parameterNames;
     
-    [FormerlySerializedAs("moveAnimDataDict")] [SerializedDictionary("Move State", "Animation Data")]
-    public SerializedDictionary<MovingStates, AnimContainer> animDataDict;
+    public AnimContainer[] animDataArray;
+    
+    public Dictionary<MovingStates, AnimContainer> animDataDict;
     
     #endregion
     
@@ -41,6 +44,12 @@ public class PlayerAnimator : EntityAnimator
     {
         pc = GetComponent<PlayerController>();
         animancer.TryGetComponent(out rootMotion);
+        
+        animDataDict = new Dictionary<MovingStates, AnimContainer>();
+        foreach (AnimContainer animContainer in animDataArray)
+		{
+			animDataDict.TryAdd(animContainer.movingState, animContainer);
+		}
     }
 
     private void Update()

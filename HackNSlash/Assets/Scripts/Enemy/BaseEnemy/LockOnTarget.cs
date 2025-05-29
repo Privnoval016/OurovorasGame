@@ -62,12 +62,12 @@ public abstract class LockOnTarget : KinematicBehaviour
         
     }
     
-    public virtual void OnHit(PlayerController pc, Attack a, int actionIndex = 0)
+    public virtual void OnHit(ElementEffect element, PlayerController pc, Attack a, int actionIndex = 0)
     {
         tookDamageThisAction = true;
         this.RunSegmentCoroutine(ResetHit(a));
 
-        TakeDamage();
+        TakeDamage(element, pc, a);
     }
     
     private IEnumerator<float> ResetHit(Attack a)
@@ -76,9 +76,12 @@ public abstract class LockOnTarget : KinematicBehaviour
         tookDamageThisAction = false;
     }
 
-    public virtual void TakeDamage()
+    public virtual void TakeDamage(ElementEffect element, PlayerController pc, Attack a)
     {
-        // add later
+        
+        Debug.Log($"{gameObject.name} took {a.hitInfo.damage} damage from {pc.gameObject.name} with element {element}.");
+        
+        // Override this method to implement damage logic
     }
     
 }

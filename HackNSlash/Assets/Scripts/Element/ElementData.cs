@@ -25,5 +25,21 @@ public class ElementData : ScriptableObject
     {
         return elementVFXs[type];
     }
+
+    public static ElementEffect GetElementFromAttack(Attack a, PlayerController pc)
+    {
+        ElementEffect element = a.element;
+
+        if (element == ElementEffect.MatchCurrent)
+        {
+            element = pc.pi.CurrentElementEffect;
+        }
+        else if (element == ElementEffect.None && pc.pi.ImbuedElementEffect != ElementEffect.None)
+        {
+            element = pc.pi.ImbuedElementEffect;
+        }
+
+        return element;
+    }
     
 }

@@ -31,10 +31,8 @@ public class PlayerAttack : Attack
     public bool useNormalGravity = false;
     
     public ExitConditions exitCondition = ExitConditions.AnimationEnd;
-
-    [Header("VFX")] 
     
-    public VFXSpawnInfo[] vfxInfos;
+    
 
 
     private void OnValidate()
@@ -58,74 +56,4 @@ public enum ExitConditions
     ExternalExit
 }
 
-public enum HitDetections
-{
-    WeaponTrail,
-    SphereCast,
-    HitScan
-}
 
-[Serializable]
-public class HitInfo
-{
-    public OnHitActions[] onHitActions = {OnHitActions.BasicKnockBack};
-    
-    [Header ("Hit Detection")]
-    public HitDetections hitDetection;
-    public float lateralRadius = 3;
-    public float verticalRadius = 3;
-    public float hitRegisterAngle = 120;
-    public int numTargets = 1;
-    
-    [Header("Stats")]
-    public float attackCoolDown;
-    public float damage;
-    
-    [Header("Hit Parameters")]
-    
-    [Tooltip("Used for knockback and other select hit actions")]
-    public float hitForce;
-    [Tooltip("Used for knockback and other select hit actions")]
-    public float hitDelay;
-
-    [Tooltip("Used for follow velocity and other select hit actions")]
-    public Vector3 hitDirection;
-    
-    [Tooltip("Used for follow velocity and other select hit actions")]
-    public bool elasticCollision = false;
-}
-
-[Serializable]
-public class VFXSpawnInfo
-{
-    public VFXAttack vfxAttack;
-    
-    [Header("VFX Parameters")]
-    public int hitIndex;
-    public float duration = 0.3f;
-    public float delay = 0;
-
-    [Header("Default Spawn Parameters")] 
-    public Target spawnTarget = Target.None;
-
-    public TransformInfo spawnTransform;
-}
-
-public enum Target
-{
-    None,
-    Player,
-    TargetedEnemy,
-    KatanaSpirit
-}
-
-public enum AttackTypes
-{
-    Light,
-    Heavy,
-    Midair,
-    Directional,
-    Special,
-    Other,
-    Spirit
-}

@@ -15,7 +15,11 @@ public class PlayerStateMachine : MonoBehaviour
     [Header("Locomotion Data")]
     
     public PlayerData playerData;
-    public AttackConfig attackData;
+    
+    private Dictionary<MovingStates, AttackConfig> attackDataDict;
+    public AttackConfig attackData => movingState != MovingStates.NonCombat ? attackDataDict[movingState] : attackDataDict[MovingStates.DualSword];
+    
+    
     
     [HideInInspector] public MovingStates movingState;
     
@@ -81,6 +85,7 @@ public class PlayerStateMachine : MonoBehaviour
     #region ATTACK PARAMETERS
 
     [HideInInspector] public bool canAttack;
+
     [FormerlySerializedAs("currentAttack")] [HideInInspector] public PlayerAttack currentPlayerAttack;
     
     [HideInInspector] public HashSet<LockOnTarget> enemiesHitThisAction = new();
@@ -123,10 +128,15 @@ public class PlayerStateMachine : MonoBehaviour
         
         KeyMap = InputManager.KeyMap;
         
+        attackDataDict = new Dictionary<MovingStates, AttackConfig>();
+        foreach (AttackConfig attackConfig in pc.pi.attackDatas)
+        {
+            attackDataDict.TryAdd(attackConfig.movingState, attackConfig);
+        }
+        
         pc.sc.ChangeState(new PlayerMoving());
-
-        InputManager.Instance.swapElementLeft.performed += OnSwapElementLeft;
-        InputManager.Instance.swapElementRight.performed += OnSwapElementRight;
+        
+        InputManager.Instance.debug.performed += OnDebugInput;
     }
     
     private void Update()
@@ -144,17 +154,18 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
     
     #region Input Callbacks
-
-    private void OnSwapElementLeft(InputAction.CallbackContext context)
-    {
-        int index = pc.elementEffectOrder.IndexOf(pc.CurrentElementEffect);
-        pc.CurrentElementEffect = pc.elementEffectOrder.ShiftIndex(index, -1);
-    }
     
-    private void OnSwapElementRight(InputAction.CallbackContext context)
+    private void OnDebugInput(InputAction.CallbackContext context)
     {
-        int index = pc.elementEffectOrder.IndexOf(pc.CurrentElementEffect);
-        pc.CurrentElementEffect = pc.elementEffectOrder.ShiftIndex(index, 1);
+        if (context.performed)
+        {
+            PlayerIsHit(new HitInstance()
+            {
+                force = new Vector3(15, 0),
+                direction = -transform.forward.ToVector2(),
+                damage = 1,
+            });
+        }
     }
     
     #endregion
@@ -262,7 +273,7 @@ public class PlayerStateMachine : MonoBehaviour
     private bool CheckMobilityAction()
     {
 
-        if (movingState == MovingStates.Combat && !pauseMovement)
+        if (movingState != MovingStates.NonCombat && !pauseMovement)
         {
             #region Dodge
 
@@ -333,7 +344,9 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (CheckMobilityAction()) return;
         
-        if (movingState != MovingStates.Combat || pauseMovement) return;
+        if (movingState == MovingStates.NonCombat) return;
+        
+        if (pauseMovement) return;
 
         PlayerAttack a = null;
         ComboAction possibleCombo = CheckComboAction();
@@ -392,7 +405,30 @@ public class PlayerStateMachine : MonoBehaviour
 
         #endregion
         
-        if (!a && possibleCombo == null && !starter)
+        #region Elemental Attack
+
+        Attack e = pc.pi.CurrentLoadout.GetElementAttack(pc.pi.CurrentElementEffect, movingState);
+
+        if (e != null && AttackIsAvailable(e))
+        {
+            if (e is SpiritAttack spiritAttack)
+            {
+                BeginSpiritAttack(spiritAttack);
+            }
+            
+            if (e is PlayerAttack playerAttack)
+            {
+                a = playerAttack;
+            }
+        }
+        else
+        {
+            e = null;
+        }
+        
+        #endregion
+        
+        if (!e && !a && possibleCombo == null && !starter)
             pc.spirit.CheckSpiritAction();
         
         if (!canAttack) return;

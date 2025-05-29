@@ -20,6 +20,8 @@ public class VFXAttack : ScriptableObject
     public GameObject vfxHitBox;
     [Tooltip("Individual VFX prefabs that will spawn as children of the hitbox (must be VFX Graphs)")]
     public VFXData[] vfxDatas;
+
+    public int maxVFXAlive = 0; // 0 means no limit
         
     [Header("Movement Settings")]
     public OnVFXActions vfxAction = OnVFXActions.FollowWeapon;

@@ -10,19 +10,20 @@ using UnityEngine.VFX;
 
 public class VFXController : MonoBehaviour
 {
+    [Header("Components")]
 
     public VFXHitbox[] hitboxes;
-    
     
     [HideInInspector] public MeshRenderer meshRenderer;
     [HideInInspector] public Rigidbody rb;
     
-    [FormerlySerializedAs("attack")]
     [Header("Settings")]
     
-    [HideInInspector] public PlayerAttack playerAttack;
+    [HideInInspector] public Attack attack;
     [HideInInspector] public PlayerController player;
     [HideInInspector] public VFXSpawnInfo vfxSpawnInfo;
+    
+    public ElementEffect elementType;
     
     [HideInInspector] public VFXActivator[] vas;
     [HideInInspector] public int vfxIndex;
@@ -58,7 +59,7 @@ public class VFXController : MonoBehaviour
         elapsedTime += Time.deltaTime;
         if (elapsedTime >= timeAlive)
         {
-            Destroy(gameObject);
+            DestroyVFX();
         }
 
         vfxDelays.Keys.Where(effect => elapsedTime >= vfxDelays[effect] * timeAlive).ToList().ForEach(effect =>
@@ -70,10 +71,20 @@ public class VFXController : MonoBehaviour
         
     }
     
-    public void InitializeVFX(PlayerController pc, TransformInfo start, PlayerAttack a, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
+    public void DestroyVFX()
     {
+        if (gameObject != null)
+        {
+            OnVFXEvents.Instance.OnVFXDestroyed(this);
+            Destroy(gameObject);
+        }
+    }
+    
+    public void InitializeVFX(PlayerController pc, TransformInfo start, Attack a, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
+    {
+        elementType = ElementData.GetElementFromAttack(a, pc);
         player = pc;
-        playerAttack = a;
+        attack = a;
         vas = vfx;
         vfxSpawnInfo = v;
         vfxIndex = index;
@@ -94,7 +105,9 @@ public class VFXController : MonoBehaviour
         }
         if (meshRenderer != null) meshRenderer.enabled = vas.Length == 0;
 
-        UpdateVFXColorByElement(a.element);
+        UpdateVFXColorByElement();
+        
+        OnVFXEvents.Instance.OnVFXInitialize(this);
     }
     
     private void AddVFXDelays()
@@ -127,7 +140,7 @@ public class VFXController : MonoBehaviour
         }
     }
     
-    public void UpdateVFXColorByElement(ElementEffect elementType)
+    public void UpdateVFXColorByElement()
     {
         Color brightColor = GameManager.ElementMap[elementType]().vfxBrightColor;
         Color darkColor = GameManager.ElementMap[elementType]().vfxDarkColor;
@@ -146,11 +159,11 @@ public class VFXController : MonoBehaviour
         Debug.Log("Hit");
         if (!activeHitbox || !vfxEnabled) return;
         
-        if (player == null || playerAttack == null) return;
+        if (player == null || attack == null) return;
         
         if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.tookDamageThisAction)
         {
-            enemy.OnHit(player, playerAttack, vfxSpawnInfo.hitIndex);
+            enemy.OnHit(elementType, player, attack, vfxSpawnInfo.hitIndex);
         }
     }
 

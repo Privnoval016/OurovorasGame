@@ -126,22 +126,27 @@ public class PhysicsEnemy : LockOnTarget
 
     #region Knockback Methods
     
+    public bool ResetMovement()
+    {
+        rb.linearVelocity = Vector3.zero;
+        return true;
+    }
+    
     
     public bool ForceKnockback(Vector3 force, ForceMode mode = ForceMode.VelocityChange)
     {
         if (!TakeKnockback) return false;
-        
-        rb.linearVelocity = Vector3.zero;
+
+        ResetMovement();
         rb.AddForce(force, mode);
         return true;
     }
 
     public bool TraverseDistKnockback(Vector3 direction, float distance, float time, Func<bool> condition = null)
     {
-        Debug.Log("Traversing");
         if (!TakeKnockback) return false;
 
-        rb.linearVelocity = Vector3.zero;
+        ResetMovement();
         this.RunSegmentCoroutine(rb.TraverseDistanceInTime(direction, distance, time, condition));
         return true;
     }
@@ -149,7 +154,8 @@ public class PhysicsEnemy : LockOnTarget
     public bool SetVelocityKnockback(Vector3 velocity)
     {
         if (!TakeKnockback) return false;
-        
+
+        ResetMovement();
         rb.linearVelocity = velocity;
         return true;
     }
@@ -157,17 +163,17 @@ public class PhysicsEnemy : LockOnTarget
     public bool TweenKnockback(Vector3 direction, float distance, float time, Ease ease = Ease.Default)
     {
         if (!TakeKnockback) return false;
-        
-        rb.linearVelocity = Vector3.zero;
+
+        ResetMovement();
         transform.TweenDistance(direction, distance, time, ease);
         return true;
     }
 
     #endregion
 
-    public override void OnHit(PlayerController pc, Attack a, int actionIndex = 0)
+    public override void OnHit(ElementEffect element, PlayerController pc, Attack a, int actionIndex = 0)
     {
-        base.OnHit(pc, a, actionIndex);
+        base.OnHit(element, pc, a, actionIndex);
         
         OnHitEvents.OnHitActionMap[a.hitInfo.onHitActions[actionIndex]](pc, this, a);
     }

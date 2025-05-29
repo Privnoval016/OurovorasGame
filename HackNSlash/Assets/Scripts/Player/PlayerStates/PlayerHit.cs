@@ -33,7 +33,7 @@ public class PlayerHit : PlayerState
         if (midairKnockback && pc.psm.IsGrounded)
         {
             pc.rb.linearVelocity = Vector3.zero;
-            pc.pac.OnAnimExit(pc.pac.HitAnims.airHit.EndClip, ExitHit);
+            pc.pac.ExitTimeAnimation(pc.pac.HitAnims.airHit.EndClip, null, ExitHit);
         }
     }
 
@@ -58,18 +58,19 @@ public class PlayerHit : PlayerState
         midairKnockback = true;
         pc.pac.RootMotionEnabled(false);
         
-        pc.gameObject.LookInDirection(-hit.direction);
+        pc.gameObject.LookInDirection(-hit.direction.ToVector3());
         pc.pac.ExitTimeAnimation(pc.pac.HitAnims.airHit.StartClip, pc.pac.HitAnims.airHit.LoopClip);
     }
 
     private void KnockbackGround()
     {
         midairKnockback = false;
-        pc.pac.RootMotionEnabled(hit.force.magnitude > 0);
+        pc.pac.RootMotionEnabled(false);
         
         pc.pac.SetAnimancerParam("HitX", hit.direction.x, false);
         pc.pac.SetAnimancerParam("HitZ", hit.direction.y, false);
-        pc.pac.OnAnimExit(pc.pac.HitAnims.groundHit, ExitHit);
+        Debug.Log("Hit Direction: " + hit.direction);
+        pc.pac.ExitTimeAnimation(pc.pac.HitAnims.groundHit, null, ExitHit);
     }
     
     #endregion
@@ -85,7 +86,7 @@ public class PlayerHit : PlayerState
 
 public struct HitInstance
 {
-    public Vector2 direction;
-    public Vector2 force;
+    public Vector2 direction;   // direction of the hit in the xz plane
+    public Vector2 force;       // x: horizontal force, y: vertical force
     public float damage;
 }

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8ef66f85f9b24c6cb9411a33ceff23f, type: 3}
+  m_Name: D_AirComboB1
+  m_EditorClassIdentifier: 
+  isEnabled: 1
+  attackType: 0
+  comboActions:
+  - actionType: 0
+    attack: {fileID: 11400000, guid: cca959ef9f66dff40971bae6e0bb23dc, type: 2}
+    time: 0
+  - actionType: 0
+    attack: {fileID: 11400000, guid: 5d1bf1100f403ef46bbef808161486bb, type: 2}
+    time: 0
+  - actionType: 1
+    attack: {fileID: 11400000, guid: 506a0a9488fff57409f93ca2ae2728c5, type: 2}
+    time: 0.2

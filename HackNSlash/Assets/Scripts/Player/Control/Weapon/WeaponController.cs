@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using AYellowpaper.SerializedCollections;
+using Pathfinding;
 
 public enum WeaponType
 {
@@ -8,16 +11,23 @@ public enum WeaponType
     SwordLeft,
     SwordRight,
     Katana,
+    Sheath
 }
 
 public class WeaponController : MonoBehaviour
 {
-    [SerializedDictionary("WeaponType", "Weapon Object")]
-    public SerializedDictionary<WeaponType, WeaponBody> weaponBodies;
+    [Header("Weapon Bodies")]
+    
+    public Dictionary<WeaponType, WeaponBody> weaponBodies = new Dictionary<WeaponType, WeaponBody>();
+    public WeaponBody[] weaponBodyArray;
     
     public WeaponType[] activeWeaponTypes;
     [HideInInspector] public List<WeaponBody> activeWeapons = new();
     public int trailLength = 10;
+
+    [Header("Following Weapons")] 
+    public FollowWeapon[] followWeapons;
+    
     
     [HideInInspector]
     public PlayerController pc;
@@ -25,17 +35,29 @@ public class WeaponController : MonoBehaviour
     void Awake()
     {
         pc = GetComponent<PlayerController>();
+
+        foreach (WeaponBody weaponBody in weaponBodyArray)
+        {
+            if (weaponBody != null)
+            {
+                weaponBodies.TryAdd(weaponBody.weaponType, weaponBody);
+            }
+        }
+        
         
         foreach (WeaponBody weaponBody in weaponBodies.Values)
         {
             weaponBody.weaponController = this;
         }
         
-        foreach (WeaponType weaponType in activeWeaponTypes)
+        foreach (FollowWeapon followWeapon in followWeapons)
         {
-            activeWeapons.Add(weaponBodies[weaponType]);
+            followWeapon.weaponController = this;
+            followWeapon.mainWeaponBody = GetWeapon(WeaponType.Katana);
         }
-        
+
+        SwitchWeapon(activeWeaponTypes);
+
     }
     
     void Update()
@@ -52,15 +74,73 @@ public class WeaponController : MonoBehaviour
     {
         return weaponBodies[weaponType];
     }
-    
-    public void SwitchWeapon(WeaponType[] weaponTypes)
+
+    public void SwitchWeapon(WeaponType[] weaponTypes, MovingStates nextState = MovingStates.NonCombat)
     {
         ResetTrail();
+        foreach (WeaponBody weaponBody in weaponBodies.Values)
+        {
+            weaponBody.gameObject.SetActive(false);
+        }
         activeWeapons.Clear();
+        
         foreach (WeaponType weaponType in weaponTypes)
         {
             activeWeapons.Add(weaponBodies[weaponType]);
+            weaponBodies[weaponType].gameObject.SetActive(true);
         }
+
+        ActivateWeaponProperties(nextState);
+    }
+
+    private void ActivateWeaponProperties(MovingStates movingState)
+    {
+        switch (movingState)
+        {
+            case MovingStates.DualSword:
+                foreach (var weapon in followWeapons)
+                {
+                    weapon.Activate(false, null);
+                }
+                break;
+            case MovingStates.Katana:
+                foreach (var weapon in followWeapons)
+                {
+                    weapon.Activate(true, GetWeapon(WeaponType.Katana));
+                }
+
+                break;
+            
+            case MovingStates.NonCombat:
+                break;
+                
+        }
+    }
+
+    public HashSet<LockOnTarget> EnemiesFromFollowWeapons()
+    {
+        HashSet<LockOnTarget> allEnemies = new HashSet<LockOnTarget>();
+        
+        foreach (FollowWeapon followWeapon in followWeapons)
+        {
+            if (!followWeapon.active || followWeapon.mainWeaponBody == null) continue;
+            
+            HashSet<Collider> enemies = pc.psm
+                .GetAllEnemiesInCapsule(pc.psm.playerData.largeRadius, pc.psm.playerData.largeRadius)
+                .Select(e => e.GetComponent<Collider>()).ToHashSet();
+        
+            enemies = enemies.Where(e => followWeapon.IsIntersecting(e)).ToHashSet();
+        
+            var e = enemies.Select(e => e.GetComponent<LockOnTarget>()).ToHashSet();
+            e.RemoveWhere(e => e.tookDamageThisAction);
+            
+            if (e.Count > 0)
+            {
+                allEnemies = allEnemies.Union(e).ToHashSet();
+            }
+        }
+        
+        return allEnemies;
     }
     
     

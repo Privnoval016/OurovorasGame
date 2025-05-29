@@ -26,6 +26,7 @@ public class PlayerController : KinematicBehaviour
     [HideInInspector] public WeaponController wc;
     [HideInInspector] public PlayerAnimator pac;
     [HideInInspector] public PlayerStateMachine psm;
+    [HideInInspector] public PlayerInventory pi;
     
     public ElementalSpirit spirit;
     
@@ -34,13 +35,6 @@ public class PlayerController : KinematicBehaviour
     public PlayerAnimListener model;
     
     #endregion
-    
-    public ElementEffect CurrentElementEffect = ElementEffect.None;
-    public ElementData CurrentElementData => GameManager.ElementMap[CurrentElementEffect]();
-    
-    public ElementEffect[] elementEffects = Array.Empty<ElementEffect>();
-    public CircularList<ElementEffect> elementEffectOrder;
-    
     
     #region MonoBehaviour Callbacks
 
@@ -52,6 +46,7 @@ public class PlayerController : KinematicBehaviour
         wc = GetComponent<WeaponController>();
         pac = GetComponent<PlayerAnimator>();
         psm = GetComponent<PlayerStateMachine>();
+        pi = GetComponent<PlayerInventory>();
 
         allCols = GetComponents<CapsuleCollider>();
         
@@ -65,8 +60,6 @@ public class PlayerController : KinematicBehaviour
                 break;
             }
         }
-
-        elementEffectOrder = new CircularList<ElementEffect>(elementEffects.ToList());
         
         spirit.pc = this;
         

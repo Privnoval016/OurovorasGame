@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa86877cdac2844f786d4d3092e5956e, type: 3}
+  m_Name: DualSword
+  m_EditorClassIdentifier: 
+  groundHit:
+    _FadeDuration: 0.25
+    _Speed: 1
+    _Events:
+      _NormalizedTimes: []
+      _Callbacks: []
+      _Names: []
+    _Animations:
+    - {fileID: 7400000, guid: b27bd114751bac94ea97533bdcd2df60, type: 2}
+    - {fileID: 7400000, guid: 600ed202fe7737448957e2a8252bc7ba, type: 2}
+    - {fileID: 7400000, guid: e9aa30054aa9a704bbbfeab4739a1db9, type: 2}
+    - {fileID: 7400000, guid: f04a95b04f85f674ca993ebe6345c456, type: 2}
+    _Speeds: []
+    _SynchronizeChildren: 
+    _Thresholds:
+    - {x: 0, y: -1}
+    - {x: 0, y: 1}
+    - {x: -1, y: 0}
+    - {x: 1, y: 0}
+    _DefaultParameter: {x: 0, y: 0}
+    _Type: 0
+    _ParameterNameX: {fileID: 11400000, guid: e0a819d260a4543298594cb9b2715d6e, type: 2}
+    _ParameterNameY: {fileID: 11400000, guid: b00cd3cec00524d0c8e4d0f11724483b, type: 2}
+  airHit:
+    startClip:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 7400000, guid: 63551152321eb024c82980f9e38aa5a1, type: 2}
+      _NormalizedStartTime: NaN
+    loopClip:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 7400000, guid: da24fb6ffed06704c91f258aa0d69846, type: 2}
+      _NormalizedStartTime: NaN
+    endClip:
+      _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 7400000, guid: 450878b9678b4f444bff067bff8271fc, type: 2}
+      _NormalizedStartTime: NaN
+  deathClip:
+    _FadeDuration: 0.25
+    _Speed: 1
+    _Events:
+      _NormalizedTimes: []
+      _Callbacks: []
+      _Names: []
+    _Clip: {fileID: 7400000, guid: d10be8516ea1f764eb7ec00869a4a4f0, type: 2}
+    _NormalizedStartTime: NaN
+  references:
+    version: 2
+    RefIds: []

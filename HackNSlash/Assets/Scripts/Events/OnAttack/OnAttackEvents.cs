@@ -19,6 +19,7 @@ public enum OnAttackActions
     Grapple,
     EnemyStep,
     SpawnVFX,
+    ImbueElement
 }
 
 public class OnAttackEvents : Singleton<OnAttackEvents>
@@ -26,11 +27,24 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
     public static Dictionary<OnAttackActions, Action<PlayerController, PlayerAttack>> OnAttackActionMap;
     
-    [SerializeField] private OnAttackParameters attackParameters;
+    [SerializeField] private OnAttackParameters[] attackParametersArray;
+    
+    public Dictionary<MovingStates, OnAttackParameters> AttackParametersMap = new();
+
+    private OnAttackParameters GetAttackParameters(PlayerController pc)
+    {
+        return AttackParametersMap[pc.psm.movingState != MovingStates.NonCombat ? pc.psm.movingState : MovingStates.DualSword];
+    }
     
     protected override void Awake()
     {
         base.Awake();
+        
+        foreach (OnAttackParameters attackParameters in attackParametersArray)
+        {
+            AttackParametersMap.TryAdd(attackParameters.movingState, attackParameters);
+        }
+        
         AddOnAttackMethods();
     }
     
@@ -52,6 +66,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         OnAttackActionMap.Add(OnAttackActions.Grapple, Grapple);
         OnAttackActionMap.Add(OnAttackActions.EnemyStep, EnemyStep);
         OnAttackActionMap.Add(OnAttackActions.SpawnVFX, SpawnVFX);
+        OnAttackActionMap.Add(OnAttackActions.ImbueElement, ImbueElement);
         
     }
     
@@ -71,6 +86,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     private IEnumerator<float> BeginBladeBeam(PlayerController pc, PlayerAttack a)
     {
+        var attackParameters = GetAttackParameters(pc);
+        
         yield return Timing.WaitForSeconds(a.animDelay);
         
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
@@ -132,6 +149,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     private IEnumerator<float> BeginGrapple(PlayerController pc, PlayerAttack a)
     {
+        var attackParameters = GetAttackParameters(pc);
+        
         yield return Timing.WaitForSeconds(a.animDelay);
         
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
@@ -183,6 +202,9 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
     IEnumerator<float> AirDash(PlayerController pc, PlayerAttack a)
     {
+        var attackParameters = GetAttackParameters(pc);
+        
+        
         yield return Timing.WaitForSeconds(a.animDelay);
         
         pc.pac.PlayAnimation(a.attackClips[0], a.animFade);
@@ -223,8 +245,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         
         pc.rb.linearVelocity = Vector3.zero;
 
-        //pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
-        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+        if (attackParameters.finalAirSlash) pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, !attackParameters.finalAirSlash ? a.hitInfo.attackCoolDown : Mathf.Min(0, a.hitInfo.attackCoolDown + a.attackClips[2].length - 0.1f)));
         
         pc.pac.animancer.gameObject.transform.rotation = originalRotation;
         pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, false);
@@ -242,6 +264,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
     IEnumerator<float> DashAttack(PlayerController pc, PlayerAttack a)
     {
+        var attackParameters = GetAttackParameters(pc);
+        
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
         
         yield return Timing.WaitForSeconds(a.animDelay);
@@ -295,7 +319,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         {
             foreach (var hit in collidersInPath)
             {
-                if (hit.collider.TryGetComponent(out LockOnTarget d)) d.OnHit(pc, a, 1);
+                if (hit.collider.TryGetComponent(out LockOnTarget d)) d.OnHit(pc.pi.CurrentElementEffect, pc, a, 1);
                 pc.IgnoreCollision(hit.collider, false);
             }
         }
@@ -313,7 +337,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     private IEnumerator<float> BeginLaunchUp(PlayerController pc, PlayerAttack a)
     {
-        yield return Timing.WaitForSeconds(a.animDelay);
+        var attackParameters = GetAttackParameters(pc);
         
         KeyBind[] holdKeys = InputManager.GetHoldable(a.keyBinds);
         
@@ -323,6 +347,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         {
             yield break;
         }
+        
+        Timing.WaitForSeconds(a.animDelay);
         
         pc.pac.PlayAnimation(a.attackClips[1], a.animFade, false);
         
@@ -345,18 +371,20 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     private IEnumerator<float> BeginPlungeAttack(PlayerController pc, PlayerAttack a)
     {
-        yield return Timing.WaitForSeconds(a.animDelay);
+        var attackParameters = GetAttackParameters(pc);
         
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
         pc.pac.PlayAnimation(a.attackClips[0], a.animFade);
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
         
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = true;
         pc.pac.PlayAnimation(a.attackClips[1], a.animFade);
         
         pc.rb.linearVelocity = Vector3.zero;
-        
-        float minAnimTime = 0.02f;
+
+        float minAnimTime = attackParameters.minPlungeTime;
         float startTime = Time.time;
 
         Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.psm.IsMidair &&
@@ -386,6 +414,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     private IEnumerator<float> BeginEnemyStep(PlayerController pc, PlayerAttack a)
     {
+        var attackParameters = GetAttackParameters(pc);
+        
         yield return Timing.WaitForSeconds(a.animDelay);
         
         Vector3 enemyPos = pc.psm.GetClosestEnemyInCapsule(pc.psm.playerData.mediumRadius, pc.psm.playerData.heightRadius) != null ? 
@@ -405,6 +435,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     private void Dodge(PlayerController pc, PlayerAttack a)
     {
+        
         IEnumerator<float> attack = BeginRegularDodge(pc, a);
         
         switch (a.attackEventIndex)
@@ -428,6 +459,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
     IEnumerator<float> BeginRegularDodge(PlayerController pc, PlayerAttack a)
     { 
+        var attackParameters = GetAttackParameters(pc);
+
         yield return Timing.WaitForSeconds(a.animDelay);
         
         Vector3 dodgeDirection = pc.psm.moveDirection.ZeroVector3Axis().normalized;
@@ -446,6 +479,9 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     IEnumerator<float> BeginTargetDodge(PlayerController pc, PlayerAttack a)
     {
+        var attackParameters = GetAttackParameters(pc);
+
+        
         yield return Timing.WaitForSeconds(a.animDelay);
 
         Vector3 teleportedPosition = pc.cam.TargetedEnemy.transform.position +
@@ -458,6 +494,10 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         dodgeDirection.Normalize();
 
         float moveTime = attackParameters.dodgeTime / 2;
+
+
+        (pc.cam.TargetedEnemy as PhysicsEnemy)?.ResetMovement();
+        
         
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
@@ -466,6 +506,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     IEnumerator<float> BeginTeleportsBehindYou(PlayerController pc, PlayerAttack a)
     {
+        var attackParameters = GetAttackParameters(pc);
+
         yield return Timing.WaitForSeconds(a.animDelay);
         
         Vector3 targetPos = pc.cam.TargetPosition +
@@ -477,6 +519,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         dodgeDirection.Normalize();
 
         float moveTime = attackParameters.dodgeTime;
+        
+        (pc.cam.TargetedEnemy as PhysicsEnemy)?.ResetMovement();
 
         pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, true);
         
@@ -489,6 +533,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     IEnumerator<float> BeginDodgeDown(PlayerController pc, PlayerAttack a)
     {
+        var attackParameters = GetAttackParameters(pc);
+
         yield return Timing.WaitForSeconds(a.animDelay);
 
         Vector3 dodgeDirection;
@@ -529,6 +575,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
     IEnumerator<float> BeginMashAttack(PlayerController pc, PlayerAttack a)
     {
+        var attackParameters = GetAttackParameters(pc);
+
         yield return Timing.WaitForSeconds(a.animDelay);
         
         float timeSinceLastClick = 0;
@@ -590,6 +638,10 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
                     targetPos = pc.cam.TargetPosition;
                     targetRot = Quaternion.LookRotation(pc.transform.position - targetPos);
                     break;
+                case Target.KatanaSpirit:
+                    targetPos = pc.spirit.transform.position;
+                    targetRot = Quaternion.LookRotation(pc.spirit.transform.forward);
+                    break;
             }
                     
             OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(
@@ -597,5 +649,48 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         }
     }
 
+    #endregion
+    
+    
+    #region Imbue Element
+    
+    private void ImbueElement(PlayerController pc, PlayerAttack a)
+    {
+        this.RunSegmentCoroutine(BeginImbueElement(pc, a));
+    }
+    
+    private IEnumerator<float> BeginImbueElement(PlayerController pc, PlayerAttack a)
+    {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
+        if (pc.pi.CurrentElementEffect == ElementEffect.None) yield break;
+        
+        pc.KillObjectCoroutines(nameof(ResetImbuedElement));
+
+        float delay = a.hitInfo.attackCoolDown;
+
+        if (pc.pi.ImbuedElementEffect == ElementEffect.None)
+        {
+            pc.pac.PlayAnimation(a.attackClips[pc.psm.IsMidair ? 1 : 0], a.animFade);
+            pc.pi.ImbuedElementEffect = pc.pi.CurrentElementEffect;
+        }
+        else
+        {
+            delay = 0;
+            pc.pi.ImbuedElementEffect = ElementEffect.None;
+        }
+        
+        pc.RunSegmentCoroutine(ResetImbuedElement(pc, GetAttackParameters(pc).imbueElementDuration), nameof(ResetImbuedElement));
+
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, delay));
+    }
+
+    private IEnumerator<float> ResetImbuedElement(PlayerController pc, float time)
+    {
+        yield return Timing.WaitForSeconds(time);
+        pc.pi.ImbuedElementEffect = ElementEffect.None;
+    }
+    
+    
     #endregion
 }

@@ -32,6 +32,11 @@ public class MoveAnimData : ScriptableObject
     public ClipTransition swapClip;
     public MovingStates nextState;
 
+    public ClipTransition ultClip;
+    public MovingStates ultNextState;
+
+    public WeaponType[] ultWeapons;
+
     private void OnValidate()
     {
         _animStates = new();
@@ -44,6 +49,7 @@ public class MoveAnimData : ScriptableObject
         _animStates.Add(WalkingAnimStates.DoubleJumping, doubleJumpClip);
         _animStates.Add(WalkingAnimStates.Falling, fallClip);
         _animStates.Add(WalkingAnimStates.Swapping, swapClip);
+        _animStates.Add(WalkingAnimStates.Ultimate, ultClip);
     }
 }
 
@@ -57,6 +63,7 @@ public enum WalkingAnimStates
     Jumping,
     DoubleJumping,
     Swapping,
+    Ultimate
 }
 
 public abstract class Loop

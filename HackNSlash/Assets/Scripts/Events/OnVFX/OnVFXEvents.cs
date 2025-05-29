@@ -11,7 +11,7 @@ public enum OnVFXActions
 {
     LinearPath,
     HomingPath,
-    CircularPath,
+    RotatingPath,
     StationaryPath,
     FollowWeapon,
     FollowGround
@@ -23,6 +23,10 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     public static Dictionary<OnVFXActions, Action<VFXController, WeaponType>> OnVFXActionMap;
     
     public OnVFXParameters parameters;
+    
+    private List<VFXController> activeVFX = new();
+    
+    public Dictionary<VFXAttack, List<VFXController>> ActiveVFXCount = new();
     
     protected override void Awake()
     {
@@ -40,9 +44,12 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         OnVFXActionMap.Add(OnVFXActions.FollowWeapon, FollowWeapon);
         OnVFXActionMap.Add(OnVFXActions.StationaryPath, StationaryPath);
         OnVFXActionMap.Add(OnVFXActions.FollowGround, FollowGround);
+        OnVFXActionMap.Add(OnVFXActions.RotatingPath, RotatingPath);
     }
     
-    public VFXController InvokeOnVFX(PlayerController pc, TransformInfo start, PlayerAttack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
+    #region VFX Invocation
+    
+    public VFXController InvokeOnVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
     {
         if (a == null || a.vfxInfos.Length == 0) return null;
         VFXController vfx = InstantiateVFX(pc, start, a, vfxIndex);
@@ -51,15 +58,17 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         return vfx;
     }
     
-    IEnumerator<float> SpawnWithDelay(VFXController vfx, PlayerAttack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
+    IEnumerator<float> SpawnWithDelay(VFXController vfx, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
     {
         yield return Timing.WaitForSeconds(a.vfxInfos[vfxIndex].delay);
         OnVFXActionMap[a.vfxInfos[vfxIndex].vfxAttack.vfxAction].Invoke(vfx, weaponType);
     }
     
-    private VFXController InstantiateVFX(PlayerController pc, TransformInfo start, PlayerAttack a, int vfxIndex = 0)
+    private VFXController InstantiateVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0)
     {
         if (a.vfxInfos.Length <= vfxIndex) return null;
+        
+        
         Quaternion rotation = a.vfxInfos[vfxIndex].spawnTransform.Rotation.eulerAngles != Vector3.zero
             ? start.Rotation * a.vfxInfos[vfxIndex].spawnTransform.Rotation
             : start.Rotation;
@@ -83,7 +92,8 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         foreach (VFXData vfxData in vfxDatas)
         {
             GameObject effect = vfxData.effect == null ? 
-                pc.CurrentElementData.GetVFX(vfxData.vfxType) : vfxData.effect;
+                GameManager.GetElementData(ElementData.GetElementFromAttack(a, pc)).GetVFX(vfxData.vfxType) 
+                : vfxData.effect;
             if (effect == null) continue;
             
             GameObject vfxInstance = Instantiate(effect, vfx.transform);
@@ -101,10 +111,65 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             vfxInstance.transform.localRotation = vfxData.localTransform.Rotation;
             vfxInstance.transform.localScale = vfxData.localTransform.Scale;
         }
-        
+
         vc.InitializeVFX(pc, realStart, a, v, vfxs.ToArray(), vfxIndex, v.vfxAttack.canCollide);
+        
         return vc;
     }
+
+    public void OnVFXInitialize(VFXController vc)
+    {
+        activeVFX.Add(vc);
+        
+        if (ActiveVFXCount.ContainsKey(vc.vfxSpawnInfo.vfxAttack))
+        {
+            ActiveVFXCount[vc.vfxSpawnInfo.vfxAttack].Add(vc);
+        }
+        else
+        {
+            ActiveVFXCount.Add(vc.vfxSpawnInfo.vfxAttack, new List<VFXController> { vc });
+        }
+        
+        if (vc.vfxSpawnInfo.vfxAttack.maxVFXAlive != 0)
+        {
+            int currentCount = ActiveVFXCount.ContainsKey(vc.vfxSpawnInfo.vfxAttack) 
+                ? ActiveVFXCount[vc.vfxSpawnInfo.vfxAttack].Count 
+                : 0;
+
+            if (currentCount > vc.vfxSpawnInfo.vfxAttack.maxVFXAlive)
+            {
+                var oldest = ActiveVFXCount[vc.vfxSpawnInfo.vfxAttack][0];
+                if (oldest != null) oldest.DestroyVFX();
+            }
+        }
+    }
+
+    public void OnVFXDestroyed(VFXController vfx)
+    {
+        if (ActiveVFXCount.ContainsKey(vfx.vfxSpawnInfo.vfxAttack))
+        {
+            ActiveVFXCount[vfx.vfxSpawnInfo.vfxAttack].Remove(vfx);
+        }
+        
+        activeVFX.Remove(vfx);
+    }
+
+    public void OnVFXPaused(bool paused)
+    {
+        foreach (VFXController vfx in activeVFX)
+        {
+            if (paused)
+            {
+                // Pause the VFX
+            }
+            else
+            {
+                // Resume the VFX
+            }
+        }
+    }
+    
+    #endregion
     
     #region Linear Path
     
@@ -176,7 +241,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     
     private void FollowGround(VFXController vfx, WeaponType weaponType)
     {
-        this.RunSegmentCoroutine(BeginFollowGround(vfx, weaponType));
+        this.RunSegmentCoroutine(BeginFollowGround(vfx, weaponType).CancelWith(vfx));
     }
     
     IEnumerator<float> BeginFollowGround(VFXController vfx, WeaponType weaponType)
@@ -201,6 +266,31 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             
             
             vfx.rb.linearVelocity = speed * direction;
+            yield return Timing.WaitForOneFrame;
+        }
+    }
+    
+    #endregion
+    
+    #region Rotating Path
+    
+    private void RotatingPath(VFXController vfx, WeaponType weaponType)
+    {
+        this.RunSegmentCoroutine(BeginRotatingPath(vfx, weaponType).CancelWith(vfx));
+    }
+    
+    IEnumerator<float> BeginRotatingPath(VFXController vfx, WeaponType weaponType)
+    {
+        float startTime = Time.time;
+        float duration = vfx.timeAlive - Time.deltaTime * 2;
+        float speed = vfx.vfxSpawnInfo.vfxAttack.vfxSpeed;
+        
+        vfx.EnableVFX();
+        
+        while (Time.time - startTime < duration)
+        {
+            vfx.transform.position = vfx.player.transform.position + vfx.vfxSpawnInfo.spawnTransform.Position;
+            vfx.transform.Rotate(Vector3.up, speed * Time.deltaTime);
             yield return Timing.WaitForOneFrame;
         }
     }

@@ -3,6 +3,8 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Events/OnAttackParameters")]
 public class OnAttackParameters : ScriptableObject
 {
+    public MovingStates movingState = MovingStates.NonCombat;
+    
     [Header("Blade Beam")]
     public float bladeBeamHoldTime = 0.2f;
     public float bladeBeamInterval = 0.2f;
@@ -14,6 +16,7 @@ public class OnAttackParameters : ScriptableObject
     [Header("Air Dash")]
     public float airDashSpeed = 80f;
     public float maxAirDashDistance = 20f;
+    public bool finalAirSlash = false;
     
     [Header("Dash Attack")]
     public float groundDashDistance = 25f;
@@ -27,6 +30,8 @@ public class OnAttackParameters : ScriptableObject
     
     [Header("Plunge Attack")]
     public float plungeSpeed = 75;
+
+    public float minPlungeTime = 0.02f;
     
     [Header("Enemy Step")] 
     public float enemyStepPushBack = 1;
@@ -40,4 +45,7 @@ public class OnAttackParameters : ScriptableObject
     [Header("Mash Attack")] 
     public float mashInterval = 0.4f;
     public float mashDuration = 1.5f;
+    
+    [Header("Imbue Element")]
+    public float imbueElementDuration = 5f;
 }
