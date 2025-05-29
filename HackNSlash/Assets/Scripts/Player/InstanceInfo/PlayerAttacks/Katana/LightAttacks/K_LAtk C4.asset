@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
+  m_Name: K_LAtk C4
+  m_EditorClassIdentifier: 
+  isEnabled: 1
+  attackType: 0
+  element: 0
+  isLockedOn: 0
+  keyBinds: 01000000
+  inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
+  applyTargetDirection: 0
+  isMidair: 0
+  maxUses: 0
+  hitInfo:
+    onHitActions: 00000000
+    hitDetection: 1
+    lateralRadius: 3
+    verticalRadius: 3
+    hitRegisterAngle: 360
+    numTargets: 1
+    attackCoolDown: 0.4
+    damage: 0
+    hitForce: 35
+    hitDelay: 0.2
+    hitDirection: {x: 0, y: 0, z: 0}
+    elasticCollision: 0
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    hitIndex: 0
+    duration: 0.3
+    delay: 0
+    spawnTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 0, y: 0, z: 0}
+  onAttackAction: 0
+  attackEventIndex: 0
+  applyRootMotion: 1
+  moveCameraWithAttack: 1
+  attackTransitions: []
+  attackClips:
+  - {fileID: 7400000, guid: 2553802f9a8c4d3468a09d6b5bd57ad1, type: 2}
+  animDelay: 0
+  animFade: 0.2
+  clipsToPlay: 1
+  useNormalGravity: 0
+  exitCondition: 0

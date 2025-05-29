@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07952d1e0c0ab954082f7a9fbf4ad70c, type: 3}
+  m_Name: KatanaAttacks
+  m_EditorClassIdentifier: 
+  movingState: 2
+  bladeBeamHoldTime: 0.2
+  bladeBeamInterval: 0.3
+  crossSlashDuration: 0.3
+  grappleMaxTime: 0.1
+  airDashSpeed: 80
+  maxAirDashDistance: 20
+  finalAirSlash: 1
+  groundDashDistance: 25
+  groundDashTime: 0.2
+  groundDashTimeThreshold: 0.4
+  launchUpHoldTime: 0.25
+  launchUpTime: 0.3
+  launchUpHeight: 15
+  plungeSpeed: 75
+  minPlungeTime: 0.04
+  enemyStepPushBack: 1
+  enemyStepTime: 0.3
+  enemyStepHeight: 1
+  dodgeDistance: 8
+  dodgeTime: 0.2
+  mashInterval: 0.4
+  mashDuration: 1.5

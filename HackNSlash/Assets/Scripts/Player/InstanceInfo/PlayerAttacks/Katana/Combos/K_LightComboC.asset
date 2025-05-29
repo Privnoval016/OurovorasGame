@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8ef66f85f9b24c6cb9411a33ceff23f, type: 3}
+  m_Name: K_LightComboC
+  m_EditorClassIdentifier: 
+  isEnabled: 1
+  attackType: 0
+  comboActions:
+  - actionType: 0
+    playerAttack: {fileID: 11400000, guid: 9753dcf527576154792a1adbe3d57a67, type: 2}
+    time: 0
+  - actionType: 0
+    playerAttack: {fileID: 11400000, guid: 0d1c67256ecc0554c8d07e7d6f589651, type: 2}
+    time: 0
+  - actionType: 2
+    playerAttack: {fileID: 0}
+    time: 0.4
+  - actionType: 0
+    playerAttack: {fileID: 11400000, guid: a1b39eb5fe7334646bbf75600286527f, type: 2}
+    time: 0
+  - actionType: 0
+    playerAttack: {fileID: 11400000, guid: b5ef878392a50c343a16828bfbe6dc11, type: 2}
+    time: 0

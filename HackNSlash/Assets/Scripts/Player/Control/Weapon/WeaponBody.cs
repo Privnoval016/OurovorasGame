@@ -4,17 +4,29 @@ using System.Linq;
 using Animancer;
 using UnityEngine;
 
-public class WeaponBody : MonoBehaviour
+public class WeaponBody : KinematicBehaviour
 {
+    public WeaponType weaponType = WeaponType.None;
+    
     [HideInInspector] public WeaponController weaponController;
     
-    [SerializeField] private Transform[] trailTransforms;
+    [SerializeField] protected Transform[] trailTransforms;
     
-    private Queue<Vector3[]> trailPositions = new();
+    protected Queue<Vector3[]> trailPositions = new Queue<Vector3[]>();
     public int trailLength => weaponController.trailLength;
     
-    private PlayerAttack _lastPlayerAttack;
-    private AnimancerState lastAnimation;
+    protected PlayerAttack _lastPlayerAttack;
+    protected AnimancerState lastAnimation;
+    
+    private void Awake()
+    {
+        SetKinematicAttributes(); 
+    }
+
+    private void Update()
+    {
+        UpdateKinematicAttributes();
+    }
 
     private void FixedUpdate()
     {
@@ -24,6 +36,11 @@ public class WeaponBody : MonoBehaviour
 
     public void UpdateTrail()
     {
+        if (trailTransforms == null || trailTransforms.Length == 0)
+        {
+            return;
+        }
+        
         Vector3[] positions = new Vector3[trailTransforms.Length];
         for (int i = 0; i < trailTransforms.Length; i++)
         {
@@ -40,7 +57,7 @@ public class WeaponBody : MonoBehaviour
 
     public void OnDrawGizmos()
     {
-        if (trailPositions.Count == 0)
+        if (trailPositions == null || trailPositions.Count == 0)
         {
             return;
         }

@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1542f359f9b8a914ca82ab2756ce8de7, type: 3}
+  m_Name: SpinningBlades
+  m_EditorClassIdentifier: 
+  isEnabled: 1
+  attackType: 6
+  element: 1
+  isLockedOn: 0
+  keyBinds: 06000000
+  inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
+  applyTargetDirection: 1
+  isMidair: 2
+  maxUses: 0
+  hitInfo:
+    onHitActions: 0a000000
+    hitDetection: 0
+    lateralRadius: 3
+    verticalRadius: 3
+    hitRegisterAngle: 120
+    numTargets: 1
+    attackCoolDown: 0
+    damage: 0
+    hitForce: 10
+    hitDelay: 0
+    hitDirection: {x: 0, y: 0, z: 0}
+    elasticCollision: 0
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: e7448548180974948b18ee57b2dec30c, type: 2}
+    hitIndex: 0
+    duration: 4
+    delay: 0
+    spawnTarget: 1
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1, y: 1, z: 1}
+  onSpiritMovement: 0
+  onSpiritAction: 2

@@ -17,6 +17,8 @@ public enum OnHitActions
     Grapple,
     LockPhysics,
     SwordThrow,
+    ForwardKnockback,
+    VerticalKnockback
 }
 
 public class OnHitEvents : Singleton<OnHitEvents>
@@ -46,6 +48,8 @@ public class OnHitEvents : Singleton<OnHitEvents>
         OnHitActionMap.Add(OnHitActions.Grapple, Grapple);
         OnHitActionMap.Add(OnHitActions.LockPhysics, LockPhysics);
         OnHitActionMap.Add(OnHitActions.SwordThrow, SwordThrow);
+        OnHitActionMap.Add(OnHitActions.ForwardKnockback, ForwardKnockback);
+        OnHitActionMap.Add(OnHitActions.VerticalKnockback, VerticalKnockback);
     }
 
     #region Basic Knockback
@@ -348,6 +352,65 @@ public class OnHitEvents : Singleton<OnHitEvents>
         
         Timing.WaitUntilTrue(() => pc.psm.canAttack);
         ec.PauseGravity(false);
+    }
+    
+    #endregion
+    
+    #region Forward Knockback
+    
+    private void ForwardKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    {
+        this.RunSegmentCoroutine(BeginForwardKnockback(pc, ec, a));
+    }
+    
+    IEnumerator<float> BeginForwardKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    {
+        yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
+        
+        
+        ec.PauseGravity(true);
+
+        Vector3 direction;
+        
+        if (a.hitInfo.hitDirection != Vector3.zero)
+        {
+            direction = a.hitInfo.hitDirection.GetRelativeVector3(pc.transform.forward).normalized;
+        }
+        else
+        {
+            direction = (ec.TargetedPosition() - pc.transform.position).normalized;
+        }
+        
+        ec.ForceKnockback(direction * a.hitInfo.hitForce);
+        
+        Timing.WaitUntilTrue(() => pc.psm.canAttack);
+        ec.PauseGravity(false, 0);
+        
+    }
+    
+    #endregion
+    
+    
+    #region Vertical Knockback
+    
+    private void VerticalKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    {
+        this.RunSegmentCoroutine(BeginVerticalKnockback(pc, ec, a));
+    }
+    
+    IEnumerator<float> BeginVerticalKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    {
+        yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
+        
+        ec.PauseGravity(true);
+
+        Vector3 direction = Vector3.up;
+        
+        ec.ForceKnockback(direction * a.hitInfo.hitForce);
+        
+        Timing.WaitUntilTrue(() => pc.psm.canAttack);
+        ec.PauseGravity(false, 0);
+        
     }
     
     #endregion

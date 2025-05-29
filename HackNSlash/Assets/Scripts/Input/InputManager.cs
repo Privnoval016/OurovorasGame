@@ -10,6 +10,7 @@ public class InputManager : Singleton<InputManager>
 {
     private PlayerInputActions InputMap;
     public InputAction pause;
+    public InputAction debug;
     
     // dictionary of gamestates and their respective input actions
     public static readonly Dictionary<GameState, InputActionMap> GameStateInputs = new();
@@ -28,13 +29,15 @@ public class InputManager : Singleton<InputManager>
 
     public InputAction lightAttack;
     public InputAction heavyAttack;
+    public InputAction elementAttack;
 
     public InputAction swapMode;
+    public InputAction ultimateMode;
 
     public InputAction swapElementLeft;
     public InputAction swapElementRight;
 
-    private bool lightAttacking, heavyAttacking;
+    private bool lightAttacking, heavyAttacking, elementAttacking;
     
     #endregion
     
@@ -72,15 +75,18 @@ public class InputManager : Singleton<InputManager>
     {
         KeyMap[KeyBind.LightAttack].holdTime = lightAttacking ? KeyMap[KeyBind.LightAttack].holdTime + Time.deltaTime : 0;
         KeyMap[KeyBind.HeavyAttack].holdTime = heavyAttacking ? KeyMap[KeyBind.HeavyAttack].holdTime + Time.deltaTime : 0;
+        KeyMap[KeyBind.ElementAttack].holdTime = elementAttacking ? KeyMap[KeyBind.ElementAttack].holdTime + Time.deltaTime : 0;
         
         KeyMap[KeyBind.LightAttack].lastTime = lightAttack.triggered ? 0 : KeyMap[KeyBind.LightAttack].lastTime + Time.deltaTime;
         KeyMap[KeyBind.HeavyAttack].lastTime = heavyAttack.triggered ? 0 : KeyMap[KeyBind.HeavyAttack].lastTime + Time.deltaTime;
+        KeyMap[KeyBind.ElementAttack].lastTime = elementAttacking ? 0 : KeyMap[KeyBind.ElementAttack].lastTime + Time.deltaTime;
     }
 
     public void ReleaseHoldAttacks()
     {
         lightAttacking = false;
         heavyAttacking = false;
+        elementAttacking = false;
     }
     
     #region Setup Keybinds
@@ -88,6 +94,7 @@ public class InputManager : Singleton<InputManager>
     private void AddGameStateInputs()
     {
         pause = InputMap.StateControl.Pause;
+        debug = InputMap.StateControl.Debug;
         InputMap.StateControl.Enable();
         
         GameStateInputs.Add(GameState.PlayerControl, InputMap.Player);
@@ -103,11 +110,13 @@ public class InputManager : Singleton<InputManager>
         lockOn = InputMap.Player.LockOn;
         retarget = InputMap.Player.Retarget;
         swapMode = InputMap.Player.EnterCombat;
+        ultimateMode = InputMap.Player.ActivateUltimate;
         swapElementLeft = InputMap.Player.SwapElementLeft;
         swapElementRight = InputMap.Player.SwapElementRight;
 
         KeyMap.Add(KeyBind.None, new KeyBindData() {action = () => true});
 
+        
         lightAttack = InputMap.Player.LightAttack;
         lightAttack.performed += ctx => lightAttacking = true;
         lightAttack.canceled += ctx => lightAttacking = false;
@@ -118,6 +127,7 @@ public class InputManager : Singleton<InputManager>
             holdAction = () => lightAttacking,
             releaseAction = () => lightAttack.WasReleasedThisFrame(),
         });
+        
         
         heavyAttack = InputMap.Player.HeavyAttack;
         heavyAttack.performed += ctx => heavyAttacking = true;
@@ -130,6 +140,7 @@ public class InputManager : Singleton<InputManager>
             releaseAction = () => heavyAttack.WasReleasedThisFrame(),
         });
         
+        
         KeyMap.Add(KeyBind.AnyAttack, new KeyBindData
         {
             action = () => KeyMap[KeyBind.LightAttack].action() || KeyMap[KeyBind.HeavyAttack].action(),
@@ -137,10 +148,21 @@ public class InputManager : Singleton<InputManager>
             releaseAction = () => KeyMap[KeyBind.LightAttack].releaseAction() || KeyMap[KeyBind.HeavyAttack].releaseAction(),
         });
         
+        
         KeyMap.Add(KeyBind.Dodge, new KeyBindData {action = () => dodge.triggered});
         KeyMap.Add(KeyBind.Jump, new KeyBindData {action = () => jump.triggered});
         
         
+        elementAttack = InputMap.Player.ElementAttack;
+        elementAttack.performed += ctx => elementAttacking = true;
+        elementAttack.canceled += ctx => elementAttacking = false;
+        
+        KeyMap.Add(KeyBind.ElementAttack, new KeyBindData
+        {
+            action = () => elementAttack.triggered,
+            holdAction = () => elementAttacking,
+            releaseAction = () => elementAttack.WasReleasedThisFrame(),
+        });
     }
     
     private void SetMenuKeybinds()
@@ -204,4 +226,5 @@ public enum KeyBind
     AnyAttack,
     Dodge,
     Jump,
+    ElementAttack,
 }

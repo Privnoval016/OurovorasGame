@@ -4,6 +4,8 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Player/Attacks/SpiritAttack")]
 public class SpiritAttack : Attack
 {
+    
+    [Header("Spirit Attack Parameters")]
     public OnSpiritMovement onSpiritMovement = OnSpiritMovement.Follow;
     public OnSpiritActions onSpiritAction = OnSpiritActions.None;
     

@@ -8,7 +8,8 @@ using Object = System.Object;
 public enum MovingStates
 {
 	NonCombat,
-	Combat,
+	DualSword,
+	Katana
 }
 
 public class PlayerMoving : PlayerState
@@ -22,6 +23,7 @@ public class PlayerMoving : PlayerState
 	    
 	    InputManager.Instance.jump.performed += OnJumpAction;
 	    InputManager.Instance.swapMode.performed += OnSwitchAction;
+	    InputManager.Instance.ultimateMode.performed += OnUltimateAction;
 	    pc.pac.RootMotionEnabled(false);
 	    pc.cam.isFollowingPlayer = true;
 	    
@@ -132,6 +134,22 @@ public class PlayerMoving : PlayerState
 	    });
 	    pc.psm.movingState = pc.pac.MovingAnims.nextState;
     }
+    
+    private void OnUltimateAction(InputAction.CallbackContext context)
+	{
+		if (pc.psm.movingState == MovingStates.NonCombat) return;
+		
+		pc.psm.pauseMovement = true;
+	    
+		pc.pac.SwitchAnimState(WalkingAnimStates.Ultimate, () =>
+		{
+			pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
+			pc.psm.pauseMovement = false;
+		});
+		pc.wc.SwitchWeapon(pc.pac.MovingAnims.ultWeapons, pc.pac.MovingAnims.ultNextState);
+		
+		pc.psm.movingState = pc.pac.MovingAnims.ultNextState;
+	}
     
     #endregion
     

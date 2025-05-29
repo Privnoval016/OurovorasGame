@@ -9,6 +9,7 @@ public enum OnSpiritActions
 {
     None,
     RangedAttack,
+    SpawnVFX,
 }
 
 public class OnSpiritEvents : Singleton<OnSpiritEvents>
@@ -29,6 +30,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     {
         OnSpiritActionMap.Add(OnSpiritActions.None, (spirit, a) => { });
         OnSpiritActionMap.Add(OnSpiritActions.RangedAttack, RangedAttack);
+        OnSpiritActionMap.Add(OnSpiritActions.SpawnVFX, SpawnVFX);
     }
     
     IEnumerator<float> ResumeMoving(ElementalSpirit spirit, Attack a, float time, Action action = null)
@@ -47,6 +49,8 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     
     private IEnumerator<float> BeginRangedAttack(ElementalSpirit spirit, SpiritAttack a)
     {
+        ElementEffect element = spirit.pc.pi.CurrentElementEffect;
+        
         HashSet<LockOnTarget> enemies = spirit.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle);
         
         KeyBind[] holdKeys = InputManager.GetReleaseable(a.keyBinds);
@@ -59,18 +63,60 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
         {
             foreach (LockOnTarget enemy in enemies)
             {
-                enemy.OnHit(spirit.pc, a, 0);
+                enemy.OnHit(element, spirit.pc, a, 0);
             }
         }
         else
         {
             foreach (LockOnTarget enemy in enemies)
             {
-                enemy.OnHit(spirit.pc, a, 1);
+                enemy.OnHit(element, spirit.pc, a, 1);
             }
         }
         
         this.RunSegmentCoroutine(ResumeMoving(spirit, a, a.hitInfo.attackCoolDown));
+    }
+
+    #endregion
+    
+    #region SpawnVFX
+
+    private void SpawnVFX(ElementalSpirit spirit, SpiritAttack a)
+    {
+        this.RunSegmentCoroutine(BeginSpawnVFX(spirit, a));
+    }
+    
+    private IEnumerator<float> BeginSpawnVFX(ElementalSpirit spirit, SpiritAttack a)
+    {
+        for (int i = 0; i < a.vfxInfos.Length; i++)
+        {
+            if (a.vfxInfos[i].spawnTarget == Target.None) continue;
+
+            Vector3 targetPos = spirit.pc.transform.position;
+            Quaternion targetRot = Quaternion.identity;
+            switch (a.vfxInfos[i].spawnTarget)
+            {
+                case Target.Player:
+                    targetPos = spirit.pc.transform.position;
+                    targetRot = Quaternion.LookRotation(spirit.pc.transform.forward);
+                    break;
+                case Target.TargetedEnemy:
+                    targetPos = spirit.pc.cam.TargetPosition;
+                    targetRot = Quaternion.LookRotation(spirit.pc.transform.position - targetPos);
+                    break;
+                case Target.KatanaSpirit:
+                    targetPos = spirit.transform.position;
+                    targetRot = Quaternion.LookRotation(spirit.transform.forward);
+                    break;
+            }
+                    
+            OnVFXEvents.Instance.InvokeOnVFX(spirit.pc, new TransformInfo(
+                targetPos, targetRot, Vector3.one), a, i);
+        }
+
+        this.RunSegmentCoroutine(ResumeMoving(spirit, a, parameters.vfxCooldownTime));
+
+        yield break;
     }
 
     #endregion

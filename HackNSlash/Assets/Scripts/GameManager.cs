@@ -123,9 +123,18 @@ public class GameManager : Singleton<GameManager>
             ElementMap.Add(element.element, () => element);
         }
         
-        // match current element should return the elementdata associated with the current element effect
+        ElementMap.Add(ElementEffect.MatchCurrent, () => GetElementData(pc?.pi?.CurrentElementEffect ?? ElementEffect.None));
+    }
+    
+    public static ElementData GetElementData(ElementEffect elementEffect)
+    {
+        if (ElementMap.TryGetValue(elementEffect, out var elementFunc))
+        {
+            return elementFunc();
+        }
         
-        ElementMap.Add(ElementEffect.MatchCurrent, () => pc?.CurrentElementData);
+        Debug.LogWarning($"No ElementData found for {elementEffect}");
+        return null;
     }
     
     #endregion

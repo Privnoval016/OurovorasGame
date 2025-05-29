@@ -24,6 +24,9 @@ MonoBehaviour:
     - bc9db5944af01fd4db276c5d509c5c00
     - ffc3c83291eb910499c4967526921800
     - bf645d80b9f378742800d6cab2475a9f
+    - 897d5688168ed430d8526e7fdcd972c3
+    - 015048b6e593bb446a8e7cb8995604b7
+    - 34b81d84864b7a540b4006ad4ea89934
     values:
     - iconNameOrGuid: 
       colorIndex: 1
@@ -62,6 +65,18 @@ MonoBehaviour:
       isIconRecursive: 0
       isColorRecursive: 0
     - iconNameOrGuid: PrefabModel Icon
+      colorIndex: 0
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: cs Script Icon
+      colorIndex: 0
+      isIconRecursive: 1
+      isColorRecursive: 0
+    - iconNameOrGuid: ScriptableObject Icon
+      colorIndex: 0
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: ScriptableObject Icon
       colorIndex: 0
       isIconRecursive: 0
       isColorRecursive: 0

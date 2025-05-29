@@ -210,10 +210,16 @@ public class PlayerAttacking : PlayerState
                 pc.psm.enemiesHitThisAction = EnemiesByHitScan();
                 break;
         }
+
+        HashSet<LockOnTarget> secondaryTargts = pc.wc.EnemiesFromFollowWeapons();
+        if (secondaryTargts.Count > 0)
+        {
+            pc.psm.enemiesHitThisAction = pc.psm.enemiesHitThisAction.Union(secondaryTargts).ToHashSet();
+        }
         
         foreach (LockOnTarget enemy in pc.psm.enemiesHitThisAction)
         {
-            enemy.OnHit(pc, _playerAttack);
+            enemy.OnHit(ElementData.GetElementFromAttack(_playerAttack, pc), pc, _playerAttack);
             Debug.Log($"Hit {enemy.name}");
         }
     }

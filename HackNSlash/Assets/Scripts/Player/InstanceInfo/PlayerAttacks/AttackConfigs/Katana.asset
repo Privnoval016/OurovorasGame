@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9511eb3e05fd744dd8935cc182356346, type: 3}
+  m_Name: Katana
+  m_EditorClassIdentifier: 
+  movingState: 2
+  doubleJumpEnabled: 1
+  dodgeCoolDown: 0.2
+  comboResetTime: 0.7
+  comboAttacks:
+  - {fileID: 11400000, guid: aafff9d57068a384883e7a73b2c822fc, type: 2}
+  - {fileID: 11400000, guid: 48f9832e585855848b213773432a18a2, type: 2}
+  - {fileID: 11400000, guid: 75728241eaafb4f4b921d7b069c2401b, type: 2}
+  - {fileID: 11400000, guid: 806e89b8d7d7cbb43a81af9173ac91d1, type: 2}
+  - {fileID: 11400000, guid: 65871b2cd7bd33749a1c4fd2b7f2e9ff, type: 2}
+  - {fileID: 11400000, guid: 0f2c2f24102bc46498d4c207b67e01e7, type: 2}
+  - {fileID: 11400000, guid: c1205e9840f393f449c529072bc24a33, type: 2}
+  - {fileID: 11400000, guid: 71c095d21a4a4984d9b22994dd638ecc, type: 2}
+  moveInterruptBuffer: 0.3
+  lightComboAttacks:
+  - {fileID: 11400000, guid: 9753dcf527576154792a1adbe3d57a67, type: 2}
+  heavyComboAttacks:
+  - {fileID: 11400000, guid: 9578dd07a764770449c52140c54b27ae, type: 2}
+  midairAttacks:
+  - {fileID: 11400000, guid: 6393b264a7a2b5e4da6d7d1a8cf8cfe0, type: 2}
+  dodgeAttacks:
+  - {fileID: 11400000, guid: 18dd024e407772a4e95419f02f3d3165, type: 2}
+  - {fileID: 11400000, guid: e0382e29f3f58f14aa38454722fc1784, type: 2}
+  - {fileID: 11400000, guid: 7a981a396ca5f8646aedfae70705a3e6, type: 2}
+  - {fileID: 11400000, guid: 77fe298cfd956dc4c84415b25f577742, type: 2}
+  enemyStepAttacks:
+  - {fileID: 11400000, guid: e53371ef873d6f34bbe79795ccd54c92, type: 2}
+  elementalAttacks: []
+  specialAttacks:
+  - {fileID: 11400000, guid: 34f95dfc6f45a5044a1974ef78be28fb, type: 2}
+  - {fileID: 11400000, guid: 03ec20722e27ae448a120c1dd88487e1, type: 2}
+  - {fileID: 11400000, guid: cbde3890a7b6d0c4aa9557842c8efed9, type: 2}
+  - {fileID: 11400000, guid: 773d9280e0cf4ed4882ed1fbb7af1e4c, type: 2}
+  - {fileID: 11400000, guid: 80aef43054668d74b83255a26517cee2, type: 2}
+  - {fileID: 11400000, guid: ec616182090914c40a1e4b2c24d9a3fa, type: 2}
+  - {fileID: 11400000, guid: b0506a6107a57df4da3cf1cb17161f19, type: 2}
+  - {fileID: 11400000, guid: 79e555173c7589b418755190f5787dbb, type: 2}
