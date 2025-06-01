@@ -38,7 +38,7 @@ MonoBehaviour:
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: e7448548180974948b18ee57b2dec30c, type: 2}
     hitIndex: 0
-    duration: 4
+    duration: 7
     delay: 0
     spawnTarget: 1
     spawnTransform:

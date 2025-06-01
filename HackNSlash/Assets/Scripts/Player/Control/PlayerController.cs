@@ -95,3 +95,26 @@ public class PlayerController : KinematicBehaviour
     }
     
 }
+
+public enum Stat
+{
+    Health,
+    Stamina,
+    Strength,
+    Defense,
+}
+
+[Serializable]
+public class StatChange
+{
+    public enum ChangeType
+    {
+        Flat,
+        AdditivePercent,
+        MultiplicativePercent,
+    }
+    
+    public Stat stat;
+    public float value;
+    public ChangeType changeType;
+}

@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
+  m_Name: K_AetherFinisher
+  m_EditorClassIdentifier: 
+  isEnabled: 0
+  attackType: 4
+  element: 7
+  isLockedOn: 1
+  keyBinds: 06000000
+  inputDirection: {x: 0, y: 1}
+  comboDirection: {x: 0, y: -1}
+  applyTargetDirection: 1
+  isMidair: 0
+  maxUses: 0
+  hitInfo:
+    onHitActions: 09000000
+    hitDetection: 0
+    lateralRadius: 3
+    verticalRadius: 3
+    hitRegisterAngle: 120
+    numTargets: 1
+    attackCoolDown: 0.3
+    damage: 0
+    hitForce: 12
+    hitDelay: 0
+    hitDirection: {x: 0, y: 0, z: 1}
+    elasticCollision: 0
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    hitIndex: 0
+    duration: 1.3
+    delay: 0
+    spawnTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
+  onAttackAction: 0
+  attackEventIndex: 0
+  applyRootMotion: 1
+  moveCameraWithAttack: 0
+  attackTransitions: []
+  attackClips:
+  - {fileID: 7400000, guid: 2404b0bbfdfe00649a43f41237db6d06, type: 2}
+  animDelay: 0
+  animFade: 0.2
+  clipsToPlay: 1
+  useNormalGravity: 0
+  exitCondition: 0

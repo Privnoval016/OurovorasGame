@@ -15,12 +15,16 @@ public class EquipmentLoadout : ScriptableObject
     // public Reaction[] activeReactions;
     
     //[Header("Equipped Items")]
+    
+    // public Accessory[] equippedAccessories = new Accessory[3];
+    
+    // public PassiveSkill[] equippedPassives = new PassiveSkill[3];
 
 
 
     #region Element Methods
     
-    public void SetElementAttack(ElementEffect elementEffect, AttacksByWeapon attack)
+    public bool SetElementAttack(ElementEffect elementEffect, AttacksByWeapon attack)
     {
         foreach (var equippedAttack in equippedElementAttacks)
         {
@@ -31,7 +35,7 @@ public class EquipmentLoadout : ScriptableObject
             }
         }
         
-        ValidateElementAttacks();
+        return ValidateElementAttacks();
     }
     
     public EquippedElementAttack RemoveElementAttack(ElementEffect elementEffect)
@@ -78,16 +82,44 @@ public class EquipmentLoadout : ScriptableObject
         
     }
 
-    private void ValidateElementAttacks()
+    private bool ValidateElementAttacks()
     {
+        bool valid = true;
         elementAttackMap.Clear();
         foreach (var attack in equippedElementAttacks)
         {
-            if (attack != null && attack.elementEffect != ElementEffect.None)
+            if (attack == null || attack.elementEffect == ElementEffect.None) continue;
+
+            if (attack.attack.SwordAttack == null) continue;
+
+            var swordElement = attack.attack.SwordAttack.element;
+            
+            if (swordElement != ElementEffect.MatchCurrent && 
+                attack.elementEffect != swordElement)
             {
-                elementAttackMap[attack.elementEffect] = attack;
+                Debug.LogWarning($"Equipped attack {attack.elementEffect} does not match sword element {swordElement}");
+                valid = false;
+                attack.attack.SwordAttack = null;
             }
+            
+            if (attack.attack.KatanaAttack == null) continue;
+            
+            var katanaElement = attack.attack.KatanaAttack.element;
+            
+            if (katanaElement != ElementEffect.MatchCurrent && 
+                attack.elementEffect != katanaElement)
+            {
+                Debug.LogWarning($"Equipped attack {attack.elementEffect} does not match katana element {katanaElement}");
+                valid = false;
+                attack.attack.KatanaAttack = null;
+            }
+
+            elementAttackMap[attack.elementEffect] = attack;
+                
+            
         }
+
+        return valid;
     }
     
     #endregion
@@ -97,11 +129,6 @@ public class EquipmentLoadout : ScriptableObject
         if (equippedElementAttacks == null)
         {
             equippedElementAttacks = new EquippedElementAttack[5];
-        }
-        
-        if (equippedElementAttacks.Length > 5)
-        {
-            Array.Resize(ref equippedElementAttacks, 5);
         }
         
         ValidateElementAttacks();

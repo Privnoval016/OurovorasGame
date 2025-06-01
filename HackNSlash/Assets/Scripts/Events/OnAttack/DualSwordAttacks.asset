@@ -19,6 +19,7 @@ MonoBehaviour:
   grappleMaxTime: 0.1
   airDashSpeed: 80
   maxAirDashDistance: 20
+  finalAirSlash: 0
   groundDashDistance: 25
   groundDashTime: 0.2
   groundDashTimeThreshold: 0.4
@@ -26,6 +27,7 @@ MonoBehaviour:
   launchUpTime: 0.3
   launchUpHeight: 15
   plungeSpeed: 75
+  minPlungeTime: 0.02
   enemyStepPushBack: 1
   enemyStepTime: 0.3
   enemyStepHeight: 1
@@ -33,3 +35,4 @@ MonoBehaviour:
   dodgeTime: 0.2
   mashInterval: 0.4
   mashDuration: 1.5
+  imbueElementDuration: 10
