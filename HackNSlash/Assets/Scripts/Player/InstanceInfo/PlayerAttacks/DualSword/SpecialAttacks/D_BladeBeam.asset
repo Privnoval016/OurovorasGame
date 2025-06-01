@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: D_BladeBeam
   m_EditorClassIdentifier: 
   isEnabled: 1
-  attackType: 1
+  attackType: 4
   element: 1
   isLockedOn: 0
   keyBinds: 02000000

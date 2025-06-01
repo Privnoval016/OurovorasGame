@@ -381,13 +381,6 @@ public class PlayerStateMachine : MonoBehaviour
 
         if (possibleCombo == null)
         {
-            foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Heavy])
-            {
-                if (!AttackIsAvailable(attack)) continue;
-
-                starter = attack;
-            }
-
             foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Light])
             {
                 if (!AttackIsAvailable(attack)) continue;
@@ -596,7 +589,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) return false;
 
-        if (!attack.keyBinds.Any(k => KeyMap[k].action())) return false;
+        if (attack.keyBinds.Any(k => !KeyMap[k].action())) return false;
         
         Vector2 direction = attack.applyTargetDirection ? StandardizedMoveDir : moveInput;
         if (attack.inputDirection != Vector2.zero && !direction.IsInDirectionCone(attack.inputDirection, 92f)) return false;

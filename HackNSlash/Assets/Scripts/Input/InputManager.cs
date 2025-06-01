@@ -46,6 +46,12 @@ public class InputManager : Singleton<InputManager>
     public InputAction navigate;
     public InputAction select;
     public InputAction back;
+    public InputAction sort;
+    
+    public InputAction tabLeft;
+    public InputAction tabRight;
+
+    public InputAction scroll;
     
     #endregion
     
@@ -170,6 +176,21 @@ public class InputManager : Singleton<InputManager>
         navigate = InputMap.Menu.Navigate;
         select = InputMap.Menu.Select;
         back = InputMap.Menu.Deselect;
+        tabLeft = InputMap.Menu.TabLeft;
+        tabRight = InputMap.Menu.TabRight;
+        
+        sort = InputMap.Menu.Sort;
+        scroll = InputMap.Menu.Scroll;
+    }
+
+    public void EnableStateInputs(GameState state)
+    {
+        foreach (var input in GameStateInputs.Values)
+        {
+            input.Disable();
+        }
+        
+        GameStateInputs[state].Enable();
     }
     
     #endregion

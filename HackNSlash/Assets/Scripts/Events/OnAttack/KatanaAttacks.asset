@@ -35,3 +35,4 @@ MonoBehaviour:
   dodgeTime: 0.2
   mashInterval: 0.4
   mashDuration: 1.5
+  imbueElementDuration: 10

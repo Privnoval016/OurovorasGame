@@ -56,13 +56,17 @@ public class GameManager : Singleton<GameManager>
             GameObject.FindWithTag("Player").TryGetComponent(out pc);
         
         CurrentGameState = GameState.PlayerControl;
-        previousGameState = GameState.PlayerControl;
         
         SetElementMap();
         
         InputManager.Instance.pause.performed += OnPauseAction;
     }
-    
+
+    private void Start()
+    {
+        SetGameState(GameState.PlayerControl);
+    }
+
     private void Update()
     {
 
@@ -96,18 +100,38 @@ public class GameManager : Singleton<GameManager>
         switch (state)
         {
             case GameState.PlayerControl:
-                Time.timeScale = 1;
+                SetPlayerControlState();
                 break;
             case GameState.Cutscene:
-                Time.timeScale = 1;
+                SetCutsceneState();
                 break;
             case GameState.Menu:
-                Time.timeScale = 0;
+                SetMenuState();
                 break;
         }
+
+        InputManager.Instance.EnableStateInputs(state);
         
         previousGameState = CurrentGameState;
         CurrentGameState = state;
+    }
+
+    private void SetPlayerControlState()
+    {
+        OverworldMenuUI.Instance.CloseMenu();
+        Time.timeScale = 1;
+    }
+    
+    private void SetCutsceneState()
+    {
+        OverworldMenuUI.Instance.CloseMenu();
+        Time.timeScale = 1;
+    }
+    
+    private void SetMenuState()
+    {
+        OverworldMenuUI.Instance.OpenMenu();
+        Time.timeScale = 0;
     }
     
     #endregion

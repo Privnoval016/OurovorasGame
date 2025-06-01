@@ -512,7 +512,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         
         Vector3 targetPos = pc.cam.TargetPosition +
                             (pc.cam.TargetPosition - pc.transform.position).ZeroVector3Axis()
-                            .normalized * (pc.psm.playerData.mediumRadius + pc.cam.TargetedEnemy.radius);
+                            .normalized * pc.psm.playerData.mediumRadius;
 
         Vector3 dodgeDirection = targetPos - pc.transform.position;
         float distance = dodgeDirection.magnitude;
