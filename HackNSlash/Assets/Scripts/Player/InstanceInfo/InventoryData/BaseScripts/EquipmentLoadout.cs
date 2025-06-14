@@ -16,7 +16,7 @@ public class EquipmentLoadout : ScriptableObject
     
     //[Header("Equipped Items")]
     
-    // public Accessory[] equippedAccessories = new Accessory[3];
+    public Accessory[] equippedAccessories = new Accessory[3];
     
     // public PassiveSkill[] equippedPassives = new PassiveSkill[3];
 

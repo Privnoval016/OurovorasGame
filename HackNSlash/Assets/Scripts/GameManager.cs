@@ -64,6 +64,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
+        SetGameState(GameState.Menu);
         SetGameState(GameState.PlayerControl);
     }
 
