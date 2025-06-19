@@ -32,6 +32,8 @@ public class PlayerAttacking : PlayerState
             pc.psm.numMidairAttacks++;
         
         SetAttackGravity();
+        
+        pc.wc.ActivateWeaponVFXByAttack(_playerAttack);
 
         pc.psm.canAttack = false;
         if (_playerAttack.attackTransitions.Length > 0) LaunchTransitionAttack();
@@ -72,6 +74,8 @@ public class PlayerAttacking : PlayerState
         pc.psm.pauseComboReset = false;
         pc.pac.RootMotionEnabled(false);
         pc.cam.isFollowingPlayer = true;
+        
+        pc.wc.ActivateImbuedWeaponVFX();
     }
     
     #endregion

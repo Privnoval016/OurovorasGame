@@ -142,6 +142,16 @@ namespace Pathfinding {
 		}
 
 		/// <summary>
+		/// Returns the closest point on the line.
+		/// The line is treated as infinite.
+		/// See: ClosestPointOnSegment
+		/// See: ClosestPointOnLineFactor
+		/// </summary>
+		public static float3 ClosestPointOnLine (float3 lineStart, float3 lineEnd, float3 point) {
+			return lineStart + ClosestPointOnLineFactor(lineStart, lineEnd, point) * (lineEnd - lineStart);
+		}
+
+		/// <summary>
 		/// Factor along the line which is closest to the point.
 		/// Returned value is in the range [0,1] if the point lies on the segment otherwise it just lies on the line.
 		/// The closest point can be calculated using (end-start)*factor + start.

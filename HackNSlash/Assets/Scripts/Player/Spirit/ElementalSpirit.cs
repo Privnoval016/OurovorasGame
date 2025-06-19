@@ -62,6 +62,11 @@ public class ElementalSpirit : KinematicBehaviour
 
         transform.position = evaluator.output + SinusoidalBob();
     }
+
+    public void SetRotation()
+    {
+        transform.rotation = Quaternion.Slerp(transform.rotation, pc.transform.rotation, 0.2f);
+    }
     
     #endregion
     

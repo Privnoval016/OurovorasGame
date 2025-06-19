@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class WeaponBody : KinematicBehaviour
 {
+    
+    [Header("Weapon Control Info")]
     public WeaponType weaponType = WeaponType.None;
     
     [HideInInspector] public WeaponController weaponController;
@@ -15,12 +17,18 @@ public class WeaponBody : KinematicBehaviour
     protected Queue<Vector3[]> trailPositions = new Queue<Vector3[]>();
     public int trailLength => weaponController.trailLength;
     
-    protected PlayerAttack _lastPlayerAttack;
-    protected AnimancerState lastAnimation;
+    
+    [Header("Effects")]
+    [SerializeField] private ElementObjectInfo[] vfxObjects;
+    private Dictionary<ElementEffect, GameObject> vfxObjectDict = new Dictionary<ElementEffect, GameObject>();
+    
+    
+    #region Monobehaviour Callbacks
     
     private void Awake()
     {
         SetKinematicAttributes(); 
+        DeactivateVFX();
     }
 
     private void Update()
@@ -32,8 +40,42 @@ public class WeaponBody : KinematicBehaviour
     {
         UpdateTrail();
     }
+    
+    #endregion
+    
+    #region VFX
+
+    public void ActivateVFX(ElementEffect elementEffect)
+    {
+        foreach (var vfx in vfxObjectDict)
+        {
+            if (vfx.Key == elementEffect && vfx.Value != null)
+            {
+                vfx.Value.SetActive(true);
+            }
+            else if (vfx.Value != null)
+            {
+                vfx.Value.SetActive(false);
+            }
+        }
+    }
+    
+    public void DeactivateVFX()
+    {
+        foreach (var vfx in vfxObjectDict.Values)
+        {
+            if (vfx != null)
+            {
+                vfx.SetActive(false);
+            }
+        }
+    }
+    
+    #endregion
 
 
+    #region Weapon Trail
+    
     public void UpdateTrail()
     {
         if (trailTransforms == null || trailTransforms.Length == 0)
@@ -52,23 +94,6 @@ public class WeaponBody : KinematicBehaviour
         if (trailPositions.Count > trailLength)
         {
             trailPositions.Dequeue();
-        }
-    }
-
-    public void OnDrawGizmos()
-    {
-        if (trailPositions == null || trailPositions.Count == 0)
-        {
-            return;
-        }
-        
-        for (int i = 0; i < trailTransforms.Length; i++)
-        {
-            Vector3[] positions = trailPositions.Select(x => x[i]).ToArray();
-            for (int j = 0; j < positions.Length - 1; j++)
-            {
-                Gizmos.DrawLine(positions[j], positions[j + 1]);
-            }
         }
     }
     
@@ -113,6 +138,50 @@ public class WeaponBody : KinematicBehaviour
     public void ResetTrail()
     {
         trailPositions.Clear();
+    }
+    
+    #endregion
+    
+    #region Inspector Events
+    
+    public void OnDrawGizmos()
+    {
+        if (trailPositions == null || trailPositions.Count == 0)
+        {
+            return;
+        }
+        
+        for (int i = 0; i < trailTransforms.Length; i++)
+        {
+            Vector3[] positions = trailPositions.Select(x => x[i]).ToArray();
+            for (int j = 0; j < positions.Length - 1; j++)
+            {
+                Gizmos.DrawLine(positions[j], positions[j + 1]);
+            }
+        }
+    }
+
+    private void OnValidate()
+    {
+        if (vfxObjects == null || vfxObjects.Length == 0) return;
+
+        vfxObjectDict.Clear();
+        foreach (ElementObjectInfo info in vfxObjects)
+        {
+            if (info.elementObject != null && !vfxObjectDict.ContainsKey(info.elementType))
+            {
+                vfxObjectDict.Add(info.elementType, info.elementObject);
+            }
+        }
+    }
+    
+    #endregion
+
+    [Serializable]
+    public class ElementObjectInfo
+    {
+        public ElementEffect elementType;
+        public GameObject elementObject;
     }
 }
 

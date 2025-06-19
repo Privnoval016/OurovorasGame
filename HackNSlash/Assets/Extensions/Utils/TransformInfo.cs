@@ -13,6 +13,7 @@ namespace Extensions.Utils
         public Vector3 Forward => Rotation * Vector3.forward;
         public Vector3 Right => Rotation * Vector3.right;
         public Vector3 Up => Rotation * Vector3.up;
+        
 
         public TransformInfo(bool defaultTransform = true)
         {
@@ -48,10 +49,18 @@ namespace Extensions.Utils
         /*
          * Converts the TransformInfo from a local space relative to the parent transform to world space
          */
-        public TransformInfo ConvertToWorldSpace(Transform parent)
+        public TransformInfo ConvertToWorldSpace(Transform parent, bool ignoreScale = false)
         {
+            if (parent == null) return this;
+            
             Vector3 newPos = parent.TransformPoint(Position);
             Quaternion newRot = parent.rotation * Rotation;
+            
+            if (ignoreScale)
+            {
+                return new TransformInfo(newPos, newRot, Scale);
+            }
+            
             Vector3 newScale = new Vector3(Scale.x * parent.lossyScale.x, Scale.y * parent.lossyScale.y,
                 Scale.z * parent.lossyScale.z);
 
@@ -61,10 +70,18 @@ namespace Extensions.Utils
         /*
          * Converts the TransformInfo from world space to a local space relative to the parent transform
          */
-        public TransformInfo ConvertToLocalSpace(Transform parent)
+        public TransformInfo ConvertToLocalSpace(Transform parent, bool ignoreScale = false)
         {
+            if (parent == null) return this;
+            
             Vector3 newPos = parent.InverseTransformPoint(Position);
             Quaternion newRot = Quaternion.Inverse(parent.rotation) * Rotation;
+            
+            if (ignoreScale)
+            {
+                return new TransformInfo(newPos, newRot, Scale);
+            }
+            
             Vector3 newScale = new Vector3(Scale.x / parent.lossyScale.x, Scale.y / parent.lossyScale.y,
                 Scale.z / parent.lossyScale.z);
 

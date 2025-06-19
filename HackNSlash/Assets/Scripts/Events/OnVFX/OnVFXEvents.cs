@@ -14,7 +14,7 @@ public enum OnVFXActions
     RotatingPath,
     StationaryPath,
     FollowWeapon,
-    FollowGround
+    FollowGround,
 }
 
 
@@ -49,10 +49,10 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     
     #region VFX Invocation
     
-    public VFXController InvokeOnVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0, WeaponType weaponType = WeaponType.None)
+    public VFXController InvokeOnVFX(PlayerController pc, Attack a, int vfxIndex = 0, TransformInfo overrideTransform = default, WeaponType weaponType = WeaponType.None)
     {
         if (a == null || a.vfxInfos.Length == 0) return null;
-        VFXController vfx = InstantiateVFX(pc, start, a, vfxIndex);
+        VFXController vfx = InstantiateVFX(pc, a, vfxIndex, overrideTransform);
         if (vfx == null) return null;
         this.RunSegmentCoroutine(SpawnWithDelay(vfx, a, vfxIndex, weaponType));
         return vfx;
@@ -64,26 +64,68 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         OnVFXActionMap[a.vfxInfos[vfxIndex].vfxAttack.vfxAction].Invoke(vfx, weaponType);
     }
     
-    private VFXController InstantiateVFX(PlayerController pc, TransformInfo start, Attack a, int vfxIndex = 0)
+    private VFXController InstantiateVFX(PlayerController pc, Attack a, int vfxIndex = 0, TransformInfo overrideTransform = default)
     {
         if (a.vfxInfos.Length <= vfxIndex) return null;
         
-        
-        Quaternion rotation = a.vfxInfos[vfxIndex].spawnTransform.Rotation.eulerAngles != Vector3.zero
-            ? start.Rotation * a.vfxInfos[vfxIndex].spawnTransform.Rotation
-            : start.Rotation;
-
-        TransformInfo realStart = new(start.Position, rotation,
-            start.Scale.ScaledBy(a.vfxInfos[vfxIndex].spawnTransform.Scale));
-
         VFXSpawnInfo v = a.vfxInfos[vfxIndex];
-        GameObject vfx = Instantiate(v.vfxAttack.vfxHitBox, realStart.Position, realStart.Rotation);
-        vfx.transform.localScale = realStart.Scale;
+
+        TransformInfo start = overrideTransform;
+
+        Transform parent = null;
+        
+        switch (v.spawnTarget)
+        {
+            case Target.Player:
+                start.Position = pc.transform.position;
+                start.Rotation = Quaternion.LookRotation(pc.transform.forward);
+                parent = pc.transform;
+                break;
+            case Target.TargetedEnemy:
+                start.Position = pc.cam.TargetPosition;
+                start.Rotation = Quaternion.LookRotation(pc.transform.position - start.Position);
+                parent = pc.cam.TargetedEnemy.transform;
+                break;
+            case Target.KatanaSpirit:
+                start.Position = pc.spirit.transform.position;
+                start.Rotation = Quaternion.LookRotation(pc.spirit.transform.forward);
+                parent = pc.spirit.transform;
+                break;
+        }
+
+        TransformInfo offset = v.spawnTransform;
+        
+        start.Scale = start.Scale == Vector3.zero ? Vector3.one : start.Scale;
+        start.Scale = start.Scale.ScaledBy(offset.Scale);
+
+        
+        GameObject vfx = Instantiate(v.vfxAttack.vfxHitBox, start.Position, start.Rotation);
+        vfx.transform.localScale = start.Scale;
         
         if (!vfx.TryGetComponent(out VFXController vc))
         {
             Destroy(vfx);
             return null;
+        }
+
+        vc.transform.SetParent(parent, true);
+
+        if (v.applyParentPoseToPosition)
+        {
+            vc.transform.localRotation = offset.Rotation;
+            vc.transform.localPosition = offset.Position;
+        }
+        else
+        {
+            vc.transform.position = start.Position + offset.Position;
+            vc.transform.rotation = offset.Rotation.eulerAngles != Vector3.zero
+                ? start.Rotation * offset.Rotation
+                : start.Rotation;
+        }
+        
+        if (!v.parentToTarget)
+        {
+            vc.transform.SetParent(null, true);
         }
 
         List<VFXActivator> vfxs = new();
@@ -112,7 +154,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             vfxInstance.transform.localScale = vfxData.localTransform.Scale;
         }
 
-        vc.InitializeVFX(pc, realStart, a, v, vfxs.ToArray(), vfxIndex, v.vfxAttack.canCollide);
+        vc.InitializeVFX(pc, new TransformInfo(vfx.transform), a, v, vfxs.ToArray(), vfxIndex, v.vfxAttack.canCollide);
         
         return vc;
     }
@@ -139,12 +181,16 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             if (currentCount > vc.vfxSpawnInfo.vfxAttack.maxVFXAlive)
             {
                 var oldest = ActiveVFXCount[vc.vfxSpawnInfo.vfxAttack][0];
-                if (oldest != null) oldest.DestroyVFX();
+                if (oldest != null)
+                {
+                    OnVFXDisabled(oldest);
+                    oldest.DestroyVFX();
+                }
             }
         }
     }
 
-    public void OnVFXDestroyed(VFXController vfx)
+    public void OnVFXDisabled(VFXController vfx)
     {
         if (ActiveVFXCount.ContainsKey(vfx.vfxSpawnInfo.vfxAttack))
         {
@@ -183,11 +229,11 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         VFXAttack v = vfx.vfxSpawnInfo.vfxAttack;
         
         Vector3 direction = vfx.transform.forward;
-        vfx.transform.TweenDistance(direction, vfx.timeAlive * v.vfxSpeed, vfx.timeAlive, Ease.Linear);
+        vfx.transform.TweenDistance(direction, vfx.timeActive * v.vfxSpeed, vfx.timeActive, Ease.Linear);
         
         vfx.EnableVFX();
         
-        yield return Timing.WaitForSeconds(vfx.timeAlive);
+        yield return Timing.WaitForSeconds(vfx.timeActive);
     }
     
     #endregion
@@ -204,15 +250,22 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     {
         VFXSpawnInfo v = vfx.vfxSpawnInfo;
 
-        vfx.UpdateVFXFloat("Slow", Math.Max((v.duration - parameters.slowDownTime) / v.duration, 0));
+        //vfx.UpdateVFXFloat("Slow", Math.Max((v.duration - parameters.slowDownTime) / v.duration, 0));
         
-        vfx.ChangeParent(vfx.player.wc.GetWeapon(weaponType).transform);
+        WeaponBody weaponBody = vfx.player.wc.GetWeapon(weaponType);
+        
+        if (weaponBody == null)
+        {
+            yield break;
+        }
+        
+        vfx.ChangeParent(weaponBody.transform);
         vfx.transform.localPosition = Vector3.zero;
         vfx.transform.localRotation = Quaternion.identity;
         
         vfx.EnableVFX();
         
-        yield return Timing.WaitForSeconds(vfx.timeAlive);
+        yield return Timing.WaitForSeconds(vfx.timeActive);
     }
     
     
@@ -250,10 +303,8 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         vfx.transform.position = position;
         
         float startTime = Time.time;
-        float duration = vfx.timeAlive - Time.deltaTime * 2;
+        float duration = vfx.timeActive - Time.deltaTime * 2;
         float speed = vfx.vfxSpawnInfo.vfxAttack.vfxSpeed;
-        
-        vfx.UpdateVFXFloat("Slow", Math.Max((duration - parameters.slowDownTime) / duration, 0));
         
         vfx.EnableVFX();
         
@@ -268,6 +319,8 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             vfx.rb.linearVelocity = speed * direction;
             yield return Timing.WaitForOneFrame;
         }
+        
+        vfx.rb.linearVelocity = Vector3.zero;
     }
     
     #endregion
@@ -282,7 +335,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     IEnumerator<float> BeginRotatingPath(VFXController vfx, WeaponType weaponType)
     {
         float startTime = Time.time;
-        float duration = vfx.timeAlive - Time.deltaTime * 2;
+        float duration = vfx.timeActive - Time.deltaTime * 2;
         float speed = vfx.vfxSpawnInfo.vfxAttack.vfxSpeed;
         
         vfx.EnableVFX();

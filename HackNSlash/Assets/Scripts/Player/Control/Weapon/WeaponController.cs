@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using AYellowpaper.SerializedCollections;
-using Pathfinding;
 
 public enum WeaponType
 {
@@ -31,6 +28,8 @@ public class WeaponController : MonoBehaviour
     
     [HideInInspector]
     public PlayerController pc;
+    
+    #region Monobehaviour Callbacks
     
     void Awake()
     {
@@ -70,9 +69,13 @@ public class WeaponController : MonoBehaviour
         
     }
     
+    #endregion
+    
+    #region Weapon Methods
+    
     public WeaponBody GetWeapon(WeaponType weaponType)
     {
-        return weaponBodies[weaponType];
+        return weaponBodies.GetValueOrDefault(weaponType, null);
     }
 
     public void SwitchWeapon(WeaponType[] weaponTypes, MovingStates nextState = MovingStates.NonCombat)
@@ -116,6 +119,10 @@ public class WeaponController : MonoBehaviour
                 
         }
     }
+    
+    #endregion
+    
+    #region Follow Weapons
 
     public HashSet<LockOnTarget> EnemiesFromFollowWeapons()
     {
@@ -164,4 +171,75 @@ public class WeaponController : MonoBehaviour
             weaponBody.ResetTrail();
         }
     }
+    
+    #endregion
+    
+    #region VFX Methods
+
+
+    public void ActivateWeaponVFXByAttack(Attack a)
+    {
+        ElementEffect element = ElementData.GetElementFromAttack(a, pc);
+
+        foreach (var weaponBody in activeWeapons)
+        {
+            weaponBody.ActivateVFX(element);
+        }
+
+        if (pc.psm.movingState != MovingStates.Katana) return;
+
+        foreach (var weapon in followWeapons)
+        {
+            weapon.ActivateVFX(element);
+        }
+    }
+    
+    public void ActivateImbuedWeaponVFX()
+    {
+        if (pc.pi.ImbuedElementEffect != ElementEffect.None)
+        {
+            foreach (var weaponBody in activeWeapons)
+            {
+                weaponBody.ActivateVFX(pc.pi.ImbuedElementEffect);
+            }
+
+            if (pc.psm.movingState != MovingStates.Katana) return;
+
+            foreach (var weapon in followWeapons)
+            {
+                weapon.ActivateVFX(pc.pi.ImbuedElementEffect);
+            }
+        }
+        else
+        {
+            foreach (var weaponBody in activeWeapons)
+            {
+                weaponBody.DeactivateVFX();
+            }
+
+            if (pc.psm.movingState != MovingStates.Katana) return;
+
+            foreach (var weapon in followWeapons)
+            {
+                weapon.DeactivateVFX();
+            }
+        }
+    }
+    
+    public void DeactivateAllWeaponVFX()
+    {
+        foreach (var weaponBody in activeWeapons)
+        {
+            weaponBody.DeactivateVFX();
+        }
+
+        if (pc.psm.movingState != MovingStates.Katana) return;
+
+        foreach (var weapon in followWeapons)
+        {
+            weapon.DeactivateVFX();
+        }
+    }
+    
+    #endregion
 }
