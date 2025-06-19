@@ -104,11 +104,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         {
             pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
             
-            Vector3 targetPos = pc.cam.TargetPosition;
-            
-            Quaternion targetRot = Quaternion.LookRotation((pc.transform.position - targetPos).ZeroVector3Axis());
-            
-            OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(targetPos, targetRot, Vector3.one), a, 3);
+            CreateVFX(pc, a, 3);
             
             this.RunSegmentCoroutine(ResumeMoving(pc, a, attackParameters.crossSlashDuration, () => pc.psm.pauseComboReset = false));
         }
@@ -128,7 +124,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
                     startRot = Quaternion.LookRotation(targetPos - pc.transform.position);
                 }
 
-                OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(startPos, startRot, Vector3.one), a, i);
+                CreateVFX(pc, a, i, new TransformInfo(startPos, startRot, Vector3.one));
                 
                 yield return Timing.WaitForSeconds(attackParameters.bladeBeamInterval);
             }
@@ -165,10 +161,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         {
             pc.pac.PlayAnimation(a.attackClips[0], a.animFade);
             
-            Vector3 targetPos = pc.cam.TargetPosition;
-            Quaternion targetRot = Quaternion.LookRotation((pc.transform.position - targetPos).ZeroVector3Axis());
-            
-            OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(targetPos, targetRot, Vector3.one), a, 1);
+            CreateVFX(pc, a, 1);
             
             this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
             
@@ -184,7 +177,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
             Vector3 startPos = pc.transform.forward.FindRadialVector3(pc.psm.playerData.mediumRadius, 0) + pc.transform.position;
             Quaternion startRot = Quaternion.LookRotation((pc.cam.TargetPosition - pc.transform.position).ZeroVector3Axis());
                 
-            OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(startPos, startRot, Vector3.one), a, 2);
+            CreateVFX(pc, a, 2);
             
             this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
         }
@@ -624,29 +617,13 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
         for (int i = 0; i < a.vfxInfos.Length; i++)
         {
-            if (a.vfxInfos[i].spawnTarget == Target.None) continue;
-
-            Vector3 targetPos = pc.transform.position;
-            Quaternion targetRot = Quaternion.identity;
-            switch (a.vfxInfos[i].spawnTarget)
-            {
-                case Target.Player:
-                    targetPos = pc.transform.position;
-                    targetRot = Quaternion.LookRotation(pc.transform.forward);
-                    break;
-                case Target.TargetedEnemy:
-                    targetPos = pc.cam.TargetPosition;
-                    targetRot = Quaternion.LookRotation(pc.transform.position - targetPos);
-                    break;
-                case Target.KatanaSpirit:
-                    targetPos = pc.spirit.transform.position;
-                    targetRot = Quaternion.LookRotation(pc.spirit.transform.forward);
-                    break;
-            }
-                    
-            OnVFXEvents.Instance.InvokeOnVFX(pc, new TransformInfo(
-                targetPos, targetRot, Vector3.one), a, i);
+            CreateVFX(pc, a, i);
         }
+    }
+
+    private void CreateVFX(PlayerController pc, PlayerAttack a, int index, TransformInfo start = default)
+    {
+        OnVFXEvents.Instance.InvokeOnVFX(pc, a, index, start);
     }
 
     #endregion
@@ -669,7 +646,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
         float delay = a.hitInfo.attackCoolDown;
 
-        if (pc.pi.ImbuedElementEffect == ElementEffect.None)
+        if (pc.pi.ImbuedElementEffect != pc.pi.CurrentElementEffect)
         {
             pc.pac.PlayAnimation(a.attackClips[pc.psm.IsMidair ? 1 : 0], a.animFade);
             pc.pi.ImbuedElementEffect = pc.pi.CurrentElementEffect;
@@ -689,6 +666,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     {
         yield return Timing.WaitForSeconds(time);
         pc.pi.ImbuedElementEffect = ElementEffect.None;
+        pc.wc.DeactivateAllWeaponVFX();
     }
     
     

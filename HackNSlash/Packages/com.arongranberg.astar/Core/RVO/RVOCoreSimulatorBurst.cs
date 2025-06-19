@@ -1052,6 +1052,18 @@ namespace Pathfinding.RVO {
 				new JobRVO<XZMovementPlane>().ScheduleBatch(0, 0);
 				new JobRVO<ArbitraryMovementPlane>().ScheduleBatch(0, 0);
 
+				new JobRVOPreprocess<XYMovementPlane>().Schedule();
+				new JobRVOPreprocess<XZMovementPlane>().Schedule();
+				new JobRVOPreprocess<ArbitraryMovementPlane>().Schedule();
+
+				new JobHorizonAvoidancePhase1<XYMovementPlane>().ScheduleBatch(0, 0);
+				new JobHorizonAvoidancePhase1<XZMovementPlane>().ScheduleBatch(0, 0);
+				new JobHorizonAvoidancePhase1<ArbitraryMovementPlane>().ScheduleBatch(0, 0);
+
+				new JobHorizonAvoidancePhase2<XYMovementPlane>().ScheduleBatch(0, 0);
+				new JobHorizonAvoidancePhase2<XZMovementPlane>().ScheduleBatch(0, 0);
+				new JobHorizonAvoidancePhase2<ArbitraryMovementPlane>().ScheduleBatch(0, 0);
+
 				new JobRVOCalculateNeighbours<XYMovementPlane>().ScheduleBatch(0, 0);
 				new JobRVOCalculateNeighbours<XZMovementPlane>().ScheduleBatch(0, 0);
 				new JobRVOCalculateNeighbours<ArbitraryMovementPlane>().ScheduleBatch(0, 0);
@@ -1065,7 +1077,11 @@ namespace Pathfinding.RVO {
 				new JobDestinationReached<ArbitraryMovementPlane>().Schedule();
 			}
 
-			// The burst jobs are specialized for the type of movement plane used. This improves performance for the XY and XZ movement planes quite a lot
+			// The burst jobs are specialized for the type of movement plane used. This improves performance for the XY and XZ movement planes quite a lot.
+			// Note: The agents' own movement planes could be colinear with e.g. the XY plane, but may add an additional rotation,
+			// so we must ensure that we always use the movement plane wrappers for all conversions.
+			// Otherwise some conversions may add a rotation, and some may not.
+			// All external communication with the rest of the world happens in world space, so we just need to be consistent internally.
 			if (movementPlane == MovementPlane.XY) return UpdateInternal<XYMovementPlane>(dependency, dt, drawGizmos, allocator);
 			else if (movementPlane == MovementPlane.XZ) return UpdateInternal<XZMovementPlane>(dependency, dt, drawGizmos, allocator);
 			else return UpdateInternal<ArbitraryMovementPlane>(dependency, dt, drawGizmos, allocator);
@@ -1119,7 +1135,7 @@ namespace Pathfinding.RVO {
 
 			var quadtreeJob = quadtree.BuildJob(simulationData.position, simulationData.version, outputData.speed, simulationData.radius, numAgents, movementPlane).Schedule(dependency);
 
-			var preprocessJob = new JobRVOPreprocess {
+			var preprocessJob = new JobRVOPreprocess<T> {
 				agentData = simulationData,
 				previousOutput = outputData,
 				temporaryAgentData = temporaryAgentData,
@@ -1143,7 +1159,7 @@ namespace Pathfinding.RVO {
 			debugDrawingScope.Rewind();
 			var draw = DrawingManager.GetBuilder(debugDrawingScope);
 
-			var horizonJob1 = new JobHorizonAvoidancePhase1 {
+			var horizonJob1 = new JobHorizonAvoidancePhase1<T> {
 				agentData = simulationData,
 				neighbours = temporaryAgentData.neighbours,
 				desiredTargetPointInVelocitySpace = temporaryAgentData.desiredTargetPointInVelocitySpace,
@@ -1151,7 +1167,7 @@ namespace Pathfinding.RVO {
 				draw = draw,
 			}.ScheduleBatch(numAgents, batchSize, combinedJob);
 
-			var horizonJob2 = new JobHorizonAvoidancePhase2 {
+			var horizonJob2 = new JobHorizonAvoidancePhase2<T> {
 				neighbours = temporaryAgentData.neighbours,
 				versions = simulationData.version,
 				desiredVelocity = temporaryAgentData.desiredVelocity,

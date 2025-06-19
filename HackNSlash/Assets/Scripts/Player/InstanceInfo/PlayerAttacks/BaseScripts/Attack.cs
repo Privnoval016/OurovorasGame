@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Extensions.Utils;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public abstract class Attack : ScriptableObject
 {
@@ -52,15 +53,17 @@ public class VFXSpawnInfo
 {
     public VFXAttack vfxAttack;
     
-    [Header("VFX Parameters")]
-    public int hitIndex;
+    [FormerlySerializedAs("hitIndex")] [Header("VFX Parameters")]
+    public int onHitActionIndex;
     public float duration = 0.3f;
     public float delay = 0;
 
     [Header("Default Spawn Parameters")] 
     public Target spawnTarget = Target.None;
+    public bool parentToTarget = false;
 
     public TransformInfo spawnTransform;
+    [FormerlySerializedAs("applyParentPose")] public bool applyParentPoseToPosition = false;
 }
 
 public enum HitDetections

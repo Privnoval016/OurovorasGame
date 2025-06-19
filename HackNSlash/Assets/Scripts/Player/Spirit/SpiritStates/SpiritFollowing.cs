@@ -10,5 +10,6 @@ public class SpiritFollowing : SpiritState
     public override void OnUpdate()
     {
         spirit.FollowPlayer();
+        spirit.SetRotation();
     }
 }

@@ -25,7 +25,8 @@ MonoBehaviour:
   hitInfo:
     onHitActions: 0000000001000000
     hitDetection: 2
-    hitRegisterRadius: 40
+    lateralRadius: 3
+    verticalRadius: 3
     hitRegisterAngle: 360
     numTargets: 1
     attackCoolDown: 0.2
@@ -34,5 +35,17 @@ MonoBehaviour:
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: 0f5b5211f7934a346b6047478885849b, type: 2}
+    onHitActionIndex: 0
+    duration: 0.3
+    delay: 0
+    spawnTarget: 3
+    parentToTarget: 1
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 1
   onSpiritMovement: 0
   onSpiritAction: 1

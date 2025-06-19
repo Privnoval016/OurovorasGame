@@ -1,5 +1,8 @@
 using System;
-using AYellowpaper.SerializedCollections;
+using System.Collections.Generic;
+using Extensions.Utils;
+using Sirenix.OdinInspector;
+using Sirenix.Utilities;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "ElementData", menuName = "Element Data", order = 0)]
@@ -16,14 +19,19 @@ public class ElementData : ScriptableObject
     [ColorUsage(true, true)]
     public Color vfxDarkColor;
     
-    
+    [GradientUsage(true)]
+    public Gradient vfxGradient;
+
+
     [Header("VFX Attributes")] 
-    [SerializedDictionary("VFXType", "Effect GameObject")]
-    public SerializedDictionary<VFXType, GameObject> elementVFXs = new();
+    public VFXObjectInfo[] elementVFXs;
+    
+    public Dictionary<VFXType, GameObject> vfxDict = new();
+    
     
     public GameObject GetVFX(VFXType type)
     {
-        return elementVFXs[type];
+        return vfxDict.GetValueOrDefault(type, null);
     }
 
     public static ElementEffect GetElementFromAttack(Attack a, PlayerController pc)
@@ -41,5 +49,26 @@ public class ElementData : ScriptableObject
 
         return element;
     }
+
+    private void OnValidate()
+    {
+        vfxDict = new Dictionary<VFXType, GameObject>();
+        
+        foreach (VFXObjectInfo vfxInfo in elementVFXs)
+        {
+            if (vfxInfo.vfxPrefab != null && !vfxDict.ContainsKey(vfxInfo.vfxType))
+            {
+                vfxDict.Add(vfxInfo.vfxType, vfxInfo.vfxPrefab);
+            }
+        }
+    }
     
+    [Serializable]
+    public class VFXObjectInfo
+    {
+        public VFXType vfxType;
+        public GameObject vfxPrefab;
+    }
 }
+
+

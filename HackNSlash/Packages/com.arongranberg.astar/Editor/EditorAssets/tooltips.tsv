@@ -960,6 +960,7 @@ Pathfinding.Examples.BezierMover.tiltAmount	beziermover.html#tiltAmount
 Pathfinding.Examples.BezierMover.tiltSmoothing	beziermover.html#tiltSmoothing	
 Pathfinding.Examples.BezierMover.time	beziermover.html#time	
 Pathfinding.Examples.DocumentationButton.UrlBase	documentationbutton.html#UrlBase	
+Pathfinding.Examples.DocumentationButton.buttonContent	documentationbutton.html#buttonContent	
 Pathfinding.Examples.DocumentationButton.page	documentationbutton.html#page	
 Pathfinding.Examples.DoorController.bounds	doorcontroller.html#bounds	
 Pathfinding.Examples.DoorController.closedtag	doorcontroller.html#closedtag	
@@ -1796,6 +1797,14 @@ Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycast.raycastCommands	jobpreparegri
 Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycast.raycastDirection	jobpreparegridraycast.html#raycastDirection	
 Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycast.raycastMask	jobpreparegridraycast.html#raycastMask	
 Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycast.raycastOffset	jobpreparegridraycast.html#raycastOffset	
+Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycastThick.bounds	jobpreparegridraycastthick.html#bounds	
+Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycastThick.graphToWorld	jobpreparegridraycastthick.html#graphToWorld	
+Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycastThick.physicsScene	jobpreparegridraycastthick.html#physicsScene	
+Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycastThick.radius	jobpreparegridraycastthick.html#radius	
+Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycastThick.raycastCommands	jobpreparegridraycastthick.html#raycastCommands	
+Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycastThick.raycastDirection	jobpreparegridraycastthick.html#raycastDirection	
+Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycastThick.raycastMask	jobpreparegridraycastthick.html#raycastMask	
+Pathfinding.Graphs.Grid.Jobs.JobPrepareGridRaycastThick.raycastOffset	jobpreparegridraycastthick.html#raycastOffset	
 Pathfinding.Graphs.Grid.Jobs.JobPrepareRaycasts.direction	jobprepareraycasts.html#direction	
 Pathfinding.Graphs.Grid.Jobs.JobPrepareRaycasts.distance	jobprepareraycasts.html#distance	
 Pathfinding.Graphs.Grid.Jobs.JobPrepareRaycasts.mask	jobprepareraycasts.html#mask	
@@ -2587,6 +2596,8 @@ Pathfinding.Jobs.IndexActionJob.action	indexactionjob.html#action
 Pathfinding.Jobs.IndexActionJob.length	indexactionjob.html#length	
 Pathfinding.Jobs.JobAND.data	joband.html#data	
 Pathfinding.Jobs.JobAND.result	joband.html#result	
+Pathfinding.Jobs.JobClampHitToRay.commands	jobclamphittoray.html#commands	
+Pathfinding.Jobs.JobClampHitToRay.hits	jobclamphittoray.html#hits	
 Pathfinding.Jobs.JobCopy.from	jobcopy.html#from	
 Pathfinding.Jobs.JobCopy.to	jobcopy.html#to	
 Pathfinding.Jobs.JobCopyHits.hits	jobcopyhits.html#hits	
@@ -2615,6 +2626,8 @@ Pathfinding.Jobs.JobDependencyTracker.JobOverlapSphereCommandDummy.commands	jobo
 Pathfinding.Jobs.JobDependencyTracker.JobOverlapSphereCommandDummy.results	joboverlapspherecommanddummy.html#results	
 Pathfinding.Jobs.JobDependencyTracker.JobRaycastCommandDummy.commands	jobraycastcommanddummy.html#commands	
 Pathfinding.Jobs.JobDependencyTracker.JobRaycastCommandDummy.results	jobraycastcommanddummy.html#results	
+Pathfinding.Jobs.JobDependencyTracker.JobSpherecastCommandDummy.commands	jobspherecastcommanddummy.html#commands	
+Pathfinding.Jobs.JobDependencyTracker.JobSpherecastCommandDummy.results	jobspherecastcommanddummy.html#results	
 Pathfinding.Jobs.JobDependencyTracker.NativeArraySlot.hasWrite	nativearrayslot.html#hasWrite	
 Pathfinding.Jobs.JobDependencyTracker.NativeArraySlot.hash	nativearrayslot.html#hash	
 Pathfinding.Jobs.JobDependencyTracker.NativeArraySlot.initialized	nativearrayslot.html#initialized	

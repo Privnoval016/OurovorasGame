@@ -37,41 +37,49 @@ MonoBehaviour:
     elasticCollision: 0
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
-    hitIndex: 0
+    onHitActionIndex: 0
     duration: 1.3
     delay: 0
     spawnTarget: 0
+    parentToTarget: 0
     spawnTransform:
       Position: {x: 0, y: 0, z: 0}
       Rotation: {x: 0, y: 0, z: 0, w: 1}
       Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
   - vfxAttack: {fileID: 11400000, guid: e5f06a8d488e30c4e937bd901063d266, type: 2}
-    hitIndex: 0
+    onHitActionIndex: 0
     duration: 0.3
     delay: 0
     spawnTarget: 0
+    parentToTarget: 0
     spawnTransform:
       Position: {x: 0, y: 0, z: 0}
       Rotation: {x: 0, y: 0, z: 0.1305262, w: 0.9914449}
       Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
   - vfxAttack: {fileID: 11400000, guid: e5f06a8d488e30c4e937bd901063d266, type: 2}
-    hitIndex: 0
+    onHitActionIndex: 0
     duration: 0.3
     delay: 0
     spawnTarget: 0
+    parentToTarget: 0
     spawnTransform:
       Position: {x: 0, y: 0, z: 0}
       Rotation: {x: 0, y: 0, z: 0.50000006, w: -0.8660254}
       Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
   - vfxAttack: {fileID: 11400000, guid: 5957a9ba827010741ab8a2b01ffbe45c, type: 2}
-    hitIndex: 1
+    onHitActionIndex: 1
     duration: 1.3
     delay: 0
-    spawnTarget: 0
+    spawnTarget: 2
+    parentToTarget: 0
     spawnTransform:
       Position: {x: 0, y: 0, z: 0}
       Rotation: {x: 0, y: 0, z: 0, w: 1}
       Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
   onAttackAction: 7
   attackEventIndex: 0
   applyRootMotion: 1

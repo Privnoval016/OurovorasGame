@@ -63,6 +63,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
         {
             foreach (LockOnTarget enemy in enemies)
             {
+                CreateVFX(spirit, a, 0);
                 enemy.OnHit(element, spirit.pc, a, 0);
             }
         }
@@ -70,6 +71,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
         {
             foreach (LockOnTarget enemy in enemies)
             {
+                CreateVFX(spirit, a, 0);
                 enemy.OnHit(element, spirit.pc, a, 1);
             }
         }
@@ -90,33 +92,17 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     {
         for (int i = 0; i < a.vfxInfos.Length; i++)
         {
-            if (a.vfxInfos[i].spawnTarget == Target.None) continue;
-
-            Vector3 targetPos = spirit.pc.transform.position;
-            Quaternion targetRot = Quaternion.identity;
-            switch (a.vfxInfos[i].spawnTarget)
-            {
-                case Target.Player:
-                    targetPos = spirit.pc.transform.position;
-                    targetRot = Quaternion.LookRotation(spirit.pc.transform.forward);
-                    break;
-                case Target.TargetedEnemy:
-                    targetPos = spirit.pc.cam.TargetPosition;
-                    targetRot = Quaternion.LookRotation(spirit.pc.transform.position - targetPos);
-                    break;
-                case Target.KatanaSpirit:
-                    targetPos = spirit.transform.position;
-                    targetRot = Quaternion.LookRotation(spirit.transform.forward);
-                    break;
-            }
-                    
-            OnVFXEvents.Instance.InvokeOnVFX(spirit.pc, new TransformInfo(
-                targetPos, targetRot, Vector3.one), a, i);
+            CreateVFX(spirit, a, i);
         }
 
         this.RunSegmentCoroutine(ResumeMoving(spirit, a, parameters.vfxCooldownTime));
 
         yield break;
+    }
+
+    private VFXController CreateVFX(ElementalSpirit spirit, SpiritAttack a, int i)
+    {
+        return OnVFXEvents.Instance.InvokeOnVFX(spirit.pc, a, i);
     }
 
     #endregion

@@ -20,10 +20,10 @@ MonoBehaviour:
     localTransform:
       Position: {x: 0, y: 0, z: 0}
       Rotation: {x: 0, y: 0, z: 0, w: 0}
-      Scale: {x: 1, y: 1, z: 1}
-    duration: 0
-    delay: 0
+      Scale: {x: 1.65, y: 1.65, z: 1.65}
+    durationScale: 1
+    delayScale: 0
+  maxVFXAlive: 0
   vfxAction: 4
-  vfxDuration: 0.3
   vfxSpeed: 0
   canCollide: 0

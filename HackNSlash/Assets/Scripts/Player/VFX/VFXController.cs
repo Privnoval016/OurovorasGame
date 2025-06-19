@@ -28,7 +28,8 @@ public class VFXController : MonoBehaviour
     [HideInInspector] public VFXActivator[] vas;
     [HideInInspector] public int vfxIndex;
     
-    [HideInInspector] public float timeAlive;
+    [HideInInspector] public float timeActive;
+    [HideInInspector] public float timeVFXEnabled;
     
     private Dictionary<VFXActivator, float> vfxDelays = new();
     
@@ -57,12 +58,18 @@ public class VFXController : MonoBehaviour
         if (!vfxEnabled) return;
         
         elapsedTime += Time.deltaTime;
-        if (elapsedTime >= timeAlive)
+        if (elapsedTime >= timeActive)
+        {
+            DisableVFX();
+        }
+        
+        if (elapsedTime >= timeVFXEnabled)
         {
             DestroyVFX();
+            return;
         }
 
-        vfxDelays.Keys.Where(effect => elapsedTime >= vfxDelays[effect] * timeAlive).ToList().ForEach(effect =>
+        vfxDelays.Keys.Where(effect => elapsedTime >= vfxDelays[effect] * timeActive).ToList().ForEach(effect =>
         {
             effect.PlayVFX();
             vfxDelays.Remove(effect);
@@ -71,11 +78,16 @@ public class VFXController : MonoBehaviour
         
     }
     
+    public void DisableVFX()
+    {
+        activeHitbox = false;
+        OnVFXEvents.Instance.OnVFXDisabled(this);
+    }
+    
     public void DestroyVFX()
     {
         if (gameObject != null)
         {
-            OnVFXEvents.Instance.OnVFXDestroyed(this);
             Destroy(gameObject);
         }
     }
@@ -97,7 +109,9 @@ public class VFXController : MonoBehaviour
         
         activeHitbox = canCollide;
 
-        timeAlive = v.duration;
+        timeActive = v.duration;
+        
+        timeVFXEnabled = vfx.Length > 0 ? (0.2f + vfx.Max(p => p.MaximumLifetimeScale)) * timeActive : timeActive;
 
         foreach (VFXHitbox hitbox in hitboxes)
         {
@@ -145,12 +159,29 @@ public class VFXController : MonoBehaviour
         Color brightColor = GameManager.ElementMap[elementType]().vfxBrightColor;
         Color darkColor = GameManager.ElementMap[elementType]().vfxDarkColor;
         Color pureColor = GameManager.ElementMap[elementType]().vfxPureColor;
+        Gradient gradient = GameManager.ElementMap[elementType]().vfxGradient;
 
         foreach (VFXActivator va in vas)
         {
-            va.SetVFXVector4("PureColor", pureColor);
-            va.SetVFXVector4("BrightColor", brightColor);
-            va.SetVFXVector4("DarkColor", darkColor);
+            foreach (string s in va.pureColorOverrides)
+            {
+                va.SetVFXVector4(s, pureColor);
+            }
+            
+            foreach (string s in va.brightColorOverrides)
+            {
+                va.SetVFXVector4(s, brightColor);
+            }
+            
+            foreach (string s in va.darkColorOverrides)
+            {
+                va.SetVFXVector4(s, darkColor);
+            }
+            
+            foreach (string s in va.gradientColorOverrides)
+            {
+                va.SetVFXGradient(s, gradient);
+            }
         }
     }
 
@@ -163,7 +194,7 @@ public class VFXController : MonoBehaviour
         
         if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.tookDamageThisAction)
         {
-            enemy.OnHit(elementType, player, attack, vfxSpawnInfo.hitIndex);
+            enemy.OnHit(elementType, player, attack, vfxSpawnInfo.onHitActionIndex);
         }
     }
 

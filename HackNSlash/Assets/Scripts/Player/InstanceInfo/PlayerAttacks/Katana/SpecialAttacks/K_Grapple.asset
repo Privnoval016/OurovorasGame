@@ -35,6 +35,40 @@ MonoBehaviour:
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    onHitActionIndex: 0
+    duration: 0
+    delay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPose: 0
+  - vfxAttack: {fileID: 11400000, guid: ed3fa491292b57b4fa609a54714bb85a, type: 2}
+    onHitActionIndex: 0
+    duration: 0.6
+    delay: 0
+    spawnTarget: 2
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPose: 0
+  - vfxAttack: {fileID: 11400000, guid: 14697be9e967fdc40af0f7af8fa03a6f, type: 2}
+    onHitActionIndex: 1
+    duration: 0.5
+    delay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 5}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPose: 0
   onAttackAction: 8
   attackEventIndex: 0
   applyRootMotion: 0
@@ -49,31 +83,3 @@ MonoBehaviour:
   clipsToPlay: 0
   useNormalGravity: 0
   exitCondition: 2
-  vfxInfos:
-  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
-    hitIndex: 0
-    duration: 0
-    delay: 0
-    spawnTarget: 0
-    spawnTransform:
-      Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: 0, w: 1}
-      Scale: {x: 1, y: 1, z: 1}
-  - vfxAttack: {fileID: 11400000, guid: ed3fa491292b57b4fa609a54714bb85a, type: 2}
-    hitIndex: 0
-    duration: 0.6
-    delay: 0
-    spawnTarget: 0
-    spawnTransform:
-      Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: 0, w: 1}
-      Scale: {x: 1, y: 1, z: 1}
-  - vfxAttack: {fileID: 11400000, guid: 14697be9e967fdc40af0f7af8fa03a6f, type: 2}
-    hitIndex: 1
-    duration: 0.5
-    delay: 0
-    spawnTarget: 0
-    spawnTransform:
-      Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: 0, w: 1}
-      Scale: {x: 1, y: 1, z: 1}

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Animancer;
-using AYellowpaper.SerializedCollections;
 using Extensions.Utils;
 using UnityEngine;
 using UnityEngine.Serialization;
