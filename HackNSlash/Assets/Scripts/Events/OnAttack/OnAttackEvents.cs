@@ -19,7 +19,8 @@ public enum OnAttackActions
     Grapple,
     EnemyStep,
     SpawnVFX,
-    ImbueElement
+    ImbueElement,
+    HoldSpawnVFX
 }
 
 public class OnAttackEvents : Singleton<OnAttackEvents>
@@ -67,6 +68,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         OnAttackActionMap.Add(OnAttackActions.EnemyStep, EnemyStep);
         OnAttackActionMap.Add(OnAttackActions.SpawnVFX, SpawnVFX);
         OnAttackActionMap.Add(OnAttackActions.ImbueElement, ImbueElement);
+        OnAttackActionMap.Add(OnAttackActions.HoldSpawnVFX, HoldSpawnVFX);
         
     }
     
@@ -669,6 +671,39 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         pc.wc.DeactivateAllWeaponVFX();
     }
     
+    
+    #endregion
+    
+    
+    #region Hold Spawn VFX
+    
+    
+    private void HoldSpawnVFX(PlayerController pc, PlayerAttack a)
+    {
+        this.RunSegmentCoroutine(BeginHoldSpawnVFX(pc, a));
+    }
+    
+    private IEnumerator<float> BeginHoldSpawnVFX(PlayerController pc, PlayerAttack a)
+    {
+        yield return Timing.WaitForSeconds(a.animDelay);
+        
+        KeyBind[] holdKeys = InputManager.GetReleaseable(a.keyBinds);
+        float startTime = Time.time;
+        yield return Timing.WaitUntilTrue(() => holdKeys.Any(k => InputManager.KeyMap[k].releaseAction()));
+        float elapsedTime = Time.time - startTime;
+
+        pc.spirit.lastAttackHoldDuration = elapsedTime;
+        print($"Hold Duration: {elapsedTime}");
+        
+        pc.pac.PlayAnimation(a.attackClips[1], a.animFade);
+
+        for (int i = 0; i < a.vfxInfos.Length; i++)
+        {
+            CreateVFX(pc, a, i);
+        }
+        
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+    }
     
     #endregion
 }

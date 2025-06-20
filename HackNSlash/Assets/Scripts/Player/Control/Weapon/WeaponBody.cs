@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Animancer;
+using Drakkar.GameUtils;
 using UnityEngine;
 
 public class WeaponBody : KinematicBehaviour
@@ -21,6 +22,7 @@ public class WeaponBody : KinematicBehaviour
     [Header("Effects")]
     [SerializeField] private ElementObjectInfo[] vfxObjects;
     private Dictionary<ElementEffect, GameObject> vfxObjectDict = new Dictionary<ElementEffect, GameObject>();
+    public DrakkarTrail vfxTrail;
     
     
     #region Monobehaviour Callbacks
@@ -69,6 +71,31 @@ public class WeaponBody : KinematicBehaviour
                 vfx.SetActive(false);
             }
         }
+    }
+    
+    public void ActivateTrail()
+    {
+        if (vfxTrail != null)
+        {
+            vfxTrail.Begin();
+        }
+    }
+    
+    public void DeactivateTrail()
+    {
+        if (vfxTrail != null)
+        {
+            vfxTrail.End();
+        }
+    }
+    
+    public void SetTrailElement(ElementEffect elementEffect)
+    {
+        if (vfxTrail != null)
+        {
+            vfxTrail.TrailMaterial = GameManager.GetElementData(elementEffect).weaponTrailMaterial;
+        }
+        
     }
     
     #endregion

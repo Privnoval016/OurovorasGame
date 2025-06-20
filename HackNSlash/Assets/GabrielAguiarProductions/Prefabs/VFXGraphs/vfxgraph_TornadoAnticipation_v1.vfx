@@ -473,8 +473,8 @@ MonoBehaviour:
     serializedVersion: 2
     x: -345
     y: -4454
-    width: 7011
-    height: 6188
+    width: 7013
+    height: 6253
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -581,8 +581,8 @@ MonoBehaviour:
   m_UIInfos: {fileID: 114340500867371532}
   m_CustomAttributes: []
   m_ParameterInfo:
-  - name: Duration
-    path: Duration
+  - name: AnticipationDuration
+    path: AnticipationDuration
     tooltip: 
     space: -1
     spaceable: 0
@@ -1372,7 +1372,7 @@ MonoBehaviour:
   m_InputSlots: []
   m_OutputSlots:
   - {fileID: 8926484042661614600}
-  m_ExposedName: Duration
+  m_ExposedName: AnticipationDuration
   m_Exposed: 1
   m_Order: 0
   m_Category: 

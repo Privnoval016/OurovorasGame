@@ -53,3 +53,4 @@ MonoBehaviour:
   - vfxType: 3
     vfxPrefab: {fileID: 289161321636050785, guid: 4b3166f00ae017c479b2d5dfa847a3fe,
       type: 3}
+  weaponTrailMaterial: {fileID: 2100000, guid: 12dbc83adc2ae7f469c5789a876c75c2, type: 2}

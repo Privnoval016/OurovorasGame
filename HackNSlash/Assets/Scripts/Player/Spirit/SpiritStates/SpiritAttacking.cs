@@ -12,6 +12,7 @@ public class SpiritAttacking : SpiritState
     public override void OnEnter()
     {
         spirit.canAttack = false;
+        spirit.lastAttackHoldDuration = 0;
         OnSpiritEvents.Instance.OnSpiritActionMap[_playerAttack.onSpiritAction](spirit, _playerAttack);
     }
     

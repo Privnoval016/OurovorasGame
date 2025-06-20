@@ -37,14 +37,16 @@ MonoBehaviour:
     elasticCollision: 0
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
-    hitIndex: 0
-    duration: 0.3
+    onHitActionIndex: 0
+    duration: 0.6
     delay: 0
     spawnTarget: 0
+    parentToTarget: 0
     spawnTransform:
       Position: {x: 0, y: 0, z: 0}
       Rotation: {x: 0, y: 0, z: 0, w: 0}
       Scale: {x: 0, y: 0, z: 0}
+    applyParentPoseToPosition: 0
   onAttackAction: 5
   attackEventIndex: 0
   applyRootMotion: 0

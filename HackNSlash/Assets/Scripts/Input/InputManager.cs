@@ -227,6 +227,22 @@ public class InputManager : Singleton<InputManager>
         return releaseKeys.ToArray();
     }
     
+    public static bool AnyKeyPressed(KeyBind[] keys = null)
+    {
+
+        keys ??= KeyMap.Keys.ToArray();
+        
+        foreach (KeyBind key in keys)
+        {
+            if (key != KeyBind.None && KeyMap[key].action != null && KeyMap[key].action())
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
     #endregion
 }
 

@@ -31,4 +31,12 @@ public class VFXHitbox : MonoBehaviour
             col.enabled = false;
         }
     }
+    
+    public void EnableCollider()
+    {
+        if (col != null)
+        {
+            col.enabled = true;
+        }
+    }
 }

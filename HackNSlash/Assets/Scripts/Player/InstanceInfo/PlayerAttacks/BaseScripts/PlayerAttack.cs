@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Extensions.Utils;
 using Animancer;
 
 [CreateAssetMenu(menuName = "Player/Attacks/PlayerAttack")]
@@ -10,7 +6,7 @@ public class PlayerAttack : Attack
 {
     public OnAttackActions onAttackAction = OnAttackActions.None;
     
-    [Tooltip("Case specific parameter")]
+    [Tooltip("Case specific parameter (Dodge uses this)")]
     public int attackEventIndex = 0;
     
     

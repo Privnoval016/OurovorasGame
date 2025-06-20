@@ -4,6 +4,7 @@ using UnityEngine;
 using Extensions.CustomMath;
 using Extensions.StateMachine;
 using Extensions.Utils;
+using UnityEngine.Serialization;
 
 public class ElementalSpirit : KinematicBehaviour
 {
@@ -22,6 +23,8 @@ public class ElementalSpirit : KinematicBehaviour
     #region Attack Parameters
 
     public bool canAttack = true;
+    
+    [FormerlySerializedAs("lastAttackHoldTime")] public float lastAttackHoldDuration;
     
     #endregion
     
