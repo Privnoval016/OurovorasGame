@@ -28,9 +28,13 @@ MonoBehaviour:
       KatanaAttack: {fileID: 11400000, guid: 364519e535acef949a9a6c5c40b48f6f, type: 2}
   - elementEffect: 5
     attack:
-      SwordAttack: {fileID: 11400000, guid: 08a6eb99a04a22b4f904416b1caeb46e, type: 2}
-      KatanaAttack: {fileID: 11400000, guid: 08a6eb99a04a22b4f904416b1caeb46e, type: 2}
+      SwordAttack: {fileID: 11400000, guid: f24c5f20afef4574ca37214b8697ef9e, type: 2}
+      KatanaAttack: {fileID: 11400000, guid: f24c5f20afef4574ca37214b8697ef9e, type: 2}
   - elementEffect: 6
     attack:
       SwordAttack: {fileID: 11400000, guid: 93e94f0fc5d573f4bb6141da37a3871e, type: 2}
       KatanaAttack: {fileID: 11400000, guid: 364519e535acef949a9a6c5c40b48f6f, type: 2}
+  equippedAccessories:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}

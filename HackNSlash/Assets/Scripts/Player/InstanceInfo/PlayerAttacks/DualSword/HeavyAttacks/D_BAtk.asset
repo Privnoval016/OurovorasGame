@@ -41,7 +41,7 @@ MonoBehaviour:
     duration: 0.3
     delay: 0
     spawnTarget: 3
-    parentToTarget: 1
+    parentToTarget: 0
     spawnTransform:
       Position: {x: 0, y: 0, z: 0}
       Rotation: {x: 0, y: 0, z: 0, w: 0}

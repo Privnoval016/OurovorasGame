@@ -171,11 +171,11 @@ public class PhysicsEnemy : LockOnTarget
 
     #endregion
 
-    public override void OnHit(ElementEffect element, PlayerController pc, Attack a, int actionIndex = 0)
+    public override void OnHit(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
-        base.OnHit(element, pc, a, actionIndex);
+        base.OnHit(element, pc, a, attackerTransform, actionIndex);
         
-        OnHitEvents.OnHitActionMap[a.hitInfo.onHitActions[actionIndex]](pc, this, a);
+        OnHitEvents.OnHitActionMap[a.hitInfo.onHitActions[actionIndex]](pc, this, a, attackerTransform);
     }
     
 }

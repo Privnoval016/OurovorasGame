@@ -223,7 +223,7 @@ public class PlayerAttacking : PlayerState
         
         foreach (LockOnTarget enemy in pc.psm.enemiesHitThisAction)
         {
-            enemy.OnHit(ElementData.GetElementFromAttack(_playerAttack, pc), pc, _playerAttack);
+            enemy.OnHit(ElementData.GetElementFromAttack(_playerAttack, pc), pc, _playerAttack, pc.transform);
             Debug.Log($"Hit {enemy.name}");
         }
     }

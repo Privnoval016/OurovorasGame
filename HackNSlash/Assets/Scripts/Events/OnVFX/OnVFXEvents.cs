@@ -74,6 +74,8 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
 
         Transform parent = null;
         
+        bool targetFound = false;
+        
         switch (v.spawnTarget)
         {
             case Target.Player:
@@ -82,9 +84,19 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
                 parent = pc.transform;
                 break;
             case Target.TargetedEnemy:
+                if (!pc.cam.IsLockedOn && v.spawnTransform.Position != Vector3.zero)
+                {
+                    start.Position = pc.transform.position;
+                    start.Rotation = Quaternion.LookRotation(pc.transform.forward);
+                    parent = pc.transform; 
+                    break;
+                }
+                else if (!pc.cam.IsLockedOn) return null;
+                
                 start.Position = pc.cam.TargetPosition;
                 start.Rotation = Quaternion.LookRotation(pc.transform.position - start.Position);
                 parent = pc.cam.TargetedEnemy.transform;
+                targetFound = true;
                 break;
             case Target.KatanaSpirit:
                 start.Position = pc.spirit.transform.position;
@@ -110,19 +122,22 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
 
         vc.transform.SetParent(parent, true);
 
-        if (v.applyParentPoseToPosition)
+        if (v.spawnTarget != Target.TargetedEnemy || !targetFound)
         {
-            vc.transform.localRotation = offset.Rotation;
-            vc.transform.localPosition = offset.Position;
+            if (v.applyParentPoseToPosition)
+            {
+                vc.transform.localRotation = offset.Rotation;
+                vc.transform.localPosition = offset.Position;
+            }
+            else
+            {
+                vc.transform.position = start.Position + offset.Position;
+                vc.transform.rotation = offset.Rotation.eulerAngles != Vector3.zero
+                    ? start.Rotation * offset.Rotation
+                    : start.Rotation;
+            }
         }
-        else
-        {
-            vc.transform.position = start.Position + offset.Position;
-            vc.transform.rotation = offset.Rotation.eulerAngles != Vector3.zero
-                ? start.Rotation * offset.Rotation
-                : start.Rotation;
-        }
-        
+
         if (!v.parentToTarget)
         {
             vc.transform.SetParent(null, true);
