@@ -16,7 +16,7 @@ public class PlayerAnimListener : MonoBehaviour
     public void PlaySwordRightVFX(int vfxIndex = 0)
     {
         Debug.Log("Sword Right Attack");
-        OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex,new TransformInfo(), WeaponType.SwordRight);
+        OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
     }
     
     public void PlayBothSwordsVFX(int vfxIndex = 0)
@@ -26,8 +26,9 @@ public class PlayerAnimListener : MonoBehaviour
         OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
     }
     
-    public void PlayKatanaVFX(int vfxIndex = 0, int temp = 0)
+    public void PlayKatanaVFX(int vfxIndex = 0)
     {
         Debug.Log("Katana Attack");
+        OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.Katana);
     }
 }

@@ -62,7 +62,7 @@ public abstract class LockOnTarget : KinematicBehaviour
         
     }
     
-    public virtual void OnHit(ElementEffect element, PlayerController pc, Attack a, int actionIndex = 0)
+    public virtual void OnHit(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
         tookDamageThisAction = true;
         this.RunSegmentCoroutine(ResetHit(a));

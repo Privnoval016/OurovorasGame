@@ -64,7 +64,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
             foreach (LockOnTarget enemy in enemies)
             {
                 CreateVFX(spirit, a, 0);
-                enemy.OnHit(element, spirit.pc, a, 0);
+                enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
             }
         }
         else
@@ -72,7 +72,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
             foreach (LockOnTarget enemy in enemies)
             {
                 CreateVFX(spirit, a, 0);
-                enemy.OnHit(element, spirit.pc, a, 1);
+                enemy.OnHit(element, spirit.pc, a, spirit.transform, 1);
             }
         }
         

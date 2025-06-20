@@ -81,6 +81,12 @@ public class VFXController : MonoBehaviour
     public void DisableVFX()
     {
         activeHitbox = false;
+
+        foreach (var hitbox in hitboxes)
+        {
+            hitbox.DisableCollider();
+        }
+        
         OnVFXEvents.Instance.OnVFXDisabled(this);
     }
     
@@ -194,7 +200,7 @@ public class VFXController : MonoBehaviour
         
         if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.tookDamageThisAction)
         {
-            enemy.OnHit(elementType, player, attack, vfxSpawnInfo.onHitActionIndex);
+            enemy.OnHit(elementType, player, attack, transform, vfxSpawnInfo.onHitActionIndex);
         }
     }
 

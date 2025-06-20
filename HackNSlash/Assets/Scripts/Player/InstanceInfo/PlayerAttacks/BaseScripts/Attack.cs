@@ -110,7 +110,8 @@ public enum Target
     None,
     Player,
     TargetedEnemy,
-    KatanaSpirit
+    KatanaSpirit,
+    EnemyWithOffset
 }
 
 public enum AttackTypes

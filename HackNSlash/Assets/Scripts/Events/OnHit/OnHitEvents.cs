@@ -16,14 +16,14 @@ public enum OnHitActions
     CrossSlash,
     Grapple,
     LockPhysics,
-    SwordThrow,
+    PushUntilDistance,
     ForwardKnockback,
     VerticalKnockback
 }
 
 public class OnHitEvents : Singleton<OnHitEvents>
 {
-    public static Dictionary<OnHitActions, Action<PlayerController, PhysicsEnemy, Attack>> OnHitActionMap;
+    public static Dictionary<OnHitActions, Action<PlayerController, PhysicsEnemy, Attack, Transform>> OnHitActionMap;
     
     public OnHitParameters parameters;
 
@@ -47,19 +47,19 @@ public class OnHitEvents : Singleton<OnHitEvents>
         OnHitActionMap.Add(OnHitActions.CrossSlash, CrossSlash);
         OnHitActionMap.Add(OnHitActions.Grapple, Grapple);
         OnHitActionMap.Add(OnHitActions.LockPhysics, LockPhysics);
-        OnHitActionMap.Add(OnHitActions.SwordThrow, SwordThrow);
+        OnHitActionMap.Add(OnHitActions.PushUntilDistance, PushUntilDistance);
         OnHitActionMap.Add(OnHitActions.ForwardKnockback, ForwardKnockback);
         OnHitActionMap.Add(OnHitActions.VerticalKnockback, VerticalKnockback);
     }
 
     #region Basic Knockback
     
-    private void BasicKnockBack(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void BasicKnockBack(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginBasicKnockBack(pc, ec, a));
+        this.RunSegmentCoroutine(BeginBasicKnockBack(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginBasicKnockBack(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginBasicKnockBack(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
         
@@ -70,7 +70,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
         
         if (a.hitInfo.hitDirection != Vector3.zero)
         {
-            direction = a.hitInfo.hitDirection.GetRelativeVector3(pc.transform.forward).normalized;
+            direction = a.hitInfo.hitDirection.GetRelativeVector3(t.forward).normalized;
         }
         else if (!ec.IsGrounded)
         {
@@ -78,7 +78,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
         }
         else
         {
-            direction = (ec.TargetedPosition() - pc.transform.position).normalized;
+            direction = (ec.TargetedPosition() - t.position).normalized;
         }
         
         ec.ForceKnockback(direction * a.hitInfo.hitForce);
@@ -92,18 +92,18 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     #region Midair Knockback
     
-    private void MidairKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void MidairKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginMidairKnockback(pc, ec, a));
+        this.RunSegmentCoroutine(BeginMidairKnockback(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginMidairKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginMidairKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
 
         ec.PauseGravity(true);
         
-        Vector3 pos = ec.TargetedPosition().WithY(pc.transform.position.y) + Vector3.up * 0.5f * pc.psm.playerData.mediumRadius;
+        Vector3 pos = ec.TargetedPosition().WithY(t.position.y) + Vector3.up * 0.5f * pc.psm.playerData.mediumRadius;
         Vector3 movement = pos - ec.TargetedPosition();
         ec.TraverseDistKnockback(movement.normalized, movement.magnitude, parameters.midairKnockbackTime);
         
@@ -116,12 +116,12 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     #region Launch Up
     
-    private void LaunchUp(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void LaunchUp(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginLaunchUp(pc, ec, a));
+        this.RunSegmentCoroutine(BeginLaunchUp(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginLaunchUp(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginLaunchUp(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         yield return Timing.WaitUntilTrue(() => pc.psm.canAttack);
 
@@ -134,12 +134,12 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     #region Follow Player Velocity
     
-    private void FollowPlayerVelocity(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void FollowPlayerVelocity(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginFollowPlayerVelocity(pc, ec, a));
+        this.RunSegmentCoroutine(BeginFollowPlayerVelocity(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginFollowPlayerVelocity(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginFollowPlayerVelocity(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         ec.PauseGravity(true);
         pc.IgnoreCollision(ec.col, true);
@@ -157,7 +157,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
         
         if (a.hitInfo.hitDirection != Vector3.zero)
         {
-            lastNonZeroVelocity = a.hitInfo.hitDirection.GetRelativeVector3(pc.transform.forward);
+            lastNonZeroVelocity = a.hitInfo.hitDirection.GetRelativeVector3(t.forward);
         }
         
         ec.ForceKnockback(lastNonZeroVelocity.normalized * a.hitInfo.hitForce);
@@ -191,12 +191,12 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     #region Launch Down
     
-    private void LaunchDown(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void LaunchDown(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginLaunchDown(pc, ec, a));
+        this.RunSegmentCoroutine(BeginLaunchDown(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginLaunchDown(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginLaunchDown(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         ec.PauseGravity(true);
         pc.IgnoreCollision(ec.col, true);
@@ -244,21 +244,20 @@ public class OnHitEvents : Singleton<OnHitEvents>
 
 
     
-    private void CrossSlash(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void CrossSlash(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginCrossSlash(pc, ec, a));
+        this.RunSegmentCoroutine(BeginCrossSlash(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginCrossSlash(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginCrossSlash(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     { 
-        
         
         ec.PauseGravity(true);
         ec.rb.linearVelocity = Vector3.zero;
         
         yield return Timing.WaitForSeconds(parameters.crossSlashHitboxDelay);
         
-        Vector3 direction = (ec.TargetedPosition() - pc.transform.position).normalized;
+        Vector3 direction = (ec.TargetedPosition() - t.position).normalized;
         if (!ec.IsGrounded) direction = Vector3.up;
         
         ec.ForceKnockback(direction * parameters.crossSlashHitStrength);
@@ -270,12 +269,12 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     #region Grapple
     
-    private void Grapple(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void Grapple(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginGrapple(pc, ec, a));
+        this.RunSegmentCoroutine(BeginGrapple(pc, ec, a, t));
     }
 
-    IEnumerator<float> BeginGrapple(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginGrapple(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         ec.PauseGravity(true);
 
@@ -297,12 +296,12 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     #region Lock Knockback
 
-    private void LockPhysics(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void LockPhysics(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginLockPhysics(pc, ec, a));
+        this.RunSegmentCoroutine(BeginLockPhysics(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginLockPhysics(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginLockPhysics(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         ec.physicsInteract = false;
         ec.rb.linearVelocity = Vector3.zero;
@@ -332,21 +331,31 @@ public class OnHitEvents : Singleton<OnHitEvents>
 
     #endregion
     
-    #region Sword Throw
+    #region Push Until Distance
     
-    private void SwordThrow(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void PushUntilDistance(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginSwordThrow(pc, ec, a));
+        this.RunSegmentCoroutine(BeginPushUntilDistance(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginSwordThrow(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginPushUntilDistance(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
         
         ec.PauseGravity(true);
+        
+        Vector3 direction;
 
-        Vector3 direction = pc.transform.forward;
-        float distance = a.hitInfo.lateralRadius - (ec.TargetedPosition() - pc.transform.position).magnitude;
+        if (a.hitInfo.hitDirection != Vector3.zero)
+        {
+            direction = a.hitInfo.hitDirection.GetRelativeVector3(t.forward).normalized;
+        }
+        else
+        {
+            direction = (ec.TargetedPosition() - t.position).normalized;
+        }
+        
+        float distance = a.hitInfo.lateralRadius - (ec.TargetedPosition() - t.position).magnitude;
         
         ec.TraverseDistKnockback(direction.normalized, distance, a.hitInfo.hitDelay);
         
@@ -358,12 +367,12 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     #region Forward Knockback
     
-    private void ForwardKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void ForwardKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginForwardKnockback(pc, ec, a));
+        this.RunSegmentCoroutine(BeginForwardKnockback(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginForwardKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginForwardKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
         
@@ -374,11 +383,11 @@ public class OnHitEvents : Singleton<OnHitEvents>
         
         if (a.hitInfo.hitDirection != Vector3.zero)
         {
-            direction = a.hitInfo.hitDirection.GetRelativeVector3(pc.transform.forward).normalized;
+            direction = a.hitInfo.hitDirection.GetRelativeVector3(t.forward).normalized;
         }
         else
         {
-            direction = (ec.TargetedPosition() - pc.transform.position).normalized;
+            direction = (ec.TargetedPosition() - t.position).normalized;
         }
         
         ec.ForceKnockback(direction * a.hitInfo.hitForce);
@@ -393,12 +402,12 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     #region Vertical Knockback
     
-    private void VerticalKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    private void VerticalKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginVerticalKnockback(pc, ec, a));
+        this.RunSegmentCoroutine(BeginVerticalKnockback(pc, ec, a, t));
     }
     
-    IEnumerator<float> BeginVerticalKnockback(PlayerController pc, PhysicsEnemy ec, Attack a)
+    IEnumerator<float> BeginVerticalKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
         
