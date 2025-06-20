@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_LocalScale: {x: 7, y: 7, z: 7}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 6383426659895148175}
@@ -151,6 +151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vfxController: {fileID: 5261310567344933792}
   meshRenderer: {fileID: 0}
+  col: {fileID: 0}
 --- !u!1 &3712180620774419834
 GameObject:
   m_ObjectHideFlags: 0
@@ -205,13 +206,21 @@ MonoBehaviour:
   player: {fileID: 0}
   vfxSpawnInfo:
     vfxAttack: {fileID: 0}
-    hitIndex: 0
+    onHitActionIndex: 0
     duration: 0.3
     delay: 0
-    rotation: {x: 0, y: 0, z: 0, w: 0}
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 0, y: 0, z: 0}
+    applyParentPoseToPosition: 0
+  elementType: 0
   vas: []
   vfxIndex: 0
-  timeAlive: 0
+  timeActive: 0
+  timeVFXEnabled: 0
   activeHitbox: 1
   vfxEnabled: 0
 --- !u!54 &-8647599811641329118

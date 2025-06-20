@@ -33,6 +33,7 @@ public class PlayerAttacking : PlayerState
         
         SetAttackGravity();
         
+        pc.wc.ActivateWeaponTrailByAttack(_playerAttack);
         pc.wc.ActivateWeaponVFXByAttack(_playerAttack);
 
         pc.psm.canAttack = false;
@@ -75,6 +76,7 @@ public class PlayerAttacking : PlayerState
         pc.pac.RootMotionEnabled(false);
         pc.cam.isFollowingPlayer = true;
         
+        pc.wc.DeactivateWeaponTrail();
         pc.wc.ActivateImbuedWeaponVFX();
     }
     

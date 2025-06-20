@@ -19,7 +19,7 @@ public enum ElementEffect
     None,
     MatchCurrent,
     Fire,
-    Water,
+    Ice,
     Lightning,
     Earth,
     Wind,

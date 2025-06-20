@@ -91,13 +91,14 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.07146785, y: 0.043557215, z: -0.8509093, w: 0.5186025}
   m_LocalPosition: {x: -1.255, y: 0.48, z: 0.028}
-  m_LocalScale: {x: 1.2399999, y: 1.2399999, z: 1.2399998}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1215657060600070390}
   - {fileID: 2056472979063359429}
   - {fileID: 5422884968005917536}
   - {fileID: 928972007946140866}
+  - {fileID: 3124934600597198166}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &8342150383770022882
@@ -154,6 +155,7 @@ MonoBehaviour:
     elementObject: {fileID: 5756112603385730315}
   - elementType: 7
     elementObject: {fileID: 0}
+  vfxTrail: {fileID: 4268384784664744452}
   mainWeaponBody: {fileID: 0}
   mainWeaponOffset: {x: -2.4, y: 0.25, z: 0}
   boundingCenter: {fileID: 0}
@@ -208,6 +210,62 @@ Transform:
   - {fileID: 4618435216211554141}
   m_Father: {fileID: 3092578040340460344}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7811278426035821289
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3124934600597198166}
+  - component: {fileID: 4268384784664744452}
+  m_Layer: 8
+  m_Name: VFXTrail
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3124934600597198166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7811278426035821289}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0000000037252894, y: -0.018668644, z: 0.000000010244546,
+    w: 0.9998257}
+  m_LocalPosition: {x: 0, y: 0, z: 0.21}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3092578040340460344}
+  m_LocalEulerAnglesHint: {x: 0, y: -2.139, z: 0}
+--- !u!114 &4268384784664744452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7811278426035821289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3351d65a5e49c64d9002bba88ce89a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Length: 0.96579057
+  Steps: 10
+  StepTime: 1
+  EndingSpeed: 7
+  Bounds: 3
+  Interpolation: 4
+  Edges: 0
+  Edge1: 0.5
+  Edge2: 0.666666
+  TrailMaterial: {fileID: 2100000, guid: 5ee920c2057bf0b4cb12435c9d6fa51f, type: 2}
+  Layer: 0
 --- !u!1 &7994172989560679878
 GameObject:
   m_ObjectHideFlags: 0

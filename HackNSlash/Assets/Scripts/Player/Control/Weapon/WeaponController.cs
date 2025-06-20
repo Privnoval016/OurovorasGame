@@ -228,8 +228,12 @@ public class WeaponController : MonoBehaviour
     
     public void DeactivateAllWeaponVFX()
     {
+        ElementEffect element = pc.psm.currentPlayerAttack != null ? 
+            ElementData.GetElementFromAttack(pc.psm.currentPlayerAttack, pc) : ElementEffect.None;
+        
         foreach (var weaponBody in activeWeapons)
         {
+            weaponBody.SetTrailElement(element);
             weaponBody.DeactivateVFX();
         }
 
@@ -237,7 +241,42 @@ public class WeaponController : MonoBehaviour
 
         foreach (var weapon in followWeapons)
         {
+            weapon.SetTrailElement(element);
             weapon.DeactivateVFX();
+        }
+    }
+    
+    public void ActivateWeaponTrailByAttack(Attack a)
+    {
+        ElementEffect element = ElementData.GetElementFromAttack(a, pc);
+        
+        foreach (var weaponBody in activeWeapons)
+        {
+            weaponBody.SetTrailElement(element);
+            weaponBody.ActivateTrail();
+        }
+        
+        if (pc.psm.movingState != MovingStates.Katana) return;
+
+        foreach (var weapon in followWeapons)
+        {
+            weapon.SetTrailElement(element);
+            weapon.ActivateTrail();
+        }
+    }
+    
+    public void DeactivateWeaponTrail()
+    {
+        foreach (var weaponBody in activeWeapons)
+        {
+            weaponBody.DeactivateTrail();
+        }
+        
+        if (pc.psm.movingState != MovingStates.Katana) return;
+
+        foreach (var weapon in followWeapons)
+        {
+            weapon.DeactivateTrail();
         }
     }
     

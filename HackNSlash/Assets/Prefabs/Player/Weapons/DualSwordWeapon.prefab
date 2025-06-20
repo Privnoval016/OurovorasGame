@@ -101,6 +101,62 @@ Transform:
   - {fileID: 585951155416202282}
   m_Father: {fileID: 7381720024006720341}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1460139512274810066
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8946186826699257362}
+  - component: {fileID: 1501275409219972139}
+  m_Layer: 8
+  m_Name: 'VFXTrail '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8946186826699257362
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1460139512274810066}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0000000037252894, y: -0.018668644, z: 0.000000010244546,
+    w: 0.9998257}
+  m_LocalPosition: {x: 0, y: 0, z: 0.21}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7381720024006720341}
+  m_LocalEulerAnglesHint: {x: 0, y: -2.139, z: 0}
+--- !u!114 &1501275409219972139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1460139512274810066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3351d65a5e49c64d9002bba88ce89a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Length: 0.9745472
+  Steps: 10
+  StepTime: 1
+  EndingSpeed: 7
+  Bounds: 3
+  Interpolation: 4
+  Edges: 0
+  Edge1: 0.5
+  Edge2: 0.666666
+  TrailMaterial: {fileID: 2100000, guid: 5ee920c2057bf0b4cb12435c9d6fa51f, type: 2}
+  Layer: 0
 --- !u!1 &3638692564574683237
 GameObject:
   m_ObjectHideFlags: 0
@@ -167,6 +223,7 @@ Transform:
   - {fileID: 4877741250649204782}
   - {fileID: 2431336774013775776}
   - {fileID: 1253282449757581657}
+  - {fileID: 8946186826699257362}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &5962087776424205750
@@ -204,7 +261,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   discreteVelocity: {x: 0, y: 0, z: 0}
   discreteAcceleration: {x: 0, y: 0, z: 0}
-  weaponType: 0
+  weaponType: 2
   weaponController: {fileID: 0}
   trailTransforms:
   - {fileID: 9121285050911234743}
@@ -221,6 +278,7 @@ MonoBehaviour:
     elementObject: {fileID: 5866957616898089973}
   - elementType: 6
     elementObject: {fileID: 7676082521695452257}
+  vfxTrail: {fileID: 1501275409219972139}
 --- !u!1 &7257009064929858838
 GameObject:
   m_ObjectHideFlags: 0
@@ -671,7 +729,7 @@ PrefabInstance:
     - target: {fileID: 289161321636050785, guid: 8ec69289443dd9b4d82fb190f1454e33,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1964990624904782940, guid: 8ec69289443dd9b4d82fb190f1454e33,
         type: 3}

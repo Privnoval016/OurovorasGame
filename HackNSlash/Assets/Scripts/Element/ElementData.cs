@@ -26,7 +26,9 @@ public class ElementData : ScriptableObject
     [Header("VFX Attributes")] 
     public VFXObjectInfo[] elementVFXs;
     
-    public Dictionary<VFXType, GameObject> vfxDict = new();
+    private Dictionary<VFXType, GameObject> vfxDict = new();
+    
+    public Material weaponTrailMaterial;
     
     
     public GameObject GetVFX(VFXType type)
@@ -45,6 +47,10 @@ public class ElementData : ScriptableObject
         else if (element == ElementEffect.None && pc.pi.ImbuedElementEffect != ElementEffect.None)
         {
             element = pc.pi.ImbuedElementEffect;
+        }
+        else if (element == ElementEffect.None && pc.psm.movingState == MovingStates.Katana)
+        {
+            element = ElementEffect.Aether;
         }
 
         return element;

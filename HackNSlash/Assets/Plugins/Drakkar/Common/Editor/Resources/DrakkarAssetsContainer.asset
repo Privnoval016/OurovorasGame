@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e6a3e06faaca3a4287a7743a718f9d5, type: 3}
+  m_Name: DrakkarAssetsContainer
+  m_EditorClassIdentifier: 
+  DrakkarLogo: {fileID: 2800000, guid: 44cfce7bf8d984e4ba62053573b84a71, type: 3}
+  Transform: {fileID: 0}
+  GUI: {fileID: 2800000, guid: a37a32c46aa472042859454c5f4d662a, type: 3}
+  ArrowUp: {fileID: 2800000, guid: a60ec0536628930458c4706c6326716d, type: 3}
+  ArrowDown: {fileID: 2800000, guid: cfc0b6628f3d7a3448a497ed21412793, type: 3}
+  Play: {fileID: 2800000, guid: 52b406189910f2445a20b5cbe6731af0, type: 3}
+  Animation: {fileID: 2800000, guid: c2e55767cb9b39c448dd0b72d6ece3a2, type: 3}
+  Sound: {fileID: 2800000, guid: 52f2a841fea3b2e48a9e1c90c824e83c, type: 3}
+  Dialog: {fileID: 0}
+  Palette: {fileID: 2800000, guid: 6247f0bf345a1974e86eeb4e784c2363, type: 3}
+  Spawn: {fileID: 2800000, guid: f3dad4828c2070b4dba4c60df1d9aa36, type: 3}
+  Spawn2: {fileID: 2800000, guid: 7140b53c46a9a804bae571453b66e079, type: 3}
+  Tracker: {fileID: 2800000, guid: afc4878f16e0cdd4f998d53c5dee7e83, type: 3}
+  Trigger: {fileID: 2800000, guid: f9255d340ad55e148b587e4d1bddd007, type: 3}
+  Square: {fileID: 2800000, guid: afc27cc2cc3d95941a31487c85d825cf, type: 3}
+  Corona: {fileID: 2800000, guid: ce258b75d791e724fbc492f74a407018, type: 3}
+  Steam: {fileID: 0}
+  Trail: {fileID: 2800000, guid: 7132dfb3d18bdbc4bb8ccc1da53ed27e, type: 3}
+  Decals: {fileID: 2800000, guid: 04a0b00c8c850834f8255770f03ce07c, type: 3}
+  Sphere: {fileID: 2800000, guid: bd17974add99a8542933d0b942ab9b46, type: 3}
+  VisibilitySphere: {fileID: 0}
+  Eye: {fileID: 0}
+  Instances: {fileID: 0}
+  Mirror: {fileID: 0}
+  Vfx: {fileID: 0}
+  Flare: {fileID: 2800000, guid: 3856be31f88b1da49b7fb7b63af2bc39, type: 3}
+  Rumble: {fileID: 0}
+  Vibration: {fileID: 2800000, guid: 2dca90815e251524aa0b61dcae8b31c4, type: 3}
+  IK: {fileID: 2800000, guid: f014b74954222624c9bdfbadf649adf5, type: 3}
+  Skin: {fileID: 0}
+  Grass: {fileID: 0}
+  Spline: {fileID: 2800000, guid: 968efaec3fb37364187145da41b2575b, type: 3}
+  Behaviour: {fileID: 2800000, guid: 625a27f999c59a94f9804cf387d4986c, type: 3}
+  HitPoint: {fileID: 0}
+  Camera: {fileID: 2800000, guid: 43ed0b2d4f711504e943766b6829dddd, type: 3}
+  Variable: {fileID: 0}
+  Room: {fileID: 0}
+  Portal: {fileID: 0}
+  Occlusion: {fileID: 0}
+  Occluder: {fileID: 0}
+  Cylinder: {fileID: 2800000, guid: a8193fd33fb2a99479e6d49c67e56306, type: 3}
+  Wall: {fileID: 0}
+  Puzzle: {fileID: 0}
+  Time: {fileID: 2800000, guid: 89ab4c147efab254f8b181ba377bf291, type: 3}
+  Frustum: {fileID: 0}
+  Shock: {fileID: 0}
+  Loot: {fileID: 0}
+  Search: {fileID: 0}
+  Map: {fileID: 0}
+  MasterExploder: {fileID: 0}
+  IA: {fileID: 2800000, guid: a3ae932fe8a6e0948aae517864c1cb50, type: 3}
+  Patch: {fileID: 2800000, guid: fe6950339d56e38488b42daef0c06f6e, type: 3}
+  VfxGraph: {fileID: 0}
+  MN_Map: {fileID: 0}
+  MN_Cutscene: {fileID: 0}
+  MN_Variable: {fileID: 0}
+  MN_Time: {fileID: 0}
+  MN_WorkIcon: {fileID: 0}
+  MN_Dialogue: {fileID: 0}
+  MN_Fight: {fileID: 0}
+  MN_Checkpoint: {fileID: 0}
+  MN_Switch: {fileID: 0}
+  D_Red: {fileID: 2800000, guid: 44cfce7bf8d984e4ba62053573b84a71, type: 3}
+  D_White: {fileID: 2800000, guid: 03fd418ed616c6f44a4b4345e76d2bfd, type: 3}
+  D_Blue: {fileID: 2800000, guid: 660b772adcbd626448c6da7c9e1fea0e, type: 3}
+  D_LightBlue: {fileID: 2800000, guid: 95918039be163ba44ab417cc1826a533, type: 3}
+  D_Green: {fileID: 2800000, guid: 5fbfa9e056db64b4dace6c50f089409d, type: 3}
+  D_DarkGreen: {fileID: 2800000, guid: 62c7f5dfba0431b46b91ea8690869a6c, type: 3}
+  D_Gray: {fileID: 2800000, guid: d937ac9f67d70884c9db3acdb57aff60, type: 3}
+  D_Cyan: {fileID: 2800000, guid: 8f2b537e613376a4d9b317c59ca878c8, type: 3}
+  D_Orange: {fileID: 2800000, guid: 46970b4649e1f9b428506b6e2ee76eb5, type: 3}
+  D_Purple: {fileID: 2800000, guid: ea0cc9291a79d56438ecf768929fcbc6, type: 3}
+  D_Yellow: {fileID: 2800000, guid: da94d20e7f11409438e1ecd090cfe669, type: 3}
+  D_Pink: {fileID: 2800000, guid: d22141548798cfe40a8a8ed26e9aa59a, type: 3}
+  CapsuleMesh: {fileID: 0}
+  LensFlare: {fileID: 0}

@@ -34,6 +34,8 @@ public class VFXController : MonoBehaviour
     private Dictionary<VFXActivator, float> vfxDelays = new();
     
     public bool activeHitbox = true;
+    public float hitboxEnableDelay = 0f;
+    private bool delayedHitboxEnabled = false;
     private float elapsedTime;
     public bool vfxEnabled;
 
@@ -50,6 +52,14 @@ public class VFXController : MonoBehaviour
         foreach (VFXHitbox hitbox in hitboxes)
         {
             hitbox.vfxController = this;
+            if (hitboxEnableDelay != 0f)
+            {
+                hitbox.DisableCollider();
+            }
+            else
+            {
+                hitbox.EnableCollider();
+            }
         }
     }
     
@@ -58,6 +68,19 @@ public class VFXController : MonoBehaviour
         if (!vfxEnabled) return;
         
         elapsedTime += Time.deltaTime;
+        
+        if (hitboxEnableDelay > 0f && !delayedHitboxEnabled)
+        {
+            if (elapsedTime >= hitboxEnableDelay)
+            {
+                delayedHitboxEnabled = true;
+                foreach (VFXHitbox hitbox in hitboxes)
+                {
+                    hitbox.EnableCollider();
+                }
+            }
+        }
+        
         if (elapsedTime >= timeActive)
         {
             DisableVFX();

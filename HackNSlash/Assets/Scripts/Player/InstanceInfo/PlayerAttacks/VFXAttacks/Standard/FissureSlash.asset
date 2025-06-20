@@ -26,5 +26,5 @@ MonoBehaviour:
     delayScale: 0
   maxVFXAlive: 0
   vfxAction: 5
-  vfxSpeed: 50
+  vfxSpeed: 30
   canCollide: 1

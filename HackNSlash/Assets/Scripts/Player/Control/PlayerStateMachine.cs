@@ -347,9 +347,11 @@ public class PlayerStateMachine : MonoBehaviour
         if (movingState == MovingStates.NonCombat) return;
         
         if (pauseMovement) return;
+        
+        ComboAction possibleCombo = CheckComboAction();
+        if (possibleCombo == null && !InputManager.AnyKeyPressed()) return;
 
         PlayerAttack a = null;
-        ComboAction possibleCombo = CheckComboAction();
         PlayerAttack starter = null;
         
         #region Directional Attacks
