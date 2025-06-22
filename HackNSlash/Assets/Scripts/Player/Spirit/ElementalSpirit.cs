@@ -100,27 +100,5 @@ public class ElementalSpirit : KinematicBehaviour
     
     #endregion
     
-    #region Utility Methods
     
-    public HashSet<LockOnTarget> HitScanEnemies(int numTargets, float radius, float height, float angle)
-    {
-        HashSet<LockOnTarget> enemies = new();
-        
-        if (pc.cam.IsLockedOn) enemies.Add(pc.psm.NearestHEnemy);
-        
-        int enemiesNeeded = numTargets - enemies.Count;
-        
-        if (enemiesNeeded > 0)
-        {
-            var enemyList = pc.psm.GetAllEnemiesInCapsule(radius, height, angle);
-            if (enemyList != null && enemyList.Length > 0)
-                enemies = enemies.Union(enemyList[0..enemiesNeeded]).ToHashSet();
-        }
-        
-        enemies.RemoveWhere(e => e.tookDamageThisAction);
-        
-        return enemies;
-    }
-    
-    #endregion
 }

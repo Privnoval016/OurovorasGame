@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: K_AetherFinisher
   m_EditorClassIdentifier: 
-  isEnabled: 0
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 0}
+  isEnabled: 1
   attackType: 4
   element: 7
   isLockedOn: 1
-  keyBinds: 06000000
+  requireElementTrigger: 1
+  triggerCoolDown: 0
+  keyBinds: 04000000
   inputDirection: {x: 0, y: 1}
   comboDirection: {x: 0, y: -1}
   applyTargetDirection: 1
@@ -37,14 +41,16 @@ MonoBehaviour:
     elasticCollision: 0
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
-    hitIndex: 0
+    onHitActionIndex: 0
     duration: 1.3
     delay: 0
     spawnTarget: 0
+    parentToTarget: 0
     spawnTransform:
       Position: {x: 0, y: 0, z: 0}
       Rotation: {x: 0, y: 0, z: 0, w: 1}
       Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
   onAttackAction: 0
   attackEventIndex: 0
   applyRootMotion: 1

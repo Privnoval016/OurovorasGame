@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: K_TeleportsBehindYou
   m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: b1c98ab3bacab4aa4bd3102275f5b66e, type: 2}
   isEnabled: 1
   attackType: 3
   element: 0
   isLockedOn: 1
+  requireElementTrigger: 0
+  triggerCoolDown: 0
   keyBinds: 04000000
   inputDirection: {x: 0, y: 1}
   comboDirection: {x: 0, y: -1}
@@ -35,6 +39,7 @@ MonoBehaviour:
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  vfxInfos: []
   onAttackAction: 4
   attackEventIndex: 3
   applyRootMotion: 0
@@ -47,4 +52,3 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 0
-  vfxInfos: []

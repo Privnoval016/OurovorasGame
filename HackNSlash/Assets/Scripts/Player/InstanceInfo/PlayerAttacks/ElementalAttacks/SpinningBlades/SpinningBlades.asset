@@ -16,7 +16,9 @@ MonoBehaviour:
   attackType: 6
   element: 1
   isLockedOn: 0
-  keyBinds: 06000000
+  requireElementTrigger: 1
+  triggerCoolDown: 0
+  keyBinds: 01000000
   inputDirection: {x: 0, y: 0}
   comboDirection: {x: 0, y: 0}
   applyTargetDirection: 1

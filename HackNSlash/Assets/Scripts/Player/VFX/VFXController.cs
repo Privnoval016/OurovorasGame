@@ -216,7 +216,6 @@ public class VFXController : MonoBehaviour
 
     public void HitboxTriggerEnter(Collider other)
     {
-        Debug.Log("Hit");
         if (!activeHitbox || !vfxEnabled) return;
         
         if (player == null || attack == null) return;

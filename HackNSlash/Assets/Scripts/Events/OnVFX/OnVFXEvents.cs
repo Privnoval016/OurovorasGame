@@ -63,19 +63,20 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         yield return Timing.WaitForSeconds(a.vfxInfos[vfxIndex].delay);
         OnVFXActionMap[a.vfxInfos[vfxIndex].vfxAttack.vfxAction].Invoke(vfx, weaponType);
     }
-    
-    private VFXController InstantiateVFX(PlayerController pc, Attack a, int vfxIndex = 0, TransformInfo overrideTransform = default)
+
+    private VFXController InstantiateVFX(PlayerController pc, Attack a, int vfxIndex = 0,
+        TransformInfo overrideTransform = default)
     {
         if (a.vfxInfos.Length <= vfxIndex) return null;
-        
+
         VFXSpawnInfo v = a.vfxInfos[vfxIndex];
 
         TransformInfo start = overrideTransform;
 
         Transform parent = null;
-        
+
         bool targetFound = false;
-        
+
         switch (v.spawnTarget)
         {
             case Target.Player:
@@ -88,11 +89,11 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
                 {
                     start.Position = pc.transform.position;
                     start.Rotation = Quaternion.LookRotation(pc.transform.forward);
-                    parent = pc.transform; 
+                    parent = pc.transform;
                     break;
                 }
                 else if (!pc.cam.IsLockedOn) return null;
-                
+
                 start.Position = pc.cam.TargetPosition;
                 start.Rotation = Quaternion.LookRotation(pc.transform.position - start.Position);
                 parent = pc.cam.TargetedEnemy.transform;
@@ -106,14 +107,15 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         }
 
         TransformInfo offset = v.spawnTransform;
-        
+
         start.Scale = start.Scale == Vector3.zero ? Vector3.one : start.Scale;
         start.Scale = start.Scale.ScaledBy(offset.Scale);
 
-        
+
         GameObject vfx = Instantiate(v.vfxAttack.vfxHitBox, start.Position, start.Rotation);
+        Debug.Log($"Instantiated VFX: {vfx.name} at {start.Position} with rotation {start.Rotation.eulerAngles}");
         vfx.transform.localScale = start.Scale;
-        
+
         if (!vfx.TryGetComponent(out VFXController vc))
         {
             Destroy(vfx);
@@ -122,26 +124,36 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
 
         vc.transform.SetParent(parent, true);
 
-        if (v.spawnTarget != Target.TargetedEnemy || !targetFound)
+        if (v.spawnTarget != Target.None)
         {
-            if (v.applyParentPoseToPosition)
+            if (v.spawnTarget != Target.TargetedEnemy || !targetFound)
             {
-                vc.transform.localRotation = offset.Rotation;
-                vc.transform.localPosition = offset.Position;
+                if (v.applyParentPoseToPosition && parent != null)
+                {
+                    vc.transform.localRotation = offset.Rotation;
+                    vc.transform.localPosition = offset.Position;
+                }
+                else
+                {
+                    vc.transform.position = start.Position + offset.Position;
+                    vc.transform.rotation = offset.Rotation.eulerAngles != Vector3.zero
+                        ? start.Rotation * offset.Rotation
+                        : start.Rotation;
+                }
             }
-            else
+
+            if (!v.parentToTarget)
             {
-                vc.transform.position = start.Position + offset.Position;
-                vc.transform.rotation = offset.Rotation.eulerAngles != Vector3.zero
-                    ? start.Rotation * offset.Rotation
-                    : start.Rotation;
+                vc.transform.SetParent(null, true);
             }
+        }
+        else
+        {
+            vc.transform.position = start.Position + offset.Position;
+            vc.transform.Rotate(offset.Rotation.eulerAngles);
         }
 
-        if (!v.parentToTarget)
-        {
-            vc.transform.SetParent(null, true);
-        }
+    Debug.Log($"VFXController created: {vc.name} with parent {vc.transform.parent?.name} at position {vc.transform.position} and rotation {vc.transform.rotation.eulerAngles}");
 
         List<VFXActivator> vfxs = new();
 

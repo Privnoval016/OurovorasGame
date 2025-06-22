@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: D_LAtk D5
   m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: 19bd2809e2eb57b4c855d92154fbd483, type: 2}
   isEnabled: 1
   attackType: 0
   element: 0
   isLockedOn: 0
+  requireElementTrigger: 0
+  triggerCoolDown: 0
   keyBinds: 01000000
   inputDirection: {x: 0, y: 0}
   comboDirection: {x: 0, y: 0}
@@ -24,7 +28,7 @@ MonoBehaviour:
   maxUses: 0
   hitInfo:
     onHitActions: 00000000
-    hitDetection: 0
+    hitDetection: 1
     lateralRadius: 3
     verticalRadius: 3
     hitRegisterAngle: 120

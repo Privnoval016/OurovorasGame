@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: K_MAtk C3
   m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: 7eb5377e80ab1494e83b2054942f5120, type: 2}
   isEnabled: 1
   attackType: 2
   element: 0
   isLockedOn: 0
+  requireElementTrigger: 0
+  triggerCoolDown: 0
   keyBinds: 01000000
   inputDirection: {x: 0, y: 0}
   comboDirection: {x: 0, y: 0}

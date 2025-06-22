@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: K_BladeBeam
   m_EditorClassIdentifier: 
+  updateLinkedAttack: 0
+  linkedAttack: {fileID: 11400000, guid: a1b3d8615ef9e124888778393ae8767f, type: 2}
   isEnabled: 1
   attackType: 4
   element: 1
   isLockedOn: 0
+  requireElementTrigger: 0
+  triggerCoolDown: 0
   keyBinds: 02000000
   inputDirection: {x: 0, y: 1}
   comboDirection: {x: 0, y: 0}
@@ -28,7 +32,7 @@ MonoBehaviour:
     lateralRadius: 3
     verticalRadius: 3
     hitRegisterAngle: 120
-    numTargets: 1
+    numTargets: 3
     attackCoolDown: 0.1
     damage: 0
     hitForce: 12
@@ -73,10 +77,10 @@ MonoBehaviour:
     onHitActionIndex: 1
     duration: 1.3
     delay: 0
-    spawnTarget: 2
+    spawnTarget: 0
     parentToTarget: 0
     spawnTransform:
-      Position: {x: 0, y: 0, z: 0}
+      Position: {x: 0, y: 0, z: 1}
       Rotation: {x: 0, y: 0, z: 0, w: 1}
       Scale: {x: 1, y: 1, z: 1}
     applyParentPoseToPosition: 0
