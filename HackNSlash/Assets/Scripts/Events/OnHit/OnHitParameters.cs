@@ -28,6 +28,4 @@ public class OnHitParameters : ScriptableObject
     [Header("Grapple Attack")] 
     public float grappleSpeed = 150f;
     
-    [Header("Lock Knockback")]
-    public float releaseKnockbackTime = 5f;
 }

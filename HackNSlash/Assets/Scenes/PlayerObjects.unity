@@ -8179,6 +8179,7 @@ MonoBehaviour:
   groundCheckPoint: {fileID: 1026774587}
   groundCheckSize: {x: 0.49, y: 0.3, z: 0.49}
   canAttack: 0
+  isElementAttacking: 0
   currentPlayerAttack: {fileID: 0}
   comboChain: []
   comboResetTimer: 0

@@ -110,7 +110,7 @@ public class PlayerMoving : PlayerState
     
     private void OnJumpAction(InputAction.CallbackContext context)
     {
-	    if (!pc.psm.canAttack) return;
+	    if (!pc.psm.canAttack || pc.psm.isElementAttacking) return;
 	    
 	    if (sc.GetCurrentState() is PlayerAttacking) sc.ResumePrevious();
 	    

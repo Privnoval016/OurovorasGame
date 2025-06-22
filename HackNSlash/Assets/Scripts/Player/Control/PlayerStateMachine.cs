@@ -85,6 +85,7 @@ public class PlayerStateMachine : MonoBehaviour
     #region ATTACK PARAMETERS
 
     [HideInInspector] public bool canAttack;
+    [HideInInspector] public bool isElementAttacking;
 
     [FormerlySerializedAs("currentAttack")] [HideInInspector] public PlayerAttack currentPlayerAttack;
     
@@ -137,6 +138,8 @@ public class PlayerStateMachine : MonoBehaviour
         pc.sc.ChangeState(new PlayerMoving());
         
         InputManager.Instance.debug.performed += OnDebugInput;
+        InputManager.Instance.elementAttack.performed += OnElementAttackInput;
+        InputManager.Instance.elementAttack.canceled += OnElementAttackInput;
     }
     
     private void Update()
@@ -165,6 +168,18 @@ public class PlayerStateMachine : MonoBehaviour
                 direction = -transform.forward.ToVector2(),
                 damage = 1,
             });
+        }
+    }
+    
+    private void OnElementAttackInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isElementAttacking = true;
+        }
+        else if (context.canceled)
+        {
+            isElementAttacking = false;
         }
     }
     
@@ -324,7 +339,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         #region Double Jump
         
-        if (attackData.doubleJumpEnabled && CanDoubleJump && KeyMap[KeyBind.Jump].action())
+        if (attackData.doubleJumpEnabled && CanDoubleJump && KeyMap[KeyBind.Jump].action() && !isElementAttacking)
         {
             Debug.Log("Double Jump");
             lastDoubleJumpTime = 0;
@@ -402,28 +417,33 @@ public class PlayerStateMachine : MonoBehaviour
         
         #region Elemental Attack
 
-        Attack e = pc.pi.CurrentLoadout.GetElementAttack(pc.pi.CurrentElementEffect, movingState);
+        Attack[] elementAttacks = pc.pi.CurrentLoadout.elementLoadout?.GetElementAttacks(pc.pi.CurrentElementEffect, movingState);
 
-        if (e != null && AttackIsAvailable(e))
+        SpiritAttack s = null;
+        foreach (var e in elementAttacks)
         {
-            if (e is SpiritAttack spiritAttack)
+            if (e != null && AttackIsAvailable(e))
             {
-                BeginSpiritAttack(spiritAttack);
+                if (e is SpiritAttack spiritAttack)
+                {
+                    s = spiritAttack;
+                }
+
+                if (e is PlayerAttack playerAttack)
+                {
+                    a = playerAttack;
+                }
             }
-            
-            if (e is PlayerAttack playerAttack)
-            {
-                a = playerAttack;
-            }
-        }
-        else
-        {
-            e = null;
         }
         
+        if (s != null)
+        {
+            BeginSpiritAttack(s);
+        }
+
         #endregion
         
-        if (!e && !a && possibleCombo == null && !starter)
+        if (!s && !a && possibleCombo == null && !starter)
             pc.spirit.CheckSpiritAction();
         
         if (!canAttack) return;
@@ -588,6 +608,8 @@ public class PlayerStateMachine : MonoBehaviour
         if (NumActionsUsed.ContainsKey(attack) && NumActionsUsed[attack] >= attack.maxUses) return false;
         
         if (attack.isLockedOn && !pc.cam.IsLockedOn) return false;
+        
+        if (attack.requireElementTrigger != isElementAttacking) return false;
         
         if (attack.isMidair != NBool.Both && IsMidair != attack.isMidair.IsTrue()) return false;
 

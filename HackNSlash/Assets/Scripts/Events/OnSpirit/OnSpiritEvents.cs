@@ -10,6 +10,7 @@ public enum OnSpiritActions
     None,
     RangedAttack,
     SpawnVFX,
+    HitScanVFX
 }
 
 public class OnSpiritEvents : Singleton<OnSpiritEvents>
@@ -31,6 +32,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
         OnSpiritActionMap.Add(OnSpiritActions.None, (spirit, a) => { });
         OnSpiritActionMap.Add(OnSpiritActions.RangedAttack, RangedAttack);
         OnSpiritActionMap.Add(OnSpiritActions.SpawnVFX, SpawnVFX);
+        OnSpiritActionMap.Add(OnSpiritActions.HitScanVFX, HitScanVFX);
     }
     
     IEnumerator<float> ResumeMoving(ElementalSpirit spirit, Attack a, float time, Action action = null)
@@ -51,7 +53,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     {
         ElementEffect element = spirit.pc.pi.CurrentElementEffect;
         
-        HashSet<LockOnTarget> enemies = spirit.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle);
+        HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle);
         
         KeyBind[] holdKeys = InputManager.GetReleaseable(a.keyBinds);
         float startTime = Time.time;
@@ -95,15 +97,43 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
             CreateVFX(spirit, a, i);
         }
 
-        this.RunSegmentCoroutine(ResumeMoving(spirit, a, parameters.vfxCooldownTime));
+        this.RunSegmentCoroutine(ResumeMoving(spirit, a, a.hitInfo.attackCoolDown));
 
         yield break;
     }
 
-    private VFXController CreateVFX(ElementalSpirit spirit, SpiritAttack a, int i)
+    private VFXController CreateVFX(ElementalSpirit spirit, SpiritAttack a, int i, TransformInfo overrideTransform = default)
     {
-        return OnVFXEvents.Instance.InvokeOnVFX(spirit.pc, a, i);
+        return OnVFXEvents.Instance.InvokeOnVFX(spirit.pc, a, i, overrideTransform);
     }
 
+    #endregion
+    
+    #region HitScan VFX
+    
+    private void HitScanVFX(ElementalSpirit spirit, SpiritAttack a)
+    {
+        this.RunSegmentCoroutine(BeginHitScanVFX(spirit, a));
+    }
+    
+    private IEnumerator<float> BeginHitScanVFX(ElementalSpirit spirit, SpiritAttack a)
+    {
+        ElementEffect element = spirit.pc.pi.CurrentElementEffect;
+        
+        HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle);
+        
+        foreach (LockOnTarget enemy in enemies)
+        {
+            Debug.Log($"HitScan VFX: {enemy.name} at {enemy.transform.position}");
+            CreateVFX(spirit, a, 0, new TransformInfo(enemy.transform, false));
+            enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
+        }
+        
+        this.RunSegmentCoroutine(ResumeMoving(spirit, a, a.hitInfo.attackCoolDown));
+        
+        yield break;
+    }
+    
+    
     #endregion
 }

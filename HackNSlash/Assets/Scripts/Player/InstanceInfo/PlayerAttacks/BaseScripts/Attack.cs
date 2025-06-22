@@ -18,6 +18,10 @@ public abstract class Attack : ScriptableObject
         AttackTypes.Element
     };
     
+    [Header("Linked Attacks")]
+    public bool updateLinkedAttack = false;
+    public Attack linkedAttack;
+    
     [Header("General")] 
     public bool isEnabled = true;
     public AttackTypes attackType;
@@ -28,6 +32,8 @@ public abstract class Attack : ScriptableObject
     [Header("Conditions")]
     
     public bool isLockedOn = false;
+    public bool requireElementTrigger = false;
+    public float triggerCoolDown = 0f;
     
     public KeyBind[] keyBinds;
     public Vector2 inputDirection;
@@ -46,6 +52,42 @@ public abstract class Attack : ScriptableObject
     [Header("VFX")] 
     
     public VFXSpawnInfo[] vfxInfos;
+
+
+    protected virtual void OnValidate()
+    {
+        UpdateLinkedAttack();
+    }
+
+    protected virtual void UpdateLinkedAttack()
+    {
+        if (linkedAttack == this) linkedAttack = null;
+        if (linkedAttack == null) return;
+        
+        linkedAttack.updateLinkedAttack = updateLinkedAttack;
+        
+        if (!updateLinkedAttack) return;
+    
+        linkedAttack.isEnabled = isEnabled;
+        linkedAttack.attackType = attackType;
+        linkedAttack.element = element;
+        
+        linkedAttack.isLockedOn = isLockedOn;
+        linkedAttack.requireElementTrigger = requireElementTrigger;
+        linkedAttack.triggerCoolDown = triggerCoolDown;
+        
+        linkedAttack.keyBinds = keyBinds;
+        linkedAttack.inputDirection = inputDirection;
+        linkedAttack.comboDirection = comboDirection;
+        linkedAttack.applyTargetDirection = applyTargetDirection;
+        
+        linkedAttack.isMidair = isMidair;
+        linkedAttack.maxUses = maxUses;
+        linkedAttack.hitInfo = new HitInfo(hitInfo);
+
+        linkedAttack.vfxInfos = VFXSpawnInfo.DeepCopy(vfxInfos);
+        linkedAttack.linkedAttack = this;
+    }
 }
 
 [Serializable]
@@ -64,13 +106,36 @@ public class VFXSpawnInfo
 
     public TransformInfo spawnTransform;
     [FormerlySerializedAs("applyParentPose")] public bool applyParentPoseToPosition = false;
+    
+    public static VFXSpawnInfo[] DeepCopy(VFXSpawnInfo[] original)
+    {
+        if (original == null) return null;
+        
+        VFXSpawnInfo[] copy = new VFXSpawnInfo[original.Length];
+        for (int i = 0; i < original.Length; i++)
+        {
+            copy[i] = new VFXSpawnInfo
+            {
+                vfxAttack = original[i].vfxAttack,
+                onHitActionIndex = original[i].onHitActionIndex,
+                duration = original[i].duration,
+                delay = original[i].delay,
+                spawnTarget = original[i].spawnTarget,
+                parentToTarget = original[i].parentToTarget,
+                spawnTransform = original[i].spawnTransform,
+                applyParentPoseToPosition = original[i].applyParentPoseToPosition
+            };
+        }
+        return copy;
+    }
 }
 
 public enum HitDetections
 {
     WeaponTrail,
     SphereCast,
-    HitScan
+    HitScan,
+    None
 }
 
 [Serializable]
@@ -101,6 +166,23 @@ public class HitInfo
     
     [Tooltip("Used for follow velocity and other select hit actions")]
     public bool elasticCollision = false;
+
+    public HitInfo(HitInfo copy)
+    {
+        onHitActions = (OnHitActions[]) copy.onHitActions.Clone();
+        hitDetection = copy.hitDetection;
+        lateralRadius = copy.lateralRadius;
+        verticalRadius = copy.verticalRadius;
+        hitRegisterAngle = copy.hitRegisterAngle;
+        numTargets = copy.numTargets;
+        attackCoolDown = copy.attackCoolDown;
+        damage = copy.damage;
+        hitForce = copy.hitForce;
+        hitDelay = copy.hitDelay;
+        hitDirection = copy.hitDirection;
+        elasticCollision = copy.elasticCollision;
+    }
+        
 }
 
 

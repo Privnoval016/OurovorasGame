@@ -106,7 +106,17 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         {
             pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
             
-            CreateVFX(pc, a, 3);
+            HashSet<LockOnTarget> enemies = pc.HitScanEnemies(a.hitInfo.numTargets, pc.psm.playerData.lockOnRange, pc.psm.playerData.lockOnRange, 360);
+        
+            foreach (LockOnTarget enemy in enemies)
+            {
+                Vector3 direction =
+                    (enemy.transform.position.ZeroVector3Axis() - pc.transform.position.ZeroVector3Axis()).normalized;
+                TransformInfo targetTransform = new TransformInfo(enemy.transform.position - direction * a.vfxInfos[3].spawnTransform.Position.z, 
+                    Quaternion.LookRotation(direction), 
+                    Vector3.one);
+                CreateVFX(pc, a, 3, targetTransform);
+            }
             
             this.RunSegmentCoroutine(ResumeMoving(pc, a, attackParameters.crossSlashDuration, () => pc.psm.pauseComboReset = false));
         }

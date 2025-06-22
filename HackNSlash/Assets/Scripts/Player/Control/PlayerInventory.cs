@@ -40,6 +40,8 @@ public class PlayerInventory : MonoBehaviour
         InputManager.Instance.swapElementLeft.performed += OnSwapElementLeft;
         InputManager.Instance.swapElementRight.performed += OnSwapElementRight;
 
+        CurrentLoadout.elementLoadout?.ValidateElementAttacks();
+
         ActivateAttacksFromSkillTree();
     }
 

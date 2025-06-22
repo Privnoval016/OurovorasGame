@@ -303,23 +303,25 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     IEnumerator<float> BeginLockPhysics(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
+        yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
+        
         ec.physicsInteract = false;
         ec.rb.linearVelocity = Vector3.zero;
 
         ec.KillObjectCoroutines(nameof(ReleasePhysicsLock));
-        ec.RunSegmentCoroutine(ReleasePhysicsLock(ec), nameof(ReleasePhysicsLock));
+        ec.RunSegmentCoroutine(ReleasePhysicsLock(ec, a), nameof(ReleasePhysicsLock));
         
-        yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
+        yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
 
     }
 
-    IEnumerator<float> ReleasePhysicsLock(PhysicsEnemy ec)
+    IEnumerator<float> ReleasePhysicsLock(PhysicsEnemy ec, Attack a)
     {
         float startTime = Time.time;
         
         bool? damageTaken = null;
 
-        while (Time.time - startTime < parameters.releaseKnockbackTime && damageTaken != true)
+        while (Time.time - startTime < a.hitInfo.hitForce && damageTaken != true)
         {
             if (!ec.tookDamageThisAction) damageTaken = false;
             else if (damageTaken == false && ec.tookDamageThisAction) damageTaken = true;

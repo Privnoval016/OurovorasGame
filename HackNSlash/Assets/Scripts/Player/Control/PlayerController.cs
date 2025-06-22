@@ -94,6 +94,32 @@ public class PlayerController : KinematicBehaviour
         return true;
     }
     
+    #region Utility Methods
+    
+    public HashSet<LockOnTarget> HitScanEnemies(int numTargets, float radius, float height, float angle)
+    {
+        HashSet<LockOnTarget> enemies = new();
+        
+        if (cam.IsLockedOn) enemies.Add(psm.NearestHEnemy);
+        
+        int enemiesNeeded = numTargets - enemies.Count;
+        
+        if (enemiesNeeded > 0)
+        {
+            var enemyList = psm.GetAllEnemiesInCapsule(radius, height, angle);
+            if (enemyList != null && enemyList.Length > 0 && enemyList.Length >= enemiesNeeded)
+                enemies = enemies.Union(enemyList[0..enemiesNeeded]).ToHashSet();
+            else if (enemyList != null && enemyList.Length > 0)
+                enemies = enemies.Union(enemyList).ToHashSet();
+        }
+        
+        enemies.RemoveWhere(e => e.tookDamageThisAction);
+        
+        return enemies;
+    }
+    
+    #endregion
+    
 }
 
 public enum Stat
