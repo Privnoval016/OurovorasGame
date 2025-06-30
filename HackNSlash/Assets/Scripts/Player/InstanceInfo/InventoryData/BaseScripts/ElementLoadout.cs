@@ -85,10 +85,27 @@ public class ElementLoadout : ScriptableObject
         }
     }
     
+    public EquippedElementAttack GetElementAttack(ElementEffect elementEffect)
+    {
+        if (elementAttackMap.TryGetValue(elementEffect, out var elementAttack))
+        {
+            return elementAttack;
+        }
+        
+        Debug.LogWarning($"No attack found for element {elementEffect}");
+        return null;
+    }
+    
     
     public bool ValidateElementAttacks()
     {
         bool valid = true;
+        
+        fireElementAttack.elementEffect = ElementEffect.Fire;
+        iceElementAttack.elementEffect = ElementEffect.Ice;
+        lightningElementAttack.elementEffect = ElementEffect.Lightning;
+        earthElementAttack.elementEffect = ElementEffect.Earth;
+        windElementAttack.elementEffect = ElementEffect.Wind;
         
         elementAttackMap.Clear();
         elementAttackMap.Add(ElementEffect.Fire, fireElementAttack);
@@ -125,9 +142,12 @@ public class ElementLoadout : ScriptableObject
 [Serializable]
 public class EquippedElementAttack
 {
+    public ElementEffect elementEffect;
+    
     public AttacksByWeapon northAttack;
     public AttacksByWeapon westAttack;
     public AttacksByWeapon southAttack;
+    public AttacksByWeapon eastAttack;
     
     public Dictionary<KeyBind, AttacksByWeapon> keyBindAttackMap = new Dictionary<KeyBind, AttacksByWeapon>();
 
@@ -164,6 +184,16 @@ public class EquippedElementAttack
                 southAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.Jump };
             }
         }
+        
+        if (eastAttack != null)
+        {
+            keyBindAttackMap[KeyBind.Dodge] = eastAttack;
+            
+            if (eastAttack.SwordAttack != null)
+            {
+                eastAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.Dodge };
+            }
+        }
     }
 
     public Attack[] GetSwordAttacks()
@@ -183,6 +213,11 @@ public class EquippedElementAttack
         if (southAttack != null && southAttack.SwordAttack != null)
         {
             swordAttacks.Add(southAttack.SwordAttack);
+        }
+        
+        if (eastAttack != null && eastAttack.SwordAttack != null)
+        {
+            swordAttacks.Add(eastAttack.SwordAttack);
         }
         
         return swordAttacks.ToArray();
@@ -205,6 +240,11 @@ public class EquippedElementAttack
         if (southAttack != null && southAttack.KatanaAttack != null)
         {
             katanaAttacks.Add(southAttack.KatanaAttack);
+        }
+        
+        if (eastAttack != null && eastAttack.KatanaAttack != null)
+        {
+            katanaAttacks.Add(eastAttack.KatanaAttack);
         }
         
         return katanaAttacks.ToArray();
@@ -235,6 +275,13 @@ public class EquippedElementAttack
             valid = false;
         }
         
+        if (eastAttack != null && eastAttack.SwordAttack != null && eastAttack.SwordAttack.element != element && eastAttack.SwordAttack.element != ElementEffect.MatchCurrent)
+        {
+            Debug.LogWarning($"East attack element mismatch: {eastAttack.SwordAttack.element} != {element}");
+            eastAttack.SwordAttack = null;
+            valid = false;
+        }
+        
         if (northAttack != null && northAttack.KatanaAttack != null && northAttack.KatanaAttack.element != element && northAttack.KatanaAttack.element != ElementEffect.MatchCurrent)
         {
             Debug.LogWarning($"North attack element mismatch: {northAttack.KatanaAttack.element} != {element}");
@@ -256,6 +303,13 @@ public class EquippedElementAttack
             valid = false;
         }
         
+        if (eastAttack != null && eastAttack.KatanaAttack != null && eastAttack.KatanaAttack.element != element && eastAttack.KatanaAttack.element != ElementEffect.MatchCurrent)
+        {
+            Debug.LogWarning($"East attack element mismatch: {eastAttack.KatanaAttack.element} != {element}");
+            eastAttack.KatanaAttack = null;
+            valid = false;
+        }
+        
         return valid;
     }
     
@@ -266,4 +320,19 @@ public class AttacksByWeapon
 {
     public Attack SwordAttack;
     public Attack KatanaAttack;
+    
+    public Attack GetAttackByState(MovingStates state)
+    {
+        switch (state)
+        {
+            case MovingStates.DualSword:
+                return SwordAttack;
+            case MovingStates.Katana:
+                return KatanaAttack;
+            case MovingStates.NonCombat:
+                return SwordAttack;
+            default:
+                return null;
+        }
+    }
 }

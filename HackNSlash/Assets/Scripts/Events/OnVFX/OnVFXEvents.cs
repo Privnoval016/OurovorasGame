@@ -5,6 +5,7 @@ using UnityEngine;
 using Extensions.Utils;
 using MEC;
 using PrimeTween;
+using Unity.Mathematics;
 using UnityEngine.VFX;
 
 public enum OnVFXActions
@@ -48,6 +49,49 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     }
     
     #region VFX Invocation
+
+    public VFXController SpawnHitStopVFX(PlayerController pc, Attack a, int hitStopProfileIndex, TransformInfo overrideTransform)
+    {
+        if (a == null || a.hitStopProfiles.Length == 0 || hitStopProfileIndex >= a.hitStopProfiles.Length)
+        {
+            Debug.LogWarning("Invalid attack or hit stop profile index.");
+            return null;
+        }
+        
+        HitStopProfile hitStopProfile = a.hitStopProfiles[hitStopProfileIndex];
+        TransformInfo start = overrideTransform;
+        start.Position += hitStopProfile.hitStopVFX.spawnTransform.Position;
+        start.Rotation = hitStopProfile.hitStopVFX.spawnTransform.Rotation.eulerAngles != Vector3.zero
+            ? start.Rotation * hitStopProfile.hitStopVFX.spawnTransform.Rotation
+            : start.Rotation;
+        start.Scale = hitStopProfile.hitStopVFX.spawnTransform.Scale == Vector3.zero 
+            ? start.Scale 
+            : start.Scale.ScaledBy(hitStopProfile.hitStopVFX.spawnTransform.Scale);
+        
+        GameObject vfxInstance = Instantiate(hitStopProfile.hitStopVFX.vfxAttack.vfxHitBox, start.Position, start.Rotation);
+        vfxInstance.transform.localScale = start.Scale;
+        if (!vfxInstance.TryGetComponent(out VFXController vfxController))
+        {
+            Destroy(vfxInstance);
+            return null;
+        }
+        
+        var vfxActivators = GetVFXActivators(hitStopProfile.hitStopVFX, vfxController, GameManager.GetElementData(ElementData.GetElementFromAttack(a, pc)));
+        
+        vfxController.InitializeVFX(pc, start, a, hitStopProfile.hitStopVFX, vfxActivators, 0, hitStopProfile.hitStopVFX.vfxAttack.canCollide);
+        
+        if (vfxController == null)
+        {
+            Debug.LogWarning("Failed to initialize VFXController.");
+            return null;
+        }
+        
+        vfxController.EnableVFX();
+        
+        this.RunSegmentCoroutine(SpawnWithDelay(vfxController, a, 0, WeaponType.None));
+        
+        return vfxController;
+    }
     
     public VFXController InvokeOnVFX(PlayerController pc, Attack a, int vfxIndex = 0, TransformInfo overrideTransform = default, WeaponType weaponType = WeaponType.None)
     {
@@ -113,7 +157,6 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
 
 
         GameObject vfx = Instantiate(v.vfxAttack.vfxHitBox, start.Position, start.Rotation);
-        Debug.Log($"Instantiated VFX: {vfx.name} at {start.Position} with rotation {start.Rotation.eulerAngles}");
         vfx.transform.localScale = start.Scale;
 
         if (!vfx.TryGetComponent(out VFXController vc))
@@ -152,16 +195,24 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             vc.transform.position = start.Position + offset.Position;
             vc.transform.Rotate(offset.Rotation.eulerAngles);
         }
+        
+        ElementData e = GameManager.GetElementData(ElementData.GetElementFromAttack(a, pc));
+        
+        var vfxs = GetVFXActivators(v, vc, e);
 
-    Debug.Log($"VFXController created: {vc.name} with parent {vc.transform.parent?.name} at position {vc.transform.position} and rotation {vc.transform.rotation.eulerAngles}");
-
+        vc.InitializeVFX(pc, new TransformInfo(vfx.transform), a, v, vfxs, vfxIndex, v.vfxAttack.canCollide);
+        
+        return vc;
+    }
+    
+    private VFXActivator[] GetVFXActivators(VFXSpawnInfo v, VFXController vfx, ElementData e)
+    {
         List<VFXActivator> vfxs = new();
 
         VFXData[] vfxDatas = v.vfxAttack.vfxDatas;
         foreach (VFXData vfxData in vfxDatas)
         {
-            GameObject effect = vfxData.effect == null ? 
-                GameManager.GetElementData(ElementData.GetElementFromAttack(a, pc)).GetVFX(vfxData.vfxType) 
+            GameObject effect = vfxData.effect == null ? e.GetVFX(vfxData.vfxType) 
                 : vfxData.effect;
             if (effect == null) continue;
             
@@ -180,10 +231,9 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             vfxInstance.transform.localRotation = vfxData.localTransform.Rotation;
             vfxInstance.transform.localScale = vfxData.localTransform.Scale;
         }
-
-        vc.InitializeVFX(pc, new TransformInfo(vfx.transform), a, v, vfxs.ToArray(), vfxIndex, v.vfxAttack.canCollide);
         
-        return vc;
+        if (vfxs.Count == 0) return Array.Empty<VFXActivator>();
+        return vfxs.ToArray();
     }
 
     public void OnVFXInitialize(VFXController vc)
@@ -275,14 +325,11 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     
     IEnumerator<float> BeginFollowWeapon(VFXController vfx, WeaponType weaponType)
     {
-        VFXSpawnInfo v = vfx.vfxSpawnInfo;
-
-        //vfx.UpdateVFXFloat("Slow", Math.Max((v.duration - parameters.slowDownTime) / v.duration, 0));
-        
         WeaponBody weaponBody = vfx.player.wc.GetWeapon(weaponType);
         
         if (weaponBody == null)
         {
+            Debug.LogWarning($"No weapon body found for {weaponType} on player {vfx.player.name}. VFX will not be spawned.");
             yield break;
         }
         

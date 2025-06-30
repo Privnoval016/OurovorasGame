@@ -62,6 +62,11 @@ namespace Extensions.StateMachine
         {
             return currentState != null && currentState.Count > 0 ? currentState.Peek() : null;
         }
+        
+        public bool IsState<TState>() where TState : State
+        {
+            return currentState.Count > 0 && currentState.Peek() is TState;
+        }
 
         private void RemoveTop()
         {

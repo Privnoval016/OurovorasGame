@@ -4,17 +4,19 @@ using Extensions.Utils;
 using MEC;
 using UnityEngine;
 using PrimeTween;
-using UnityEngine.Serialization;
 
 // All enemies that are able to take knockback should inherit from this class
 public class PhysicsEnemy : LockOnTarget
 {
+    [Header("Physics Parameters")]
+    
     public EnemyGravity gravityData;
+    public CollisionListener collisionListener;
 
     private float gravityScale;
     private bool pauseGravity;
 
-    [HideInInspector] public Rigidbody rb;
+    
 
     public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
@@ -23,6 +25,7 @@ public class PhysicsEnemy : LockOnTarget
     public bool TakeKnockback => !knockbackImmune && physicsInteract;
 
     public bool physicsInteract = true;
+    private float physicsLockTime;
 
     #region CHECK PARAMETERS
 
@@ -40,7 +43,6 @@ public class PhysicsEnemy : LockOnTarget
 
     public override void OnStart()
     {
-        rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         rb.useGravity = false;
         knockbackImmune = false;
@@ -49,6 +51,7 @@ public class PhysicsEnemy : LockOnTarget
     public override void OnUpdate()
     {
         CalculateGravity();
+        CheckPhysicsLock();
     }
 
     public override void OnFixedUpdate()
@@ -58,12 +61,19 @@ public class PhysicsEnemy : LockOnTarget
 
     public override void OnLateUpdate()
     {
-        AvoidPlayerClipping();
+        AvoidColliderClipping();
     }
 
-    private void AvoidPlayerClipping()
+    private void AvoidColliderClipping()
     {
-        // do at some point (stop enemy from staying clipped into player after attack)
+        if (!TakeKnockback) return;
+        if (collisionListener == null || !collisionListener.activeMover) return;
+
+        Vector3 direction = collisionListener.GetCombinedDirection();
+        if (direction != Vector3.zero)
+        {
+            rb.AddForce(direction * gravityData.colliderBuffer, ForceMode.VelocityChange);
+        }
     }
 
     #region Gravity Methods
@@ -146,6 +156,8 @@ public class PhysicsEnemy : LockOnTarget
     {
         if (!TakeKnockback) return false;
 
+        if (time <= 0) return false;
+
         ResetMovement();
         this.RunSegmentCoroutine(rb.TraverseDistanceInTime(direction, distance, time, condition));
         return true;
@@ -169,13 +181,43 @@ public class PhysicsEnemy : LockOnTarget
         return true;
     }
 
+    public void LockPhysics(float duration)
+    {
+        if (!TakeKnockback) return;
+        
+        ResetMovement();
+        
+        physicsInteract = false;
+        physicsLockTime = duration;
+    }
+    
+    private void CheckPhysicsLock()
+    {
+        if (physicsLockTime > 0)
+        {
+            physicsLockTime -= Time.deltaTime;
+            if (physicsLockTime <= 0)
+            {
+                physicsInteract = true;
+            }
+        }
+    }
+
     #endregion
+    
+    #region LockOnTarget Methods
 
     public override void OnHit(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
         base.OnHit(element, pc, a, attackerTransform, actionIndex);
-        
+
+
+        OnHitEvents.Instance.KillObjectCoroutines(GetInstanceID().ToString());
+        physicsLockTime = 0;
+        physicsInteract = true;
         OnHitEvents.OnHitActionMap[a.hitInfo.onHitActions[actionIndex]](pc, this, a, attackerTransform);
     }
+    
+    #endregion
     
 }

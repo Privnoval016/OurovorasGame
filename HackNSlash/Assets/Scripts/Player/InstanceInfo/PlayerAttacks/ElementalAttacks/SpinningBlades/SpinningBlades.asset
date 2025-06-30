@@ -12,9 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1542f359f9b8a914ca82ab2756ce8de7, type: 3}
   m_Name: SpinningBlades
   m_EditorClassIdentifier: 
+  updateLinkedAttack: 0
+  linkedAttack: {fileID: 0}
   isEnabled: 1
   attackType: 6
   element: 1
+  stats:
+    restoreCharge: 0
+    chargeRequired: 25
+    damage: 0
   isLockedOn: 0
   requireElementTrigger: 1
   triggerCoolDown: 0
@@ -32,7 +38,6 @@ MonoBehaviour:
     hitRegisterAngle: 120
     numTargets: 1
     attackCoolDown: 0
-    damage: 0
     hitForce: 10
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
@@ -49,5 +54,7 @@ MonoBehaviour:
       Rotation: {x: 0, y: 0, z: 0, w: 0}
       Scale: {x: 1, y: 1, z: 1}
     applyParentPoseToPosition: 0
+  hitStopProfiles:
+  - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
   onSpiritMovement: 0
   onSpiritAction: 2

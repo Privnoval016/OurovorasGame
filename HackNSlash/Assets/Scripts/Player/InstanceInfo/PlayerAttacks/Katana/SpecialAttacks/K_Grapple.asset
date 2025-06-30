@@ -33,7 +33,7 @@ MonoBehaviour:
     verticalRadius: 3
     hitRegisterAngle: 360
     numTargets: 1
-    attackCoolDown: 0.2
+    attackCoolDown: 0.3
     damage: 0
     hitForce: -40
     hitDelay: 0
@@ -79,11 +79,11 @@ MonoBehaviour:
   moveCameraWithAttack: 1
   attackTransitions: []
   attackClips:
-  - {fileID: 7400000, guid: f217de48964cfcd45a669e378fcfb74a, type: 2}
   - {fileID: 7400000, guid: a2caadd8397e4d543b0150cbbbb29034, type: 2}
+  - {fileID: 7400000, guid: f217de48964cfcd45a669e378fcfb74a, type: 2}
   - {fileID: 7400000, guid: 972d0575cbb722749952ff923ec4d0c2, type: 2}
   animDelay: 0
   animFade: 0.1
-  clipsToPlay: 0
+  clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 2

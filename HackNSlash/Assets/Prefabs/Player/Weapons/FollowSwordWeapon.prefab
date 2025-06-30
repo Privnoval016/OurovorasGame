@@ -71,7 +71,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3092578040340460344}
-  - component: {fileID: 8342150383770022882}
+  - component: {fileID: 876582257795777580}
   - component: {fileID: 4414434692297359125}
   - component: {fileID: 2286513089365568700}
   m_Layer: 8
@@ -101,7 +101,7 @@ Transform:
   - {fileID: 3124934600597198166}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &8342150383770022882
+--- !u!65 &876582257795777580
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -120,8 +120,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.13402297, y: 0.07222626, z: 1.0588905}
-  m_Center: {x: 0.02172189, y: 0.0002833039, z: 0.6879956}
+  m_Size: {x: 0.39202243, y: 0.28461298, z: 1.2000655}
+  m_Center: {x: 0, y: 0, z: 0.7585831}
 --- !u!114 &4414434692297359125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,6 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d34dab4455cc1f43b5adc0cacbac117, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rb: {fileID: 0}
   discreteVelocity: {x: 0, y: 0, z: 0}
   discreteAcceleration: {x: 0, y: 0, z: 0}
   weaponType: 1

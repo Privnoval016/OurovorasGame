@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: K_AetherFinisher
   m_EditorClassIdentifier: 
-  updateLinkedAttack: 1
+  updateLinkedAttack: 0
   linkedAttack: {fileID: 0}
   isEnabled: 1
   attackType: 4

@@ -1,6 +1,7 @@
 using System;
 using Extensions.Utils;
 using Extensions.UI;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -39,6 +40,7 @@ public class OverworldMenuUI : Singleton<OverworldMenuUI>
         gameObject.SetActive(true);
     }
     
+    [Button]
     public void CloseMenu()
     {
         tabGroup.tabActive = false;

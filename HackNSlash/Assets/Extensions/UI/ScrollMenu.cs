@@ -11,10 +11,9 @@ namespace Extensions.UI
     public class ScrollMenu : MonoBehaviour
     {
         public List<ScrollItem> scrollItems;
-        public int selectedItemIndex = 0;
-        public ScrollItem SelectedItem => scrollItems[selectedItemIndex];
-
-        public int itemsPerPage;
+        public int SelectedItemIndex => scrollSnap.SelectedPanel;
+        public ScrollItem SelectedItem => scrollItems[SelectedItemIndex];
+        
         
         public SimpleScrollSnap scrollSnap;
 
@@ -26,10 +25,11 @@ namespace Extensions.UI
         private void Awake()
         {
             scrollSnap = GetComponent<SimpleScrollSnap>();
-            scroll.action.performed += OnScroll;
             
-            scrollSnap.GoToPanel(8);
-            print(scrollSnap.NumberOfPanels);
+            if (scroll != null)
+            {
+                scroll.action.performed += OnScroll;
+            } 
         }
         
         private void OnScroll(InputAction.CallbackContext context)
@@ -46,6 +46,21 @@ namespace Extensions.UI
             {
                 scrollSnap.GoToPreviousPanel();
             }
+        }
+        
+        public void ScrollLeft()
+        {
+            scrollSnap.GoToPreviousPanel();
+        }
+        
+        public void ScrollRight()
+        {
+            scrollSnap.GoToNextPanel();
+        }
+        
+        public int GetSelectedIndex()
+        {
+            return scrollSnap.SelectedPanel;
         }
     }
 }

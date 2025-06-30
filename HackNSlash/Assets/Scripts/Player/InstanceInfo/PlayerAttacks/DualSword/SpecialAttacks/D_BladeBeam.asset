@@ -17,6 +17,10 @@ MonoBehaviour:
   isEnabled: 1
   attackType: 4
   element: 1
+  stats:
+    restoreCharge: 0
+    chargeRequired: 15
+    damage: 0
   isLockedOn: 0
   requireElementTrigger: 0
   triggerCoolDown: 0
@@ -34,7 +38,6 @@ MonoBehaviour:
     hitRegisterAngle: 120
     numTargets: 1
     attackCoolDown: 0.1
-    damage: 0
     hitForce: 12
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 1}
@@ -80,10 +83,12 @@ MonoBehaviour:
     spawnTarget: 0
     parentToTarget: 0
     spawnTransform:
-      Position: {x: 0, y: 0, z: 1}
+      Position: {x: 0, y: 0, z: 0}
       Rotation: {x: 0, y: 0, z: 0, w: 1}
       Scale: {x: 1, y: 1, z: 1}
     applyParentPoseToPosition: 0
+  hitStopProfiles:
+  - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
   onAttackAction: 7
   attackEventIndex: 0
   applyRootMotion: 1

@@ -19,7 +19,7 @@ MonoBehaviour:
     playerAttack: {fileID: 11400000, guid: 6393b264a7a2b5e4da6d7d1a8cf8cfe0, type: 2}
     time: 0
   - actionType: 0
-    playerAttack: {fileID: 11400000, guid: 1868ae246905b5e4cbe6f62107f489c5, type: 2}
+    playerAttack: {fileID: 11400000, guid: 18295487cded62f45ba1e2860e1981f6, type: 2}
     time: 0
   - actionType: 1
     playerAttack: {fileID: 11400000, guid: 52ab2f5246a9244408889a381d8300c8, type: 2}

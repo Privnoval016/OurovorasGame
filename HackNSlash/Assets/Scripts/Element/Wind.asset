@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Wind
   m_EditorClassIdentifier: 
   element: 6
+  elementColor: {r: 0.5288556, g: 0.8805031, b: 0.55397326, a: 1}
+  elementInactiveColor: {r: 0.19793518, g: 0.4528302, b: 0.21614195, a: 1}
   vfxPureColor: {r: 0, g: 5.229923, b: 0.361644, a: 1}
   vfxBrightColor: {r: 1.8125259, g: 5.717402, b: 1.168651, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
@@ -52,5 +54,8 @@ MonoBehaviour:
       type: 3}
   - vfxType: 3
     vfxPrefab: {fileID: 289161321636050785, guid: 4b3166f00ae017c479b2d5dfa847a3fe,
+      type: 3}
+  - vfxType: 5
+    vfxPrefab: {fileID: 289161321636050785, guid: 531168a6c832ee44484a39c3dfd47b3d,
       type: 3}
   weaponTrailMaterial: {fileID: 2100000, guid: 12dbc83adc2ae7f469c5789a876c75c2, type: 2}

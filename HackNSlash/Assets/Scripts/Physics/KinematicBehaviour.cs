@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class KinematicBehaviour : MonoBehaviour
 {
+    [HideInInspector] public Rigidbody rb;
+    
     [Header("Velocity and Acceleration")]
     [HideInInspector] public Vector3 discreteVelocity;
     [HideInInspector] public Vector3 discreteAcceleration;
@@ -10,8 +12,8 @@ public class KinematicBehaviour : MonoBehaviour
 
     protected virtual void UpdateKinematicAttributes()
     {
-        discreteVelocity = (transform.position - lastPosition) / Time.deltaTime;
-        discreteAcceleration = (discreteVelocity - lastVelocity) / Time.deltaTime;
+        discreteVelocity = (transform.position - lastPosition) / Time.unscaledDeltaTime;
+        discreteAcceleration = (discreteVelocity - lastVelocity) / Time.unscaledDeltaTime;
 
         lastPosition = transform.position;
         lastVelocity = discreteVelocity;
@@ -19,16 +21,17 @@ public class KinematicBehaviour : MonoBehaviour
     
     protected virtual void SetKinematicAttributes()
     {
+        rb = GetComponent<Rigidbody>();
         lastPosition = transform.position;
         lastVelocity = Vector3.zero;
     }
     
-    public Vector3 DeltaPosition(float time)
+    protected Vector3 DeltaPosition(float time)
     {
         return (discreteVelocity * time) + (0.5f * time * time * discreteAcceleration);
     }
     
-    public Vector3 SinusoidalBob(Vector3 direction = default, float amplitude = 0.1f, float frequency = 2f)
+    protected Vector3 SinusoidalBob(Vector3 direction = default, float amplitude = 0.1f, float frequency = 2f)
     {
         if (direction == default)
         {

@@ -8,7 +8,7 @@ using MEC;
 using UnityEngine.Serialization;
 using UnityEngine.VFX;
 
-public class VFXController : MonoBehaviour
+public class VFXController : MonoBehaviour, IContactDetector
 {
     [Header("Components")]
 
@@ -220,14 +220,37 @@ public class VFXController : MonoBehaviour
         
         if (player == null || attack == null) return;
         
-        if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.tookDamageThisAction)
+        if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.TookDamageThisAction(attack))
         {
             enemy.OnHit(elementType, player, attack, transform, vfxSpawnInfo.onHitActionIndex);
+            CombatManager.Instance.PlayHitEffects(player, attack, this, true);
         }
     }
 
     public void HitboxTriggerStay(Collider other)
     {
         
+    }
+
+    public Vector3 GetClosestPointOnCollider(Collider col)
+    {
+        if (col == null) return Vector3.zero;
+
+        Vector3 closestPoint = Vector3.zero;
+        float minDistance = float.MaxValue;
+
+        foreach (VFXHitbox h in hitboxes)
+        {
+            Transform t = h.transform;
+            Vector3 point = col.ClosestPoint(t.position);
+            float distance = Vector3.Distance(t.position, point);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestPoint = point;
+            }
+        }
+
+        return closestPoint;
     }
 }

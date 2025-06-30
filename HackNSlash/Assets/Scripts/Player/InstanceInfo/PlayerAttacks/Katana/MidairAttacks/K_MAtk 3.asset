@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: K_MAtk 3
   m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: 21b4c821708c1ef4a9570953e4ac8c97, type: 2}
   isEnabled: 1
   attackType: 2
   element: 0
   isLockedOn: 0
+  requireElementTrigger: 0
+  triggerCoolDown: 0
   keyBinds: 01000000
   inputDirection: {x: 0, y: 0}
   comboDirection: {x: 0, y: 0}
@@ -23,15 +27,15 @@ MonoBehaviour:
   isMidair: 1
   maxUses: 0
   hitInfo:
-    onHitActions: 04000000
+    onHitActions: 00000000
     hitDetection: 1
     lateralRadius: 3
-    verticalRadius: 3
+    verticalRadius: 1.5
     hitRegisterAngle: 120
     numTargets: 1
     attackCoolDown: 0.2
     damage: 0
-    hitForce: 15
+    hitForce: 1
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
@@ -53,7 +57,7 @@ MonoBehaviour:
   moveCameraWithAttack: 1
   attackTransitions: []
   attackClips:
-  - {fileID: 7400000, guid: 021c825dcf339114db7063ac9ae03827, type: 2}
+  - {fileID: 7400000, guid: cee3670e89922cc46a0242bded78746f, type: 2}
   animDelay: 0
   animFade: 0.2
   clipsToPlay: 1

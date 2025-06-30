@@ -23,6 +23,7 @@ MonoBehaviour:
       Scale: {x: 0.5, y: 1, z: 0.5}
     durationScale: 1
     delayScale: 0
+  maxVFXAlive: 0
   vfxAction: 3
   vfxSpeed: 75
-  canCollide: 1
+  canCollide: 0

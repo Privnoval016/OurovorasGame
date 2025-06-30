@@ -6,25 +6,39 @@ public class PlayerAnimListener : MonoBehaviour
     [HideInInspector] public PlayerController pc;
 
     [Header("Slash")] public TransformInfo slashLocalTransform;
+
+    private WeaponType lastWeaponType = WeaponType.SwordLeft;
     
     public void PlaySwordLeftVFX(int vfxIndex = 0)
     {
+        lastWeaponType = WeaponType.SwordLeft;
         OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
     }
     
     public void PlaySwordRightVFX(int vfxIndex = 0)
     {
+        lastWeaponType = WeaponType.SwordRight;
         OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
     }
     
     public void PlayBothSwordsVFX(int vfxIndex = 0)
     {
+        lastWeaponType = WeaponType.SwordLeft;
         OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
         OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
     }
     
     public void PlayKatanaVFX(int vfxIndex = 0)
     {
+        lastWeaponType = WeaponType.Katana;
         OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.Katana);
+    }
+    
+    public void PlayHitStop(int index = 0)
+    {
+        Debug.Log($"number of enemies in hit: {pc.psm.EnemiesInHit.Count}; {pc.psm.PlayHitStopThisAction}");
+        if (!pc.psm.PlayHitStopThisAction) return;
+        WeaponBody lastWeapon = pc.wc.GetWeapon(lastWeaponType);
+        CombatManager.Instance.PlayHitEffects(pc, pc.psm.currentPlayerAttack, lastWeapon, true, index);
     }
 }

@@ -56,7 +56,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void BasicKnockBack(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginBasicKnockBack(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginBasicKnockBack(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginBasicKnockBack(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
@@ -72,16 +72,18 @@ public class OnHitEvents : Singleton<OnHitEvents>
         {
             direction = a.hitInfo.hitDirection.GetRelativeVector3(t.forward).normalized;
         }
-        else if (!ec.IsGrounded)
+        else if (!ec.IsGrounded || pc.transform == t.transform && pc.psm.IsMidair)
         {
             direction = Vector3.up;
         }
         else
         {
-            direction = (ec.TargetedPosition() - t.position).normalized;
+            direction = (ec.TargetedPosition() - t.position).ZeroVector3Axis().normalized;
         }
         
         ec.ForceKnockback(direction * a.hitInfo.hitForce);
+        
+        //CombatManager.Instance.HitStop(a, false, 0);
         
         Timing.WaitUntilTrue(() => pc.psm.canAttack);
         ec.PauseGravity(false, 0);
@@ -94,7 +96,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void MidairKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginMidairKnockback(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginMidairKnockback(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginMidairKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
@@ -118,7 +120,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void LaunchUp(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginLaunchUp(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginLaunchUp(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginLaunchUp(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
@@ -136,7 +138,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void FollowPlayerVelocity(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginFollowPlayerVelocity(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginFollowPlayerVelocity(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginFollowPlayerVelocity(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
@@ -193,7 +195,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void LaunchDown(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginLaunchDown(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginLaunchDown(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginLaunchDown(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
@@ -246,7 +248,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void CrossSlash(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginCrossSlash(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginCrossSlash(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginCrossSlash(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
@@ -271,14 +273,14 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void Grapple(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginGrapple(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginGrapple(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
 
     IEnumerator<float> BeginGrapple(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         ec.PauseGravity(true);
 
-        Vector3 playerPos = pc.transform.forward.FindRadialVector3(pc.psm.playerData.smallRadius, 0) +
+        Vector3 playerPos = pc.psm.TruePlayerForward.FindRadialVector3(pc.psm.playerData.smallRadius, 0) +
                             pc.transform.position;
 
         Vector3 direction = playerPos - ec.TargetedPosition();
@@ -298,37 +300,17 @@ public class OnHitEvents : Singleton<OnHitEvents>
 
     private void LockPhysics(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginLockPhysics(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginLockPhysics(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginLockPhysics(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
         
-        ec.physicsInteract = false;
-        ec.rb.linearVelocity = Vector3.zero;
-
-        ec.KillObjectCoroutines(nameof(ReleasePhysicsLock));
-        ec.RunSegmentCoroutine(ReleasePhysicsLock(ec, a), nameof(ReleasePhysicsLock));
+        ec.LockPhysics(a.hitInfo.hitForce);
         
         yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
 
-    }
-
-    IEnumerator<float> ReleasePhysicsLock(PhysicsEnemy ec, Attack a)
-    {
-        float startTime = Time.time;
-        
-        bool? damageTaken = null;
-
-        while (Time.time - startTime < a.hitInfo.hitForce && damageTaken != true)
-        {
-            if (!ec.tookDamageThisAction) damageTaken = false;
-            else if (damageTaken == false && ec.tookDamageThisAction) damageTaken = true;
-            yield return Timing.WaitForOneFrame;
-        }
-        
-        ec.physicsInteract = true;
     }
 
     #endregion
@@ -337,7 +319,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void PushUntilDistance(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginPushUntilDistance(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginPushUntilDistance(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginPushUntilDistance(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
@@ -358,6 +340,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
         }
         
         float distance = a.hitInfo.lateralRadius - (ec.TargetedPosition() - t.position).magnitude;
+        print ($"Distance to push: {distance}");
         
         ec.TraverseDistKnockback(direction.normalized, distance, a.hitInfo.hitDelay);
         
@@ -371,7 +354,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void ForwardKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginForwardKnockback(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginForwardKnockback(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginForwardKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
@@ -406,7 +389,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     private void VerticalKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        this.RunSegmentCoroutine(BeginVerticalKnockback(pc, ec, a, t));
+        this.RunSegmentCoroutine(BeginVerticalKnockback(pc, ec, a, t), ec.GetInstanceID().ToString());
     }
     
     IEnumerator<float> BeginVerticalKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)

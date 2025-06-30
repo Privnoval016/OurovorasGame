@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Earth
   m_EditorClassIdentifier: 
   element: 5
+  elementColor: {r: 1, g: 0.8147906, b: 0.17295581, a: 1}
+  elementInactiveColor: {r: 0.6862745, g: 0.53963774, b: 0.18039216, a: 1}
   vfxPureColor: {r: 5.656854, g: 0.54654104, b: 0, a: 1}
   vfxBrightColor: {r: 5.197779, g: 4.030337, b: 0.67015356, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
@@ -52,5 +54,8 @@ MonoBehaviour:
       type: 3}
   - vfxType: 3
     vfxPrefab: {fileID: 289161321636050785, guid: 4b3166f00ae017c479b2d5dfa847a3fe,
+      type: 3}
+  - vfxType: 5
+    vfxPrefab: {fileID: 289161321636050785, guid: 531168a6c832ee44484a39c3dfd47b3d,
       type: 3}
   weaponTrailMaterial: {fileID: 2100000, guid: be12f7f1f03c4e14d945b6b0de8677a6, type: 2}

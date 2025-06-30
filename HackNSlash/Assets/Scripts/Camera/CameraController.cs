@@ -34,6 +34,7 @@ public class CameraController : MonoBehaviour
     private Vector3 lastPlayerPosition;
     
     [SerializeField] private CinemachineOrbitalFollow playerCamera;
+    [SerializeField] private CinemachineImpulseSource impulseSource;
     private CinemachineBrain camBrain;
     
     private PlayerController pc;
@@ -79,6 +80,7 @@ public class CameraController : MonoBehaviour
 
         TargetedEnemy = null;
 
+        
     }
 
     void Update()
@@ -126,7 +128,7 @@ public class CameraController : MonoBehaviour
         Vector3 enemyTarget = IsLockedOn ? TargetedEnemy.TargetedPosition() : playerTargetTransform.position;
 
         playerTargetTransform.position = lastPlayerPosition;
-        enemyTargetTransform.position = Vector3.Lerp(enemyTargetTransform.position, enemyTarget, Time.deltaTime * 10);
+        enemyTargetTransform.position = EaseUtil.DampVector3(enemyTargetTransform.position, enemyTarget, 5, 0.1f);
     }
     
     private void CheckForLockOnTarget()
@@ -196,6 +198,17 @@ public class CameraController : MonoBehaviour
         float y = Math.Max(0, Math.Max(min - screenPoint.y, screenPoint.y - max));
         
         return new Vector2(x, y);
+    }
+    
+    #endregion
+    
+    #region Effect Methods
+    
+    
+    public void ShakeCamera(float duration, float magnitude)
+    {
+        if (impulseSource == null) return;
+        impulseSource.GenerateImpulseWithForce(magnitude);
     }
     
     #endregion

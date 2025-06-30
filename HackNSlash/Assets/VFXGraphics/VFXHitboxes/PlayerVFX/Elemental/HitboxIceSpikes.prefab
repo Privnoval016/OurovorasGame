@@ -70,6 +70,7 @@ MonoBehaviour:
   timeActive: 0
   timeVFXEnabled: 0
   activeHitbox: 1
+  hitboxEnableDelay: 0
   vfxEnabled: 0
 --- !u!54 &3520694603144500510
 Rigidbody:
@@ -128,8 +129,8 @@ Transform:
   m_GameObject: {fileID: 7347318240967224598}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 5.333, y: 3.5796697, z: 12.680721}
+  m_LocalPosition: {x: 0, y: 0, z: 2}
+  m_LocalScale: {x: 5.333, y: 3.5796697, z: 16.68072}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6383426659895148175}

@@ -12,10 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: D_AirDash
   m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: 03ec20722e27ae448a120c1dd88487e1, type: 2}
   isEnabled: 1
   attackType: 4
   element: 0
+  stats:
+    restoreCharge: 1
+    chargeRequired: 15
+    damage: 0
   isLockedOn: 1
+  requireElementTrigger: 0
+  triggerCoolDown: 0
   keyBinds: 01000000
   inputDirection: {x: 0, y: 1}
   comboDirection: {x: 0, y: 0}
@@ -30,11 +38,23 @@ MonoBehaviour:
     hitRegisterAngle: 210
     numTargets: 1
     attackCoolDown: 0.1
-    damage: 0
     hitForce: 0
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    onHitActionIndex: 0
+    duration: 0.3
+    delay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 0, y: 0, z: 0}
+    applyParentPoseToPosition: 0
+  hitStopProfiles: []
   onAttackAction: 1
   attackEventIndex: 0
   applyRootMotion: 0
@@ -49,13 +69,3 @@ MonoBehaviour:
   clipsToPlay: 0
   useNormalGravity: 0
   exitCondition: 2
-  vfxInfos:
-  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
-    hitIndex: 0
-    duration: 0.3
-    delay: 0
-    spawnTarget: 0
-    spawnTransform:
-      Position: {x: 0, y: 0, z: 0}
-      Rotation: {x: 0, y: 0, z: 0, w: 0}
-      Scale: {x: 0, y: 0, z: 0}

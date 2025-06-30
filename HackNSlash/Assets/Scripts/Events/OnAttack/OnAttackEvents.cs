@@ -106,13 +106,13 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         {
             pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
             
-            HashSet<LockOnTarget> enemies = pc.HitScanEnemies(a.hitInfo.numTargets, pc.psm.playerData.lockOnRange, pc.psm.playerData.lockOnRange, 360);
+            HashSet<LockOnTarget> enemies = pc.HitScanEnemies(a.hitInfo.numTargets, pc.psm.playerData.lockOnRange, pc.psm.playerData.lockOnRange, 360, a);
         
             foreach (LockOnTarget enemy in enemies)
             {
                 Vector3 direction =
                     (enemy.transform.position.ZeroVector3Axis() - pc.transform.position.ZeroVector3Axis()).normalized;
-                TransformInfo targetTransform = new TransformInfo(enemy.transform.position - direction * a.vfxInfos[3].spawnTransform.Position.z, 
+                TransformInfo targetTransform = new TransformInfo(enemy.transform.position - direction * 1.5f, 
                     Quaternion.LookRotation(direction), 
                     Vector3.one);
                 CreateVFX(pc, a, 3, targetTransform);
@@ -171,17 +171,21 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         
         if (holdKeys.Any(k => !InputManager.KeyMap[k].holdAction()) || pc.psm.IsMidair)
         {
-            pc.pac.PlayAnimation(a.attackClips[0], a.animFade);
+            pc.pac.PlayAnimation(a.attackClips[1], a.animFade);
             
-            CreateVFX(pc, a, 1);
+            var vfx = CreateVFX(pc, a, 1);
+
+            if (pc.cam.IsLockedOn)
+            {
+                pc.cam.TargetedEnemy.OnHit(pc.pi.CurrentElementEffect, pc, a, pc.transform, 0);
+                CombatManager.Instance.PlayHitEffects(pc, a, vfx, true, 0);
+            }
             
             this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
             
         }
         else
         {
-            pc.pac.PlayAnimation(a.attackClips[1], a.animFade);
-            
             yield return Timing.WaitUntilTrue(() => holdKeys.Any(k => InputManager.KeyMap[k].releaseAction()));
             
             pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
@@ -251,7 +255,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         pc.rb.linearVelocity = Vector3.zero;
 
         if (attackParameters.finalAirSlash) pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
-        this.RunSegmentCoroutine(ResumeMoving(pc, a, !attackParameters.finalAirSlash ? a.hitInfo.attackCoolDown : Mathf.Min(0, a.hitInfo.attackCoolDown + a.attackClips[2].length - 0.1f)));
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, !attackParameters.finalAirSlash ? a.hitInfo.attackCoolDown : Mathf.Max(0, a.hitInfo.attackCoolDown + a.attackClips[2].length - 0.1f)));
         
         pc.pac.animancer.gameObject.transform.rotation = originalRotation;
         pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, false);
@@ -403,9 +407,14 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         if (pc.psm.IsGrounded)
         {
             pc.pac.PlayAnimation(a.attackClips[2], a.animFade);
+            this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+        }
+        else
+        {
+            this.RunSegmentCoroutine(ResumeMoving(pc, a, minAnimTime));
         }
         
-        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+        
     }
     
     #endregion
@@ -627,15 +636,12 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     {
         yield return Timing.WaitForSeconds(a.animDelay);
 
-        for (int i = 0; i < a.vfxInfos.Length; i++)
-        {
-            CreateVFX(pc, a, i);
-        }
+        CreateVFX(pc, a, a.attackEventIndex);
     }
 
-    private void CreateVFX(PlayerController pc, PlayerAttack a, int index, TransformInfo start = default)
+    private VFXController CreateVFX(PlayerController pc, PlayerAttack a, int index, TransformInfo start = default)
     {
-        OnVFXEvents.Instance.InvokeOnVFX(pc, a, index, start);
+        return OnVFXEvents.Instance.InvokeOnVFX(pc, a, index, start);
     }
 
     #endregion

@@ -20,7 +20,7 @@ MonoBehaviour:
     time: 0
   - actionType: 2
     playerAttack: {fileID: 0}
-    time: 0.4
+    time: 0.5
   - actionType: 0
     playerAttack: {fileID: 11400000, guid: 21b4c821708c1ef4a9570953e4ac8c97, type: 2}
     time: 0

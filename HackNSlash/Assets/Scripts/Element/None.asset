@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: None
   m_EditorClassIdentifier: 
   element: 0
+  elementColor: {r: 3.9491246, g: 3.9491246, b: 3.9491246, a: 1}
+  elementInactiveColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
   vfxPureColor: {r: 3.9491246, g: 3.9491246, b: 3.9491246, a: 1}
   vfxBrightColor: {r: 6.4734626, g: 6.4734626, b: 6.4734626, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
@@ -52,5 +54,8 @@ MonoBehaviour:
       type: 3}
   - vfxType: 3
     vfxPrefab: {fileID: 289161321636050785, guid: 4b3166f00ae017c479b2d5dfa847a3fe,
+      type: 3}
+  - vfxType: 5
+    vfxPrefab: {fileID: 289161321636050785, guid: 531168a6c832ee44484a39c3dfd47b3d,
       type: 3}
   weaponTrailMaterial: {fileID: 2100000, guid: ecde06cddf4f6b64c939d99c2730f55e, type: 2}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: K_TeleportsBehindYou
   m_EditorClassIdentifier: 
-  updateLinkedAttack: 1
+  updateLinkedAttack: 0
   linkedAttack: {fileID: 11400000, guid: b1c98ab3bacab4aa4bd3102275f5b66e, type: 2}
   isEnabled: 1
   attackType: 3

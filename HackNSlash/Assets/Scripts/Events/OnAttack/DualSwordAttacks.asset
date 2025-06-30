@@ -16,7 +16,7 @@ MonoBehaviour:
   bladeBeamHoldTime: 0.2
   bladeBeamInterval: 0.3
   crossSlashDuration: 0.3
-  grappleMaxTime: 0.1
+  grappleMaxTime: 0.2
   airDashSpeed: 80
   maxAirDashDistance: 20
   finalAirSlash: 0
@@ -28,7 +28,7 @@ MonoBehaviour:
   launchUpHeight: 15
   plungeSpeed: 75
   minPlungeTime: 0.02
-  enemyStepPushBack: 1
+  enemyStepPushBack: 0
   enemyStepTime: 0.3
   enemyStepHeight: 1
   dodgeDistance: 8
