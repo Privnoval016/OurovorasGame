@@ -16,7 +16,7 @@ MonoBehaviour:
   bladeBeamHoldTime: 0.2
   bladeBeamInterval: 0.3
   crossSlashDuration: 0.3
-  grappleMaxTime: 0.1
+  grappleMaxTime: 0.2
   airDashSpeed: 80
   maxAirDashDistance: 20
   finalAirSlash: 1

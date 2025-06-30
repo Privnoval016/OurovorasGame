@@ -21,6 +21,8 @@ public class PlayerHit : PlayerState
         pc.psm.canAttack = false;
         
         OnAttackEvents.Instance.KillObjectCoroutines();
+        
+        pc.pi.ChangeHealth(-hit.damage);
 
         AddKnockbackForce();
         

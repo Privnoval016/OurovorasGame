@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Fire
   m_EditorClassIdentifier: 
   element: 2
+  elementColor: {r: 0.7490196, g: 0.03696346, b: 0, a: 1}
+  elementInactiveColor: {r: 0.37106913, g: 0.017484931, b: 0, a: 1}
   vfxPureColor: {r: 4, g: 0, b: 0.42912674, a: 0}
   vfxBrightColor: {r: 5.6855345, g: 0.7615721, b: 0.30394328, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
@@ -52,5 +54,8 @@ MonoBehaviour:
       type: 3}
   - vfxType: 3
     vfxPrefab: {fileID: 289161321636050785, guid: 4b3166f00ae017c479b2d5dfa847a3fe,
+      type: 3}
+  - vfxType: 5
+    vfxPrefab: {fileID: 289161321636050785, guid: 531168a6c832ee44484a39c3dfd47b3d,
       type: 3}
   weaponTrailMaterial: {fileID: 2100000, guid: a7e17421356e98242ac37a4bea1dbeab, type: 2}

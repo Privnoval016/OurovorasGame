@@ -87,22 +87,28 @@ public class PlayerStateMachine : MonoBehaviour
     [HideInInspector] public bool canAttack;
     [HideInInspector] public bool isElementAttacking;
 
-    [FormerlySerializedAs("currentAttack")] [HideInInspector] public PlayerAttack currentPlayerAttack;
+    [HideInInspector] public PlayerAttack currentPlayerAttack;
     
     [HideInInspector] public HashSet<LockOnTarget> enemiesHitThisAction = new();
     
     [HideInInspector] public List<ComboAction> comboChain = new();
     [HideInInspector] public float comboResetTimer = 0;
     [HideInInspector] public bool pauseComboReset = false;
+    [HideInInspector] public float timeSinceLastAttack = 0;
     
     
     [HideInInspector] public int numMidairAttacks;
     public Dictionary<Attack, int> NumActionsUsed = new();
 
     public LockOnTarget NearestHEnemy => pc.cam.IsLockedOn ? pc.cam.TargetedEnemy : 
-        GetClosestEnemyInCapsule(playerData.mediumRadius, playerData.heightRadius, 190f);
+        GetClosestEnemyInCapsule(playerData.mediumRadius, playerData.heightRadius, 300f);
     
     [HideInInspector] public float dodgeTimer = 0;
+    
+    public Vector3 TruePlayerForward => pc.pac.animancer.transform.forward;
+    
+    [HideInInspector] public HashSet<LockOnTarget> EnemiesInHit = new();
+    [HideInInspector] public bool PlayHitStopThisAction => EnemiesInHit.Count > 0;
     
     #endregion
 
@@ -145,6 +151,7 @@ public class PlayerStateMachine : MonoBehaviour
     private void Update()
     {
         SetMoveValues();
+        RotateToTarget();
         CheckGrounded();
         CheckAttackAction();
     }
@@ -165,8 +172,8 @@ public class PlayerStateMachine : MonoBehaviour
             PlayerIsHit(new HitInstance()
             {
                 force = new Vector3(15, 0),
-                direction = -transform.forward.ToVector2(),
-                damage = 1,
+                direction = -TruePlayerForward.ToVector2(),
+                damage = -20,
             });
         }
     }
@@ -176,10 +183,12 @@ public class PlayerStateMachine : MonoBehaviour
         if (context.performed)
         {
             isElementAttacking = true;
+            HUDMenuUI.Instance.ActivateElementalAttackIcons();
         }
         else if (context.canceled)
         {
             isElementAttacking = false;
+            HUDMenuUI.Instance.DeactivateElementalAttackIcons();
         }
     }
     
@@ -219,7 +228,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (angle < 360)
         {
             enemySet.RemoveWhere(e => !(e.TargetedPosition() - pc.transform.position).ToVector2().
-                IsInDirectionCone(pc.transform.forward.ToVector2(), angle));
+                IsInDirectionCone(TruePlayerForward.ToVector2(), angle));
         }
 
         enemySet = enemySet.OrderBy(e => Vector3.Distance(pc.transform.position, e.TargetedPosition())).ToHashSet();
@@ -239,7 +248,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (angle < 360)
         {
             enemySet.RemoveWhere(e => !(e.TargetedPosition() - pc.transform.position).ToVector2().
-                IsInDirectionCone(pc.transform.forward.ToVector2(), angle));
+                IsInDirectionCone(TruePlayerForward.ToVector2(), angle));
         }
 
         enemySet = enemySet.OrderBy(e => Vector3.Distance(pc.transform.position, e.TargetedPosition())).ToHashSet();
@@ -264,6 +273,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void SetActionTimers()
     {
+        timeSinceLastAttack += Time.deltaTime;
 
         if (!pauseComboReset)
         {
@@ -551,6 +561,8 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (NumActionsUsed.ContainsKey(action.playerAttack)) NumActionsUsed[action.playerAttack]++;
         
+        timeSinceLastAttack = 0f;
+        
         if (pc.sc.GetCurrentState() is PlayerMoving)
         {
             pc.sc.Interrupt(new PlayerAttacking(action.playerAttack));
@@ -579,6 +591,8 @@ public class PlayerStateMachine : MonoBehaviour
         pc.rb.linearVelocity = Vector3.zero;
         
         if (NumActionsUsed.ContainsKey(playerAttack)) NumActionsUsed[playerAttack]++;
+        
+        timeSinceLastAttack = 0f;
         
         if (pc.sc.GetCurrentState() is PlayerMoving)
         {
@@ -617,6 +631,8 @@ public class PlayerStateMachine : MonoBehaviour
         
         Vector2 direction = attack.applyTargetDirection ? StandardizedMoveDir : moveInput;
         if (attack.inputDirection != Vector2.zero && !direction.IsInDirectionCone(attack.inputDirection, 92f)) return false;
+        
+        if (!attack.HasEnoughCharge(pc)) return false;
 
         return true;
     }
@@ -729,11 +745,28 @@ public class PlayerStateMachine : MonoBehaviour
         {
             Vector3 lookDir = pc.cam.LockOnDirection.ZeroVector3Axis();
             
-            if (lookDir.magnitude < 0.3f) return;
+            if (lookDir.magnitude < 0.1f) return;
 
             transform.rotation =
                 EaseUtil.DampQuaternion(transform.rotation, Quaternion.LookRotation(lookDir), 5f, 0.1f);
         }
+    }
+
+    private void RotateToTarget()
+    {
+        Vector3 lookDir = pc.cam.IsLockedOn && IsMidair
+            ? (pc.cam.TargetedEnemy.TargetedPosition() - pc.transform.position).ZeroVector3Axis('x')
+            : pc.transform.forward;
+        
+        float lookLimit = playerData.lockOnRotateLimit * Mathf.Deg2Rad;
+        
+        if (pc.cam.IsLockedOn && IsMidair && Vector3.Angle(pc.transform.forward, lookDir) > lookLimit)
+        {
+            lookDir = Vector3.RotateTowards(pc.transform.forward, lookDir, lookLimit, 0.0f);
+        }
+        
+        pc.pac.animancer.transform.rotation =
+            EaseUtil.DampQuaternion(pc.pac.animancer.transform.rotation, Quaternion.LookRotation(lookDir), 5f, 0.1f);
     }
     
     #endregion

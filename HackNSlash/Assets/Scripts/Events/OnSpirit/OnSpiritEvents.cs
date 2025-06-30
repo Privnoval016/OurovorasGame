@@ -53,7 +53,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     {
         ElementEffect element = spirit.pc.pi.CurrentElementEffect;
         
-        HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle);
+        HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
         
         KeyBind[] holdKeys = InputManager.GetReleaseable(a.keyBinds);
         float startTime = Time.time;
@@ -67,6 +67,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
             {
                 CreateVFX(spirit, a, 0);
                 enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
+                CombatManager.Instance.PlayHitEffects(spirit.pc, a, spirit, true, 0);
             }
         }
         else
@@ -75,6 +76,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
             {
                 CreateVFX(spirit, a, 0);
                 enemy.OnHit(element, spirit.pc, a, spirit.transform, 1);
+                CombatManager.Instance.PlayHitEffects(spirit.pc, a, spirit, true, 1);
             }
         }
         
@@ -120,13 +122,14 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     {
         ElementEffect element = spirit.pc.pi.CurrentElementEffect;
         
-        HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle);
+        HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
         
         foreach (LockOnTarget enemy in enemies)
         {
             Debug.Log($"HitScan VFX: {enemy.name} at {enemy.transform.position}");
             CreateVFX(spirit, a, 0, new TransformInfo(enemy.transform, false));
             enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
+            CombatManager.Instance.PlayHitEffects(spirit.pc, a, spirit, true, 0);
         }
         
         this.RunSegmentCoroutine(ResumeMoving(spirit, a, a.hitInfo.attackCoolDown));

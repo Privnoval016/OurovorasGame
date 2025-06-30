@@ -12,6 +12,7 @@ public class OnHitParameters : ScriptableObject
     public float launchUpHeight = 15f;
 
     [Header("Follow Player Velocity Attack")]
+    public float followVelocityTime = 0.75f;
     public float followVelocityMult = 1.2f;
 
     [Header("Launch Down Attack")]

@@ -12,9 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: D_ImbueElement
   m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: 364519e535acef949a9a6c5c40b48f6f, type: 2}
   isEnabled: 1
   attackType: 7
   element: 1
+  stats:
+    restoreCharge: 0
+    chargeRequired: 20
+    damage: 0
   isLockedOn: 0
   requireElementTrigger: 1
   triggerCoolDown: 0
@@ -32,12 +38,13 @@ MonoBehaviour:
     hitRegisterAngle: 120
     numTargets: 1
     attackCoolDown: 0.3
-    damage: 0
     hitForce: 0
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
   vfxInfos: []
+  hitStopProfiles:
+  - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
   onAttackAction: 11
   attackEventIndex: 0
   applyRootMotion: 0

@@ -9,8 +9,15 @@ using UnityEngine;
 public class ElementData : ScriptableObject
 {
     public ElementEffect element;
+    
+    [Header("Element Colors")]
+    [ColorUsage(true, false)]
+    public Color elementColor;
+    [ColorUsage(true, false)]
+    public Color elementInactiveColor;
 
-    [Header("VFX Colors")] [ColorUsage(true, true)]
+    [Header("VFX Colors")] 
+    [ColorUsage(true, true)]
     public Color vfxPureColor;
     
     [ColorUsage(true, true)]

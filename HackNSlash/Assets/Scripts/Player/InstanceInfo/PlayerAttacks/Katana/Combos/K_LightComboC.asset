@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8ef66f85f9b24c6cb9411a33ceff23f, type: 3}
   m_Name: K_LightComboC
   m_EditorClassIdentifier: 
-  isEnabled: 1
+  isEnabled: 0
   attackType: 0
   comboActions:
   - actionType: 0

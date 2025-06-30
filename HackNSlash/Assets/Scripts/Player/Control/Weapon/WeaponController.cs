@@ -124,7 +124,7 @@ public class WeaponController : MonoBehaviour
     
     #region Follow Weapons
 
-    public HashSet<LockOnTarget> EnemiesFromFollowWeapons()
+    public HashSet<LockOnTarget> EnemiesFromFollowWeapons(Attack a)
     {
         HashSet<LockOnTarget> allEnemies = new HashSet<LockOnTarget>();
         
@@ -139,7 +139,7 @@ public class WeaponController : MonoBehaviour
             enemies = enemies.Where(e => followWeapon.IsIntersecting(e)).ToHashSet();
         
             var e = enemies.Select(e => e.GetComponent<LockOnTarget>()).ToHashSet();
-            e.RemoveWhere(e => e.tookDamageThisAction);
+            e.RemoveWhere(e => e.TookDamageThisAction(a));
             
             if (e.Count > 0)
             {

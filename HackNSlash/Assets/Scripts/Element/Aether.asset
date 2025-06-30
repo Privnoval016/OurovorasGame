@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Aether
   m_EditorClassIdentifier: 
   element: 7
-  vfxPureColor: {r: 0.4772306, g: 0.4772306, b: 0.4772306, a: 1}
-  vfxBrightColor: {r: 0.05435479, g: 0.05435479, b: 0.05435479, a: 5}
-  vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
+  elementColor: {r: 0.08176088, g: 0.08176088, b: 0.08176088, a: 1}
+  elementInactiveColor: {r: 0, g: 0, b: 0, a: 1}
+  vfxPureColor: {r: 16.100601, g: 16.100601, b: 16.100601, a: 1}
+  vfxBrightColor: {r: 13.9721365, g: 13.9721365, b: 13.9721365, a: 10}
+  vfxDarkColor: {r: 0, g: 0, b: 0, a: 5}
   vfxGradient:
     serializedVersion: 2
     key0: {r: 0.14465404, g: 0.14465404, b: 0.14465404, a: 1}
@@ -52,5 +54,8 @@ MonoBehaviour:
       type: 3}
   - vfxType: 3
     vfxPrefab: {fileID: 289161321636050785, guid: 4b3166f00ae017c479b2d5dfa847a3fe,
+      type: 3}
+  - vfxType: 5
+    vfxPrefab: {fileID: 289161321636050785, guid: 531168a6c832ee44484a39c3dfd47b3d,
       type: 3}
   weaponTrailMaterial: {fileID: 2100000, guid: 86f4f36df2adbb04399c9c02ebda733c, type: 2}

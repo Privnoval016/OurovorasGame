@@ -15,7 +15,8 @@ MonoBehaviour:
   midairKnockbackTime: 0.1
   launchUpTime: 0.3
   launchUpHeight: 15
-  followVelocityMult: 1.2
+  followVelocityTime: 0
+  followVelocityMult: 1.5
   launchDownVelocityMult: 1.2
   bounceCheckTime: 0.5
   bounceTime: 0.3
@@ -23,4 +24,3 @@ MonoBehaviour:
   crossSlashHitboxDelay: 0.4
   crossSlashHitStrength: 10
   grappleSpeed: 150
-  releaseKnockbackTime: 5

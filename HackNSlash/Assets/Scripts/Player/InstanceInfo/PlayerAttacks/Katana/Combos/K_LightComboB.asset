@@ -16,7 +16,7 @@ MonoBehaviour:
   attackType: 0
   comboActions:
   - actionType: 0
-    playerAttack: {fileID: 11400000, guid: 7f611990a4c07f443bd778e7c12d1f65, type: 2}
+    playerAttack: {fileID: 11400000, guid: 9753dcf527576154792a1adbe3d57a67, type: 2}
     time: 0
   - actionType: 0
     playerAttack: {fileID: 11400000, guid: 0d1c67256ecc0554c8d07e7d6f589651, type: 2}
@@ -26,4 +26,4 @@ MonoBehaviour:
     time: 0
   - actionType: 1
     playerAttack: {fileID: 11400000, guid: 9761bf80ce905ef4481f0445225ea133, type: 2}
-    time: 0.4
+    time: 0.2

@@ -5,7 +5,7 @@ using Animancer;
 using Drakkar.GameUtils;
 using UnityEngine;
 
-public class WeaponBody : KinematicBehaviour
+public class WeaponBody : KinematicBehaviour, IContactDetector
 {
     
     [Header("Weapon Control Info")]
@@ -203,6 +203,26 @@ public class WeaponBody : KinematicBehaviour
     }
     
     #endregion
+    
+    public Vector3 GetClosestPointOnCollider(Collider col)
+    {
+        Vector3 closestPoint = Vector3.zero;
+        
+        if (col == null) return closestPoint;
+
+        float minDistance = float.MaxValue;
+        foreach (Transform t in trailTransforms)
+        {
+            closestPoint = col.ClosestPoint(t.position);
+            float distance = Vector3.Distance(t.position, closestPoint);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+            }
+        }
+
+        return closestPoint;
+    }
 
     [Serializable]
     public class ElementObjectInfo

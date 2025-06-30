@@ -17,9 +17,9 @@ public class PlayerController : KinematicBehaviour
     
     #region Components
     
-    [HideInInspector] public Rigidbody rb;
     public CapsuleCollider mainCol;
     [HideInInspector] public CapsuleCollider[] allCols;
+    [HideInInspector] public CollisionListener cl;
     
     [HideInInspector] public CameraController cam;
     
@@ -41,12 +41,12 @@ public class PlayerController : KinematicBehaviour
     private void Awake()
     {
         SetKinematicAttributes();
-        
-        rb = GetComponent<Rigidbody>();
+
         wc = GetComponent<WeaponController>();
         pac = GetComponent<PlayerAnimator>();
         psm = GetComponent<PlayerStateMachine>();
         pi = GetComponent<PlayerInventory>();
+        cl = GetComponentInChildren<CollisionListener>();
 
         allCols = GetComponents<CapsuleCollider>();
         
@@ -80,9 +80,15 @@ public class PlayerController : KinematicBehaviour
     {
         UpdateKinematicAttributes();
     }
-    
-    
+
+    private void LateUpdate()
+    {
+        AvoidColliderClipping();
+    }
+
     #endregion
+    
+    #region Collision Methods
     
     public bool IgnoreCollision(Collider col, bool ignore)
     {
@@ -94,9 +100,25 @@ public class PlayerController : KinematicBehaviour
         return true;
     }
     
+    public void AvoidColliderClipping()
+    {
+        if (cl == null || !cl.activeMover) return;
+        if (!psm.canAttack && !psm.pauseMovement) return;
+        if (rb.linearVelocity.y > 0) return; //Avoid applying pushback when jumping
+        
+        Vector3 direction = cl.GetCombinedDirection();
+        
+        if (direction != Vector3.zero)
+        {
+            //rb.AddForce(direction * psm.playerData.pushbackForce, ForceMode.VelocityChange);
+        }
+    }
+    
+    #endregion
+    
     #region Utility Methods
     
-    public HashSet<LockOnTarget> HitScanEnemies(int numTargets, float radius, float height, float angle)
+    public HashSet<LockOnTarget> HitScanEnemies(int numTargets, float radius, float height, float angle, Attack a = null)
     {
         HashSet<LockOnTarget> enemies = new();
         
@@ -113,7 +135,7 @@ public class PlayerController : KinematicBehaviour
                 enemies = enemies.Union(enemyList).ToHashSet();
         }
         
-        enemies.RemoveWhere(e => e.tookDamageThisAction);
+        if (a != null) enemies.RemoveWhere(e => e.TookDamageThisAction(a));
         
         return enemies;
     }
@@ -122,25 +144,3 @@ public class PlayerController : KinematicBehaviour
     
 }
 
-public enum Stat
-{
-    Health,
-    Stamina,
-    Strength,
-    Defense,
-}
-
-[Serializable]
-public class StatChange
-{
-    public enum ChangeType
-    {
-        Flat,
-        AdditivePercent,
-        MultiplicativePercent,
-    }
-    
-    public Stat stat;
-    public float value;
-    public ChangeType changeType;
-}

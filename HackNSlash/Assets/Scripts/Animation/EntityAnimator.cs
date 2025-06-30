@@ -33,7 +33,7 @@ public class EntityAnimator : MonoBehaviour
     
     public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, bool canInterrupt = true, FadeMode mode = FadeMode.FixedSpeed)
     {
-        if (canInterrupt && (animancer.States.Current.Clip && animancer.States.Current.Clip == clip))
+        if (canInterrupt && (animancer.States.Current != null && animancer.States.Current.Clip && animancer.States.Current.Clip == clip))
         {
 	        animancer.Stop();
         }

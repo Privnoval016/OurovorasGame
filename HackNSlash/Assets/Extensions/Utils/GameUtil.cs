@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MEC;
 using UnityEngine;
 using PrimeTween;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine.VFX;
 
 
@@ -78,6 +79,11 @@ namespace Extensions.Utils
         
         public static IEnumerator<float> TraverseDistanceInTime(this Rigidbody rb, Vector3 direction, float distance, float time, Func<bool> condition = null)
         {
+            if (time <= 0 || distance <= 0)
+            {
+                yield break;
+            }
+            
             rb.linearVelocity = Vector3.zero;
         
             direction.Normalize();
@@ -85,6 +91,7 @@ namespace Extensions.Utils
             float startTime = Time.time;
 
             float impulse = rb.mass * (distance / time - rb.linearVelocity.magnitude);
+            Debug.Log($"Impulse: {impulse}, Mass: {rb.mass}, Distance: {distance}, Time: {time}, Direction: {direction}");
             rb.AddForce(direction * impulse, ForceMode.Impulse);
         
             yield return Timing.WaitUntilTrue(() => Vector3.Distance(rb.position, initialPosition) >= distance || 
@@ -317,14 +324,19 @@ namespace Extensions.Utils
         
         
         // Returns the element at the index shifted by the shift value
-        public T ShiftIndex(int current, int shift)
+        public T ItemAtShiftedIndex(int current, int shift)
+        {
+            return this[ShiftedIndex(current, shift)];
+        }
+        
+        public int ShiftedIndex(int current, int shift)
         {
             int index = (current + shift) % Count;
             if (index < 0)
             {
                 index = Count + index;
             }
-            return this[index];
+            return index;
         }
     }
 }

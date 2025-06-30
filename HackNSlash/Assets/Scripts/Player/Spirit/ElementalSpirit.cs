@@ -6,7 +6,7 @@ using Extensions.StateMachine;
 using Extensions.Utils;
 using UnityEngine.Serialization;
 
-public class ElementalSpirit : KinematicBehaviour
+public class ElementalSpirit : KinematicBehaviour, IContactDetector
 {
     #region State Machine
    
@@ -77,6 +77,8 @@ public class ElementalSpirit : KinematicBehaviour
     
     public void InvokeOnSpiritAttack(SpiritAttack a)
     {
+        pc.psm.timeSinceLastAttack = 0f;
+        
         if (a.onSpiritAction == OnSpiritActions.None) return;
         
         sc.ChangeState(new SpiritAttacking(a));
@@ -99,6 +101,13 @@ public class ElementalSpirit : KinematicBehaviour
     }
     
     #endregion
-    
-    
+
+    public Vector3 GetClosestPointOnCollider(Collider col)
+    {
+        if (col == null) return Vector3.zero;
+
+        Vector3 closestPoint = col.ClosestPoint(transform.position);
+
+        return closestPoint;
+    }
 }

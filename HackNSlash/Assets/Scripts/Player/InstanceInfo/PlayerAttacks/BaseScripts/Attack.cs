@@ -26,6 +26,9 @@ public abstract class Attack : ScriptableObject
     public bool isEnabled = true;
     public AttackTypes attackType;
     public ElementEffect element;
+
+    [Header("Stats")] 
+    public AttackStats stats = new AttackStats();
     
     [Space(5)] 
     
@@ -52,10 +55,15 @@ public abstract class Attack : ScriptableObject
     [Header("VFX")] 
     
     public VFXSpawnInfo[] vfxInfos;
+    
+    [Header("Hit Stop")]
+    
+    public HitStopProfile[] hitStopProfiles;
 
 
     protected virtual void OnValidate()
     {
+        stats.chargeRequired = Mathf.Abs(stats.chargeRequired);
         UpdateLinkedAttack();
     }
 
@@ -72,6 +80,8 @@ public abstract class Attack : ScriptableObject
         linkedAttack.attackType = attackType;
         linkedAttack.element = element;
         
+        linkedAttack.stats = new AttackStats(stats);
+        
         linkedAttack.isLockedOn = isLockedOn;
         linkedAttack.requireElementTrigger = requireElementTrigger;
         linkedAttack.triggerCoolDown = triggerCoolDown;
@@ -86,7 +96,17 @@ public abstract class Attack : ScriptableObject
         linkedAttack.hitInfo = new HitInfo(hitInfo);
 
         linkedAttack.vfxInfos = VFXSpawnInfo.DeepCopy(vfxInfos);
+        
+        linkedAttack.hitStopProfiles = HitStopProfile.ShallowCopy(hitStopProfiles);
+        
         linkedAttack.linkedAttack = this;
+    }
+
+    public bool HasEnoughCharge(PlayerController pc)
+    {
+        if (!stats.restoreCharge && stats.chargeRequired > 0 && pc.pi.currentCharge < stats.chargeRequired) return false;
+
+        return true;
     }
 }
 
@@ -152,7 +172,6 @@ public class HitInfo
     
     [Header("Stats")]
     public float attackCoolDown;
-    public float damage;
     
     [Header("Hit Parameters")]
     
@@ -167,6 +186,10 @@ public class HitInfo
     [Tooltip("Used for follow velocity and other select hit actions")]
     public bool elasticCollision = false;
 
+    public HitInfo()
+    {
+    }
+
     public HitInfo(HitInfo copy)
     {
         onHitActions = (OnHitActions[]) copy.onHitActions.Clone();
@@ -176,13 +199,32 @@ public class HitInfo
         hitRegisterAngle = copy.hitRegisterAngle;
         numTargets = copy.numTargets;
         attackCoolDown = copy.attackCoolDown;
-        damage = copy.damage;
         hitForce = copy.hitForce;
         hitDelay = copy.hitDelay;
         hitDirection = copy.hitDirection;
         elasticCollision = copy.elasticCollision;
     }
         
+}
+
+[Serializable]
+public class AttackStats
+{
+    public bool restoreCharge = true;
+    public float chargeRequired = 0f;
+    public float damage = 0f;
+
+
+    public AttackStats()
+    {
+    }
+
+    public AttackStats(AttackStats a)
+    {
+        restoreCharge = a.restoreCharge;
+        chargeRequired = a.chargeRequired;
+        damage = a.damage;
+    }
 }
 
 

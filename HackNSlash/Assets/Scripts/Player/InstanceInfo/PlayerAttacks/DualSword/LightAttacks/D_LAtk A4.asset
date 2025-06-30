@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: D_LAtk A4
   m_EditorClassIdentifier: 
-  updateLinkedAttack: 1
+  updateLinkedAttack: 0
   linkedAttack: {fileID: 11400000, guid: e97412b47c911014d8c4fb855d089b83, type: 2}
   isEnabled: 1
   attackType: 0
   element: 0
+  stats:
+    restoreCharge: 1
+    chargeRequired: 10
+    damage: 0
   isLockedOn: 0
   requireElementTrigger: 0
   triggerCoolDown: 0
@@ -27,17 +31,16 @@ MonoBehaviour:
   isMidair: 0
   maxUses: 0
   hitInfo:
-    onHitActions: 02000000
+    onHitActions: 00000000
     hitDetection: 1
     lateralRadius: 3
     verticalRadius: 3
     hitRegisterAngle: 120
     numTargets: 1
-    attackCoolDown: 0.4
-    damage: 0
-    hitForce: 20
-    hitDelay: 0
-    hitDirection: {x: 0, y: 0, z: 0}
+    attackCoolDown: 0.5
+    hitForce: 25
+    hitDelay: 0.2
+    hitDirection: {x: 0, y: 0, z: 1}
     elasticCollision: 0
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
@@ -51,9 +54,11 @@ MonoBehaviour:
       Rotation: {x: 0, y: 0, z: 0, w: 0}
       Scale: {x: 0, y: 0, z: 0}
     applyParentPoseToPosition: 0
+  hitStopProfiles:
+  - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
   onAttackAction: 0
   attackEventIndex: 0
-  applyRootMotion: 1
+  applyRootMotion: 0
   moveCameraWithAttack: 1
   attackTransitions: []
   attackClips:

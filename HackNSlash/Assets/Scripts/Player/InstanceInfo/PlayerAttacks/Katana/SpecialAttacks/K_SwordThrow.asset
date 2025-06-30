@@ -51,6 +51,8 @@ MonoBehaviour:
       Rotation: {x: 0, y: 0, z: 0, w: 0}
       Scale: {x: 0, y: 0, z: 0}
     applyParentPoseToPosition: 0
+  hitStopProfiles:
+  - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
   onAttackAction: 0
   attackEventIndex: 0
   applyRootMotion: 0

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
   m_Name: K_Dodge
   m_EditorClassIdentifier: 
-  updateLinkedAttack: 1
+  updateLinkedAttack: 0
   linkedAttack: {fileID: 11400000, guid: 6afab0c4d1daf4f97b63e7c2254ef2a7, type: 2}
   isEnabled: 1
   attackType: 0

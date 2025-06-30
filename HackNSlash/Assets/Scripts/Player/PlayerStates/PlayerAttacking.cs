@@ -15,6 +15,8 @@ public class PlayerAttacking : PlayerState
     private float attackCoolDownTime;
     private float attackEndTime;
     
+    private bool chargeUpdated = false;
+    
     #region State Methods
     
     public PlayerAttacking(PlayerAttack playerAttack)
@@ -58,6 +60,7 @@ public class PlayerAttacking : PlayerState
         SetAttackGravity();
         TurnToLookOnAttack();
         CheckEnemyCollision();
+        ChangeAttackCharge();
         
         CheckAttackExit();
     }
@@ -196,6 +199,25 @@ public class PlayerAttacking : PlayerState
             pc.psm.SetGravityScale(pc.psm.GetMidairGravity());
     }
 
+    private void ChangeAttackCharge()
+    {
+        if (chargeUpdated || _playerAttack.stats.chargeRequired <= 0) return;
+        
+        if (_playerAttack.stats.restoreCharge)
+        {
+            if (pc.psm.EnemiesInHit.Count > 0)
+            {
+                pc.pi.ChangeCharge(_playerAttack);
+                chargeUpdated = true;
+            }
+        }
+        else
+        {
+            pc.pi.ChangeCharge(_playerAttack);
+            chargeUpdated = true;
+        }
+    }
+
     #endregion
     
     #region Collision Methods
@@ -217,16 +239,17 @@ public class PlayerAttacking : PlayerState
                 break;
         }
 
-        HashSet<LockOnTarget> secondaryTargts = pc.wc.EnemiesFromFollowWeapons();
+        HashSet<LockOnTarget> secondaryTargts = pc.wc.EnemiesFromFollowWeapons(_playerAttack);
         if (secondaryTargts.Count > 0)
         {
             pc.psm.enemiesHitThisAction = pc.psm.enemiesHitThisAction.Union(secondaryTargts).ToHashSet();
         }
         
+        if (pc.psm.enemiesHitThisAction.Count == 0) return;
+        
         foreach (LockOnTarget enemy in pc.psm.enemiesHitThisAction)
         {
             enemy.OnHit(ElementData.GetElementFromAttack(_playerAttack, pc), pc, _playerAttack, pc.transform);
-            Debug.Log($"Hit {enemy.name}");
         }
     }
 
@@ -239,7 +262,7 @@ public class PlayerAttacking : PlayerState
         enemies = enemies.Where(e => pc.wc.IsIntersecting(e)).ToHashSet();
         
         var e = enemies.Select(e => e.GetComponent<LockOnTarget>()).ToHashSet();
-        e.RemoveWhere(e => e.tookDamageThisAction);
+        e.RemoveWhere(e => e.TookDamageThisAction(_playerAttack));
         
         return e;
     }
@@ -249,7 +272,7 @@ public class PlayerAttacking : PlayerState
         var enemies = pc.psm.GetAllEnemiesInCapsule(_playerAttack.hitInfo.lateralRadius, _playerAttack.hitInfo.verticalRadius, _playerAttack.hitInfo.hitRegisterAngle)
             .ToHashSet();
         
-        enemies.RemoveWhere(e => e.tookDamageThisAction);
+        enemies.RemoveWhere(e => e.TookDamageThisAction(_playerAttack));
 
         return enemies;
     }
@@ -268,7 +291,7 @@ public class PlayerAttacking : PlayerState
             enemies = enemies.Union(enemyList[0..enemiesNeeded]).ToHashSet();
         }
         
-        enemies.RemoveWhere(e => e.tookDamageThisAction);
+        enemies.RemoveWhere(e => e.TookDamageThisAction(_playerAttack));
         
         Debug.Log(enemies.Count);
         

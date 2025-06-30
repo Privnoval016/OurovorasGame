@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Lightning
   m_EditorClassIdentifier: 
   element: 4
+  elementColor: {r: 0.43692562, g: 0.2924527, b: 1, a: 1}
+  elementInactiveColor: {r: 0.1831967, g: 0.08276958, b: 0.5849056, a: 1}
   vfxPureColor: {r: 0.30471283, g: 0, b: 1.4942632, a: 1}
   vfxBrightColor: {r: 2.531287, g: 2.1659555, b: 8.718662, a: 5}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 10}
@@ -52,5 +54,8 @@ MonoBehaviour:
       type: 3}
   - vfxType: 3
     vfxPrefab: {fileID: 289161321636050785, guid: 4b3166f00ae017c479b2d5dfa847a3fe,
+      type: 3}
+  - vfxType: 5
+    vfxPrefab: {fileID: 289161321636050785, guid: 531168a6c832ee44484a39c3dfd47b3d,
       type: 3}
   weaponTrailMaterial: {fileID: 2100000, guid: 9a07a127cb207e0488db561e8f51a550, type: 2}
