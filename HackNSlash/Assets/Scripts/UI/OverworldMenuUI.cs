@@ -13,7 +13,7 @@ public class OverworldMenuUI : Singleton<OverworldMenuUI>
     [Header("Tabs")]
     public TabGroup tabGroup;
     
-    #region MonoBehavior Callbacks
+    #region MonoBehaviour Callbacks
     
     protected override void Awake()
     {
@@ -36,15 +36,17 @@ public class OverworldMenuUI : Singleton<OverworldMenuUI>
 
     public void OpenMenu()
     {
-        tabGroup.tabActive = true;
         gameObject.SetActive(true);
+        if (tabGroup == null) return;
+        tabGroup.tabActive = true;
+        
     }
     
-    [Button]
     public void CloseMenu()
     {
-        tabGroup.tabActive = false;
         gameObject.SetActive(false);
+        if (tabGroup == null) return;
+        tabGroup.tabActive = false;
     }
     
     #endregion

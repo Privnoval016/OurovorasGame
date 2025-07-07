@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Extensions.Utils;
 using MEC;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class CombatManager : Singleton<CombatManager>
 {
@@ -14,6 +15,10 @@ public class CombatManager : Singleton<CombatManager>
     public float unPausedTimescale = 1f;
     public float pausedTimescale = 0f;
     public bool hitStopped = false;
+    
+    private float preHitStopTimescale = 1f;
+
+    [FormerlySerializedAs("playerStopped")] [FormerlySerializedAs("isPaused")] public bool entitiesStopped;
     
     #endregion
 
@@ -40,9 +45,18 @@ public class CombatManager : Singleton<CombatManager>
         Time.timeScale = timescale;
     }
     
-    public void ApplyPausedTimescale(bool pause)
+    public void ApplyPausedTimescale(PlayerController pc, bool pause)
     {
         SetTimeScale(pause ? pausedTimescale : unPausedTimescale);
+        pc.cam.EnableCameraInputDetection(!pause);
+        entitiesStopped = pause;
+    }
+    
+    public void ApplySlowedTimeScale(PlayerController pc, bool slowed, float timescale = 0.1f)
+    {
+        SetTimeScale(slowed ? timescale : unPausedTimescale);
+        pc.cam.EnableCameraInputDetection(!slowed);
+        entitiesStopped = slowed;
     }
     
     public void HitStop(PlayerController pc, Attack a, bool playImmediately, int index = 0)
@@ -63,10 +77,11 @@ public class CombatManager : Singleton<CombatManager>
         //if (!playImmediately) yield return Timing.WaitForSeconds(h.minAnimTime);
         
         hitStopped = true;
+        preHitStopTimescale = Time.timeScale;
         SetTimeScale(h.hitStopTimescale);
         yield return Timing.WaitForSeconds(h.hitStopDuration);
         hitStopped = false;
-        SetTimeScale(unPausedTimescale);
+        SetTimeScale(preHitStopTimescale);
     }
     
     #endregion

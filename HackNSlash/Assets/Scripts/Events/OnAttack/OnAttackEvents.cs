@@ -20,7 +20,9 @@ public enum OnAttackActions
     EnemyStep,
     SpawnVFX,
     ImbueElement,
-    HoldSpawnVFX
+    HoldSpawnVFX,
+    BasicFinisher,
+    AetherFinisher
 }
 
 public class OnAttackEvents : Singleton<OnAttackEvents>
@@ -69,6 +71,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         OnAttackActionMap.Add(OnAttackActions.SpawnVFX, SpawnVFX);
         OnAttackActionMap.Add(OnAttackActions.ImbueElement, ImbueElement);
         OnAttackActionMap.Add(OnAttackActions.HoldSpawnVFX, HoldSpawnVFX);
+        OnAttackActionMap.Add(OnAttackActions.BasicFinisher, BasicFinisher);
         
     }
     
@@ -177,7 +180,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
             if (pc.cam.IsLockedOn)
             {
-                pc.cam.TargetedEnemy.OnHit(pc.pi.CurrentElementEffect, pc, a, pc.transform, 0);
+                pc.cam.TargetedEnemy.OnHit(pc.pi.currentElementEffect, pc, a, pc.transform, 0);
                 CombatManager.Instance.PlayHitEffects(pc, a, vfx, true, 0);
             }
             
@@ -328,7 +331,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         {
             foreach (var hit in collidersInPath)
             {
-                if (hit.collider.TryGetComponent(out LockOnTarget d)) d.OnHit(pc.pi.CurrentElementEffect, pc, a, pc.transform, 1);
+                if (hit.collider.TryGetComponent(out LockOnTarget d)) d.OnHit(pc.pi.currentElementEffect, pc, a, pc.transform, 1);
                 pc.IgnoreCollision(hit.collider, false);
             }
         }
@@ -489,6 +492,9 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
         yield return Timing.WaitForSeconds(moveTime);
+        
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+
     }
     
     IEnumerator<float> BeginTargetDodge(PlayerController pc, PlayerAttack a)
@@ -516,6 +522,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
         yield return Timing.WaitForSeconds(moveTime);
+        
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
     }
     
     IEnumerator<float> BeginTeleportsBehindYou(PlayerController pc, PlayerAttack a)
@@ -543,6 +551,9 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         yield return Timing.WaitForSeconds(moveTime);
         
         pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, false);
+        
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+
     }
     
     IEnumerator<float> BeginDodgeDown(PlayerController pc, PlayerAttack a)
@@ -575,6 +586,9 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
         yield return Timing.WaitForSeconds(moveTime);
+        
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+
     }
     
 
@@ -658,21 +672,21 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     {
         yield return Timing.WaitForSeconds(a.animDelay);
         
-        if (pc.pi.CurrentElementEffect == ElementEffect.None) yield break;
+        if (pc.pi.currentElementEffect == ElementEffect.None) yield break;
         
         pc.KillObjectCoroutines(nameof(ResetImbuedElement));
 
         float delay = a.hitInfo.attackCoolDown;
 
-        if (pc.pi.ImbuedElementEffect != pc.pi.CurrentElementEffect)
+        if (pc.pi.imbuedElementEffect != pc.pi.currentElementEffect)
         {
             pc.pac.PlayAnimation(a.attackClips[pc.psm.IsMidair ? 1 : 0], a.animFade);
-            pc.pi.ImbuedElementEffect = pc.pi.CurrentElementEffect;
+            pc.pi.imbuedElementEffect = pc.pi.currentElementEffect;
         }
         else
         {
             delay = 0;
-            pc.pi.ImbuedElementEffect = ElementEffect.None;
+            pc.pi.imbuedElementEffect = ElementEffect.None;
         }
         
         pc.RunSegmentCoroutine(ResetImbuedElement(pc, GetAttackParameters(pc).imbueElementDuration), nameof(ResetImbuedElement));
@@ -683,7 +697,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     private IEnumerator<float> ResetImbuedElement(PlayerController pc, float time)
     {
         yield return Timing.WaitForSeconds(time);
-        pc.pi.ImbuedElementEffect = ElementEffect.None;
+        pc.pi.imbuedElementEffect = ElementEffect.None;
         pc.wc.DeactivateAllWeaponVFX();
     }
     
@@ -720,6 +734,93 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         
         this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
     }
+    
+    #endregion
+    
+    #region Basic Finisher
+    
+    private void BasicFinisher(PlayerController pc, PlayerAttack a)
+    {
+        this.RunSegmentCoroutine(BeginBasicFinisher(pc, a));
+    }
+    
+    private IEnumerator<float> BeginBasicFinisher(PlayerController pc, PlayerAttack a)
+    {
+        #region Initial Setup
+        
+        LockOnTarget target = pc.psm.NearestHEnemy;
+        
+        if (target == null)
+        {
+            Debug.LogWarning("No target found for finisher!");
+            yield break;
+        }
+        
+        ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = false;
+        
+        pc.cam.FinisherTarget = target;
+        pc.cam.SwitchState(PlayerCamStates.FinisherCloseUp);
+        
+        pc.psm.SwapToUltimate();
+        
+        #endregion
+        
+        #region Move to Target
+        
+        var attackParameters = GetAttackParameters(pc);
+
+        Vector3 teleportedPosition = pc.cam.FinisherTarget.transform.position +
+                                     (pc.transform.position - pc.cam.FinisherTarget.transform.position)
+                                     .ZeroVector3Axis().normalized * pc.psm.playerData.mediumRadius;
+
+        Vector3 dodgeDirection = teleportedPosition - pc.transform.position;
+
+        float distance = dodgeDirection.magnitude;
+        dodgeDirection.Normalize();
+
+        float moveTime = attackParameters.dodgeTime / 2;
+
+
+        (pc.cam.TargetedEnemy as PhysicsEnemy)?.ResetMovement();
+        
+        pc.pac.PlayAnimation(a.attackTransitions[0]);
+        
+        
+        this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
+        
+        yield return Timing.WaitForSeconds(moveTime);
+        
+        #endregion
+        
+        #region Perform Finisher
+        
+        float timeScale = attackParameters.finisherTimeScale != 0 ? attackParameters.finisherTimeScale : 1;
+        
+        CombatManager.Instance.ApplySlowedTimeScale(pc, true, timeScale);
+        
+        ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = true;
+        
+        pc.pac.PlayAnimation(a.attackClips[0], a.animFade);
+
+        yield return Timing.WaitForSeconds(a.attackClips[0].length / timeScale);
+        
+        CombatManager.Instance.ApplySlowedTimeScale(pc, false);
+        
+        #endregion
+        
+        #region Final Setup
+        
+        pc.psm.SwapToUltimate();
+        
+        pc.cam.SwitchState(PlayerCamStates.Free);
+        pc.cam.FinisherTarget = null;
+        
+        this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
+        
+        #endregion
+        
+    }
+    
     
     #endregion
 }

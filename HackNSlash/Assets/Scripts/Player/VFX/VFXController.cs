@@ -229,7 +229,15 @@ public class VFXController : MonoBehaviour, IContactDetector
 
     public void HitboxTriggerStay(Collider other)
     {
+        if (!activeHitbox || !vfxEnabled) return;
         
+        if (player == null || attack == null) return;
+        
+        if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.TookDamageThisAction(attack))
+        {
+            enemy.OnHit(elementType, player, attack, transform, vfxSpawnInfo.onHitActionIndex);
+            CombatManager.Instance.PlayHitEffects(player, attack, this, true);
+        }
     }
 
     public Vector3 GetClosestPointOnCollider(Collider col)

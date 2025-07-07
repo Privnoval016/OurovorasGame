@@ -1,15 +1,26 @@
 using System;
 using System.Collections.Generic;
+using Extensions.Utils;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "ElementLoadout", menuName = "Inventory/ElementLoadout", order = 2)]
 public class ElementLoadout : ScriptableObject
 {
+    [Header("Cooldowns")] 
+    public ElementCooldownInfo northCooldown = new ElementCooldownInfo(79f, 1.0f);
+    public ElementCooldownInfo westCooldown = new ElementCooldownInfo(99f, 1.2f);
+    public ElementCooldownInfo southCooldown = new ElementCooldownInfo(149f, 1.5f);
+    
+    [Header("Element Attacks")]
     public EquippedElementAttack fireElementAttack;
     public EquippedElementAttack iceElementAttack;
     public EquippedElementAttack lightningElementAttack;
     public EquippedElementAttack earthElementAttack;
     public EquippedElementAttack windElementAttack;
+    
+    [Header("Finishers")]
+    public AttacksByWeapon finishers;
     
     private Dictionary<ElementEffect, EquippedElementAttack> elementAttackMap = new Dictionary<ElementEffect, EquippedElementAttack>();
     
@@ -25,13 +36,13 @@ public class ElementLoadout : ScriptableObject
 
         switch (k)
         {
-            case KeyBind.HeavyAttack:
+            case KeyBind.North:
                 elementAttack.northAttack = attack;
                 break;
-            case KeyBind.LightAttack:
+            case KeyBind.West:
                 elementAttack.westAttack = attack;
                 break;
-            case KeyBind.Jump:
+            case KeyBind.South:
                 elementAttack.southAttack = attack;
                 break;
             default:
@@ -72,17 +83,25 @@ public class ElementLoadout : ScriptableObject
             Debug.LogWarning($"No attack found for element {elementEffect}");
             return null;
         }
-        
+
+        Attack[] attacks;
         switch (state)
         {
             case MovingStates.DualSword:
-                return element.GetSwordAttacks();
+                attacks = element.GetSwordAttacks();
+                break;
             case MovingStates.Katana:
-                return element.GetKatanaAttacks();
+                attacks = element.GetKatanaAttacks();
+                break;
             default:
-                Debug.LogWarning($"No attack found for element {elementEffect} in state {state}");
-                return null;
+                attacks = element.GetSwordAttacks();
+                break;
         }
+        
+        attacks = attacks.Add(finishers?.GetAttackByState(state));
+        
+        return attacks;
+        
     }
     
     public EquippedElementAttack GetElementAttack(ElementEffect elementEffect)
@@ -128,7 +147,64 @@ public class ElementLoadout : ScriptableObject
             elementAttack.Value.ValidateKeyBinds();
         }
 
+        ValidateFinisherKeyBinds();
+
         return valid;
+    }
+    
+    private void ValidateFinisherKeyBinds()
+    {
+        if (finishers == null) return;
+        
+        if (finishers.SwordAttack != null)
+        {
+            finishers.SwordAttack.keyBinds = new KeyBind[] { KeyBind.East };
+        }
+        
+        if (finishers.KatanaAttack != null)
+        {
+            finishers.KatanaAttack.keyBinds = new KeyBind[] { KeyBind.East };
+        }
+    }
+    
+    public bool AttackIsFinisher(Attack attack)
+    {
+        if (attack == null) return false;
+        
+        if (finishers == null) return false;
+        
+        if (finishers.SwordAttack == attack || finishers.KatanaAttack == attack)
+        {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    #endregion
+    
+    #region Cooldown Methods
+    
+    public float GetMinCharge(KeyBind key)
+    {
+        return key switch
+        {
+            KeyBind.North => northCooldown.minCharge,
+            KeyBind.West => westCooldown.minCharge,
+            KeyBind.South => southCooldown.minCharge,
+            _ => 0f
+        };
+    }
+    
+    public float GetDamageMultiplier(KeyBind key)
+    {
+        return key switch
+        {
+            KeyBind.North => northCooldown.damageMultiplier,
+            KeyBind.West => westCooldown.damageMultiplier,
+            KeyBind.South => southCooldown.damageMultiplier,
+            _ => 1f
+        };
     }
     
     #endregion
@@ -147,7 +223,6 @@ public class EquippedElementAttack
     public AttacksByWeapon northAttack;
     public AttacksByWeapon westAttack;
     public AttacksByWeapon southAttack;
-    public AttacksByWeapon eastAttack;
     
     public Dictionary<KeyBind, AttacksByWeapon> keyBindAttackMap = new Dictionary<KeyBind, AttacksByWeapon>();
 
@@ -157,41 +232,31 @@ public class EquippedElementAttack
         
         if (northAttack != null)
         {
-            keyBindAttackMap[KeyBind.HeavyAttack] = northAttack;
+            keyBindAttackMap[KeyBind.North] = northAttack;
             
             if (northAttack.SwordAttack != null)
             {
-                northAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.HeavyAttack };
+                northAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.North };
             }
         }
         
         if (westAttack != null)
         {
-            keyBindAttackMap[KeyBind.LightAttack] = westAttack;
+            keyBindAttackMap[KeyBind.West] = westAttack;
             
             if (westAttack.SwordAttack != null)
             {
-                westAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.LightAttack };
+                westAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.West };
             }
         }
         
         if (southAttack != null)
         {
-            keyBindAttackMap[KeyBind.Jump] = southAttack;
+            keyBindAttackMap[KeyBind.South] = southAttack;
             
             if (southAttack.SwordAttack != null)
             {
-                southAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.Jump };
-            }
-        }
-        
-        if (eastAttack != null)
-        {
-            keyBindAttackMap[KeyBind.Dodge] = eastAttack;
-            
-            if (eastAttack.SwordAttack != null)
-            {
-                eastAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.Dodge };
+                southAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.South };
             }
         }
     }
@@ -215,11 +280,6 @@ public class EquippedElementAttack
             swordAttacks.Add(southAttack.SwordAttack);
         }
         
-        if (eastAttack != null && eastAttack.SwordAttack != null)
-        {
-            swordAttacks.Add(eastAttack.SwordAttack);
-        }
-        
         return swordAttacks.ToArray();
     }
     
@@ -240,11 +300,6 @@ public class EquippedElementAttack
         if (southAttack != null && southAttack.KatanaAttack != null)
         {
             katanaAttacks.Add(southAttack.KatanaAttack);
-        }
-        
-        if (eastAttack != null && eastAttack.KatanaAttack != null)
-        {
-            katanaAttacks.Add(eastAttack.KatanaAttack);
         }
         
         return katanaAttacks.ToArray();
@@ -275,13 +330,6 @@ public class EquippedElementAttack
             valid = false;
         }
         
-        if (eastAttack != null && eastAttack.SwordAttack != null && eastAttack.SwordAttack.element != element && eastAttack.SwordAttack.element != ElementEffect.MatchCurrent)
-        {
-            Debug.LogWarning($"East attack element mismatch: {eastAttack.SwordAttack.element} != {element}");
-            eastAttack.SwordAttack = null;
-            valid = false;
-        }
-        
         if (northAttack != null && northAttack.KatanaAttack != null && northAttack.KatanaAttack.element != element && northAttack.KatanaAttack.element != ElementEffect.MatchCurrent)
         {
             Debug.LogWarning($"North attack element mismatch: {northAttack.KatanaAttack.element} != {element}");
@@ -303,14 +351,16 @@ public class EquippedElementAttack
             valid = false;
         }
         
-        if (eastAttack != null && eastAttack.KatanaAttack != null && eastAttack.KatanaAttack.element != element && eastAttack.KatanaAttack.element != ElementEffect.MatchCurrent)
-        {
-            Debug.LogWarning($"East attack element mismatch: {eastAttack.KatanaAttack.element} != {element}");
-            eastAttack.KatanaAttack = null;
-            valid = false;
-        }
-        
         return valid;
+    }
+    
+    public bool AttackInLoadout(Attack attack)
+    {
+        if (northAttack != null && (northAttack.SwordAttack == attack || northAttack.KatanaAttack == attack)) return true;
+        if (westAttack != null && (westAttack.SwordAttack == attack || westAttack.KatanaAttack == attack)) return true;
+        if (southAttack != null && (southAttack.SwordAttack == attack || southAttack.KatanaAttack == attack)) return true;
+        
+        return false;
     }
     
 }
@@ -334,5 +384,18 @@ public class AttacksByWeapon
             default:
                 return null;
         }
+    }
+}
+
+[Serializable]
+public class ElementCooldownInfo
+{
+    [FormerlySerializedAs("cooldown")] public float minCharge;
+    public float damageMultiplier;
+    
+    public ElementCooldownInfo(float minCharge, float damageMultiplier)
+    {
+        this.minCharge = minCharge;
+        this.damageMultiplier = damageMultiplier;
     }
 }

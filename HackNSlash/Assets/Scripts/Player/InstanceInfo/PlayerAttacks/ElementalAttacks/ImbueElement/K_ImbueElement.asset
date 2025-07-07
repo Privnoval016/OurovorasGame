@@ -19,7 +19,7 @@ MonoBehaviour:
   element: 1
   stats:
     restoreCharge: 0
-    chargeRequired: 20
+    charge: 40
     damage: 0
   isLockedOn: 0
   requireElementTrigger: 1

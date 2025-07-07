@@ -5,6 +5,7 @@ using System.Linq;
 using Extensions.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class InputManager : Singleton<InputManager>
 {
@@ -34,8 +35,7 @@ public class InputManager : Singleton<InputManager>
     public InputAction swapMode;
     public InputAction ultimateMode;
 
-    public InputAction swapElementLeft;
-    public InputAction swapElementRight;
+    public InputAction elementMenuOpen;
 
     private bool lightAttacking, heavyAttacking, jumping;
     
@@ -65,6 +65,15 @@ public class InputManager : Singleton<InputManager>
         InputMap = new PlayerInputActions();
         AddGameStateInputs();
         
+        InputSystem.onDeviceChange +=
+            (device, change) =>
+            {
+                if (change == InputDeviceChange.Added || change == InputDeviceChange.Removed)
+                {
+                    Debug.Log($"Device '{device}' was {change}");
+                }
+            };
+        
         
         SetPlayerKeybinds();
         SetMenuKeybinds();
@@ -79,13 +88,13 @@ public class InputManager : Singleton<InputManager>
 
     private void LateUpdate()
     {
-        KeyMap[KeyBind.LightAttack].holdTime = lightAttacking ? KeyMap[KeyBind.LightAttack].holdTime + Time.deltaTime : 0;
-        KeyMap[KeyBind.HeavyAttack].holdTime = heavyAttacking ? KeyMap[KeyBind.HeavyAttack].holdTime + Time.deltaTime : 0;
-        KeyMap[KeyBind.Jump].holdTime = jumping ? KeyMap[KeyBind.Jump].holdTime + Time.deltaTime : 0;
+        KeyMap[KeyBind.West].holdTime = lightAttacking ? KeyMap[KeyBind.West].holdTime + Time.deltaTime : 0;
+        KeyMap[KeyBind.North].holdTime = heavyAttacking ? KeyMap[KeyBind.North].holdTime + Time.deltaTime : 0;
+        KeyMap[KeyBind.South].holdTime = jumping ? KeyMap[KeyBind.South].holdTime + Time.deltaTime : 0;
         
-        KeyMap[KeyBind.LightAttack].lastTime = lightAttack.triggered ? 0 : KeyMap[KeyBind.LightAttack].lastTime + Time.deltaTime;
-        KeyMap[KeyBind.HeavyAttack].lastTime = heavyAttack.triggered ? 0 : KeyMap[KeyBind.HeavyAttack].lastTime + Time.deltaTime;
-        KeyMap[KeyBind.Jump].lastTime = jumping ? 0 : KeyMap[KeyBind.Jump].lastTime + Time.deltaTime;
+        KeyMap[KeyBind.West].lastTime = lightAttack.triggered ? 0 : KeyMap[KeyBind.West].lastTime + Time.deltaTime;
+        KeyMap[KeyBind.North].lastTime = heavyAttack.triggered ? 0 : KeyMap[KeyBind.North].lastTime + Time.deltaTime;
+        KeyMap[KeyBind.South].lastTime = jumping ? 0 : KeyMap[KeyBind.South].lastTime + Time.deltaTime;
     }
 
     public void ReleaseHoldAttacks()
@@ -117,8 +126,7 @@ public class InputManager : Singleton<InputManager>
         retarget = InputMap.Player.Retarget;
         swapMode = InputMap.Player.EnterCombat;
         ultimateMode = InputMap.Player.ActivateUltimate;
-        swapElementLeft = InputMap.Player.SwapElementLeft;
-        swapElementRight = InputMap.Player.SwapElementRight;
+        elementMenuOpen = InputMap.Player.ElementMenu;
 
         KeyMap.Add(KeyBind.None, new KeyBindData() {action = () => true});
 
@@ -127,7 +135,7 @@ public class InputManager : Singleton<InputManager>
         lightAttack.performed += ctx => lightAttacking = true;
         lightAttack.canceled += ctx => lightAttacking = false;
         
-        KeyMap.Add(KeyBind.LightAttack, new KeyBindData
+        KeyMap.Add(KeyBind.West, new KeyBindData
         {
             action = () => lightAttack.triggered,
             holdAction = () => lightAttacking,
@@ -139,7 +147,7 @@ public class InputManager : Singleton<InputManager>
         heavyAttack.performed += ctx => heavyAttacking = true;
         heavyAttack.canceled += ctx => heavyAttacking = false;
         
-        KeyMap.Add(KeyBind.HeavyAttack, new KeyBindData
+        KeyMap.Add(KeyBind.North, new KeyBindData
         {
             action = () => heavyAttack.triggered,
             holdAction = () => heavyAttacking,
@@ -149,14 +157,14 @@ public class InputManager : Singleton<InputManager>
         
         KeyMap.Add(KeyBind.AnyAttack, new KeyBindData
         {
-            action = () => KeyMap[KeyBind.LightAttack].action() || KeyMap[KeyBind.HeavyAttack].action(),
-            holdAction = () => KeyMap[KeyBind.LightAttack].holdAction() || KeyMap[KeyBind.HeavyAttack].holdAction(),
-            releaseAction = () => KeyMap[KeyBind.LightAttack].releaseAction() || KeyMap[KeyBind.HeavyAttack].releaseAction(),
+            action = () => KeyMap[KeyBind.West].action() || KeyMap[KeyBind.North].action(),
+            holdAction = () => KeyMap[KeyBind.West].holdAction() || KeyMap[KeyBind.North].holdAction(),
+            releaseAction = () => KeyMap[KeyBind.West].releaseAction() || KeyMap[KeyBind.North].releaseAction(),
         });
         
         
-        KeyMap.Add(KeyBind.Dodge, new KeyBindData {action = () => dodge.triggered});
-        KeyMap.Add(KeyBind.Jump, new KeyBindData
+        KeyMap.Add(KeyBind.East, new KeyBindData {action = () => dodge.triggered});
+        KeyMap.Add(KeyBind.South, new KeyBindData
         {
             action = () => jump.triggered,
             holdAction = () => jumping,
@@ -254,9 +262,9 @@ public class KeyBindData
 public enum KeyBind
 {
     None,
-    LightAttack,
-    HeavyAttack,
+    West,
+    North,
     AnyAttack,
-    Dodge,
-    Jump,
+    East,
+    South,
 }

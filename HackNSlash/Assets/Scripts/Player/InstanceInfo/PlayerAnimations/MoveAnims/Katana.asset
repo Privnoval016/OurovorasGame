@@ -265,9 +265,10 @@ MonoBehaviour:
       _NormalizedTimes: []
       _Callbacks: []
       _Names: []
-    _Clip: {fileID: 7400000, guid: 431ff33fba0fb2a4e9232623873d7ffa, type: 2}
+    _Clip: {fileID: 0}
     _NormalizedStartTime: NaN
-  nextState: 0
+  swapNextState: 1
+  swapWeapons: 0100000002000000
   ultClip:
     _FadeDuration: 0.25
     _Speed: 1

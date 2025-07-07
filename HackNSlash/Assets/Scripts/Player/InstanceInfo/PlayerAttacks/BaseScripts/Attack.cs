@@ -63,7 +63,7 @@ public abstract class Attack : ScriptableObject
 
     protected virtual void OnValidate()
     {
-        stats.chargeRequired = Mathf.Abs(stats.chargeRequired);
+        stats.charge = Mathf.Abs(stats.charge);
         UpdateLinkedAttack();
     }
 
@@ -104,9 +104,18 @@ public abstract class Attack : ScriptableObject
 
     public bool HasEnoughCharge(PlayerController pc)
     {
-        if (!stats.restoreCharge && stats.chargeRequired > 0 && pc.pi.currentCharge < stats.chargeRequired) return false;
+        if (!stats.restoreCharge && stats.charge > 0 && pc.pi.currentCharge < stats.charge) return false;
 
         return true;
+    }
+
+    public float GetChargePercentage(PlayerController pc)
+    {
+        if (stats.charge <= 0) return 1f;
+        
+        float percentage = pc.pi.currentCharge / stats.charge;
+        
+        return Mathf.Clamp(percentage, 0f, 1f);
     }
 }
 
@@ -152,9 +161,10 @@ public class VFXSpawnInfo
 
 public enum HitDetections
 {
-    WeaponTrail,
+    WeaponCollider,
     SphereCast,
     HitScan,
+    WeaponTrail,
     None
 }
 
@@ -211,7 +221,8 @@ public class HitInfo
 public class AttackStats
 {
     public bool restoreCharge = true;
-    public float chargeRequired = 0f;
+    [FormerlySerializedAs("chargeRequired")] public float charge = 0f;
+    public float ultimateCharge = 8f;
     public float damage = 0f;
 
 
@@ -222,7 +233,7 @@ public class AttackStats
     public AttackStats(AttackStats a)
     {
         restoreCharge = a.restoreCharge;
-        chargeRequired = a.chargeRequired;
+        charge = a.charge;
         damage = a.damage;
     }
 }

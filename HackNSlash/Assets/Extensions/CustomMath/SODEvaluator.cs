@@ -36,7 +36,7 @@ namespace Extensions.CustomMath
                 InitializeDynamics();
             else
             {
-                Vector3? dynamicsOutput = _dynamics.Update(Time.deltaTime, target.position);
+                Vector3? dynamicsOutput = _dynamics.Update(Time.unscaledDeltaTime, target.position);
             
                 if (dynamicsOutput.Vec3NotNull())
                 {

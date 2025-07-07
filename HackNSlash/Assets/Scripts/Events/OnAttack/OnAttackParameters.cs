@@ -48,4 +48,7 @@ public class OnAttackParameters : ScriptableObject
     
     [Header("Imbue Element")]
     public float imbueElementDuration = 5f;
+
+    [Header("Finisher")] 
+    public float finisherTimeScale = 0.7f;
 }

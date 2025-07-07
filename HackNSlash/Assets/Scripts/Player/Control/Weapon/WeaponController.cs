@@ -126,28 +126,29 @@ public class WeaponController : MonoBehaviour
 
     public HashSet<LockOnTarget> EnemiesFromFollowWeapons(Attack a)
     {
-        HashSet<LockOnTarget> allEnemies = new HashSet<LockOnTarget>();
-        
-        foreach (FollowWeapon followWeapon in followWeapons)
+        HashSet<LockOnTarget> enemies = new HashSet<LockOnTarget>();
+
+        foreach (var weapon in pc.wc.activeWeapons)
         {
-            if (!followWeapon.active || followWeapon.mainWeaponBody == null) continue;
-            
-            HashSet<Collider> enemies = pc.psm
-                .GetAllEnemiesInCapsule(pc.psm.playerData.largeRadius, pc.psm.playerData.largeRadius)
-                .Select(e => e.GetComponent<Collider>()).ToHashSet();
-        
-            enemies = enemies.Where(e => followWeapon.IsIntersecting(e)).ToHashSet();
-        
-            var e = enemies.Select(e => e.GetComponent<LockOnTarget>()).ToHashSet();
-            e.RemoveWhere(e => e.TookDamageThisAction(a));
-            
-            if (e.Count > 0)
-            {
-                allEnemies = allEnemies.Union(e).ToHashSet();
-            }
+            if (weapon == null) continue;
+
+            enemies = enemies.Union(weapon.IntersectingTargets).ToHashSet();
         }
         
-        return allEnemies;
+        HashSet<Collider> cols = pc.psm
+            .GetAllEnemiesInCapsule(pc.psm.playerData.largeRadius, pc.psm.playerData.largeRadius, 360)
+            .Select(e => e.GetComponent<Collider>()).ToHashSet();
+        
+        cols = cols.Where(e => pc.wc.IsIntersecting(e)).ToHashSet();
+        
+        var enemiesFromTrail = cols.Select(e => e.GetComponent<LockOnTarget>()).ToHashSet();
+        
+        enemies = enemies.Union(enemiesFromTrail).ToHashSet();
+        
+        enemies = enemies.Where(e => e != null && e.TookDamageThisAction(a) == false).ToHashSet();
+        
+        
+        return enemies;
     }
     
     
@@ -196,18 +197,18 @@ public class WeaponController : MonoBehaviour
     
     public void ActivateImbuedWeaponVFX()
     {
-        if (pc.pi.ImbuedElementEffect != ElementEffect.None)
+        if (pc.pi.imbuedElementEffect != ElementEffect.None)
         {
             foreach (var weaponBody in activeWeapons)
             {
-                weaponBody.ActivateVFX(pc.pi.ImbuedElementEffect);
+                weaponBody.ActivateVFX(pc.pi.imbuedElementEffect);
             }
 
             if (pc.psm.movingState != MovingStates.Katana) return;
 
             foreach (var weapon in followWeapons)
             {
-                weapon.ActivateVFX(pc.pi.ImbuedElementEffect);
+                weapon.ActivateVFX(pc.pi.imbuedElementEffect);
             }
         }
         else

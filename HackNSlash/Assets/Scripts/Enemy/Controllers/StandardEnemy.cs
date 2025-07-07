@@ -59,6 +59,8 @@ public class StandardEnemy : PhysicsEnemy
     
     public void MoveInDirection(Vector3 direction, float lerpAmount = 1)
     {
+        if (CombatManager.Instance.entitiesStopped) return;
+        
         moveDirection = direction;
         
         Vector3 targetSpeed = direction * enemyData.speed;

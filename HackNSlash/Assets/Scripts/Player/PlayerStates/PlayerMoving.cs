@@ -123,32 +123,16 @@ public class PlayerMoving : PlayerState
     
     private void OnSwitchAction(InputAction.CallbackContext context)
     {
-	    if (!pc.psm.IsGrounded) return;
+	    if (!pc.pi.CanSwapToNonCombat()) return;
 	    
-	    pc.psm.pauseMovement = true;
-	    
-	    pc.pac.SwitchAnimState(WalkingAnimStates.Swapping, () =>
-	    {
-		    pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
-		    pc.psm.pauseMovement = false;
-	    });
-	    pc.psm.movingState = pc.pac.MovingAnims.nextState;
+	    pc.psm.SwapToNonCombat();
     }
     
     private void OnUltimateAction(InputAction.CallbackContext context)
 	{
-		if (pc.psm.movingState == MovingStates.NonCombat) return;
-		
-		pc.psm.pauseMovement = true;
-	    
-		pc.pac.SwitchAnimState(WalkingAnimStates.Ultimate, () =>
-		{
-			pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
-			pc.psm.pauseMovement = false;
-		});
-		pc.wc.SwitchWeapon(pc.pac.MovingAnims.ultWeapons, pc.pac.MovingAnims.ultNextState);
-		
-		pc.psm.movingState = pc.pac.MovingAnims.ultNextState;
+		if (!pc.pi.CanUseUltimate()) return;
+
+		pc.psm.SwapToUltimate();
 	}
     
     #endregion

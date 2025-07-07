@@ -14,6 +14,7 @@ public class SpiritAttacking : SpiritState
     {
         spirit.canAttack = false;
         spirit.lastAttackHoldDuration = 0;
+        
         OnSpiritEvents.Instance.OnSpiritActionMap[_playerAttack.onSpiritAction](spirit, _playerAttack);
     }
     
@@ -41,19 +42,19 @@ public class SpiritAttacking : SpiritState
     
     private void ChangeAttackCharge()
     {
-        if (chargeUpdated || _playerAttack.stats.chargeRequired <= 0) return;
+        if (chargeUpdated || _playerAttack.stats.charge <= 0) return;
         
         if (_playerAttack.stats.restoreCharge)
         {
             if (spirit.pc.psm.EnemiesInHit.Count > 0)
             {
-                spirit.pc.pi.ChangeCharge(_playerAttack);
+                spirit.pc.pi.ApplyAttackMeterChanges(_playerAttack);
                 chargeUpdated = true;
             }
         }
         else
         {
-            spirit.pc.pi.ChangeCharge(_playerAttack);
+            spirit.pc.pi.ApplyAttackMeterChanges(_playerAttack);
             chargeUpdated = true;
         }
     }

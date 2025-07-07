@@ -3,6 +3,7 @@ using Extensions.UI;
 using Extensions.Utils;
 using PrimeTween;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class HUDMenuUI : Singleton<HUDMenuUI>
@@ -20,15 +21,39 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     public Slider chargeValueBar;
     public Slider chargeDepleteBar;
     
+    public RectTransform[] minChargeIndicators;
+    
     [Header("Ultimate Sliders")]
     public Slider ultimateValueBar;
+    public RawImage ultimateIcon;
+    
+    [Header("Finisher Sliders")]
+    
+    public Slider finisherValueBar;
+    public RawImage finisherIcon;
     
     [Header("Elemental Swap")]
     
-    public ScrollMenu elementalSwapMenu;
-    public RawImage[] elementalSwapIcons;
-    private RectTransform[] elementalSwapIconRects;
-    public float[] elementalSwapIconScales = { 0.4f, 0.6f, 1f, 0.6f, 0.4f };
+    public RectTransform elementSwapContainer;
+    
+    public RectTransform radialMenuContainer;
+    
+    public RawImage elementSwapBackground;
+    
+    public RawImage selectedElementIcon;
+    public RawImage[] elementIcons;
+    private RectTransform[] elementIconRects;
+
+    public RectTransform elementSelectBorder;
+    public RectTransform elementSelectLine;
+    
+    [Space(20)]
+    public float[] elementSwapScales = new float[] { 0.01f, 1.0f };
+    public Vector3[] elementalSwapPositions;
+    public float radialMenuSelectScaleFactor = 1.2f;
+    private Vector3 radialMenuDefaultScale;
+    private int selectedElementIndex;
+    public float elementSwapBackgroundAlpha = 0.3f;
     
     
     [Header("Elemental Attacks")]
@@ -36,13 +61,12 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     private Vector3 elementalAttackContainerScale;
     public float elementalAttackContainerScaleFactor = 1.3f;
     
-    public RawImage northElementalAttack;
-    public RawImage southElementalAttack;
-    public RawImage eastElementalAttack;
-    public RawImage westElementalAttack;
+    public ElementalAttackIcon northElementalAttack;
+    public ElementalAttackIcon southElementalAttack;
+    public ElementalAttackIcon westElementalAttack;
     
     [HideInInspector] public EquippedElementAttack CurrentElementalAttacks => pc.pi.GetCurrentElementAttack();
-    [HideInInspector] public ElementEffect Element => pc.pi.CurrentElementEffect;
+    [HideInInspector] public ElementEffect Element => pc.pi.currentElementEffect;
 
 
     #region MonoBehaviour Callbacks
@@ -57,70 +81,188 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     private void Start()
     {
         UpdateElementalAttackIcons();
-        InitializeElementalSwapMenu();
+        InitializeElementSwapMenu();
     }
 
     private void Update()
     {
-        
+        UpdateFinisherIcon();
     }
 
+    #endregion
+    
+    #region Other Slider Methods
+    
+    public void UpdateUltimate(float ultimatePercentage)
+    {
+        float currentUltimate = ultimateValueBar.value;
+        
+        ultimateValueBar.value = currentUltimate;
+        
+        if (currentUltimate > ultimatePercentage)
+        {
+            // Decrease ultimate
+            ultimateValueBar.value = ultimatePercentage;
+        }
+        else if (currentUltimate < ultimatePercentage)
+        {
+            // Increase ultimate
+            Tween.UISliderValue(ultimateValueBar, ultimatePercentage, 0.3f);
+        }
+    }
+    
+    public void UpdateFinisher(float finisherPercentage)
+    {
+        float currentFinisher = finisherValueBar.value;
+        finisherValueBar.value = currentFinisher;
+        
+        if (currentFinisher > finisherPercentage)
+        {
+            // Decrease finisher
+            Tween.UISliderValue(finisherValueBar, finisherPercentage, 0.5f);
+        }
+        else if (currentFinisher < finisherPercentage)
+        {
+            // Increase finisher
+            Tween.UISliderValue(finisherValueBar, finisherPercentage, 0.3f);
+        }
+    }
+    
+    private void UpdateFinisherIcon()
+    {
+        ElementData elementData = GameManager.GetElementData(ElementEffect.Aether);
+        
+        if (pc.pi.CanUseFinisher())
+        {
+            // Enable finisher icon
+            finisherIcon.color = elementData.elementColor;
+        }
+        else
+        {
+            // Disable finisher icon
+            finisherIcon.color = elementData.elementInactiveColor;
+        }
+    }
+    
     #endregion
     
     #region Element Swap Methods
-    
-    private void InitializeElementalSwapMenu()
+
+    private void InitializeElementSwapMenu()
     {
-        elementalSwapIconRects = new RectTransform[elementalSwapIcons.Length];
-        
-        for (int i = 0; i < elementalSwapIcons.Length; i++)
+        elementIconRects = new RectTransform[elementIcons.Length];
+        for (int i = 0; i < elementIcons.Length; i++)
         {
-            elementalSwapIconRects[i] = elementalSwapIcons[i].GetComponent<RectTransform>();
-            SetElementSwapIcons(i);
+            elementIconRects[i] = elementIcons[i].GetComponent<RectTransform>();
+            ElementEffect element = pc.pi.elementEffects[i];
+            
+            // Set icon sprite later
+            elementIcons[i].color = GameManager.GetElementData(element).elementInactiveColor;
         }
-        ScrollElementsLeft();
-    }
-
-    private void SetElementSwapIcons(int index)
-    {
-        ElementData elementData = GameManager.GetElementData(pc.pi.elementEffectOrder[index]);
-        if (elementalSwapIcons == null || elementalSwapIcons.Length < index + 1) return;
         
-        elementalSwapIcons[index].color = elementData.elementColor;
+        radialMenuDefaultScale = elementIconRects[0].localScale;
+        
+        DeactivateElementSwapMenu();
     }
     
-    public void ScrollElementsLeft()
+    public void DeactivateElementSwapMenu()
     {
-        if (elementalSwapMenu == null) return;
+        if (radialMenuContainer == null) return;
 
-        SetElementSizes();
-        elementalSwapMenu.ScrollLeft();
-    }
-    
-    public void ScrollElementsRight()
-    {
-        if (elementalSwapMenu == null) return;
+        if (radialMenuContainer.localScale != elementSwapScales[0] * Vector3.one)
+            Tween.Scale(radialMenuContainer, elementSwapScales[0], 0.1f, useUnscaledTime: true);
         
-        SetElementSizes();
-        elementalSwapMenu.ScrollRight();
-    }
-    
-    private void SetElementSizes()
-    {
-        if (elementalSwapIcons == null || elementalSwapIconScales.Length != 5) return;
-        
+        if (radialMenuContainer.localPosition != elementalSwapPositions[0])
+            Tween.LocalPosition(elementSwapContainer, elementalSwapPositions[0], 0.1f, useUnscaledTime: true);
 
-        for (int i = 0; i < 5; i++)
+        if (elementSwapBackground != null)
         {
-            int index = pc.pi.elementEffectOrder.IndexOf(Element);
-            index = pc.pi.elementEffectOrder.ShiftedIndex(index, i - 2);
-            Tween.Scale(elementalSwapIconRects[index], elementalSwapIconScales[i], 0.2f);
+            elementSwapBackground.gameObject.SetActive(true);
+            Tween.Alpha(elementSwapBackground, 0, 0.1f, useUnscaledTime: true);
         }
+        
+        elementSelectBorder?.gameObject.SetActive(false);
+        elementSelectLine?.gameObject.SetActive(false);
+    }
+    
+    public void ActivateElementSwapMenu()
+    {
+        if (radialMenuContainer == null) return;
+        
+        if (radialMenuContainer.localScale != elementSwapScales[1] * Vector3.one)
+            Tween.Scale(radialMenuContainer, elementSwapScales[1], 0.1f, useUnscaledTime: true);
+        if (radialMenuContainer.localPosition != elementalSwapPositions[1])
+            Tween.LocalPosition(elementSwapContainer, elementalSwapPositions[1], 0.1f, useUnscaledTime: true);
+
+        if (elementSwapBackground != null)
+        {
+            elementSwapBackground.gameObject.SetActive(true);
+            Tween.Alpha(elementSwapBackground, elementSwapBackgroundAlpha, 0.1f, useUnscaledTime: true);
+        }
+        
+        elementSelectBorder?.gameObject.SetActive(false);
+        elementSelectLine?.gameObject.SetActive(false);
+
+        selectedElementIndex = pc.pi.CurrentElementIndex;
+    }
+    
+    public void SetSelectedElementIcon(ElementEffect element)
+    {
+        if (selectedElementIcon == null) return;
+
+        selectedElementIcon.color = GameManager.GetElementData(element).elementColor;
+    }
+
+    public void SetRadialMenuLine(Vector2 direction)
+    {
+        if (direction == Vector2.zero)
+        {
+            elementSelectLine.gameObject.SetActive(false);
+            return;
+        }
+        
+        elementSelectLine.gameObject.SetActive(true);
+        
+        float angle = Vector2.SignedAngle(Vector2.up, direction);
+        
+        elementSelectLine.rotation = Quaternion.Euler(0, 0, angle);
+    }
+
+    public void SetRadialMenuIcon(ElementEffect element, int index)
+    {
+        if (selectedElementIndex == index) return;
+        
+        for (int i = 0; i < elementIcons.Length; i++)
+        {
+            if (i == index)
+            {
+                elementIcons[i].color = GameManager.GetElementData(element).elementColor;
+                Tween.Scale(elementIconRects[i], radialMenuDefaultScale * radialMenuSelectScaleFactor, 0.1f, useUnscaledTime: true);
+                
+                if (elementSelectBorder != null)
+                {
+                    elementSelectBorder.gameObject.SetActive(true);
+                    
+                    elementSelectBorder.rotation = Quaternion.Euler(0, 0, elementIconRects[i].rotation.eulerAngles.z);
+                    
+                    elementSelectBorder.localScale = radialMenuDefaultScale;
+                    Tween.Scale(elementSelectBorder, radialMenuDefaultScale * radialMenuSelectScaleFactor, 0.1f, useUnscaledTime: true);
+                }
+            }
+            else
+            {
+                elementIcons[i].color = GameManager.GetElementData(pc.pi.elementEffects[i]).elementInactiveColor;
+                if (i == selectedElementIndex)
+                    Tween.Scale(elementIconRects[i], radialMenuDefaultScale, 0.1f, useUnscaledTime: true);
+            }
+        }
+        
+        selectedElementIndex = index;
     }
     
     #endregion
     
-    #region Slider Methods
+    #region Main Slider Methods
 
     public void UpdateHealth(float healthPercentage)
     {
@@ -181,10 +323,9 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
 
     private void RefreshElementalAttackIconStatus()
     {
-        ValidateAttackIcon(northElementalAttack, CurrentElementalAttacks.northAttack);
-        ValidateAttackIcon(southElementalAttack, CurrentElementalAttacks.southAttack);
-        ValidateAttackIcon(eastElementalAttack, CurrentElementalAttacks.eastAttack);
-        ValidateAttackIcon(westElementalAttack, CurrentElementalAttacks.westAttack);
+        ValidateAttackIcon(northElementalAttack, CurrentElementalAttacks.northAttack, KeyBind.North);
+        ValidateAttackIcon(southElementalAttack, CurrentElementalAttacks.southAttack, KeyBind.South);
+        ValidateAttackIcon(westElementalAttack, CurrentElementalAttacks.westAttack, KeyBind.West);
     }
     
     
@@ -197,13 +338,14 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         RefreshElementalAttackIconStatus();
     }
     
-    private void ValidateAttackIcon(RawImage attackIcon, AttacksByWeapon a)
+    private void ValidateAttackIcon(ElementalAttackIcon attackIcon, AttacksByWeapon a, KeyBind k)
     {
         if (attackIcon == null) return;
         
         if (a == null)
         {
-            attackIcon.gameObject.SetActive(false);
+            attackIcon.icon.gameObject.SetActive(false);
+            attackIcon.chargeFillImage.gameObject.SetActive(false);
             return;
         }
 
@@ -211,34 +353,40 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         
         if (attack == null)
         {
-            attackIcon.gameObject.SetActive(false);
+            attackIcon.icon.gameObject.SetActive(false);
+            attackIcon.chargeFillImage.gameObject.SetActive(false);
             return;
         }
         
-        if (attack.HasEnoughCharge(pc))
+        if (!Mathf.Approximately(pc.pi.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
+            Tween.UISliderValue(attackIcon.chargeSlider, pc.pi.GetCooldownPercentage(k), 0.03f);
+        
+        if (pc.pi.FinishedElementCooldown(attack))
             EnableAttackIcon(attackIcon, attack);
         else
             DisableAttackIcon(attackIcon, attack);
     }
     
-    private void EnableAttackIcon(RawImage attackIcon, Attack a)
+    private void EnableAttackIcon(ElementalAttackIcon attackIcon, Attack a)
     {
         // add icon to attack icon later
         
-        attackIcon.gameObject.SetActive(true);
+        attackIcon.icon.gameObject.SetActive(true);
+        attackIcon.chargeFillImage.gameObject.SetActive(true);
 
         Color c = GameManager.GetElementData(Element).elementColor;
-        attackIcon.color = c;
+        attackIcon.icon.color = c;
     }
     
-    private void DisableAttackIcon(RawImage attackIcon, Attack a)
+    private void DisableAttackIcon(ElementalAttackIcon attackIcon, Attack a)
     {
         // add icon to attack icon later
         
-        attackIcon.gameObject.SetActive(true);
+        attackIcon.icon.gameObject.SetActive(true);
+        attackIcon.chargeFillImage.gameObject.SetActive(true);
 
         Color c = GameManager.GetElementData(Element).elementInactiveColor;
-        attackIcon.color = c;
+        attackIcon.icon.color = c;
     }
 
     public void ActivateElementalAttackIcons()
@@ -258,6 +406,14 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     }
     
     #endregion
+
+    [Serializable]
+    public class ElementalAttackIcon
+    {
+        public RawImage icon;
+        public Slider chargeSlider;
+        public Image chargeFillImage;
+    }
 
 }
 
