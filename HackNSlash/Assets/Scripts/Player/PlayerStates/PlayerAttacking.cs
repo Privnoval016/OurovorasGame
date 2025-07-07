@@ -75,6 +75,8 @@ public class PlayerAttacking : PlayerState
         
         pc.rb.linearVelocity = Vector3.zero;
         
+        pc.pi.ResetFinisherCharge(_playerAttack);
+        
         pc.psm.pauseComboReset = false;
         pc.pac.RootMotionEnabled(false);
         pc.cam.isFollowingPlayer = true;
@@ -201,19 +203,19 @@ public class PlayerAttacking : PlayerState
 
     private void ChangeAttackCharge()
     {
-        if (chargeUpdated || _playerAttack.stats.chargeRequired <= 0) return;
+        if (chargeUpdated || _playerAttack.stats.charge <= 0) return;
         
         if (_playerAttack.stats.restoreCharge)
         {
             if (pc.psm.EnemiesInHit.Count > 0)
             {
-                pc.pi.ChangeCharge(_playerAttack);
+                pc.pi.ApplyAttackMeterChanges(_playerAttack);
                 chargeUpdated = true;
             }
         }
         else
         {
-            pc.pi.ChangeCharge(_playerAttack);
+            pc.pi.ApplyAttackMeterChanges(_playerAttack);
             chargeUpdated = true;
         }
     }
@@ -228,6 +230,9 @@ public class PlayerAttacking : PlayerState
         
         switch (_playerAttack.hitInfo.hitDetection)
         {
+            case HitDetections.WeaponCollider:
+                pc.psm.enemiesHitThisAction = EnemiesInWeaponCollider().Union(EnemiesInWeaponTrail()).ToHashSet();
+                break;
             case HitDetections.WeaponTrail:
                 pc.psm.enemiesHitThisAction = EnemiesInWeaponTrail();
                 break;
@@ -256,7 +261,7 @@ public class PlayerAttacking : PlayerState
     private HashSet<LockOnTarget> EnemiesInWeaponTrail()
     {
         HashSet<Collider> enemies = pc.psm
-            .GetAllEnemiesInCapsule(_playerAttack.hitInfo.lateralRadius, _playerAttack.hitInfo.verticalRadius, _playerAttack.hitInfo.hitRegisterAngle)
+            .GetAllEnemiesInCapsule(pc.psm.playerData.largeRadius, pc.psm.playerData.largeRadius, 360)
             .Select(e => e.GetComponent<Collider>()).ToHashSet();
         
         enemies = enemies.Where(e => pc.wc.IsIntersecting(e)).ToHashSet();
@@ -265,6 +270,22 @@ public class PlayerAttacking : PlayerState
         e.RemoveWhere(e => e.TookDamageThisAction(_playerAttack));
         
         return e;
+    }
+
+    private HashSet<LockOnTarget> EnemiesInWeaponCollider()
+    {
+        HashSet<LockOnTarget> enemies = new();
+
+        foreach (var weapon in pc.wc.activeWeapons)
+        {
+            if (weapon == null) continue;
+
+            enemies = enemies.Union(weapon.IntersectingTargets).ToHashSet();
+        }
+        
+        enemies = enemies.Where(e => e != null && e.TookDamageThisAction(_playerAttack) == false).ToHashSet();
+
+        return enemies;
     }
     
     private HashSet<LockOnTarget> EnemiesInSphere()

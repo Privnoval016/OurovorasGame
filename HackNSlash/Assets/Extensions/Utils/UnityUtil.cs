@@ -417,6 +417,21 @@ namespace Extensions.Utils
         {
             return string.Join(", ", array.Select(x => x.ToString()).ToArray());
         }
+
+        public static T[] Add<T>(this T[] array, T item)
+        {
+            T[] newArray = new T[array.Length + 1];
+            Array.Copy(array, newArray, array.Length);
+            newArray[array.Length] = item;
+            return newArray;
+        }
+        
+        public static T[] Remove<T>(this T[] array, T item)
+        {
+            List<T> list = new List<T>(array);
+            list.Remove(item);
+            return list.ToArray();
+        }
     }
     
     public enum NBool

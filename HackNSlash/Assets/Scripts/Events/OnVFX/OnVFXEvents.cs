@@ -88,8 +88,6 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         
         vfxController.EnableVFX();
         
-        this.RunSegmentCoroutine(SpawnWithDelay(vfxController, a, 0, WeaponType.None));
-        
         return vfxController;
     }
     

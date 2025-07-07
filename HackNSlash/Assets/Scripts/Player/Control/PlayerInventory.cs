@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.UI;
 using Extensions.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -29,12 +30,17 @@ public class PlayerInventory : MonoBehaviour
     
     [Header("Element Info")]
 
-    public ElementEffect CurrentElementEffect = ElementEffect.None;
-    public ElementEffect ImbuedElementEffect = ElementEffect.None;
+    public ElementEffect currentElementEffect = ElementEffect.None;
+    public ElementEffect imbuedElementEffect = ElementEffect.None;
 
     public ElementEffect[] elementEffects = Array.Empty<ElementEffect>();
-    public CircularList<ElementEffect> elementEffectOrder;
-
+    
+    public int CurrentElementIndex => elementEffects.ToList().IndexOf(currentElementEffect);
+    private RadialMenuOption<ElementEffect> CurrentElementOption => ElementRadialMenu.GetOption(CurrentElementIndex);
+    
+    public RadialMenu<ElementEffect> ElementRadialMenu;
+    
+    
     #endregion
     
     #region Stat Info
@@ -43,6 +49,9 @@ public class PlayerInventory : MonoBehaviour
     
     public float currentHealth;
     public float currentCharge;
+    public float currentUltimate;
+
+    public float currentFinisher;
     
     public Dictionary<Stat, float> Stats = new();
     
@@ -53,12 +62,13 @@ public class PlayerInventory : MonoBehaviour
     private void Awake()
     {
         pc = GetComponent<PlayerController>();
+
+        InitializeElementMenu();
         
         InitializeStats();
 
-        elementEffectOrder = new CircularList<ElementEffect>(elementEffects.ToList());
-        InputManager.Instance.swapElementLeft.performed += OnSwapElementLeft;
-        InputManager.Instance.swapElementRight.performed += OnSwapElementRight;
+        InputManager.Instance.elementMenuOpen.performed += OnElementMenuAction;
+        InputManager.Instance.elementMenuOpen.canceled += OnElementMenuAction;
 
         CurrentLoadout.elementLoadout?.ValidateElementAttacks();
 
@@ -67,7 +77,8 @@ public class PlayerInventory : MonoBehaviour
 
     private void Update()
     {
-
+        UpdateUltimateCharge();
+        UpdateElementMenu();
     }
 
     private void LateUpdate()
@@ -82,23 +93,27 @@ public class PlayerInventory : MonoBehaviour
     #endregion
 
     #region Input Callbacks
-
-    private void OnSwapElementLeft(InputAction.CallbackContext context)
+    
+    private void OnElementMenuAction(InputAction.CallbackContext context)
     {
-        int index = elementEffectOrder.IndexOf(CurrentElementEffect);
-        CurrentElementEffect = elementEffectOrder.ItemAtShiftedIndex(index, -1);
-
-        HUDMenuUI.Instance.ScrollElementsLeft();
-        HUDMenuUI.Instance.UpdateElementalAttackIcons();
-    }
-
-    private void OnSwapElementRight(InputAction.CallbackContext context)
-    {
-        int index = elementEffectOrder.IndexOf(CurrentElementEffect);
-        CurrentElementEffect = elementEffectOrder.ItemAtShiftedIndex(index, 1);
-        
-        HUDMenuUI.Instance.ScrollElementsRight();
-        HUDMenuUI.Instance.UpdateElementalAttackIcons();
+        if (context.performed)
+        {
+            CombatManager.Instance.ApplySlowedTimeScale(pc, true);
+            
+            ElementRadialMenu.OnElementMenuOpen(CurrentElementOption);
+            HUDMenuUI.Instance.ActivateElementSwapMenu();
+        }
+        else if (context.canceled)
+        {
+            CombatManager.Instance.ApplySlowedTimeScale(pc, false);
+            
+            var option = ElementRadialMenu.OnElementMenuClose();
+            HUDMenuUI.Instance.DeactivateElementSwapMenu();
+            
+            if (option == null || option.data == currentElementEffect) return;
+            
+            SwapElement(option.data);
+        }
     }
 
     #endregion
@@ -128,6 +143,13 @@ public class PlayerInventory : MonoBehaviour
             }
         }
     }
+    
+    public bool AttackInElementLoadout(Attack attack)
+    {
+        if (CurrentLoadout.elementLoadout == null) return false;
+        
+        return CurrentLoadout.elementLoadout.GetElementAttack(currentElementEffect)?.AttackInLoadout(attack) ?? false;
+    }
 
     #endregion
     
@@ -135,7 +157,41 @@ public class PlayerInventory : MonoBehaviour
     
     public EquippedElementAttack GetCurrentElementAttack()
     {
-        return CurrentLoadout.elementLoadout?.GetElementAttack(CurrentElementEffect);
+        return CurrentLoadout.elementLoadout?.GetElementAttack(currentElementEffect);
+    }
+
+    private void InitializeElementMenu()
+    {
+        RadialMenuOption<ElementEffect>[] elementOptions = new RadialMenuOption<ElementEffect>[elementEffects.Length];
+        for (int i = 0; i < elementEffects.Length; i++)
+        {
+            elementOptions[i] = new RadialMenuOption<ElementEffect>(i, elementEffects[i]);
+        }
+        
+        ElementRadialMenu = new RadialMenu<ElementEffect>(elementOptions, Vector2.up);
+        
+        SwapElement(elementEffects.Length > 0 ? elementEffects[0] : ElementEffect.Wind);
+    }
+
+    public void SwapElement(ElementEffect next)
+    {
+        currentElementEffect = next;
+        HUDMenuUI.Instance.SetSelectedElementIcon(next);
+        HUDMenuUI.Instance.UpdateElementalAttackIcons();
+    }
+
+    private void UpdateElementMenu()
+    {
+        Vector2 inputDirection = InputManager.Instance.cameraMove.ReadValue<Vector2>();
+        inputDirection = inputDirection.magnitude > 0.4f ? inputDirection.normalized : Vector2.zero;
+        RadialMenuOption<ElementEffect> selected = ElementRadialMenu.UpdateMenu(inputDirection);
+
+        HUDMenuUI.Instance.SetRadialMenuLine(inputDirection);
+        
+        if (selected != null)
+        {
+            HUDMenuUI.Instance.SetRadialMenuIcon(selected.data, selected.index);
+        }
     }
     
     #endregion
@@ -145,12 +201,21 @@ public class PlayerInventory : MonoBehaviour
     private void InitializeStats()
     {
         Stats.Add(Stat.MaxHealth, 100f);
-        Stats.Add(Stat.MaxCharge, 100f);
+        Stats.Add(Stat.MaxCharge, 200f);
         Stats.Add(Stat.Strength, 10f);
         Stats.Add(Stat.Defense, 5f);
+
+        currentHealth = 0f;
+        currentCharge = 0f;
+        currentUltimate = 0f;
+        currentFinisher = 0f;
         
-        currentHealth = GetStat(Stat.MaxHealth);
-        currentCharge = GetStat(Stat.MaxCharge);
+        ChangeHealth(GetStat(Stat.MaxHealth));
+        SetCharge(GetStat(Stat.MaxCharge));
+        
+        HUDMenuUI.Instance.UpdateUltimate(UltimatePercentage(currentUltimate));
+        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(currentFinisher));
+        
     }
     
     public float GetStat(Stat stat)
@@ -177,11 +242,12 @@ public class PlayerInventory : MonoBehaviour
         HUDMenuUI.Instance.UpdateHealth(StatPercentage(currentHealth, Stat.MaxHealth));
     }
     
-    public void ChangeCharge(float amount)
+    public void ChangeCharge(float amount, Attack a)
     {
         if (amount == 0) return;
         
         currentCharge = Mathf.Clamp(currentCharge + amount, 0, GetStat(Stat.MaxCharge));
+        
         HUDMenuUI.Instance.UpdateCharge(StatPercentage(currentCharge, Stat.MaxCharge));
     }
     
@@ -191,10 +257,25 @@ public class PlayerInventory : MonoBehaviour
         HUDMenuUI.Instance.SetCharge(StatPercentage(currentCharge, Stat.MaxCharge));
     }
 
-    public void ChangeCharge(Attack a)
+    public void ApplyAttackMeterChanges(Attack a)
     {
-        pc.pi.ChangeCharge(a.stats.restoreCharge ? a.stats.chargeRequired : -a.stats.chargeRequired);
+        ChangeCharge(a.stats.restoreCharge ? a.stats.charge : -a.stats.charge, a);
+        
+        ChangeFinisherCharge(a.stats.ultimateCharge);
+        
+        if (pc.psm.movingState != MovingStates.Katana)
+            pc.pi.ChangeUltimate(a.stats.ultimateCharge);
     }
+    
+    public float GetCooldownPercentage(KeyBind k)
+    {
+        float minCharge = CurrentLoadout.elementLoadout.GetMinCharge(k);
+        
+        if (minCharge <= 0) return 1f;
+        
+        return Mathf.Clamp01(currentCharge / minCharge);
+    }
+    
     
     public void ApplyStatChange(StatChange change)
     {
@@ -204,7 +285,105 @@ public class PlayerInventory : MonoBehaviour
     
     
     #endregion
+    
+    #region Ultimate Methods
+    
+    public void ChangeUltimate(float amount)
+    {
+        if (amount == 0) return;
+        
+        currentUltimate = Mathf.Clamp(currentUltimate + amount, 0, statData.maxUltimateCharge);
+        HUDMenuUI.Instance.UpdateUltimate(UltimatePercentage(currentUltimate));
+    }
+    
+    public float UltimatePercentage(float value)
+    {
+        float maxUltimate = statData.maxUltimateCharge;
+        
+        return maxUltimate > 0 ? value / maxUltimate : 0f;
+    }
+
+    private void UpdateUltimateCharge()
+    {
+        if (pc.psm.movingState != MovingStates.Katana) return;
+        
+        ChangeUltimate(-statData.ultimateDrainRate * Time.deltaTime);
+        
+        if (currentUltimate <= 0)
+        {
+            pc.psm.SwapToUltimate();
+        }
+    }
+    
+    #endregion
+
+    #region Finisher Methods
+
+    public void ChangeFinisherCharge(float amount)
+    {
+        if (amount == 0) return;
+        
+        currentFinisher = Mathf.Clamp(currentFinisher + amount, 0, statData.maxFinisherCharge);
+        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(currentFinisher));
+    }
+    
+    public float FinisherPercentage(float value)
+    {
+        float maxFinisher = statData.maxFinisherCharge;
+        
+        return maxFinisher > 0 ? value / maxFinisher : 0f;
+    }
+    
+    public void ResetFinisherCharge(Attack a = null)
+    {
+        if (a != null && !CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return;
+        
+        currentFinisher = 0f;
+        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(currentFinisher));
+    }
+
+    #endregion
+
+    #region Stat Checks
+    
+    public bool CanUseUltimate()
+    {
+        if (pc.psm.movingState == MovingStates.NonCombat) return false;
+        if (!pc.psm.canAttack) return false;
+        return pc.psm.movingState == MovingStates.Katana || currentUltimate >= statData.minActivationCharge;
+    }
+
+    public bool CanSwapToNonCombat()
+    {
+        if (!pc.psm.canAttack) return false;
+        if (!pc.psm.IsGrounded) return false;
+
+        return true;
+    }
+    
+    public bool FinishedElementCooldown(Attack a)
+    {
+        if (!AttackInElementLoadout(a)) return true;
+        
+        return GetCooldownPercentage(a.keyBinds[0]) >= 1f;
+    }
+
+    public bool CanUseFinisher(Attack a = null)
+    {
+        if (a != null && !CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return true;
+
+        LockOnTarget target = pc.psm.NearestHEnemy;
+        
+        if (target == null) return false;
+        
+        return FinisherPercentage(currentFinisher) >= 1f;
+        
+    }
+    
+    #endregion
 }
+
+
    
    
 public enum Stat

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Animancer;
+using UnityEngine.Serialization;
 using Object = System.Object;
 
 [CreateAssetMenu(menuName = "Player/MoveAnimData")]
@@ -30,7 +31,8 @@ public class MoveAnimData : ScriptableObject
     [Header("Other")]
     
     public ClipTransition swapClip;
-    public MovingStates nextState;
+    [FormerlySerializedAs("nextState")] public MovingStates swapNextState;
+    public WeaponType[] swapWeapons;
 
     public ClipTransition ultClip;
     public MovingStates ultNextState;

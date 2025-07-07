@@ -17,6 +17,8 @@ public class WeaponBody : KinematicBehaviour, IContactDetector
     
     protected Queue<Vector3[]> trailPositions = new Queue<Vector3[]>();
     public int trailLength => weaponController.trailLength;
+
+    [HideInInspector] public HashSet<LockOnTarget> IntersectingTargets = new();
     
     
     [Header("Effects")]
@@ -222,6 +224,22 @@ public class WeaponBody : KinematicBehaviour, IContactDetector
         }
 
         return closestPoint;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out LockOnTarget target))
+        {
+            IntersectingTargets.Add(target);
+        }
+    }
+    
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.TryGetComponent(out LockOnTarget target))
+        {
+            IntersectingTargets.Remove(target);
+        }
     }
 
     [Serializable]

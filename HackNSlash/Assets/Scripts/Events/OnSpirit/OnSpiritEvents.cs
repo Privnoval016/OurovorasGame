@@ -51,7 +51,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     
     private IEnumerator<float> BeginRangedAttack(ElementalSpirit spirit, SpiritAttack a)
     {
-        ElementEffect element = spirit.pc.pi.CurrentElementEffect;
+        ElementEffect element = spirit.pc.pi.currentElementEffect;
         
         HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
         
@@ -120,7 +120,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     
     private IEnumerator<float> BeginHitScanVFX(ElementalSpirit spirit, SpiritAttack a)
     {
-        ElementEffect element = spirit.pc.pi.CurrentElementEffect;
+        ElementEffect element = spirit.pc.pi.currentElementEffect;
         
         HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
         

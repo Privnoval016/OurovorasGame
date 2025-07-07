@@ -60,12 +60,11 @@ public class GameManager : Singleton<GameManager>
         SetElementMap();
         
         InputManager.Instance.pause.performed += OnPauseAction;
-        
-        OverworldMenuUI.Instance.gameObject.SetActive(true);
     }
 
     private void Start()
     {
+        OverworldMenuUI.Instance.gameObject.SetActive(true);
         SetGameState(GameState.Menu);
         SetGameState(GameState.PlayerControl);
     }
@@ -122,19 +121,19 @@ public class GameManager : Singleton<GameManager>
     private void SetPlayerControlState()
     {
         OverworldMenuUI.Instance.CloseMenu();
-        CombatManager.Instance.ApplyPausedTimescale(false);
+        CombatManager.Instance.ApplyPausedTimescale(pc, false);
     }
     
     private void SetCutsceneState()
     {
         OverworldMenuUI.Instance.CloseMenu();
-        CombatManager.Instance.ApplyPausedTimescale(true);
+        CombatManager.Instance.ApplyPausedTimescale(pc, true);
     }
     
     private void SetMenuState()
     {
         OverworldMenuUI.Instance.OpenMenu();
-        CombatManager.Instance.ApplyPausedTimescale(true);
+        CombatManager.Instance.ApplyPausedTimescale(pc, true);
     }
     
     #endregion
@@ -150,7 +149,7 @@ public class GameManager : Singleton<GameManager>
             ElementMap.Add(element.element, () => element);
         }
         
-        ElementMap.Add(ElementEffect.MatchCurrent, () => GetElementData(pc?.pi?.CurrentElementEffect ?? ElementEffect.None));
+        ElementMap.Add(ElementEffect.MatchCurrent, () => GetElementData(pc?.pi?.currentElementEffect ?? ElementEffect.None));
     }
     
     public static ElementData GetElementData(ElementEffect elementEffect)

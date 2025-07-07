@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Aether
   m_EditorClassIdentifier: 
   element: 7
-  elementColor: {r: 0.08176088, g: 0.08176088, b: 0.08176088, a: 1}
-  elementInactiveColor: {r: 0, g: 0, b: 0, a: 1}
+  elementColor: {r: 0.088050246, g: 0.088050246, b: 0.088050246, a: 1}
+  elementInactiveColor: {r: 0.35220122, g: 0.35220122, b: 0.35220122, a: 1}
   vfxPureColor: {r: 16.100601, g: 16.100601, b: 16.100601, a: 1}
   vfxBrightColor: {r: 13.9721365, g: 13.9721365, b: 13.9721365, a: 10}
   vfxDarkColor: {r: 0, g: 0, b: 0, a: 5}

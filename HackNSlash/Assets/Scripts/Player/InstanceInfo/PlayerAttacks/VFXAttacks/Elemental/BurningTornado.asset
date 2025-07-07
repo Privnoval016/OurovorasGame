@@ -18,7 +18,7 @@ MonoBehaviour:
   - vfxType: 0
     effect: {fileID: 289161321636050785, guid: e68e5f93ec6b8854c9ee981eb815a6aa, type: 3}
     localTransform:
-      Position: {x: 0, y: -4, z: 0}
+      Position: {x: 0, y: -2.4, z: 0}
       Rotation: {x: 0, y: 0, z: 0, w: 0}
       Scale: {x: 1.22, y: 1.22, z: 1.22}
     durationScale: 1

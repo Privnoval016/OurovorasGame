@@ -19,7 +19,7 @@ MonoBehaviour:
   element: 1
   stats:
     restoreCharge: 0
-    chargeRequired: 25
+    charge: 50
     damage: 0
   isLockedOn: 0
   requireElementTrigger: 1
@@ -37,7 +37,7 @@ MonoBehaviour:
     verticalRadius: 3
     hitRegisterAngle: 120
     numTargets: 1
-    attackCoolDown: 0
+    attackCoolDown: 0.5
     hitForce: 10
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}

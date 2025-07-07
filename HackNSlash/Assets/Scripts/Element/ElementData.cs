@@ -49,11 +49,11 @@ public class ElementData : ScriptableObject
 
         if (element == ElementEffect.MatchCurrent)
         {
-            element = pc.pi.CurrentElementEffect;
+            element = pc.pi.currentElementEffect;
         }
-        else if (element == ElementEffect.None && pc.pi.ImbuedElementEffect != ElementEffect.None)
+        else if (element == ElementEffect.None && pc.pi.imbuedElementEffect != ElementEffect.None)
         {
-            element = pc.pi.ImbuedElementEffect;
+            element = pc.pi.imbuedElementEffect;
         }
         else if (element == ElementEffect.None && pc.psm.movingState == MovingStates.Katana)
         {

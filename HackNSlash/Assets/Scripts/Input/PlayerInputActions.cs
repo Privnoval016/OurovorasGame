@@ -127,18 +127,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""SwapElementLeft"",
+                    ""name"": ""ElementMenu"",
                     ""type"": ""Button"",
                     ""id"": ""bba850a4-ba15-41b0-a0d8-34de5509e31f"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""SwapElementRight"",
-                    ""type"": ""Button"",
-                    ""id"": ""53e85645-8f34-42cf-a215-181ad767a0f7"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -412,12 +403,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""82156a3c-92b6-4a1c-b4d3-576a11093d3c"",
+                    ""id"": ""7ae788b2-3836-432b-a294-bc0dd26c1344"",
                     ""path"": ""<Gamepad>/leftTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SwapElementLeft"",
+                    ""action"": ""ElementMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -428,36 +419,14 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SwapElementLeft"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""4ccb0ea6-fe7a-41e6-8060-074c1d5c61a1"",
-                    ""path"": ""<Gamepad>/rightTrigger"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SwapElementRight"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""df030b70-126e-4d79-80a4-d58984e2ee6b"",
-                    ""path"": ""<Keyboard>/9"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SwapElementRight"",
+                    ""action"": ""ElementMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
                     ""id"": ""26f0d564-8b21-4bb8-93e2-b1a99145e7fb"",
-                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -916,8 +885,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_Retarget = m_Player.FindAction("Retarget", throwIfNotFound: true);
         m_Player_EnterCombat = m_Player.FindAction("EnterCombat", throwIfNotFound: true);
         m_Player_ActivateUltimate = m_Player.FindAction("ActivateUltimate", throwIfNotFound: true);
-        m_Player_SwapElementLeft = m_Player.FindAction("SwapElementLeft", throwIfNotFound: true);
-        m_Player_SwapElementRight = m_Player.FindAction("SwapElementRight", throwIfNotFound: true);
+        m_Player_ElementMenu = m_Player.FindAction("ElementMenu", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_Navigate = m_Menu.FindAction("Navigate", throwIfNotFound: true);
@@ -1010,8 +978,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Retarget;
     private readonly InputAction m_Player_EnterCombat;
     private readonly InputAction m_Player_ActivateUltimate;
-    private readonly InputAction m_Player_SwapElementLeft;
-    private readonly InputAction m_Player_SwapElementRight;
+    private readonly InputAction m_Player_ElementMenu;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -1027,8 +994,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         public InputAction @Retarget => m_Wrapper.m_Player_Retarget;
         public InputAction @EnterCombat => m_Wrapper.m_Player_EnterCombat;
         public InputAction @ActivateUltimate => m_Wrapper.m_Player_ActivateUltimate;
-        public InputAction @SwapElementLeft => m_Wrapper.m_Player_SwapElementLeft;
-        public InputAction @SwapElementRight => m_Wrapper.m_Player_SwapElementRight;
+        public InputAction @ElementMenu => m_Wrapper.m_Player_ElementMenu;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1071,12 +1037,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ActivateUltimate.started += instance.OnActivateUltimate;
             @ActivateUltimate.performed += instance.OnActivateUltimate;
             @ActivateUltimate.canceled += instance.OnActivateUltimate;
-            @SwapElementLeft.started += instance.OnSwapElementLeft;
-            @SwapElementLeft.performed += instance.OnSwapElementLeft;
-            @SwapElementLeft.canceled += instance.OnSwapElementLeft;
-            @SwapElementRight.started += instance.OnSwapElementRight;
-            @SwapElementRight.performed += instance.OnSwapElementRight;
-            @SwapElementRight.canceled += instance.OnSwapElementRight;
+            @ElementMenu.started += instance.OnElementMenu;
+            @ElementMenu.performed += instance.OnElementMenu;
+            @ElementMenu.canceled += instance.OnElementMenu;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1114,12 +1077,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ActivateUltimate.started -= instance.OnActivateUltimate;
             @ActivateUltimate.performed -= instance.OnActivateUltimate;
             @ActivateUltimate.canceled -= instance.OnActivateUltimate;
-            @SwapElementLeft.started -= instance.OnSwapElementLeft;
-            @SwapElementLeft.performed -= instance.OnSwapElementLeft;
-            @SwapElementLeft.canceled -= instance.OnSwapElementLeft;
-            @SwapElementRight.started -= instance.OnSwapElementRight;
-            @SwapElementRight.performed -= instance.OnSwapElementRight;
-            @SwapElementRight.canceled -= instance.OnSwapElementRight;
+            @ElementMenu.started -= instance.OnElementMenu;
+            @ElementMenu.performed -= instance.OnElementMenu;
+            @ElementMenu.canceled -= instance.OnElementMenu;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1307,8 +1267,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         void OnRetarget(InputAction.CallbackContext context);
         void OnEnterCombat(InputAction.CallbackContext context);
         void OnActivateUltimate(InputAction.CallbackContext context);
-        void OnSwapElementLeft(InputAction.CallbackContext context);
-        void OnSwapElementRight(InputAction.CallbackContext context);
+        void OnElementMenu(InputAction.CallbackContext context);
     }
     public interface IMenuActions
     {

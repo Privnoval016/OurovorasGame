@@ -131,7 +131,7 @@ Transform:
   m_GameObject: {fileID: 5393091696796562572}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 4.21, z: 0}
+  m_LocalPosition: {x: 0, y: 5.87, z: 0}
   m_LocalScale: {x: 6.9434476, y: 6.7594056, z: 8.120643}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -253,6 +253,8 @@ MonoBehaviour:
   vfxController: {fileID: 5261310567344933792}
   meshRenderer: {fileID: 0}
   col: {fileID: 0}
+  useOnEnter: 1
+  useOnStay: 1
 --- !u!1 &7592208696677839592
 GameObject:
   m_ObjectHideFlags: 0
@@ -283,7 +285,7 @@ Transform:
   m_GameObject: {fileID: 7592208696677839592}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.33, z: 0}
+  m_LocalPosition: {x: 0, y: 0.33, z: 0}
   m_LocalScale: {x: 10.457, y: 4.289319, z: 10.796}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -405,3 +407,5 @@ MonoBehaviour:
   vfxController: {fileID: 5261310567344933792}
   meshRenderer: {fileID: 0}
   col: {fileID: 0}
+  useOnEnter: 1
+  useOnStay: 1

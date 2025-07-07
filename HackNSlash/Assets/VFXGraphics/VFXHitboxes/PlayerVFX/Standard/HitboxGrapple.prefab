@@ -152,6 +152,8 @@ MonoBehaviour:
   vfxController: {fileID: 5261310567344933792}
   meshRenderer: {fileID: 0}
   col: {fileID: 0}
+  useOnEnter: 1
+  useOnStay: 0
 --- !u!1 &3712180620774419834
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,6 +224,7 @@ MonoBehaviour:
   timeActive: 0
   timeVFXEnabled: 0
   activeHitbox: 1
+  hitboxEnableDelay: 0
   vfxEnabled: 0
 --- !u!54 &-8647599811641329118
 Rigidbody:

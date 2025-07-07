@@ -1,28 +1,17 @@
 using System;
+using System.Collections.Generic;
 using Extensions.Utils;
 using PrimeTween;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class CameraController : MonoBehaviour
 {
     public CameraController Instance { get; private set; }
     
     #region Inspector Settings
-
-    [Header("Camera Movement Settings")] 
-    
-    [SerializeField] private float orbitRadiusChangeMultiplier = 1;
-    
-    [SerializeField] private float baseXSensitivity = 300;
-    [SerializeField] private float baseYSensitivity = 2;
-    
-    [SerializeField, Range(0, 5)] private float xSensitivityMultiplier = 1;
-    [SerializeField, Range(0, 5)] private float ySensitivityMultiplier = 1;
-    
-    [SerializeField] private bool invertX;
-    [SerializeField] private bool invertY;
     
     [Header("Target Settings")]
     
@@ -30,17 +19,18 @@ public class CameraController : MonoBehaviour
     
     [SerializeField] private Transform playerTargetTransform;
     [SerializeField] private Transform enemyTargetTransform;
+    [SerializeField] private Transform finisherTargetTransform;
     public bool isFollowingPlayer = true;
     private Vector3 lastPlayerPosition;
-    
-    [SerializeField] private CinemachineOrbitalFollow playerCamera;
+
+    [SerializeField] private GameObject cameraContainer;
+    [SerializeField] private CineCamInfo[] cameraList;
+    private Dictionary<PlayerCamStates, CinemachineCamera> cineCams;
+    private List<CinemachineInputAxisController> inputAxisControllers;
     [SerializeField] private CinemachineImpulseSource impulseSource;
     private CinemachineBrain camBrain;
     
     private PlayerController pc;
-
-    private float lerpTimer;
-    public float lerpTime = 0.2f;
     
     #endregion
     
@@ -49,9 +39,13 @@ public class CameraController : MonoBehaviour
     public bool IsLockedOn => TargetedEnemy != null;
     [HideInInspector] public bool lockOnTriggered;
     [HideInInspector] public LockOnTarget TargetedEnemy;
+    [HideInInspector] public LockOnTarget FinisherTarget;
     public Vector3 LockOnDirection => (TargetedEnemy.TargetedPosition() - pc.transform.position).ZeroVector3Axis().normalized;
     
     public Vector3 TargetPosition => IsLockedOn ? TargetedEnemy.TargetedPosition() : pc.transform.position;
+
+    [HideInInspector] public PlayerCamStates currentPlayerCamState;
+    public CinemachineCamera CurrentCamera => cineCams[currentPlayerCamState];
     
     #endregion
 
@@ -74,10 +68,10 @@ public class CameraController : MonoBehaviour
         InputManager.Instance.lockOn.canceled += OnLockOnAction;
         InputManager.Instance.retarget.performed += OnRetargetAction;
         
-        playerCamera.transform.parent.gameObject.SetActive(true);
+        InitializeCamData();
         
         playerTargetTransform.position = pc.cameraFollowTarget.position;
-
+        
         TargetedEnemy = null;
 
         
@@ -85,14 +79,103 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        UpdateTargets();
-        ValidateLockedOnTarget();
+        PerformStateActions();
     }
 
     private void LateUpdate()
     {
     }
 
+    #endregion
+    
+    #region State Methods
+    
+    private void InitializeCamData()
+    {
+        cineCams = new Dictionary<PlayerCamStates, CinemachineCamera>();
+        
+        foreach (CineCamInfo camInfo in cameraList)
+        {
+            cineCams.Add(camInfo.playerCamState, camInfo.cam);
+        }
+
+        if (cineCams.Count == 0)
+        {
+            Debug.LogError("No cameras found in CameraController!");
+        }
+        
+        cameraContainer.SetActive(true);
+        
+        inputAxisControllers = new List<CinemachineInputAxisController>();
+        foreach (var cam in cineCams.Values)
+        {
+            if (cam.TryGetComponent(out CinemachineInputAxisController inputAxisController))
+            {
+                inputAxisControllers.Add(inputAxisController);
+            }
+        }
+        
+        currentPlayerCamState = PlayerCamStates.FinisherCloseUp;
+        Debug.Log(SwitchState(PlayerCamStates.Free));
+    }
+    
+    private void PerformStateActions()
+    {
+        switch (currentPlayerCamState)
+        {
+            case PlayerCamStates.Free:
+                if (IsLockedOn) SwitchState(PlayerCamStates.LockedOn);
+                UpdateLockOnTargets();
+                ValidateLockedOnTarget();
+                break;
+                
+            case PlayerCamStates.LockedOn:
+                if (!IsLockedOn) SwitchState(PlayerCamStates.Free);
+                UpdateLockOnTargets();
+                ValidateLockedOnTarget();
+                break;
+                
+            case PlayerCamStates.FinisherCloseUp:
+                UpdateFinisherTargets();
+                break;
+                
+            case PlayerCamStates.OverworldFocus:
+                break;
+        }
+    }
+    
+    public bool SwitchState(PlayerCamStates state)
+    {
+        if (currentPlayerCamState == state) return false;
+        
+        if (!cineCams.TryGetValue(state, out CinemachineCamera cam)) return false;
+        
+        currentPlayerCamState = state;
+        
+        cam.gameObject.SetActive(true);
+       
+        foreach (var c in cineCams.Values)
+        {
+            if (c == cam) continue;
+            c.gameObject.SetActive(false);
+        }
+        
+        
+
+        return true;
+    }
+    
+    public CinemachineCamera GetCamera(PlayerCamStates state)
+    {
+        if (cineCams.TryGetValue(state, out CinemachineCamera cam))
+        {
+            return cam;
+        }
+        
+        Debug.LogError($"Camera for state {state} not found!");
+        return null;
+    }
+    
     #endregion
     
     #region Input Callbacks
@@ -122,13 +205,24 @@ public class CameraController : MonoBehaviour
     
     #region Camera Methods
     
-    private void UpdateTargets()
+    private void UpdateLockOnTargets()
     {
         lastPlayerPosition = isFollowingPlayer ? pc.cameraFollowTarget.position : lastPlayerPosition;
         Vector3 enemyTarget = IsLockedOn ? TargetedEnemy.TargetedPosition() : playerTargetTransform.position;
 
         playerTargetTransform.position = lastPlayerPosition;
         enemyTargetTransform.position = EaseUtil.DampVector3(enemyTargetTransform.position, enemyTarget, 5, 0.1f);
+    }
+
+    private void UpdateFinisherTargets()
+    {
+        lastPlayerPosition = isFollowingPlayer ? pc.cameraFollowTarget.position : lastPlayerPosition;
+        
+        playerTargetTransform.position = lastPlayerPosition;
+        
+        finisherTargetTransform.position = FinisherTarget != null
+            ? FinisherTarget.TargetedPosition()
+            : playerTargetTransform.position;
     }
     
     private void CheckForLockOnTarget()
@@ -154,7 +248,6 @@ public class CameraController : MonoBehaviour
 
         if (t != null)
         {
-            lerpTimer = 0;
             TargetedEnemy = t;
         }
     }
@@ -210,6 +303,29 @@ public class CameraController : MonoBehaviour
         if (impulseSource == null) return;
         impulseSource.GenerateImpulseWithForce(magnitude);
     }
+
+    public void EnableCameraInputDetection(bool on)
+    {
+        foreach (var inputAxisController in inputAxisControllers)
+        {
+            inputAxisController.enabled = on;
+        }
+    }
     
     #endregion
+
+    [Serializable]
+    public class CineCamInfo
+    {
+        [FormerlySerializedAs("cameraState")] public PlayerCamStates playerCamState;
+        public CinemachineCamera cam;
+    }
+}
+
+public enum PlayerCamStates
+{
+    Free,
+    LockedOn,
+    FinisherCloseUp,
+    OverworldFocus
 }

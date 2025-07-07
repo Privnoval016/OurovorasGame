@@ -173,8 +173,11 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 force = new Vector3(15, 0),
                 direction = -TruePlayerForward.ToVector2(),
-                damage = -20,
+                damage = 20,
             });
+            
+            pc.cam.FinisherTarget = NearestHEnemy;
+            pc.cam.SwitchState(pc.cam.currentPlayerCamState == PlayerCamStates.FinisherCloseUp ? PlayerCamStates.Free : PlayerCamStates.FinisherCloseUp);  
         }
     }
     
@@ -198,7 +201,7 @@ public class PlayerStateMachine : MonoBehaviour
     
     private void SetMoveValues()
     {
-        moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
+        if (!CombatManager.Instance.entitiesStopped) moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
 
         inputDirQueue.Enqueue(StandardizedMoveDir);
         inputTimeQueue.Enqueue(Time.time);
@@ -349,7 +352,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         #region Double Jump
         
-        if (attackData.doubleJumpEnabled && CanDoubleJump && KeyMap[KeyBind.Jump].action() && !isElementAttacking)
+        if (attackData.doubleJumpEnabled && CanDoubleJump && KeyMap[KeyBind.South].action() && !isElementAttacking)
         {
             Debug.Log("Double Jump");
             lastDoubleJumpTime = 0;
@@ -366,6 +369,8 @@ public class PlayerStateMachine : MonoBehaviour
     private void CheckAttackAction()
     {
         SetActionTimers();
+        
+        if (CombatManager.Instance.entitiesStopped) return;
         
         if (CheckMobilityAction()) return;
         
@@ -427,7 +432,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         #region Elemental Attack
 
-        Attack[] elementAttacks = pc.pi.CurrentLoadout.elementLoadout?.GetElementAttacks(pc.pi.CurrentElementEffect, movingState);
+        Attack[] elementAttacks = pc.pi.CurrentLoadout.elementLoadout?.GetElementAttacks(pc.pi.currentElementEffect, movingState);
 
         SpiritAttack s = null;
         foreach (var e in elementAttacks)
@@ -504,7 +509,7 @@ public class PlayerStateMachine : MonoBehaviour
                     break;
                 
                 case ComboActionType.Hold:
-                    KeyBind pressedKey = nextAction.playerAttack.keyBinds.Contains(KeyBind.LightAttack) ? KeyBind.LightAttack : KeyBind.HeavyAttack;
+                    KeyBind pressedKey = nextAction.playerAttack.keyBinds.Contains(KeyBind.West) ? KeyBind.West : KeyBind.North;
                     if (KeyMap[pressedKey].holdTime > nextAction.time)
                     {
                         possibleActions.Add(nextAction);
@@ -521,7 +526,7 @@ public class PlayerStateMachine : MonoBehaviour
                     break;
                 
                 case ComboActionType.Mash:
-                    KeyBind mashKey = nextAction.playerAttack.keyBinds.Contains(KeyBind.LightAttack) ? KeyBind.LightAttack : KeyBind.HeavyAttack;
+                    KeyBind mashKey = nextAction.playerAttack.keyBinds.Contains(KeyBind.West) ? KeyBind.West : KeyBind.North;
                     
                     if (KeyMap[mashKey].lastTime < nextAction.time && KeyMap[mashKey].action())
                     {
@@ -633,8 +638,37 @@ public class PlayerStateMachine : MonoBehaviour
         if (attack.inputDirection != Vector2.zero && !direction.IsInDirectionCone(attack.inputDirection, 92f)) return false;
         
         if (!attack.HasEnoughCharge(pc)) return false;
+        
+        if (!pc.pi.FinishedElementCooldown(attack)) return false;
+        
+        if (!pc.pi.CanUseFinisher(attack)) return false;
 
         return true;
+    }
+    
+    public void SwapToUltimate()
+    {
+        pc.wc.SwitchWeapon(pc.pac.MovingAnims.ultWeapons, pc.pac.MovingAnims.ultNextState);
+		
+        movingState = pc.pac.MovingAnims.ultNextState;
+    }
+
+    public void SwapToNonCombat()
+    {
+        if (pc.pac.MovingAnims.swapClip != null)
+        {
+            pc.psm.pauseMovement = true;
+
+            pc.pac.SwitchAnimState(WalkingAnimStates.Swapping, () =>
+            {
+                pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
+                pc.psm.pauseMovement = false;
+            });
+        }
+        
+        pc.wc.SwitchWeapon(pc.pac.MovingAnims.swapWeapons, pc.pac.MovingAnims.swapNextState);
+        
+        pc.psm.movingState = pc.pac.MovingAnims.swapNextState;
     }
 
     #endregion

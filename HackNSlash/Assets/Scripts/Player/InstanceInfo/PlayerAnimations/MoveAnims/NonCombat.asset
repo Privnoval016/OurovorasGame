@@ -30,8 +30,7 @@ MonoBehaviour:
         _NormalizedTimes:
         - 0.5
         - NaN
-        _Callbacks:
-        - rid: 5117006577293328725
+        _Callbacks: []
         _Names: []
       _Clip: {fileID: 7400000, guid: bcec4c60d4f4eb14bb3e4ea18f20c5f9, type: 2}
       _NormalizedStartTime: NaN
@@ -268,11 +267,19 @@ MonoBehaviour:
       _Names: []
     _Clip: {fileID: 7400000, guid: e24c4e2506fda4b4f886bcc03e7c080d, type: 2}
     _NormalizedStartTime: NaN
-  nextState: 1
+  swapNextState: 1
+  swapWeapons: 0100000002000000
+  ultClip:
+    _FadeDuration: 0.25
+    _Speed: 1
+    _Events:
+      _NormalizedTimes: []
+      _Callbacks: []
+      _Names: []
+    _Clip: {fileID: 0}
+    _NormalizedStartTime: NaN
+  ultNextState: 0
+  ultWeapons: 
   references:
     version: 2
-    RefIds:
-    - rid: 5117006577293328725
-      type: {class: AnimancerEvent/ParameterObject, ns: Animancer, asm: Kybernetik.Animancer.Lite}
-      data:
-        "\u200E\u206E\u206C\u206E\u206F\u202D\u200C\u202D\u202A\u202D\u206E\u206B\u206C\u200E\u202A\u202A\u200E\u202E\u202E\u200F\u200B\u206F\u206C\u200C\u202D\u200D\u200D\u206C\u206F\u206B\u206C\u206E\u200E\u200B\u200C\u200F\u200F\u202C\u206E\u200C\u202E": {fileID: 0}
+    RefIds: []

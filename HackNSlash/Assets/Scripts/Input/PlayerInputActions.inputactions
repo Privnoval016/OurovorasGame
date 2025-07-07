@@ -105,18 +105,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SwapElementLeft",
+                    "name": "ElementMenu",
                     "type": "Button",
                     "id": "bba850a4-ba15-41b0-a0d8-34de5509e31f",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SwapElementRight",
-                    "type": "Button",
-                    "id": "53e85645-8f34-42cf-a215-181ad767a0f7",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -390,12 +381,12 @@
                 },
                 {
                     "name": "",
-                    "id": "82156a3c-92b6-4a1c-b4d3-576a11093d3c",
+                    "id": "7ae788b2-3836-432b-a294-bc0dd26c1344",
                     "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwapElementLeft",
+                    "action": "ElementMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -406,36 +397,14 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwapElementLeft",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4ccb0ea6-fe7a-41e6-8060-074c1d5c61a1",
-                    "path": "<Gamepad>/rightTrigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SwapElementRight",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "df030b70-126e-4d79-80a4-d58984e2ee6b",
-                    "path": "<Keyboard>/9",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SwapElementRight",
+                    "action": "ElementMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "26f0d564-8b21-4bb8-93e2-b1a99145e7fb",
-                    "path": "<Gamepad>/dpad/up",
+                    "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

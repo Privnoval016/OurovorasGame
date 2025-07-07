@@ -84,11 +84,14 @@ VisualEffect:
       - m_Value: 3
         m_Name: SideStonesRate
         m_Overridden: 1
+      - m_Value: 0.2
+        m_Name: SideStonesDistanceFromCenter
+        m_Overridden: 1
     m_Vector2f:
       m_Array: []
     m_Vector3f:
       m_Array:
-      - m_Value: {x: 3, y: 4, z: 3}
+      - m_Value: {x: 6, y: 4, z: 10}
         m_Name: SideStonesScale
         m_Overridden: 1
       - m_Value: {x: 1.5, y: 0.2, z: 1.5}
