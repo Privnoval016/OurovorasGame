@@ -67,7 +67,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
             {
                 CreateVFX(spirit, a, 0);
                 enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
-                CombatManager.Instance.PlayHitEffects(spirit.pc, a, spirit, true, 0);
+                CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
             }
         }
         else
@@ -76,7 +76,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
             {
                 CreateVFX(spirit, a, 0);
                 enemy.OnHit(element, spirit.pc, a, spirit.transform, 1);
-                CombatManager.Instance.PlayHitEffects(spirit.pc, a, spirit, true, 1);
+                CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 1);
             }
         }
         
@@ -129,7 +129,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
             Debug.Log($"HitScan VFX: {enemy.name} at {enemy.transform.position}");
             CreateVFX(spirit, a, 0, new TransformInfo(enemy.transform, false));
             enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
-            CombatManager.Instance.PlayHitEffects(spirit.pc, a, spirit, true, 0);
+            CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
         }
         
         this.RunSegmentCoroutine(ResumeMoving(spirit, a, a.hitInfo.attackCoolDown));

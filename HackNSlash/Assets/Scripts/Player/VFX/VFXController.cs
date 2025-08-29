@@ -121,9 +121,9 @@ public class VFXController : MonoBehaviour, IContactDetector
         }
     }
     
-    public void InitializeVFX(PlayerController pc, TransformInfo start, Attack a, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
+    public void InitializeVFX(ElementEffect element, PlayerController pc, TransformInfo start, Attack a, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
     {
-        elementType = ElementData.GetElementFromAttack(a, pc);
+        elementType = ElementData.GetElementFromAttack(element, pc);
         player = pc;
         attack = a;
         vas = vfx;
@@ -223,7 +223,7 @@ public class VFXController : MonoBehaviour, IContactDetector
         if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.TookDamageThisAction(attack))
         {
             enemy.OnHit(elementType, player, attack, transform, vfxSpawnInfo.onHitActionIndex);
-            CombatManager.Instance.PlayHitEffects(player, attack, this, true);
+            CombatManager.Instance.PlayHitEffects(elementType, player, attack, this, true);
         }
     }
 
@@ -236,7 +236,7 @@ public class VFXController : MonoBehaviour, IContactDetector
         if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.TookDamageThisAction(attack))
         {
             enemy.OnHit(elementType, player, attack, transform, vfxSpawnInfo.onHitActionIndex);
-            CombatManager.Instance.PlayHitEffects(player, attack, this, true);
+            CombatManager.Instance.PlayHitEffects(elementType, player, attack, this, true);
         }
     }
 

@@ -43,9 +43,9 @@ public class ElementData : ScriptableObject
         return vfxDict.GetValueOrDefault(type, null);
     }
 
-    public static ElementEffect GetElementFromAttack(Attack a, PlayerController pc)
+    public static ElementEffect GetElementFromAttack(ElementEffect attackElement, PlayerController pc)
     {
-        ElementEffect element = a.element;
+        ElementEffect element = attackElement;
 
         if (element == ElementEffect.MatchCurrent)
         {
