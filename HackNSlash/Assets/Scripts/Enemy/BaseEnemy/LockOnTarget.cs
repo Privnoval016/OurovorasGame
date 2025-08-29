@@ -80,7 +80,6 @@ public abstract class LockOnTarget : KinematicBehaviour
 
     public bool TookDamageThisAction(Attack a)
     {
-        print($"Gameobject {gameObject.name} can take damage from {a.name}: {!damageCooldowns.ContainsKey(a)}");
         return damageCooldowns.ContainsKey(a);
     }
     

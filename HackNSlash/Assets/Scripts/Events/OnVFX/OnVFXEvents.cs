@@ -50,7 +50,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     
     #region VFX Invocation
 
-    public VFXController SpawnHitStopVFX(PlayerController pc, Attack a, int hitStopProfileIndex, TransformInfo overrideTransform)
+    public VFXController SpawnHitStopVFX(ElementEffect e, PlayerController pc, Attack a, int hitStopProfileIndex, TransformInfo overrideTransform)
     {
         if (a == null || a.hitStopProfiles.Length == 0 || hitStopProfileIndex >= a.hitStopProfiles.Length)
         {
@@ -76,9 +76,9 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             return null;
         }
         
-        var vfxActivators = GetVFXActivators(hitStopProfile.hitStopVFX, vfxController, GameManager.GetElementData(ElementData.GetElementFromAttack(a, pc)));
+        var vfxActivators = GetVFXActivators(hitStopProfile.hitStopVFX, vfxController, GameManager.GetElementData(ElementData.GetElementFromAttack(e, pc)));
         
-        vfxController.InitializeVFX(pc, start, a, hitStopProfile.hitStopVFX, vfxActivators, 0, hitStopProfile.hitStopVFX.vfxAttack.canCollide);
+        vfxController.InitializeVFX(e, pc, start, a, hitStopProfile.hitStopVFX, vfxActivators, 0, hitStopProfile.hitStopVFX.vfxAttack.canCollide);
         
         if (vfxController == null)
         {
@@ -194,11 +194,11 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             vc.transform.Rotate(offset.Rotation.eulerAngles);
         }
         
-        ElementData e = GameManager.GetElementData(ElementData.GetElementFromAttack(a, pc));
+        ElementData e = GameManager.GetElementData(ElementData.GetElementFromAttack(a.element, pc));
         
         var vfxs = GetVFXActivators(v, vc, e);
 
-        vc.InitializeVFX(pc, new TransformInfo(vfx.transform), a, v, vfxs, vfxIndex, v.vfxAttack.canCollide);
+        vc.InitializeVFX(a.element, pc, new TransformInfo(vfx.transform), a, v, vfxs, vfxIndex, v.vfxAttack.canCollide);
         
         return vc;
     }

@@ -88,7 +88,7 @@ public class CombatManager : Singleton<CombatManager>
     
     #region VFX Methods
 
-    public void PlayHitEffects(PlayerController pc, Attack a, IContactDetector contact, bool playImmediately, int index = 0)
+    public void PlayHitEffects(ElementEffect attackElement, PlayerController pc, Attack a, IContactDetector contact, bool playImmediately, int index = 0)
     {
         if (contact == null) return;
         
@@ -105,7 +105,7 @@ public class CombatManager : Singleton<CombatManager>
         
         foreach (Vector3 spawnPosition in spawnPositions)
         {
-            OnVFXEvents.Instance.SpawnHitStopVFX(pc, a, index,
+            OnVFXEvents.Instance.SpawnHitStopVFX(attackElement, pc, a, index,
                 new TransformInfo(spawnPosition, Quaternion.identity, Vector3.one));
         }
         

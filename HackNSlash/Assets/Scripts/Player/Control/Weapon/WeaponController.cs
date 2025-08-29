@@ -180,7 +180,7 @@ public class WeaponController : MonoBehaviour
 
     public void ActivateWeaponVFXByAttack(Attack a)
     {
-        ElementEffect element = ElementData.GetElementFromAttack(a, pc);
+        ElementEffect element = ElementData.GetElementFromAttack(a.element, pc);
 
         foreach (var weaponBody in activeWeapons)
         {
@@ -230,7 +230,7 @@ public class WeaponController : MonoBehaviour
     public void DeactivateAllWeaponVFX()
     {
         ElementEffect element = pc.psm.currentPlayerAttack != null ? 
-            ElementData.GetElementFromAttack(pc.psm.currentPlayerAttack, pc) : ElementEffect.None;
+            ElementData.GetElementFromAttack(pc.psm.currentPlayerAttack.element, pc) : ElementEffect.None;
         
         foreach (var weaponBody in activeWeapons)
         {
@@ -249,7 +249,7 @@ public class WeaponController : MonoBehaviour
     
     public void ActivateWeaponTrailByAttack(Attack a)
     {
-        ElementEffect element = ElementData.GetElementFromAttack(a, pc);
+        ElementEffect element = ElementData.GetElementFromAttack(a.element, pc);
         
         foreach (var weaponBody in activeWeapons)
         {

@@ -181,7 +181,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
             if (pc.cam.IsLockedOn)
             {
                 pc.cam.TargetedEnemy.OnHit(pc.pi.currentElementEffect, pc, a, pc.transform, 0);
-                CombatManager.Instance.PlayHitEffects(pc, a, vfx, true, 0);
+                CombatManager.Instance.PlayHitEffects(a.element, pc, a, vfx, true, 0);
             }
             
             this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));
