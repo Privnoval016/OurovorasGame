@@ -175,9 +175,6 @@ public class PlayerStateMachine : MonoBehaviour
                 direction = -TruePlayerForward.ToVector2(),
                 damage = 20,
             });
-            
-            pc.cam.FinisherTarget = NearestHEnemy;
-            pc.cam.SwitchState(pc.cam.currentPlayerCamState == PlayerCamStates.FinisherCloseUp ? PlayerCamStates.Free : PlayerCamStates.FinisherCloseUp);  
         }
     }
     

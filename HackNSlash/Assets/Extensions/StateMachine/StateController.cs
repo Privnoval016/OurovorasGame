@@ -91,6 +91,21 @@ namespace Extensions.StateMachine
             }
         }
 
+        public void PrintStates()
+        {
+            string output = parent.name + " States: ";
+
+            foreach (T state in currentState.ToArray())
+            {
+                output += state.ToString();
+                output += " -- ";
+            }
+
+            Debug.Log(output[..^4]);
+
+
+        }
+
         public override void OnTriggerEnter(Collider other)
         {
             if (currentState.Count > 0)

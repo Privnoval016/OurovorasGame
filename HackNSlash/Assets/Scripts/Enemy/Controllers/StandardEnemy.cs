@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using Extensions.StateMachine;
 using Extensions.Utils;
 using UnityEngine;
 using Pathfinding;
+using VTabs.Libs;
 
 [RequireComponent(typeof(StateController<EnemyState>))]
 public class StandardEnemy : PhysicsEnemy
@@ -22,6 +25,8 @@ public class StandardEnemy : PhysicsEnemy
     [HideInInspector] public EnemyAnimator ea;
 
     [HideInInspector] public PlayerController pc;
+
+    public EnemyAttackConfig attackConfig;
     
     #endregion
     
@@ -30,11 +35,12 @@ public class StandardEnemy : PhysicsEnemy
     [Header("Movement")]
     
     [HideInInspector] public Vector3 moveDirection;
-    [HideInInspector] public bool wanderIdling = false;
     
     public Transform[] wanderPoints;
     [HideInInspector] public Vector3 currentWanderPoint;
     [HideInInspector] public int wanderIndex = 0;
+    
+    public bool CanMove => physicsInteract;
     
     #endregion
 
@@ -46,7 +52,13 @@ public class StandardEnemy : PhysicsEnemy
         nav = GetComponent<PhysicsNavigator>();
         ea = GetComponent<EnemyAnimator>();
         
-        sc.ChangeState(new EnemyWander());
+        sc.ChangeState(new EnemyIdle());
+    }
+
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
+        sc.PrintStates();
     }
 
     public override void OnHit(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
@@ -60,6 +72,8 @@ public class StandardEnemy : PhysicsEnemy
     public void MoveInDirection(Vector3 direction, float lerpAmount = 1)
     {
         if (CombatManager.Instance.entitiesStopped) return;
+        
+        if (!CanMove) return;
         
         moveDirection = direction;
         
@@ -88,27 +102,9 @@ public class StandardEnemy : PhysicsEnemy
     
     #endregion
     
-    #region State Methods
-
-    public void SwapToIdle(bool idle)
-    {
-        if (idle)
-        {
-            ea.PlayAnimation(enemyAnimData.idle);
-        }
-        else
-        {
-            ea.PlayAnimation(enemyAnimData.walk);
-        }
-        
-        wanderIdling = idle;
-    }
-    
-    #endregion
-    
     #region Check Methods
 
-    public void CheckForPlayer(float viewRadius, float viewAngle)
+    public void CheckToFollowPlayer(float viewRadius, float viewAngle)
     {
         if (sc.GetCurrentState() is EnemyHit) return;
         
@@ -121,11 +117,49 @@ public class StandardEnemy : PhysicsEnemy
                 if (c.TryGetComponent(out PlayerController player))
                 {
                     pc = player;
-                    //sc.ChangeState(new EnemyFollow());
+                    sc.ChangeState(new EnemyFollow());
                     return;
                 }
             }
         }
+    }
+
+    public bool TargetInRange(Vector3 position, float distance, float viewAngle)
+    {
+        if (Vector3.Distance(position, transform.position) > distance) return false;
+        if (!(position - transform.position).IsInDirectionCone(transform.forward, viewAngle)) return false;
+        
+        return true;
+    }
+    
+    #endregion
+    
+    #region Attack Methods
+
+    public EnemyAttack? CheckForAvailableAttack(PlayerController player)
+    {
+        if (player == null) return null;
+        
+        List<EnemyAttackInfo> availableAttacks = new();
+
+        foreach (var info in attackConfig.infos)
+        {
+            if (!TargetInRange(player.transform.position, info.triggerInfo.distanceToTrigger,
+                    info.triggerInfo.angleToTrigger)) continue;
+            
+            availableAttacks.Add(info);
+        }
+        
+        if (availableAttacks.Count == 0) return null;
+
+        EnemyAttackInfo a = availableAttacks[0];
+
+        foreach (var info in availableAttacks)
+        {
+            if (info.triggerInfo.distanceToTrigger >= a.triggerInfo.distanceToTrigger) a = info;
+        }
+
+        return a.attack;
     }
     
     #endregion

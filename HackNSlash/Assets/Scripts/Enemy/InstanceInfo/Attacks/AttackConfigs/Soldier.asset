@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfb3520c8997d49fc8f01089130e7420, type: 3}
+  m_Name: Soldier
+  m_EditorClassIdentifier: 
+  infos:
+  - attack:
+      isEnabled: 1
+      element: 0
+      attackKnockback: 0
+      attackCooldown: 0
+      knockbackDirection: {x: 0, y: 0, z: 0}
+      attackClips:
+      - _FadeDuration: 0.25
+        _Speed: 1
+        _Events:
+          _NormalizedTimes: []
+          _Callbacks: []
+          _Names: []
+        _Clip: {fileID: 7400000, guid: 68c44eecb0c884ecd9c97dbdcf169ce3, type: 2}
+        _NormalizedStartTime: 0
+    triggerInfo:
+      distanceToTrigger: 5
+      angleToTrigger: 120
+      attackWeight: 0
+  references:
+    version: 2
+    RefIds: []

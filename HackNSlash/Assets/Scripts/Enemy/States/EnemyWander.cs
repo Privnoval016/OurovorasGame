@@ -1,75 +1,35 @@
+using Extensions.Utils;
 using Pathfinding;
 using UnityEngine;
 
 public class EnemyWander : EnemyState
 {
-    private float wanderTimer;
-    
     public override void OnEnter()
     {
-        doNotRemove = true;
+        ec.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
         UpdateWanderPoint();
     }
 
     public override void OnUpdate()
     {
-        ec.CheckForPlayer(ec.enemyData.playerDetectionRadius, ec.enemyData.playerDetectionAngle);
+        ec.CheckToFollowPlayer(ec.enemyData.playerDetectionRadius, ec.enemyData.playerDetectionAngle);
         SetWanderingMovement();
+    }
+
+    public override void OnResume()
+    {
+        base.OnResume();
+        ec.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
+        ec.currentWanderPoint = ec.pc.transform.position;
     }
 
     private void SetWanderingMovement()
     {
-        wanderTimer += Time.deltaTime;
+        CheckDestinationReached();
         
-        if (!ec.wanderIdling)
-        {            
-            if (Vector3.Distance(ec.transform.position, ec.currentWanderPoint) <
-                         ec.enemyData.targetClosenessDistance)
-            {
-                ChangeWaypointOrIdle();
-            }
-            
-        }
-        else
-        {
-            if (wanderTimer >= 1f)
-            {
-                wanderTimer = 0f;
-                CheckResumeWandering();
-            }
-        }
-        
-        
-        if (!ec.wanderIdling) ec.MoveInDirection(ec.nav.CalculateDirectionToTarget(ec.currentWanderPoint));
-    }
-
-    private void ChangeWaypointOrIdle()
-    {
-        bool swap = Random.Range(0f, 1f) < ec.enemyData.wanderIdleChance;
-        if (swap)
-        {
-            ec.wanderIdling = true;
-        }
-        else
-        {
-            ec.wanderIdling = false;
-            UpdateWanderPoint();
-        }
+        ec.MoveInDirection(ec.nav.CalculateDirectionToTarget(ec.currentWanderPoint));
     }
     
-    private void CheckResumeWandering()
-    {
-        bool swap = Random.Range(0f, 1f) < ec.enemyData.wanderMoveChance;
-        if (swap)
-        {
-            ec.wanderIdling = false;
-            UpdateWanderPoint();
-        }
-        else
-        {
-            ec.wanderIdling = true;
-        }
-    }
     
     private Vector3 PickRandomPoint() 
     {
@@ -79,6 +39,12 @@ public class EnemyWander : EnemyState
         path.BlockUntilCalculated();
         var point = PathUtilities.GetPointsOnNodes(path.allNodes, 1)[0];
         return point;
+    }
+
+    private void CheckDestinationReached()
+    {
+        if (Vector3.Distance(ec.transform.position.ZeroVector3Axis(), ec.currentWanderPoint.ZeroVector3Axis()) < ec.enemyData.targetClosenessDistance)
+            ec.sc.ResumePrevious();
     }
 
     private void UpdateWanderPoint()
