@@ -5,7 +5,6 @@ using Extensions.StateMachine;
 using Extensions.Utils;
 using MEC;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(StateController<PlayerState>))]

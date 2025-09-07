@@ -2,6 +2,7 @@ using System;
 using Animancer;
 using Extensions.Utils;
 using UnityEngine;
+using Object = System.Object;
 
 public class EntityAnimator : MonoBehaviour
 {
@@ -82,6 +83,35 @@ public class EntityAnimator : MonoBehaviour
     public void StopCurrentAnimation()
     {
         animancer.Stop();
+    }
+    
+    protected void PlayEntityAnimation(Object currentAnim, Object nextAnim, Action onExit, bool playExit)
+    {
+        if (nextAnim == null)  return;
+        
+        playExit = playExit && currentAnim is Loop;
+
+        if (playExit)
+        {
+            Loop currentLoop = (Loop) currentAnim;
+		    
+            if (nextAnim is Loop nextLoop)
+            {
+                ExitTimeAnimation(currentLoop.EndClip, nextLoop.LoopClip, onExit);
+            }
+            else
+            {
+                ExitTimeAnimation(currentLoop.EndClip, (ITransition) nextAnim, onExit);
+            }
+        }
+        else if (nextAnim is Loop nextLoop)
+        {
+            PlayAnimation(nextLoop.LoopClip).Events(this).OnEnd ??= () => onExit?.Invoke();
+        }
+        else
+        {
+            PlayAnimation((ITransition) nextAnim).Events(this).OnEnd ??= () => onExit?.Invoke();
+        }
     }
 
     #endregion

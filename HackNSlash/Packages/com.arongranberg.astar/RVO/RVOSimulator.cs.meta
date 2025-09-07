@@ -1,11 +1,5 @@
 fileFormatVersion: 2
 guid: 1764de1de43cc4d19af52679d3eaae06
-MonoImporter:
-  serializedVersion: 2
-  defaultReferences: []
-  executionOrder: -201
-  icon: {instanceID: 0}
-  userData: 
 AssetOrigin:
   serializedVersion: 1
   productId: 87744
@@ -13,3 +7,12 @@ AssetOrigin:
   packageVersion: 5.3.8
   assetPath: Packages/com.arongranberg.astar/RVO/RVOSimulator.cs
   uploadId: 764484
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: -210
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

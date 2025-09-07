@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Animancer;
 using Extensions.Utils;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Object = System.Object;
 
 [Serializable]
@@ -143,29 +142,7 @@ public class PlayerAnimator : EntityAnimator
 	    Object currentAnim = MovingAnims._animStates[walkingAnim];
 	    Object nextAnim = MovingAnims._animStates[newState];
 	    
-	    playExit = playExit && currentAnim is Loop;
-
-	    if (playExit)
-	    {
-		    Loop currentLoop = (Loop) currentAnim;
-		    
-		    if (nextAnim is Loop nextLoop)
-		    {
-			    ExitTimeAnimation(currentLoop.EndClip, nextLoop.LoopClip, onExit);
-		    }
-		    else
-		    {
-			    ExitTimeAnimation(currentLoop.EndClip, (ITransition) nextAnim, onExit);
-		    }
-	    }
-	    else if (nextAnim is Loop nextLoop)
-	    {
-		    PlayAnimation(nextLoop.LoopClip).Events(this).OnEnd ??= () => onExit?.Invoke();
-	    }
-	    else
-	    {
-		    PlayAnimation((ITransition) nextAnim).Events(this).OnEnd ??= () => onExit?.Invoke();
-	    }
+	    PlayEntityAnimation(currentAnim, nextAnim, onExit, playExit);
 	    
 	    InputManager.Instance.ReleaseHoldAttacks();
 	    walkingAnim = newState;

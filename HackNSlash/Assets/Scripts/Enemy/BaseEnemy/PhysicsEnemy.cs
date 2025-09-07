@@ -16,8 +16,6 @@ public class PhysicsEnemy : LockOnTarget
     private float gravityScale;
     private bool pauseGravity;
 
-    
-
     public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
 

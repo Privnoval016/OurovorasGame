@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 57d17bd619ae2ee4db975a78206ed264, type: 3}
-  m_Name: Spider
+  m_Name: Soldier
   m_EditorClassIdentifier: 
   maxHealth: 0
   speed: 10
   runAccelAmount: 7
   runDecelAmount: 7
   wanderSearchLength: 34
-  wanderIdleChance: 0.5
-  wanderMoveChance: 0.489
+  wanderMoveChance: {x: 0.17142856, y: 1.1076604}
   targetClosenessDistance: 1.5
+  playerDetectionRadius: 10
+  playerDetectionAngle: 45
