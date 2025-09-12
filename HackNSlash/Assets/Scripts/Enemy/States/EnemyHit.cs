@@ -3,21 +3,32 @@ using UnityEngine;
 
 public class EnemyHit : EnemyState
 {
-    private bool isGrounded;
+    private bool isGrounded, lastWasMidair, exitTriggered;
     
     public override void OnEnter()
     {
         isGrounded = ec.IsGrounded;
+        lastWasMidair = !isGrounded;
         PlayHitAnimation();
+        ec.ts.animListener.DeactivateAllHitboxes();
     }
 
     public override void OnUpdate()
     {
-        CheckHitAnimationSwap();
         
+        if (!ec.IsGrounded) lastWasMidair = true;
+                
         if (!ec.IsMidAttack && ec.IsGrounded)
         {
-            ec.sc.ResumePrevious();
+            if (!lastWasMidair) 
+                ExitHit();
+            else ec.ts.ea.ExitTimeAnimation(ec.enemyAnimData.getUpClip, null, ExitHit);
+            
+            exitTriggered = true;
+        }
+        else
+        {
+            CheckHitAnimationSwap();
         }
     }
 
@@ -29,9 +40,21 @@ public class EnemyHit : EnemyState
             PlayHitAnimation();
         }
     }
+    
+    private void ExitHit()
+    {
+        ec.sc.ResumePrevious();
+    }
 
     private void PlayHitAnimation()
     {
-        ec.ea.SwitchAnimState(isGrounded ? ec.enemyAnimData.groundHitClip : ec.enemyAnimData.airHitClip);
+        if (isGrounded)
+        {
+            ec.ts.ea.SwitchAnimState(ec.enemyAnimData.groundHitClip);
+        }
+        else
+        {
+            ec.ts.ea.SwitchAnimState(ec.enemyAnimData.airHitClip);
+        }
     }
 }

@@ -3,7 +3,6 @@ using System.Linq;
 using Extensions.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 public class PlayerStateMachine : MonoBehaviour
 {
@@ -35,7 +34,7 @@ public class PlayerStateMachine : MonoBehaviour
     [HideInInspector] public float walkingTime;
 
     public bool IsGrounded =>
-        Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
+        Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, GameManager.Instance.groundLayer);
     public bool IsMidair => !IsGrounded;
 
     public bool CanJump => lastOnGroundTime > 0 && !isJumping;
@@ -105,20 +104,13 @@ public class PlayerStateMachine : MonoBehaviour
     
     [HideInInspector] public float dodgeTimer = 0;
     
-    public Vector3 TruePlayerForward => pc.pac.animancer.transform.forward;
+    public Vector3 TruePlayerForward => pc.pac.animancer.transform.forward; // Use the model's forward for more accurate direction during attacks
     
-    [HideInInspector] public HashSet<LockOnTarget> EnemiesInHit = new();
-    [HideInInspector] public bool PlayHitStopThisAction => EnemiesInHit.Count > 0;
+    public HashSet<LockOnTarget> EnemiesInHit = new();
+    public HashSet<EnemyHitbox> ParriedHitboxes = new();
     
-    #endregion
-
+    public bool PlayHitStopThisAction => EnemiesInHit.Count > 0;
     
-    #region LAYERS & TAGS
-
-    [Header("Layers & Tags")] 
-    [SerializeField] public LayerMask groundLayer;
-    
-    [SerializeField] public LayerMask enemyLayer;
     #endregion
     
     public Dictionary<KeyBind, KeyBindData> KeyMap;
@@ -154,6 +146,8 @@ public class PlayerStateMachine : MonoBehaviour
         RotateToTarget();
         CheckGrounded();
         CheckAttackAction();
+        
+        pc.sc.PrintStates();
     }
     
     private void FixedUpdate()
@@ -172,7 +166,7 @@ public class PlayerStateMachine : MonoBehaviour
             PlayerIsHit(new HitInstance()
             {
                 force = new Vector3(15, 0),
-                direction = -TruePlayerForward.ToVector2(),
+                horizontalDirection = -TruePlayerForward.ToVector2(),
                 damage = 20,
             });
         }
@@ -218,7 +212,7 @@ public class PlayerStateMachine : MonoBehaviour
     public LockOnTarget GetClosestEnemyInCapsule(float radius, float height, float angle = 360f)
     {
         HashSet<LockOnTarget> enemySet = Physics.OverlapCapsule(groundCheckPoint.position - Vector3.up * height, 
-            groundCheckPoint.position + Vector3.up * height, radius, enemyLayer).Select(e =>
+            groundCheckPoint.position + Vector3.up * height, radius, GameManager.Instance.enemyLayer).Select(e =>
         {
             e.TryGetComponent(out LockOnTarget d);
             return d;
@@ -238,7 +232,7 @@ public class PlayerStateMachine : MonoBehaviour
     public LockOnTarget[] GetAllEnemiesInCapsule(float radius, float height, float angle = 360f)
     {
         HashSet<LockOnTarget> enemySet = Physics.OverlapCapsule(groundCheckPoint.position - Vector3.up * height, 
-            groundCheckPoint.position + Vector3.up * height, radius, enemyLayer).Select(e =>
+            groundCheckPoint.position + Vector3.up * height, radius, GameManager.Instance.enemyLayer).Select(e =>
         {
             e.TryGetComponent(out LockOnTarget d);
             return d;
@@ -293,6 +287,40 @@ public class PlayerStateMachine : MonoBehaviour
         }
         
         dodgeTimer += Time.deltaTime;
+    }
+
+    private bool CheckParryAction()
+    {
+        if (movingState != MovingStates.NonCombat && !pauseMovement)
+        {
+            foreach (PlayerAttack attack in attackData.parryAttacks)
+            {
+                if (!AttackIsAvailable(attack)) continue;
+                
+                ParriedHitboxes.Clear();
+                
+                Collider[] colliders = Physics.OverlapSphere(transform.position, playerData.largeRadius, GameManager.Instance.enemyLayer);
+                
+                bool foundParry = false;
+                foreach (var col in colliders)
+                {
+                    if (!col.TryGetComponent(out EnemyHitbox eh)) continue;
+                    if (!eh.ts.parryWindowActive) continue;
+                    if (!eh.GetCurrentAttack().isParryable) continue;
+                    foundParry = true;
+                    
+                    ParriedHitboxes.Add(eh);
+                }
+                
+                if (!foundParry) continue;
+                
+                pc.pi.isInvincible = true;
+                BeginAttack(attack);
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     private bool CheckMobilityAction()
@@ -370,6 +398,8 @@ public class PlayerStateMachine : MonoBehaviour
         if (CombatManager.Instance.entitiesStopped) return;
         
         if (CheckMobilityAction()) return;
+        
+        if (CheckParryAction()) return;
         
         if (movingState == MovingStates.NonCombat) return;
         
@@ -800,5 +830,30 @@ public class PlayerStateMachine : MonoBehaviour
             EaseUtil.DampQuaternion(pc.pac.animancer.transform.rotation, Quaternion.LookRotation(lookDir), 5f, 0.1f);
     }
     
+    #endregion
+
+    #region Collision Methods
+
+    private void CheckEnemyCollision(Collider other)
+    {
+        if (pc.pi.isInvincible) return;
+        if (!other.TryGetComponent(out EnemyHitbox eh)) return;
+        if (pc.sc.IsState<PlayerHit>()) return;
+        if (!eh.activeHitbox) return;
+        
+        
+        PlayerIsHit(new HitInstance()
+                    {
+                        force = eh.GetCurrentAttack().attackKnockback,
+                        horizontalDirection = (transform.position - eh.ts.transform.position).ToVector2().normalized,
+                        damage = eh.GetCurrentAttack().damage,
+                    });
+    }
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        CheckEnemyCollision(other);
+    }
+
     #endregion
 }

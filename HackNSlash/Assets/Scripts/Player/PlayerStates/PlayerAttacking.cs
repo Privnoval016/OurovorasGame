@@ -242,6 +242,9 @@ public class PlayerAttacking : PlayerState
             case HitDetections.HitScan:
                 pc.psm.enemiesHitThisAction = EnemiesByHitScan();
                 break;
+            case HitDetections.None:
+                pc.psm.enemiesHitThisAction = new HashSet<LockOnTarget>();
+                break;
         }
 
         HashSet<LockOnTarget> secondaryTargts = pc.wc.EnemiesFromFollowWeapons(_playerAttack);

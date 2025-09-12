@@ -44,6 +44,9 @@ public class GameManager : Singleton<GameManager>
     [Header("Global Parameters")]
     public float globalGravity = -9.81f;
     
+    public LayerMask groundLayer;
+    public LayerMask enemyLayer;
+    
     public ElementData[] elementData;
 
     #region MonoBehavior Callbacks

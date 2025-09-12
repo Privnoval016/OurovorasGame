@@ -16,9 +16,10 @@ MonoBehaviour:
   - attack:
       isEnabled: 1
       element: 0
-      attackKnockback: 0
+      damage: 20
+      attackKnockback: {x: 20, y: 0}
       attackCooldown: 0
-      knockbackDirection: {x: 0, y: 0, z: 0}
+      isParryable: 1
       attackClips:
       - _FadeDuration: 0.25
         _Speed: 1
@@ -26,11 +27,12 @@ MonoBehaviour:
           _NormalizedTimes: []
           _Callbacks: []
           _Names: []
-        _Clip: {fileID: 7400000, guid: 68c44eecb0c884ecd9c97dbdcf169ce3, type: 2}
+        _Clip: {fileID: 7400000, guid: 02e4f43d31059554aaa5c11cd63f6631, type: 2}
         _NormalizedStartTime: 0
+      useRootMotion: 1
     triggerInfo:
-      distanceToTrigger: 5
-      angleToTrigger: 120
+      distanceToTrigger: 3.5
+      angleToTrigger: 150
       attackWeight: 0
   references:
     version: 2

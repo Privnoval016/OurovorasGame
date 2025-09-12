@@ -19,6 +19,10 @@ public class EnemyData : ScriptableObject
     public float targetClosenessDistance = 1.5f; // Distance at which the enemy considers the target close enough to stop moving
     
     [Header("Player Detection")]
-    public float playerDetectionRadius = 10f; // Radius within which the enemy can detect the player
+    public float playerDetectionRadius = 20f; // Radius within which the enemy can detect the player
     public float playerDetectionAngle = 45f; // Angle within which the enemy can detect the player
+
+    [Header("Player Chasing")] 
+    public float playerChaseRadius = 35f; // Radius within which the enemy will chase the player
+    public float playerChaseAngle = 360f; // Angle within which the enemy will chase the player
 }

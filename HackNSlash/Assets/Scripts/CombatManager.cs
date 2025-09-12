@@ -69,7 +69,8 @@ public class CombatManager : Singleton<CombatManager>
         pc.cam.ShakeCamera(hitStopProfile.hitStopDuration, hitStopProfile.screenShakeMagnitude);
 
         this.KillObjectCoroutines(nameof(ApplyHitStopTimescale));
-        this.RunSegmentCoroutine(ApplyHitStopTimescale(hitStopProfile, playImmediately), nameof(ApplyHitStopTimescale));
+        this.RunSegmentCoroutine(ApplyHitStopTimescale(hitStopProfile, playImmediately), 
+            nameof(ApplyHitStopTimescale)).OnDestroy(ResetHitStop);
     }
     
     IEnumerator<float> ApplyHitStopTimescale(HitStopProfile h, bool playImmediately)
@@ -80,8 +81,13 @@ public class CombatManager : Singleton<CombatManager>
         preHitStopTimescale = Time.timeScale;
         SetTimeScale(h.hitStopTimescale);
         yield return Timing.WaitForSeconds(h.hitStopDuration);
-        hitStopped = false;
+        
+    }
+    
+    private void ResetHitStop()
+    {
         SetTimeScale(preHitStopTimescale);
+        hitStopped = false;
     }
     
     #endregion
@@ -97,6 +103,30 @@ public class CombatManager : Singleton<CombatManager>
         foreach (var target in pc.psm.EnemiesInHit)
         {
             Vector3 point = contact.GetClosestPointOnCollider(target.col);
+            if (point != Vector3.zero)
+            {
+                spawnPositions.Add(point);
+            }
+        }
+        
+        foreach (Vector3 spawnPosition in spawnPositions)
+        {
+            OnVFXEvents.Instance.SpawnHitStopVFX(attackElement, pc, a, index,
+                new TransformInfo(spawnPosition, Quaternion.identity, Vector3.one));
+        }
+        
+        HitStop(pc, a, playImmediately, index);
+    }
+    
+    public void PlayParryEffects(ElementEffect attackElement, PlayerController pc, Attack a, IContactDetector contact, bool playImmediately, int index = 0)
+    {
+        if (contact == null) return;
+        
+        List<Vector3> spawnPositions = new List<Vector3>();
+        
+        foreach (var target in pc.psm.ParriedHitboxes)
+        {
+            Vector3 point = contact.GetClosestPointOnCollider(target.hitboxCollider);
             if (point != Vector3.zero)
             {
                 spawnPositions.Add(point);

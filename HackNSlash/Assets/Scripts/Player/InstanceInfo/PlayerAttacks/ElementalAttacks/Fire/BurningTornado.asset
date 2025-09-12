@@ -33,7 +33,7 @@ MonoBehaviour:
   maxUses: 0
   hitInfo:
     onHitActions: 0a000000
-    hitDetection: 1
+    hitDetection: 4
     lateralRadius: 3
     verticalRadius: 3
     hitRegisterAngle: 0

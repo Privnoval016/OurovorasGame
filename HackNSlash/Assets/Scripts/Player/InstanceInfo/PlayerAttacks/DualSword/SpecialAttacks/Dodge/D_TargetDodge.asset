@@ -33,10 +33,10 @@ MonoBehaviour:
   maxUses: 3
   hitInfo:
     onHitActions: 00000000
-    hitDetection: 0
+    hitDetection: 4
     lateralRadius: 3
     verticalRadius: 3
-    hitRegisterAngle: 120
+    hitRegisterAngle: 0
     numTargets: 1
     attackCoolDown: 0.01
     hitForce: 0

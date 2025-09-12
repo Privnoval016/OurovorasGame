@@ -2,11 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.Utils;
-using JetBrains.Annotations;
 using UnityEngine;
-using MEC;
-using UnityEngine.Serialization;
-using UnityEngine.VFX;
 
 public class VFXController : MonoBehaviour, IContactDetector
 {
@@ -17,10 +13,10 @@ public class VFXController : MonoBehaviour, IContactDetector
     [HideInInspector] public MeshRenderer meshRenderer;
     [HideInInspector] public Rigidbody rb;
     
+    public VFXHitDetector HitDetector;
+    
     [Header("Settings")]
     
-    [HideInInspector] public Attack attack;
-    [HideInInspector] public PlayerController player;
     [HideInInspector] public VFXSpawnInfo vfxSpawnInfo;
     
     public ElementEffect elementType;
@@ -51,7 +47,6 @@ public class VFXController : MonoBehaviour, IContactDetector
         
         foreach (VFXHitbox hitbox in hitboxes)
         {
-            hitbox.vfxController = this;
             if (hitboxEnableDelay != 0f)
             {
                 hitbox.DisableCollider();
@@ -121,11 +116,9 @@ public class VFXController : MonoBehaviour, IContactDetector
         }
     }
     
-    public void InitializeVFX(ElementEffect element, PlayerController pc, TransformInfo start, Attack a, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
+    public void InitializeVFX(ElementEffect element, TransformInfo start, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
     {
-        elementType = ElementData.GetElementFromAttack(element, pc);
-        player = pc;
-        attack = a;
+        elementType = element;
         vas = vfx;
         vfxSpawnInfo = v;
         vfxIndex = index;
@@ -151,6 +144,17 @@ public class VFXController : MonoBehaviour, IContactDetector
         UpdateVFXColorByElement();
         
         OnVFXEvents.Instance.OnVFXInitialize(this);
+    }
+    
+    public void AddHitDetector(VFXHitDetector hitDetector)
+    {
+        HitDetector = hitDetector;
+        HitDetector.vfx = this;
+        
+        foreach (VFXHitbox hitbox in hitboxes)
+        {
+            hitbox.HitDetector = HitDetector;
+        }
     }
     
     private void AddVFXDelays()
@@ -213,33 +217,7 @@ public class VFXController : MonoBehaviour, IContactDetector
             }
         }
     }
-
-    public void HitboxTriggerEnter(Collider other)
-    {
-        if (!activeHitbox || !vfxEnabled) return;
-        
-        if (player == null || attack == null) return;
-        
-        if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.TookDamageThisAction(attack))
-        {
-            enemy.OnHit(elementType, player, attack, transform, vfxSpawnInfo.onHitActionIndex);
-            CombatManager.Instance.PlayHitEffects(elementType, player, attack, this, true);
-        }
-    }
-
-    public void HitboxTriggerStay(Collider other)
-    {
-        if (!activeHitbox || !vfxEnabled) return;
-        
-        if (player == null || attack == null) return;
-        
-        if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.TookDamageThisAction(attack))
-        {
-            enemy.OnHit(elementType, player, attack, transform, vfxSpawnInfo.onHitActionIndex);
-            CombatManager.Instance.PlayHitEffects(elementType, player, attack, this, true);
-        }
-    }
-
+    
     public Vector3 GetClosestPointOnCollider(Collider col)
     {
         if (col == null) return Vector3.zero;

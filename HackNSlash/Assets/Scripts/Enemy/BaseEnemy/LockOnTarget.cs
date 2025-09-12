@@ -7,11 +7,15 @@ using Extensions.Utils;
 // Things with health that can take damage
 public abstract class LockOnTarget : KinematicBehaviour
 {
+    [Header("Lock On Target Parameters")]
+    
+    public EnemyController ts;
+    
     public float radius = 3f;
     
     public Collider col;
     
-    private Dictionary<Attack, DamageCooldown> damageCooldowns = new Dictionary<Attack, DamageCooldown>();
+    private Dictionary<Attack, DamageCooldown> damageCooldowns = new();
     public bool IsMidAttack => damageCooldowns.Count > 0;
     
     public virtual Vector3 TargetedPosition(float deltaTime = 0)
@@ -21,6 +25,8 @@ public abstract class LockOnTarget : KinematicBehaviour
 
     private void Start()
     {
+        ts = GetComponent<EnemyController>();
+        
         SetKinematicAttributes();
         OnStart();
     }
@@ -89,7 +95,7 @@ public abstract class LockOnTarget : KinematicBehaviour
         pc.psm.EnemiesInHit.Add(this);
         this.RunSegmentCoroutine(ResetHit(pc, a));
 
-        TakeDamage(element, pc, a);
+        ts.TakeDamage(element, pc, a);
     }
     
     private IEnumerator<float> ResetHit(PlayerController pc, Attack a)
@@ -104,16 +110,8 @@ public abstract class LockOnTarget : KinematicBehaviour
             }
         }
     }
-
-    public virtual void TakeDamage(ElementEffect element, PlayerController pc, Attack a)
-    {
-        
-        Debug.Log($"{gameObject.name} took {a.name} attack from {pc.gameObject.name} with element {element}.");
-        
-        // Override this method to implement damage logic
-    }
     
-    public class DamageCooldown
+    private class DamageCooldown
     {
         public float cooldownTime;
         public float lastHitTimestamp;

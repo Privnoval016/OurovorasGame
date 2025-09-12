@@ -11327,12 +11327,6 @@ MonoBehaviour:
   timeSinceLastAttack: 0
   numMidairAttacks: 0
   dodgeTimer: 0
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!114 &1478948897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11436,6 +11430,7 @@ MonoBehaviour:
   currentElementEffect: 0
   imbuedElementEffect: 0
   elementEffects: 0200000003000000040000000500000006000000
+  isInvincible: 0
   currentHealth: 0
   currentCharge: 0
   currentUltimate: 0
@@ -12935,6 +12930,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pc: {fileID: 0}
   globalGravity: -9.81
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
   elementData:
   - {fileID: 11400000, guid: b495506635be6d44f832be5cb6c5172e, type: 2}
   - {fileID: 11400000, guid: fef235c9fcf4ab34c863cae2a4958d8b, type: 2}

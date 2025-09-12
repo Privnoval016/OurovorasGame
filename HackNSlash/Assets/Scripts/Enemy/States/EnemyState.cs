@@ -3,12 +3,12 @@ using UnityEngine;
 
 public abstract class EnemyState : State
 {
-    protected StandardEnemy ec;
+    protected EnemyStateMachine ec;
     protected StateController<EnemyState> sc;
     
     public override void OnStateEnter(MonoBehaviour parent)
     {
-        ec = parent as StandardEnemy;
+        ec = parent as EnemyStateMachine;
         sc = ec.sc;
         
         OnEnter();
