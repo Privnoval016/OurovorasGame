@@ -6,28 +6,31 @@ public class EnemyWander : EnemyState
 {
     public override void OnEnter()
     {
-        ec.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
+        ec.ts.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
         UpdateWanderPoint();
+        ec.ts.animListener.DeactivateAllHitboxes();
+
     }
 
     public override void OnUpdate()
     {
         ec.CheckToFollowPlayer(ec.enemyData.playerDetectionRadius, ec.enemyData.playerDetectionAngle);
+        ec.CheckToAttack();
         SetWanderingMovement();
     }
 
     public override void OnResume()
     {
         base.OnResume();
-        ec.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
-        ec.currentWanderPoint = ec.pc.transform.position;
+        ec.ts.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
+        ec.currentWanderPoint = ec.ts.pc.transform.position;
     }
 
     private void SetWanderingMovement()
     {
         CheckDestinationReached();
         
-        ec.MoveInDirection(ec.nav.CalculateDirectionToTarget(ec.currentWanderPoint));
+        ec.MoveInDirection(ec.ts.nav.CalculateDirectionToTarget(ec.currentWanderPoint));
     }
     
     

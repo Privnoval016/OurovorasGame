@@ -18,6 +18,8 @@ MonoBehaviour:
   runDecelAmount: 7
   wanderSearchLength: 34
   wanderMoveChance: {x: 0.17142856, y: 1.1076604}
-  targetClosenessDistance: 1.5
-  playerDetectionRadius: 10
-  playerDetectionAngle: 45
+  targetClosenessDistance: 3
+  playerDetectionRadius: 20
+  playerDetectionAngle: 180
+  playerChaseRadius: 35
+  playerChaseAngle: 360

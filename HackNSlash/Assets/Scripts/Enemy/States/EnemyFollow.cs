@@ -4,38 +4,35 @@ public class EnemyFollow : EnemyState
 {
     public override void OnEnter()
     {
-        ec.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
-        ec.currentWanderPoint = ec.pc.transform.position;
+        ec.ts.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
+        ec.currentWanderPoint = ec.ts.pc.transform.position;
+        
+        ec.ts.animListener.DeactivateAllHitboxes();
+
     }
 
     public override void OnUpdate()
     {
-        ec.currentWanderPoint = ec.pc.transform.position;
+        ec.currentWanderPoint = ec.ts.pc.transform.position;
         
-        ec.MoveInDirection(ec.nav.CalculateDirectionToTarget(ec.pc.transform.position));
+        ec.MoveInDirection(ec.ts.nav.CalculateDirectionToTarget(ec.ts.pc.transform.position));
         CheckIfCloseToPlayer();
+        ec.CheckToAttack();
     }
 
     public override void OnResume()
     {
         base.OnResume();
-        ec.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
-        ec.currentWanderPoint = ec.pc.transform.position;
+        ec.ts.ea.SwitchAnimState(ec.enemyAnimData.walkCycle);
+        ec.currentWanderPoint = ec.ts.pc.transform.position;
     }
 
     private void CheckIfCloseToPlayer()
     {
-        if (!ec.TargetInRange(ec.pc.transform.position, ec.enemyData.playerDetectionRadius,
-                ec.enemyData.playerDetectionAngle))
+        if (!ec.TargetInRange(ec.ts.pc.transform.position, ec.enemyData.playerChaseRadius,
+                ec.enemyData.playerChaseAngle))
         {
             ec.sc.ResumePrevious();
-        }
-        
-        var a = ec.CheckForAvailableAttack(ec.pc);
-
-        if (a != null)
-        {
-            ec.sc.Interrupt(new EnemyAttacking((EnemyAttack) a));
         }
     }
 }

@@ -3,22 +3,27 @@ using Animancer;
 using UnityEngine;
 
 [Serializable]
-public struct EnemyAttack
+public class EnemyAttack
 {
     [Header("General")] 
     public bool isEnabled;
     public ElementEffect element;
 
     [Header("Attack Properties")] 
-    public float attackKnockback;
+    public float damage;
+    public Vector2 attackKnockback;
     public float attackCooldown;
-    public Vector3 knockbackDirection;
+    public bool isParryable;
 
     [Header("Animations")] 
     public ClipTransition[] attackClips;
+
+    public bool useRootMotion;
+
+    [Header("VFX")] 
     
-    //[Header("VFX")] make at some point
-    
+    public VFXSpawnInfo[] vfxInfos;
+
 }
 
 [Serializable]

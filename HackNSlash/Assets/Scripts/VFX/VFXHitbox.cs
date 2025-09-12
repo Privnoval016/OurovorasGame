@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 
 public class VFXHitbox : MonoBehaviour
 {
-    [FormerlySerializedAs("vc")] public VFXController vfxController;
+    public VFXHitDetector HitDetector;
     [HideInInspector] public MeshRenderer meshRenderer;
     [HideInInspector] public Collider col;
     
@@ -21,14 +21,14 @@ public class VFXHitbox : MonoBehaviour
     {
         if (!useOnEnter) return;
         
-        vfxController.HitboxTriggerEnter(other);
+        HitDetector.HitboxTriggerEnter(other);
     }
     
     private void OnTriggerStay(Collider other)
     {
         if (!useOnStay) return;
         
-        vfxController.HitboxTriggerStay(other);
+        HitDetector.HitboxTriggerStay(other);
     }
     
     public void DisableCollider()

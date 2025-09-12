@@ -22,7 +22,8 @@ public enum OnAttackActions
     ImbueElement,
     HoldSpawnVFX,
     BasicFinisher,
-    AetherFinisher
+    AetherFinisher,
+    Parry
 }
 
 public class OnAttackEvents : Singleton<OnAttackEvents>
@@ -72,12 +73,16 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         OnAttackActionMap.Add(OnAttackActions.ImbueElement, ImbueElement);
         OnAttackActionMap.Add(OnAttackActions.HoldSpawnVFX, HoldSpawnVFX);
         OnAttackActionMap.Add(OnAttackActions.BasicFinisher, BasicFinisher);
+        OnAttackActionMap.Add(OnAttackActions.Parry, Parry);
         
     }
     
     IEnumerator<float> ResumeMoving(PlayerController pc, PlayerAttack a, float time, Action action = null)
     {
         yield return Timing.WaitForSeconds(time);
+        
+        pc.pi.isInvincible = false;
+        
         action?.Invoke();
         pc.psm.canAttack = true;
     }
@@ -240,7 +245,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         }
         
         float distToGround = Physics.SphereCast(pc.transform.position, pc.mainCol.radius, direction.normalized, 
-            out RaycastHit hit, 100f, pc.psm.groundLayer) ? hit.distance : attackParameters.maxAirDashDistance;
+            out RaycastHit hit, 100f, GameManager.Instance.groundLayer) ? hit.distance : 
+            attackParameters.maxAirDashDistance;
         float dist = Mathf.Min(attackParameters.maxAirDashDistance, Mathf.Max(distToGround, direction.magnitude));
         
         Func<bool> loopCondition = () => Time.time - startTime < minAnimTime || pc.psm.IsMidair &&
@@ -305,7 +311,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         {
             distance = Mathf.Max(Mathf.Min(attackParameters.groundDashDistance * 2, direction.magnitude * 2), attackParameters.groundDashDistance * 0.8f);
 
-            collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.mainCol.radius, direction, distance * 2f, pc.psm.enemyLayer);
+            collidersInPath = Physics.SphereCastAll(pc.transform.position, pc.mainCol.radius, 
+                direction, distance * 2f, GameManager.Instance.enemyLayer);
 
             foreach (var hit in collidersInPath)
             {
@@ -455,6 +462,8 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         
         IEnumerator<float> attack = BeginRegularDodge(pc, a);
         
+        pc.pi.isInvincible = true;
+        
         switch (a.attackEventIndex)
         {
             case 0:
@@ -570,7 +579,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         {
             Vector3 targetPos = -pc.transform.forward.normalized * attackParameters.dodgeDistance + pc.transform.position;
             bool isGround = Physics.Raycast(targetPos, Vector3.down,
-                out RaycastHit hit, 100f, pc.psm.groundLayer);
+                out RaycastHit hit, 100f, GameManager.Instance.groundLayer);
             Vector3 point = isGround ? hit.point : targetPos;
 
             dodgeDirection = point - pc.transform.position;
@@ -655,7 +664,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
     private VFXController CreateVFX(PlayerController pc, PlayerAttack a, int index, TransformInfo start = default)
     {
-        return OnVFXEvents.Instance.InvokeOnVFX(pc, a, index, start);
+        return OnVFXEvents.Instance.SpawnPlayerVFX(pc, a, index, start);
     }
 
     #endregion
@@ -821,6 +830,49 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         
     }
     
+    #endregion
+    
+    #region Parry
+    
+    private void Parry(PlayerController pc, PlayerAttack a)
+    {
+        this.RunSegmentCoroutine(BeginParry(pc, a));
+    }
+    
+    private IEnumerator<float> BeginParry(PlayerController pc, PlayerAttack a)
+    {
+        yield return Timing.WaitForSeconds(a.animDelay);
+
+        if (pc.wc.activeWeapons.Count == 0)
+        {
+            pc.pi.isInvincible = false;
+            yield break;
+        }
+        
+        pc.rb.linearVelocity = Vector3.zero;
+        
+        pc.pi.isInvincible = true;
+
+        HashSet<PhysicsEnemy> parriedEnemies = new();
+        foreach (var hitbox in pc.psm.ParriedHitboxes)
+        {
+            if (hitbox.ts.lot is PhysicsEnemy enemy)
+            {
+                parriedEnemies.Add(enemy);
+            }
+        }
+
+        foreach (var e in parriedEnemies)
+        {
+            e.OnStagger(pc.pi.currentElementEffect, pc, a, pc.transform, 0);
+        }
+        
+        CombatManager.Instance.PlayParryEffects(a.element, pc, a, pc.wc.activeWeapons[0], true, 0);
+        
+        yield return Timing.WaitForSeconds(a.attackClips[0].length + a.hitInfo.attackCoolDown);
+        
+        pc.pi.isInvincible = false;
+    }
     
     #endregion
 }

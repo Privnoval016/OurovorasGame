@@ -47,6 +47,8 @@ public class PlayerInventory : MonoBehaviour
     
     [Header("Stat Info")]
     
+    public bool isInvincible = false;
+    
     public float currentHealth;
     public float currentCharge;
     public float currentUltimate;

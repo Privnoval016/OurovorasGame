@@ -130,7 +130,7 @@ public class VFXSpawnInfo
     public float delay = 0;
 
     [Header("Default Spawn Parameters")] 
-    public Target spawnTarget = Target.None;
+    public PlayerTarget spawnTarget = PlayerTarget.None;
     public bool parentToTarget = false;
 
     public TransformInfo spawnTransform;
@@ -240,7 +240,7 @@ public class AttackStats
 
 
 
-public enum Target
+public enum PlayerTarget
 {
     None,
     Player,

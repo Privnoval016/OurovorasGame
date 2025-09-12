@@ -22,6 +22,8 @@ public class PlayerHit : PlayerState
         
         OnAttackEvents.Instance.KillObjectCoroutines();
         
+        pc.psm.CalculateGravity();
+        
         pc.pi.ChangeHealth(-hit.damage);
 
         AddKnockbackForce();
@@ -46,7 +48,7 @@ public class PlayerHit : PlayerState
     public void AddKnockbackForce()
     {
         Vector3 vertical = hit.force.y * Vector3.up;
-        Vector3 horizontal = hit.force.x * hit.direction.ToVector3();
+        Vector3 horizontal = hit.force.x * hit.horizontalDirection.ToVector3();
 
         pc.rb.AddForce(vertical + horizontal, ForceMode.VelocityChange);
     }
@@ -60,7 +62,7 @@ public class PlayerHit : PlayerState
         midairKnockback = true;
         pc.pac.RootMotionEnabled(false);
         
-        pc.gameObject.LookInDirection(-hit.direction.ToVector3());
+        pc.gameObject.LookInDirection(-hit.horizontalDirection.ToVector3());
         pc.pac.ExitTimeAnimation(pc.pac.HitAnims.airHit.StartClip, pc.pac.HitAnims.airHit.LoopClip);
     }
 
@@ -69,9 +71,9 @@ public class PlayerHit : PlayerState
         midairKnockback = false;
         pc.pac.RootMotionEnabled(false);
         
-        pc.pac.SetAnimancerParam("HitX", hit.direction.x, false);
-        pc.pac.SetAnimancerParam("HitZ", hit.direction.y, false);
-        Debug.Log("Hit Direction: " + hit.direction);
+        pc.pac.SetAnimancerParam("HitX", hit.horizontalDirection.x, false);
+        pc.pac.SetAnimancerParam("HitZ", hit.horizontalDirection.y, false);
+        Debug.Log("Hit Direction: " + hit.horizontalDirection);
         pc.pac.ExitTimeAnimation(pc.pac.HitAnims.groundHit, null, ExitHit);
     }
     
@@ -88,7 +90,7 @@ public class PlayerHit : PlayerState
 
 public struct HitInstance
 {
-    public Vector2 direction;   // direction of the hit in the xz plane
+    public Vector2 horizontalDirection;   // direction of the hit in the xz plane
     public Vector2 force;       // x: horizontal force, y: vertical force
     public float damage;
 }

@@ -106,7 +106,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
 
     private VFXController CreateVFX(ElementalSpirit spirit, SpiritAttack a, int i, TransformInfo overrideTransform = default)
     {
-        return OnVFXEvents.Instance.InvokeOnVFX(spirit.pc, a, i, overrideTransform);
+        return OnVFXEvents.Instance.SpawnPlayerVFX(spirit.pc, a, i, overrideTransform);
     }
 
     #endregion

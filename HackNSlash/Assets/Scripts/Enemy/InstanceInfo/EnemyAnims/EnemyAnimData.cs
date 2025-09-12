@@ -11,10 +11,9 @@ public class EnemyAnimData : ScriptableObject
     [Header("Walking")]
     public AnimLoop walkCycle;
     
-    [Header("Falling")]
-    public AnimLoop fallingCycle;
-    
     [Header("Hit")]
     public ClipTransition groundHitClip;
     public ClipTransition airHitClip;
+    public ClipTransition getUpClip;
+    public ClipTransition staggerClip;
 }

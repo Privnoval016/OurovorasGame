@@ -32,7 +32,7 @@ public class EntityAnimator : MonoBehaviour
             param.Value = value;
     }
     
-    public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, bool canInterrupt = true, FadeMode mode = FadeMode.FixedSpeed)
+    public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, bool canInterrupt = true, FadeMode mode = FadeMode.FromStart)
     {
         if (canInterrupt && (animancer.States.Current != null && animancer.States.Current.Clip && animancer.States.Current.Clip == clip))
         {
@@ -118,9 +118,9 @@ public class EntityAnimator : MonoBehaviour
     
     #region Root Motion Methods
 
-    public void RootMotionEnabled(bool enabled)
+    public void RootMotionEnabled(bool isEnabled)
     {
-        rootMotion.enabled = enabled;
+        rootMotion.enabled = isEnabled;
     }
     
     #endregion

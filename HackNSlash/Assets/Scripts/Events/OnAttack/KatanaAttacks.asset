@@ -28,11 +28,12 @@ MonoBehaviour:
   launchUpHeight: 15
   plungeSpeed: 75
   minPlungeTime: 0.04
-  enemyStepPushBack: 1
+  enemyStepPushBack: 0
   enemyStepTime: 0.3
-  enemyStepHeight: 1
+  enemyStepHeight: 4
   dodgeDistance: 8
   dodgeTime: 0.2
   mashInterval: 0.4
   mashDuration: 1.5
   imbueElementDuration: 10
+  finisherTimeScale: 0.7

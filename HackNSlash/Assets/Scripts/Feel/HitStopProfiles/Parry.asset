@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94b8f4066f6756c408634da8b864caea, type: 3}
+  m_Name: Parry
+  m_EditorClassIdentifier: 
+  hitStopDuration: 0.5
+  hitStopTimescale: 0.4
+  hitStopDelay: 0
+  screenShakeMagnitude: 0.2
+  hitStopVFX:
+    vfxAttack: {fileID: 11400000, guid: 777dac5c0d77b1844b94f4ed83652c83, type: 2}
+    onHitActionIndex: 0
+    duration: 0.2
+    delay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 3, y: 3, z: 3}
+    applyParentPoseToPosition: 0

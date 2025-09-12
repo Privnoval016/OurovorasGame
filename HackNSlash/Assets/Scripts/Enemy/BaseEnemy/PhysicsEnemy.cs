@@ -131,6 +131,7 @@ public class PhysicsEnemy : LockOnTarget
     
     #endregion
 
+    
 
     #region Knockback Methods
     
@@ -218,4 +219,8 @@ public class PhysicsEnemy : LockOnTarget
     
     #endregion
     
+    public virtual void OnStagger(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
+    {
+        OnHit(element, pc, a, attackerTransform, actionIndex);
+    }
 }

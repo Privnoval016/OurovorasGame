@@ -39,6 +39,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 77fe298cfd956dc4c84415b25f577742, type: 2}
   enemyStepAttacks:
   - {fileID: 11400000, guid: e53371ef873d6f34bbe79795ccd54c92, type: 2}
+  parryAttacks:
+  - {fileID: 11400000, guid: 637368b0d4c037441935cf60579f4150, type: 2}
   specialAttacks:
   - {fileID: 11400000, guid: 34f95dfc6f45a5044a1974ef78be28fb, type: 2}
   - {fileID: 11400000, guid: 03ec20722e27ae448a120c1dd88487e1, type: 2}

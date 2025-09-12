@@ -12,26 +12,26 @@ public class PlayerAnimListener : MonoBehaviour
     public void PlaySwordLeftVFX(int vfxIndex = 0)
     {
         lastWeaponType = WeaponType.SwordLeft;
-        OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
+        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
     }
     
     public void PlaySwordRightVFX(int vfxIndex = 0)
     {
         lastWeaponType = WeaponType.SwordRight;
-        OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
+        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
     }
     
     public void PlayBothSwordsVFX(int vfxIndex = 0)
     {
         lastWeaponType = WeaponType.SwordLeft;
-        OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
-        OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
+        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
+        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
     }
     
     public void PlayKatanaVFX(int vfxIndex = 0)
     {
         lastWeaponType = WeaponType.Katana;
-        OnVFXEvents.Instance.InvokeOnVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.Katana);
+        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.Katana);
     }
     
     public void PlayHitStop(int index = 0)
