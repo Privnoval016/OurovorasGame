@@ -110,13 +110,13 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         return vfx;
     }
     
-    public VFXController SpawnEnemyVFX(EnemyController ts, EnemyAttack a, int vfxIndex = 0, 
+    public VFXController SpawnEnemyVFX(EnemyController ts, EnemyAttackInfo a, int vfxIndex = 0, 
         TransformInfo overrideTransform = default)
     {
-        if (a == null || a.vfxInfos.Length == 0) return null;
+        if (a == null || a.attack.vfxInfos.Length == 0) return null;
         VFXController vfx = InstantiateEnemyVFX(ts, a, vfxIndex, overrideTransform);
         if (vfx == null) return null;
-        this.RunSegmentCoroutine(SpawnWithDelay(vfx, a.vfxInfos[vfxIndex].delay));
+        this.RunSegmentCoroutine(SpawnWithDelay(vfx, a.attack.vfxInfos[vfxIndex].delay));
         return vfx;
     }
     
@@ -226,12 +226,12 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         return vc;
     }
     
-    private VFXController InstantiateEnemyVFX(EnemyController ts, EnemyAttack a, int vfxIndex = 0,
+    private VFXController InstantiateEnemyVFX(EnemyController ts, EnemyAttackInfo a, int vfxIndex = 0,
         TransformInfo overrideTransform = default)
     {
-        if (a.vfxInfos.Length <= vfxIndex) return null;
+        if (a.attack.vfxInfos.Length <= vfxIndex) return null;
 
-        VFXSpawnInfo v = a.vfxInfos[vfxIndex];
+        VFXSpawnInfo v = a.attack.vfxInfos[vfxIndex];
         
         TransformInfo start = overrideTransform;
         start.Position += v.spawnTransform.Position;
@@ -251,7 +251,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             return null;
         }
         
-        ElementEffect element = ts.GetElementFromAttack(a.element);
+        ElementEffect element = ts.GetElementFromAttack(a.attack.element);
         
         var vfxActivators = GetVFXActivators(v, vfxController, GameManager.GetElementData(element));
         

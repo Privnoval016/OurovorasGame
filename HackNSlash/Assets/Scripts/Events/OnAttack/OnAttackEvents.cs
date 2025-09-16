@@ -18,7 +18,7 @@ public enum OnAttackActions
     BladeBeam,
     Grapple,
     EnemyStep,
-    SpawnVFX,
+    XXX,
     ImbueElement,
     HoldSpawnVFX,
     BasicFinisher,
@@ -69,12 +69,17 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         OnAttackActionMap.Add(OnAttackActions.BladeBeam, BladeBeam);
         OnAttackActionMap.Add(OnAttackActions.Grapple, Grapple);
         OnAttackActionMap.Add(OnAttackActions.EnemyStep, EnemyStep);
-        OnAttackActionMap.Add(OnAttackActions.SpawnVFX, SpawnVFX);
         OnAttackActionMap.Add(OnAttackActions.ImbueElement, ImbueElement);
         OnAttackActionMap.Add(OnAttackActions.HoldSpawnVFX, HoldSpawnVFX);
         OnAttackActionMap.Add(OnAttackActions.BasicFinisher, BasicFinisher);
         OnAttackActionMap.Add(OnAttackActions.Parry, Parry);
         
+    }
+    
+    public void InvokeOnAttack(PlayerController pc, PlayerAttack a)
+    {
+        SpawnVFX(pc, a);
+        OnAttackActionMap[a.onAttackAction](pc, a);
     }
     
     IEnumerator<float> ResumeMoving(PlayerController pc, PlayerAttack a, float time, Action action = null)
@@ -357,26 +362,28 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     private IEnumerator<float> BeginLaunchUp(PlayerController pc, PlayerAttack a)
     {
         var attackParameters = GetAttackParameters(pc);
-        
-        KeyBind[] holdKeys = InputManager.GetHoldable(a.keyBinds);
-        
-        yield return Timing.WaitForSeconds(attackParameters.launchUpHoldTime);
 
-        if (!holdKeys.Any(k => InputManager.KeyMap[k].holdAction()))
+        if (a.attackEventIndex != -1)
         {
-            yield break;
+            KeyBind[] holdKeys = InputManager.GetHoldable(a.keyBinds);
+
+            yield return Timing.WaitForSeconds(attackParameters.launchUpHoldTime);
+
+            if (!holdKeys.Any(k => InputManager.KeyMap[k].holdAction()))
+            {
+                yield break;
+            }
         }
         
-        Timing.WaitForSeconds(a.animDelay);
-        
+        yield return Timing.WaitForSeconds(a.animDelay);
+
         pc.pac.PlayAnimation(a.attackClips[1], a.animFade, false);
         
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(Vector3.up, attackParameters.launchUpHeight, attackParameters.launchUpTime));
 
-        Timing.WaitForSeconds(attackParameters.launchUpTime);
+        yield return Timing.WaitForSeconds(attackParameters.launchUpTime);
         
         pc.rb.linearVelocity = pc.psm.playerData.jumpHangSpeedThreshold * Vector3.up;
-
     }
     
     #endregion
@@ -652,14 +659,19 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
     private void SpawnVFX(PlayerController pc, PlayerAttack a)
     {
+        if (a.vfxInstantSpawns.Length == 0) return;
+        
         this.RunSegmentCoroutine(BeginSpawnVFX(pc, a));
     }
     
     private IEnumerator<float> BeginSpawnVFX(PlayerController pc, PlayerAttack a)
     {
-        yield return Timing.WaitForSeconds(a.animDelay);
-
-        CreateVFX(pc, a, a.attackEventIndex);
+        foreach (var index in a.vfxInstantSpawns)
+        {
+            CreateVFX(pc, a, index);
+        }
+        
+        yield return Timing.WaitForOneFrame;
     }
 
     private VFXController CreateVFX(PlayerController pc, PlayerAttack a, int index, TransformInfo start = default)
@@ -836,7 +848,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     
     private void Parry(PlayerController pc, PlayerAttack a)
     {
-        this.RunSegmentCoroutine(BeginParry(pc, a));
+        this.RunSegmentCoroutine(BeginParry(pc, a)).OnDestroy(() => pc.pi.isInvincible = false);
     }
     
     private IEnumerator<float> BeginParry(PlayerController pc, PlayerAttack a)
@@ -870,8 +882,6 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         CombatManager.Instance.PlayParryEffects(a.element, pc, a, pc.wc.activeWeapons[0], true, 0);
         
         yield return Timing.WaitForSeconds(a.attackClips[0].length + a.hitInfo.attackCoolDown);
-        
-        pc.pi.isInvincible = false;
     }
     
     #endregion
