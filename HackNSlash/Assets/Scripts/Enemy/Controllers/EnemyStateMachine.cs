@@ -1,10 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using Extensions.StateMachine;
 using Extensions.Utils;
 using UnityEngine;
-using Pathfinding;
-using VTabs.Libs;
 
 [RequireComponent(typeof(StateController<EnemyState>))]
 public class EnemyStateMachine : PhysicsEnemy
@@ -152,7 +149,7 @@ public class EnemyStateMachine : PhysicsEnemy
     
     #region Attack Methods
 
-    public EnemyAttack CheckForAvailableAttack(PlayerController player)
+    public EnemyAttackInfo CheckForAvailableAttack(PlayerController player)
     {
         if (player == null) return null;
         
@@ -175,7 +172,7 @@ public class EnemyStateMachine : PhysicsEnemy
             if (info.triggerInfo.distanceToTrigger >= a.triggerInfo.distanceToTrigger) a = info;
         }
 
-        return a.attack;
+        return a;
     }
 
     public void CheckToAttack()
@@ -184,7 +181,7 @@ public class EnemyStateMachine : PhysicsEnemy
 
         if (a != null)
         {
-            sc.Interrupt(new EnemyAttacking((EnemyAttack) a));
+            sc.Interrupt(new EnemyAttacking(a));
         }
     }
     

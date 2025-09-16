@@ -20,6 +20,7 @@ MonoBehaviour:
   stats:
     restoreCharge: 0
     charge: 55
+    ultimateCharge: 8
     damage: 0
   isLockedOn: 0
   requireElementTrigger: 1
@@ -42,9 +43,10 @@ MonoBehaviour:
     hitDelay: 0
     hitDirection: {x: 0, y: 0.5, z: 1}
     elasticCollision: 0
+  vfxInstantSpawns: 00000000
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: 371b6257a28d51c4a8dd4fb82375867a, type: 2}
-    onHitActionIndex: 0
+    vfxActionIndex: 0
     duration: 0.5
     delay: 0
     spawnTarget: 0

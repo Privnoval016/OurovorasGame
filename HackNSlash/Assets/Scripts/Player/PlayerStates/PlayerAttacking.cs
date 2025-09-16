@@ -42,7 +42,7 @@ public class PlayerAttacking : PlayerState
         if (_playerAttack.attackTransitions.Length > 0) LaunchTransitionAttack();
         else if (_playerAttack.attackClips.Length > 0) LaunchClipAttack();
         
-        pc.psm.InvokeOnAttack(_playerAttack);
+        OnAttackEvents.Instance.InvokeOnAttack(pc, _playerAttack);
 
         if (_playerAttack.exitCondition == ExitConditions.Immediate)
         {
@@ -247,10 +247,13 @@ public class PlayerAttacking : PlayerState
                 break;
         }
 
-        HashSet<LockOnTarget> secondaryTargts = pc.wc.EnemiesFromFollowWeapons(_playerAttack);
-        if (secondaryTargts.Count > 0)
+        if (_playerAttack.hitInfo.hitDetection != HitDetections.None)
         {
-            pc.psm.enemiesHitThisAction = pc.psm.enemiesHitThisAction.Union(secondaryTargts).ToHashSet();
+            HashSet<LockOnTarget> secondaryTargts = pc.wc.EnemiesFromFollowWeapons(_playerAttack);
+            if (secondaryTargts.Count > 0)
+            {
+                pc.psm.enemiesHitThisAction = pc.psm.enemiesHitThisAction.Union(secondaryTargts).ToHashSet();
+            }
         }
         
         if (pc.psm.enemiesHitThisAction.Count == 0) return;

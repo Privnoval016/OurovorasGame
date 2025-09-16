@@ -14,8 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vfxHitBox: {fileID: 3712180620774419834, guid: 9ec4a55d0ee537f45a968279cc81e79e,
     type: 3}
-  vfxDatas: []
+  vfxDatas:
+  - vfxType: 0
+    effect: {fileID: 289161321636050785, guid: 0f042605d5c6f4542a2235a44f0b8979, type: 3}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1, y: 1, z: 1}
+    durationScale: 1
+    delayScale: 0
   maxVFXAlive: 1
   vfxAction: 2
-  vfxSpeed: 300
+  vfxSpeed: 500
   canCollide: 1

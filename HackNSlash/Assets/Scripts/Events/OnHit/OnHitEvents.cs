@@ -125,7 +125,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     
     IEnumerator<float> BeginLaunchUp(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
-        yield return Timing.WaitUntilTrue(() => pc.psm.canAttack);
+        yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
 
         Vector3 direction = Vector3.up;
         
@@ -339,8 +339,11 @@ public class OnHitEvents : Singleton<OnHitEvents>
             direction = (ec.TargetedPosition() - t.position).normalized;
         }
         
-        float distance = a.hitInfo.lateralRadius - (ec.TargetedPosition() - t.position).magnitude;
-        print ($"Distance to push: {distance}");
+        direction *= Mathf.Sign(a.hitInfo.hitForce);
+        
+        float distance = Mathf.Sign(a.hitInfo.hitForce) >= 0 ?
+            a.hitInfo.lateralRadius - (ec.TargetedPosition() - t.position).magnitude :
+            (ec.TargetedPosition() - t.position).magnitude;
         
         ec.TraverseDistKnockback(direction.normalized, distance, a.hitInfo.hitDelay);
         

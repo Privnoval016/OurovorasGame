@@ -6,12 +6,28 @@ public class EnemyAnimListener : MonoBehaviour
     
     public void ActivateHitbox(int index = 0)
     {
-        ts.attackHitboxes[index].activeHitbox = true;
+        if (ts.lot is EnemyStateMachine ec)
+        {
+            if (!ec.sc.IsState<EnemyAttacking>()) return;
+
+            ts.attackHitboxes[index].activeHitbox = true;
+        }
+        else if (ts.lot is BossStateMachine bc)
+        {
+            // Boss logic
+        }
     }
     
     public void DeactivateHitbox(int index = 0)
     {
-        ts.attackHitboxes[index].activeHitbox = false;
+        if (ts.lot is EnemyStateMachine ec)
+        {
+            ts.attackHitboxes[index].activeHitbox = false;
+        }
+        else if (ts.lot is BossStateMachine bc)
+        {
+            // Boss logic
+        }
     }
     
     public void ActivateAllHitboxes()

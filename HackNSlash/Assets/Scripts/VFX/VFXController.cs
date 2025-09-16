@@ -96,6 +96,7 @@ public class VFXController : MonoBehaviour, IContactDetector
         
     }
     
+    // Disable hitboxes and notify listeners that the VFX has been disabled
     public void DisableVFX()
     {
         activeHitbox = false;
@@ -105,9 +106,15 @@ public class VFXController : MonoBehaviour, IContactDetector
             hitbox.DisableCollider();
         }
         
+        foreach (var va in vas)
+        {
+            va.SetAllVFXEvents(va.vfxEventEnd);
+        }
+        
         OnVFXEvents.Instance.OnVFXDisabled(this);
     }
     
+    // Destroy the actual GameObject and end all visual effects
     public void DestroyVFX()
     {
         if (gameObject != null)

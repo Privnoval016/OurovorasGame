@@ -11,6 +11,14 @@ using UnityEngine.Serialization;
 
 public class VFXActivator : MonoBehaviour
 {
+    #region String Constants
+   
+    public string vfxEventBegin = "create";
+    public string vfxEventEnd = "end";
+    
+    #endregion
+    
+    
     public VFXDelayInfo[] vfxs;
     public float totalDuration;
     private bool lifetimesSet = false;
@@ -76,6 +84,26 @@ public class VFXActivator : MonoBehaviour
         }
     }
     
+    public void SetAllVFXEvents(String eventName)
+    {
+        foreach (VFXDelayInfo vfx in vfxs)
+        {
+            vfx.effect.SendEvent(eventName);
+        }
+    }
+    
+    public void SetIndividualVFXEvent(String eventName, int index)
+    {
+        if (index < 0 || index >= vfxs.Length) return;
+        
+        VisualEffect vfx = vfxs[index].effect;
+        if (vfx == null) return;
+        
+        vfx.SendEvent(eventName);
+    }
+    
+    
+    
     [Button]
     public void PlayVFX()
     {
@@ -94,6 +122,7 @@ public class VFXActivator : MonoBehaviour
         yield return Timing.WaitForSeconds(delay);
         vfx.gameObject.SetActive(true);
         vfx.Play();
+        vfx.SendEvent(vfxEventBegin);
     }
 
     private void OnValidate()

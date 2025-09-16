@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb111e3fbd3c8a34496e456df7c86e62, type: 3}
+  m_Name: CycloneVortex
+  m_EditorClassIdentifier: 
+  vfxHitBox: {fileID: 3712180620774419834, guid: 6a1dcf25a4e8fc545ae32d03fb43d2c2,
+    type: 3}
+  vfxDatas:
+  - vfxType: 0
+    effect: {fileID: 289161321636050785, guid: 89f1a2fcf25d57142ba060964ef1c758, type: 3}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1.5, y: 1.5, z: 1.5}
+    durationScale: 1
+    delayScale: 0
+  maxVFXAlive: 1
+  vfxAction: 3
+  vfxSpeed: 0
+  canCollide: 1

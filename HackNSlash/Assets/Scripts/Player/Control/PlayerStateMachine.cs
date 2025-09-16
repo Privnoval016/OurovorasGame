@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.Utils;
@@ -252,11 +253,6 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
     
     #region Attack Methods
-
-    public void InvokeOnAttack(PlayerAttack a)
-    {
-        OnAttackEvents.OnAttackActionMap[a.onAttackAction](pc, a);
-    }
     
     public void ResetActions()
     {
@@ -306,7 +302,7 @@ public class PlayerStateMachine : MonoBehaviour
                 {
                     if (!col.TryGetComponent(out EnemyHitbox eh)) continue;
                     if (!eh.ts.parryWindowActive) continue;
-                    if (!eh.GetCurrentAttack().isParryable) continue;
+                    if (!eh.GetCurrentAttackInfo().attack.isParryable) continue;
                     foundParry = true;
                     
                     ParriedHitboxes.Add(eh);
@@ -834,7 +830,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     #region Collision Methods
 
-    private void CheckEnemyCollision(Collider other)
+    public void CheckEnemyCollision(Collider other)
     {
         if (pc.pi.isInvincible) return;
         if (!other.TryGetComponent(out EnemyHitbox eh)) return;
@@ -844,13 +840,32 @@ public class PlayerStateMachine : MonoBehaviour
         
         PlayerIsHit(new HitInstance()
                     {
-                        force = eh.GetCurrentAttack().attackKnockback,
+                        force = eh.GetCurrentAttackInfo().attack.attackKnockback,
                         horizontalDirection = (transform.position - eh.ts.transform.position).ToVector2().normalized,
-                        damage = eh.GetCurrentAttack().damage,
+                        damage = eh.GetCurrentAttackInfo().attack.damage * eh.GetCurrentAttackInfo().damageInfo.damageMultiplier
                     });
+    }
+
+    public void CheckEnemyProjectileCollision(EnemyVFXHitDetector evhd)
+    {
+        if (pc.pi.isInvincible) return;
+        if (pc.sc.IsState<PlayerHit>()) return;
+        if (!evhd.vfx.activeHitbox || !evhd.vfx.vfxEnabled) return;
+        
+        PlayerIsHit(new HitInstance()
+        {
+            force = evhd.attackInfo.attack.attackKnockback,
+            horizontalDirection = (transform.position - evhd.vfx.transform.position).ToVector2().normalized,
+            damage = evhd.attackInfo.attack.damage * evhd.attackInfo.damageInfo.damageMultiplier
+        });
     }
     
     private void OnTriggerEnter(Collider other)
+    {
+        CheckEnemyCollision(other);
+    }
+
+    private void OnTriggerStay(Collider other)
     {
         CheckEnemyCollision(other);
     }

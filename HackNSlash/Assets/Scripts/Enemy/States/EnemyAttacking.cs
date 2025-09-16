@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class EnemyAttacking : EnemyState
 {
-    private EnemyAttack attack;
+    private EnemyAttackInfo attackInfo;
     private bool attackFinished;
     
     private Vector3 playerLastKnownPosition;
@@ -15,9 +15,9 @@ public class EnemyAttacking : EnemyState
     private float resetTimer;
     private float resetTime;
 
-    public EnemyAttacking(EnemyAttack attack)
+    public EnemyAttacking(EnemyAttackInfo attackInfo)
     {
-        this.attack = attack;
+        this.attackInfo = attackInfo;
         attackFinished = false;
     }
 
@@ -26,13 +26,13 @@ public class EnemyAttacking : EnemyState
         playerLastKnownPosition = ec.ts.pc.transform.position;
         
         resetTimer = 0;
-        resetTime = attack.attackCooldown;
-        foreach (var clip in attack.attackClips)
+        resetTime = attackInfo.attack.attackCooldown;
+        foreach (var clip in attackInfo.attack.attackClips)
         {
             resetTime += clip.Length;
         }
         
-        ec.ts.currentAttack = attack;
+        ec.ts.currentAttackInfo = attackInfo;
         
         ec.RunSegmentCoroutine(PlayAttackAnimations(), nameof(PlayAttackAnimations));
     }
@@ -65,11 +65,11 @@ public class EnemyAttacking : EnemyState
 
     private IEnumerator<float> PlayAttackAnimations()
     {
-        if (attack.attackClips.Length == 0) yield break;
+        if (attackInfo.attack.attackClips.Length == 0) yield break;
         
-        ec.ts.ea.RootMotionEnabled(attack.useRootMotion);
+        ec.ts.ea.RootMotionEnabled(attackInfo.attack.useRootMotion);
         
-        foreach (var clip in attack.attackClips)
+        foreach (var clip in attackInfo.attack.attackClips)
         {
             ec.ts.ea.SwitchAnimState(clip);
             yield return Timing.WaitForSeconds(clip.Length);

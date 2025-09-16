@@ -51,8 +51,9 @@ public abstract class Attack : ScriptableObject
     
     [Header("Events")]
     public HitInfo hitInfo;
-    
+
     [Header("VFX")] 
+    public int[] vfxInstantSpawns;
     
     public VFXSpawnInfo[] vfxInfos;
     
@@ -94,6 +95,8 @@ public abstract class Attack : ScriptableObject
         linkedAttack.isMidair = isMidair;
         linkedAttack.maxUses = maxUses;
         linkedAttack.hitInfo = new HitInfo(hitInfo);
+        
+        linkedAttack.vfxInstantSpawns = (int[]) vfxInstantSpawns?.Clone();
 
         linkedAttack.vfxInfos = VFXSpawnInfo.DeepCopy(vfxInfos);
         
@@ -124,8 +127,8 @@ public class VFXSpawnInfo
 {
     public VFXAttack vfxAttack;
     
-    [FormerlySerializedAs("hitIndex")] [Header("VFX Parameters")]
-    public int onHitActionIndex;
+    [Header("VFX Parameters")]
+    [Tooltip("Used for event specific purposes")] public int vfxActionIndex;
     public float duration = 0.3f;
     public float delay = 0;
 
@@ -146,7 +149,7 @@ public class VFXSpawnInfo
             copy[i] = new VFXSpawnInfo
             {
                 vfxAttack = original[i].vfxAttack,
-                onHitActionIndex = original[i].onHitActionIndex,
+                vfxActionIndex = original[i].vfxActionIndex,
                 duration = original[i].duration,
                 delay = original[i].delay,
                 spawnTarget = original[i].spawnTarget,

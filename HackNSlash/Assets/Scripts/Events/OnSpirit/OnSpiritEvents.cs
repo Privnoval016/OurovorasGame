@@ -35,6 +35,11 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
         OnSpiritActionMap.Add(OnSpiritActions.HitScanVFX, HitScanVFX);
     }
     
+    public void InvokeOnSpiritAction(ElementalSpirit spirit, SpiritAttack a)
+    {
+        Instance.OnSpiritActionMap[a.onSpiritAction](spirit, a);
+    }
+    
     IEnumerator<float> ResumeMoving(ElementalSpirit spirit, Attack a, float time, Action action = null)
     {
         yield return Timing.WaitForSeconds(time);
@@ -94,7 +99,7 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
     
     private IEnumerator<float> BeginSpawnVFX(ElementalSpirit spirit, SpiritAttack a)
     {
-        for (int i = 0; i < a.vfxInfos.Length; i++)
+        foreach (int i in a.vfxInstantSpawns)
         {
             CreateVFX(spirit, a, i);
         }

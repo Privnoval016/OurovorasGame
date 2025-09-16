@@ -3,6 +3,8 @@ using UnityEditor;
 using Unity.Mathematics;
 using UnityEngine;
 
+#if UNITY_EDITOR
+
 namespace Extensions.EditorAddons
 {
     [CustomEditor(typeof(SODInfo))]
@@ -164,3 +166,5 @@ namespace Extensions.EditorAddons
         }
     }
 }
+
+#endif

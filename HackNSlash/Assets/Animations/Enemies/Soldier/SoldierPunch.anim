@@ -58343,29 +58343,29 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 0.26666668
+  - time: 0.7
     functionName: ActivateParryWindow
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.8333333
+  - time: 0.8
     functionName: DeactivateParryWindow
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.8666667
-    functionName: ActivateAllHitboxes
+  - time: 0.8333333
+    functionName: ActivateHitbox
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 1.0333333
-    functionName: DeactivateAllHitboxes
+    functionName: DeactivateHitbox
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

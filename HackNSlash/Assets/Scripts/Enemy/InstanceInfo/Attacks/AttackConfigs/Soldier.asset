@@ -13,27 +13,10 @@ MonoBehaviour:
   m_Name: Soldier
   m_EditorClassIdentifier: 
   infos:
-  - attack:
-      isEnabled: 1
-      element: 0
-      damage: 20
-      attackKnockback: {x: 20, y: 0}
-      attackCooldown: 0
-      isParryable: 1
-      attackClips:
-      - _FadeDuration: 0.25
-        _Speed: 1
-        _Events:
-          _NormalizedTimes: []
-          _Callbacks: []
-          _Names: []
-        _Clip: {fileID: 7400000, guid: 02e4f43d31059554aaa5c11cd63f6631, type: 2}
-        _NormalizedStartTime: 0
-      useRootMotion: 1
+  - attack: {fileID: 11400000, guid: 1ccdd47ea78e9f64d95acedf771c9c6d, type: 2}
+    damageInfo:
+      damageMultiplier: 1
     triggerInfo:
       distanceToTrigger: 3.5
       angleToTrigger: 150
       attackWeight: 0
-  references:
-    version: 2
-    RefIds: []
