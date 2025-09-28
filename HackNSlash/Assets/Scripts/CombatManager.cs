@@ -118,15 +118,15 @@ public class CombatManager : Singleton<CombatManager>
         HitStop(pc, a, playImmediately, index);
     }
     
-    public void PlayParryEffects(ElementEffect attackElement, PlayerController pc, Attack a, IContactDetector contact, bool playImmediately, int index = 0)
+    public void PlayParryEffects(Collider[] hitboxes, ElementEffect attackElement, PlayerController pc, Attack a, IContactDetector contact, bool playImmediately, int index = 0)
     {
         if (contact == null) return;
         
         List<Vector3> spawnPositions = new List<Vector3>();
         
-        foreach (var target in pc.psm.ParriedHitboxes)
+        foreach (var target in hitboxes)
         {
-            Vector3 point = contact.GetClosestPointOnCollider(target.hitboxCollider);
+            Vector3 point = contact.GetClosestPointOnCollider(target);
             if (point != Vector3.zero)
             {
                 spawnPositions.Add(point);

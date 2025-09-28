@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Extensions.Utils;
 using MEC;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -18,7 +19,7 @@ public enum OnAttackActions
     BladeBeam,
     Grapple,
     EnemyStep,
-    XXX,
+    ProjectileParry,
     ImbueElement,
     HoldSpawnVFX,
     BasicFinisher,
@@ -73,6 +74,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         OnAttackActionMap.Add(OnAttackActions.HoldSpawnVFX, HoldSpawnVFX);
         OnAttackActionMap.Add(OnAttackActions.BasicFinisher, BasicFinisher);
         OnAttackActionMap.Add(OnAttackActions.Parry, Parry);
+        OnAttackActionMap.Add(OnAttackActions.ProjectileParry, ProjectileParry);
         
     }
     
@@ -261,7 +263,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
         pc.pac.animancer.gameObject.transform.LookAt(pc.transform.position + direction);
         
-        pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, true);
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, true);
         
         this.RunSegmentCoroutine(pc.rb.TraverseWithVelocity(direction.normalized, attackParameters.airDashSpeed, loopCondition));
         yield return Timing.WaitUntilTrue(() => !loopCondition());
@@ -272,7 +274,7 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         this.RunSegmentCoroutine(ResumeMoving(pc, a, !attackParameters.finalAirSlash ? a.hitInfo.attackCoolDown : Mathf.Max(0, a.hitInfo.attackCoolDown + a.attackClips[2].length - 0.1f)));
         
         pc.pac.animancer.gameObject.transform.rotation = originalRotation;
-        pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, false);
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, false);
         
     }
     
@@ -321,9 +323,9 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
             foreach (var hit in collidersInPath)
             {
-               pc.IgnoreCollision(hit.collider, true);
+               pc.IgnoreAllCollisionsWithLayer(hit.collider.gameObject.layer, true);
             }
-            pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, true);
+            pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, true);
         }
         else
         {
@@ -344,10 +346,10 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
             foreach (var hit in collidersInPath)
             {
                 if (hit.collider.TryGetComponent(out LockOnTarget d)) d.OnHit(pc.pi.currentElementEffect, pc, a, pc.transform, 1);
-                pc.IgnoreCollision(hit.collider, false);
+                pc.IgnoreAllCollisionsWithLayer(hit.collider.gameObject.layer, false);
             }
         }
-        pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, false);
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, false);
     }
     
     #endregion
@@ -487,7 +489,9 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
                 break;
         }
         
-        this.RunSegmentCoroutine(attack);
+        this.RunSegmentCoroutine(attack).
+            OnDestroy(() => pc.IgnoreAllCollisionsWithLayer(GameManager.Instance.enemyLayer, false));
+
     }
 
     IEnumerator<float> BeginRegularDodge(PlayerController pc, PlayerAttack a)
@@ -505,8 +509,12 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
             dodgeDirection = pc.psm.IsMidair ? Vector3.down : Vector3.up;
         }
         
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, true);
+        
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, false);
+
         yield return Timing.WaitForSeconds(moveTime);
         
         this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
@@ -534,10 +542,13 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
 
         (pc.cam.TargetedEnemy as PhysicsEnemy)?.ResetMovement();
         
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, true);
         
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
         yield return Timing.WaitForSeconds(moveTime);
+        
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, false);
         
         this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
     }
@@ -560,13 +571,13 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
         
         (pc.cam.TargetedEnemy as PhysicsEnemy)?.ResetMovement();
 
-        pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, true);
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, true);
         
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
         yield return Timing.WaitForSeconds(moveTime);
         
-        pc.IgnoreCollision(pc.cam.TargetedEnemy?.col, false);
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, false);
         
         this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
 
@@ -599,9 +610,14 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
             distance = attackParameters.dodgeDistance;
         }
 
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, true);
+        
         this.RunSegmentCoroutine(pc.rb.TraverseDistanceInTime(dodgeDirection, distance, moveTime));
         
         yield return Timing.WaitForSeconds(moveTime);
+        
+        pc.IgnoreAllCollisionsWithLayer(pc.cam.TargetedEnemy?.gameObject.layer, false);
+
         
         this.RunSegmentCoroutine(ResumeMoving(pc, a, a.hitInfo.attackCoolDown));
 
@@ -677,6 +693,11 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
     private VFXController CreateVFX(PlayerController pc, PlayerAttack a, int index, TransformInfo start = default)
     {
         return OnVFXEvents.Instance.SpawnPlayerVFX(pc, a, index, start);
+    }
+    
+    private VFXController CreateVFX(PlayerController pc, PlayerAttack a, VFXSpawnInfo vfxInfo, TransformInfo start = default)
+    {
+        return OnVFXEvents.Instance.SpawnParriedProjectileVFX(pc, a, vfxInfo, start);
     }
 
     #endregion
@@ -879,9 +900,59 @@ public class OnAttackEvents : Singleton<OnAttackEvents>
             e.OnStagger(pc.pi.currentElementEffect, pc, a, pc.transform, 0);
         }
         
-        CombatManager.Instance.PlayParryEffects(a.element, pc, a, pc.wc.activeWeapons[0], true, 0);
+        Collider[] hitboxes = parriedEnemies.Select(e => e.col).ToArray();
         
-        yield return Timing.WaitForSeconds(a.attackClips[0].length + a.hitInfo.attackCoolDown);
+        CombatManager.Instance.PlayParryEffects(hitboxes, a.element, pc, a, pc.wc.activeWeapons[0], true, 0);
+        
+        yield return Timing.WaitForSeconds(a.attackClips[0].length);
+    }
+    
+    #endregion
+    
+    #region Projectile Parry
+    
+    private void ProjectileParry(PlayerController pc, PlayerAttack a)
+    {
+        this.RunSegmentCoroutine(BeginProjectileParry(pc, a)).OnDestroy(() => pc.pi.isInvincible = false);
+    }
+    
+    private IEnumerator<float> BeginProjectileParry(PlayerController pc, PlayerAttack a)
+    {
+        yield return Timing.WaitForSeconds(a.animDelay);
+
+        if (pc.wc.activeWeapons.Count == 0)
+        {
+            pc.pi.isInvincible = false;
+            yield break;
+        }
+        
+        pc.rb.linearVelocity = Vector3.zero;
+        
+        pc.pi.isInvincible = true;
+        
+        foreach (VFXHitbox h in pc.psm.ParriedProjectiles)
+        {
+            Vector3 startPosition = h.transform.position;
+            Vector3 moveDirection = (h.HitDetector.creatorTransform.position - startPosition).normalized;
+            CreateVFX(pc, a, h.HitDetector.vfx.vfxSpawnInfo, new TransformInfo(startPosition, 
+                Quaternion.LookRotation(moveDirection), 
+                Vector3.one));
+        }
+        
+        List<Collider> hitboxes = new();
+        foreach (VFXHitbox h in pc.psm.ParriedProjectiles)
+        {
+            hitboxes.Add(h.col);
+        }
+
+        CombatManager.Instance.PlayParryEffects(hitboxes.ToArray(), a.element, pc, a, pc.wc.activeWeapons[0], true, 1);
+
+        foreach (var h in pc.psm.ParriedProjectiles)
+        {
+            h.HitDetector.vfx.DisableVFX();
+        }
+        
+        yield return Timing.WaitForSeconds(a.attackClips[0].length);
     }
     
     #endregion

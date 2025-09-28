@@ -13,6 +13,8 @@ public class EnemyController : MonoBehaviour
     [HideInInspector] public EnemyAnimator ea;
 
     [HideInInspector] public PlayerController pc;
+    
+    [HideInInspector] public OnEnemyEvents onEnemyEvents;
 
     public EnemyAnimListener animListener;
     
@@ -43,6 +45,7 @@ public class EnemyController : MonoBehaviour
         nav = GetComponent<PhysicsNavigator>();
         ea = GetComponent<EnemyAnimator>();
         lot = GetComponent<LockOnTarget>();
+        onEnemyEvents = GetComponent<OnEnemyEvents>();
         
         animListener.ts = this;
         

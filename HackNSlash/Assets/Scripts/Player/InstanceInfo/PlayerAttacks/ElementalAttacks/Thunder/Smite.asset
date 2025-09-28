@@ -32,23 +32,26 @@ MonoBehaviour:
   isMidair: 2
   maxUses: 0
   hitInfo:
-    onHitActions: 07000000
+    onHitActions: 00000000
     hitDetection: 1
     lateralRadius: 20
     verticalRadius: 20
     hitRegisterAngle: 360
     numTargets: 5
-    attackCoolDown: 0.5
+    attackCoolDown: 0.2
+    hitCoolDown: 0.2
     hitForce: 3
     hitDelay: 0
     hitDirection: {x: 0, y: 0.5, z: 1}
     elasticCollision: 0
-  vfxInstantSpawns: 00000000
+  vfxInstantSpawns: 00000000000000000000000000000000000000000000000000000000
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: 371b6257a28d51c4a8dd4fb82375867a, type: 2}
-    vfxActionIndex: 0
-    duration: 0.5
-    delay: 0
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 0.2
+    spawnDelay: 0
+    actionDelay: 0
     spawnTarget: 0
     parentToTarget: 0
     spawnTransform:
@@ -57,6 +60,6 @@ MonoBehaviour:
       Scale: {x: 1, y: 1, z: 1}
     applyParentPoseToPosition: 1
   hitStopProfiles:
-  - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
+  - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
   onSpiritMovement: 0
   onSpiritAction: 3

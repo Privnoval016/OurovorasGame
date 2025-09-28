@@ -113,6 +113,20 @@ public class PlayerController : KinematicBehaviour
         }
     }
     
+    public bool IgnoreAllCollisionsWithLayer(int? layer, bool ignore)
+    {
+        if (layer == null) return false;
+        
+        int layerValue = (int) layer;
+        
+        if (layerValue < 0 || layerValue > 31) return false;
+        foreach (CapsuleCollider c in allCols)
+        {
+            Physics.IgnoreLayerCollision(c.gameObject.layer, layerValue, ignore);
+        }
+        return true;
+    }
+    
     #endregion
     
     #region Utility Methods

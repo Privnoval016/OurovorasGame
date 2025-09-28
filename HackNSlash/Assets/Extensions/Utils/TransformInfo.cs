@@ -29,6 +29,11 @@ namespace Extensions.Utils
             this.Scale = scale;
         }
 
+        public override string ToString()
+        {
+            return $"Position: {Position}, Rotation: {Rotation.eulerAngles}, Scale: {Scale}";
+        }
+
 
         public TransformInfo(Transform t, bool local = true)
         {

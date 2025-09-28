@@ -214,6 +214,13 @@ public class PhysicsEnemy : LockOnTarget
         OnHitEvents.Instance.KillObjectCoroutines(GetInstanceID().ToString());
         physicsLockTime = 0;
         physicsInteract = true;
+
+        if (actionIndex < 0 || actionIndex >= a.hitInfo.onHitActions.Length)
+        {
+            Debug.LogError($"OnHit: Invalid actionIndex {actionIndex} for attack {a.name}");
+            return;
+        }
+        
         OnHitEvents.OnHitActionMap[a.hitInfo.onHitActions[actionIndex]](pc, this, a, attackerTransform);
     }
     

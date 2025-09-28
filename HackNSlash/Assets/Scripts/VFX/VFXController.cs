@@ -4,14 +4,13 @@ using System.Linq;
 using Extensions.Utils;
 using UnityEngine;
 
-public class VFXController : MonoBehaviour, IContactDetector
+public class VFXController : KinematicBehaviour, IContactDetector
 {
     [Header("Components")]
 
     public VFXHitbox[] hitboxes;
     
     [HideInInspector] public MeshRenderer meshRenderer;
-    [HideInInspector] public Rigidbody rb;
     
     public VFXHitDetector HitDetector;
     
@@ -22,7 +21,6 @@ public class VFXController : MonoBehaviour, IContactDetector
     public ElementEffect elementType;
     
     [HideInInspector] public VFXActivator[] vas;
-    [HideInInspector] public int vfxIndex;
     
     [HideInInspector] public float timeActive;
     [HideInInspector] public float timeVFXEnabled;
@@ -37,6 +35,8 @@ public class VFXController : MonoBehaviour, IContactDetector
 
     private void Awake()
     {
+        SetKinematicAttributes();
+        
         if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
         if (rb == null) rb = GetComponent<Rigidbody>();
         
@@ -60,6 +60,8 @@ public class VFXController : MonoBehaviour, IContactDetector
     
     private void Update()
     {
+        UpdateKinematicAttributes();
+        
         if (!vfxEnabled) return;
         
         elapsedTime += Time.deltaTime;
@@ -96,6 +98,16 @@ public class VFXController : MonoBehaviour, IContactDetector
         
     }
     
+    public bool IsPlayerVFX()
+    {
+        return HitDetector is PlayerVFXHitDetector;
+    }
+    
+    public bool IsEnemyVFX()
+    {
+        return HitDetector is EnemyVFXHitDetector;
+    }
+    
     // Disable hitboxes and notify listeners that the VFX has been disabled
     public void DisableVFX()
     {
@@ -123,12 +135,11 @@ public class VFXController : MonoBehaviour, IContactDetector
         }
     }
     
-    public void InitializeVFX(ElementEffect element, TransformInfo start, VFXSpawnInfo v, VFXActivator[] vfx, int index, bool canCollide)
+    public void InitializeVFX(ElementEffect element, TransformInfo start, VFXSpawnInfo v, VFXActivator[] vfx, bool canCollide)
     {
         elementType = element;
         vas = vfx;
         vfxSpawnInfo = v;
-        vfxIndex = index;
         
         AddVFXDelays();
         

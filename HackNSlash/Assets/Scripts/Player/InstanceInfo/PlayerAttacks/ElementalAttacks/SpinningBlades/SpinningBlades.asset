@@ -39,6 +39,7 @@ MonoBehaviour:
     hitRegisterAngle: 120
     numTargets: 1
     attackCoolDown: 0.5
+    hitCoolDown: 0.5
     hitForce: 10
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
@@ -46,9 +47,11 @@ MonoBehaviour:
   vfxInstantSpawns: 00000000
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: e7448548180974948b18ee57b2dec30c, type: 2}
-    vfxActionIndex: 0
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
     duration: 7
-    delay: 0
+    spawnDelay: 0
+    actionDelay: 0
     spawnTarget: 1
     parentToTarget: 0
     spawnTransform:

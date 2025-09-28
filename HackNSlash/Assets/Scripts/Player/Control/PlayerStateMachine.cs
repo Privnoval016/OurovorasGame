@@ -109,6 +109,7 @@ public class PlayerStateMachine : MonoBehaviour
     
     public HashSet<LockOnTarget> EnemiesInHit = new();
     public HashSet<EnemyHitbox> ParriedHitboxes = new();
+    public HashSet<VFXHitbox> ParriedProjectiles = new();
     
     public bool PlayHitStopThisAction => EnemiesInHit.Count > 0;
     
@@ -287,36 +288,60 @@ public class PlayerStateMachine : MonoBehaviour
 
     private bool CheckParryAction()
     {
-        if (movingState != MovingStates.NonCombat && !pauseMovement)
+        if (movingState == MovingStates.NonCombat || pauseMovement) return false;
+
+        PlayerAttack attack = (PlayerAttack) attackData.parryAttack;
+        if (!AttackIsAvailable(attack)) return false;
+        
+        ParriedHitboxes.Clear();
+        
+        Collider[] colliders = Physics.OverlapSphere(transform.position, playerData.largeRadius, GameManager.Instance.enemyLayer);
+        
+        bool foundParry = false;
+        foreach (var col in colliders)
         {
-            foreach (PlayerAttack attack in attackData.parryAttacks)
-            {
-                if (!AttackIsAvailable(attack)) continue;
-                
-                ParriedHitboxes.Clear();
-                
-                Collider[] colliders = Physics.OverlapSphere(transform.position, playerData.largeRadius, GameManager.Instance.enemyLayer);
-                
-                bool foundParry = false;
-                foreach (var col in colliders)
-                {
-                    if (!col.TryGetComponent(out EnemyHitbox eh)) continue;
-                    if (!eh.ts.parryWindowActive) continue;
-                    if (!eh.GetCurrentAttackInfo().attack.isParryable) continue;
-                    foundParry = true;
-                    
-                    ParriedHitboxes.Add(eh);
-                }
-                
-                if (!foundParry) continue;
-                
-                pc.pi.isInvincible = true;
-                BeginAttack(attack);
-                return true;
-            }
+            if (!col.TryGetComponent(out EnemyHitbox eh)) continue;
+            if (!eh.ts.parryWindowActive) continue;
+            if (!eh.GetCurrentAttackInfo().attack.isParryable) continue;
+            foundParry = true;
+            
+            ParriedHitboxes.Add(eh);
         }
         
-        return false;
+        if (!foundParry) return false;
+        
+        pc.pi.isInvincible = true;
+        BeginAttack(attack);
+        return true;
+    }
+
+    private bool CheckProjectileParryAction()
+    {
+        if (movingState == MovingStates.NonCombat || pauseMovement) return false;
+        
+        PlayerAttack attack = (PlayerAttack) attackData.projectileParryAttack;
+        if (!AttackIsAvailable(attack)) return false;
+        
+        ParriedProjectiles.Clear();
+        Collider[] colliders = Physics.OverlapSphere(transform.position, playerData.largeRadius);
+        
+        Debug.Log("Checking Projectile Parry: Found " + colliders.Length + " colliders");
+        
+        bool foundParry = false;
+        foreach (var col in colliders)
+        {
+            if (!col.TryGetComponent(out VFXHitbox h)) continue;
+            if (!h.HitDetector.vfx.IsEnemyVFX()) continue;
+            if (!h.HitDetector.vfx.vfxEnabled || !h.HitDetector.vfx.activeHitbox) continue;
+            foundParry = true;
+            
+            ParriedProjectiles.Add(h);
+        }
+        
+        if (!foundParry) return false;
+        pc.pi.isInvincible = true;
+        BeginAttack(attack);
+        return true;
     }
 
     private bool CheckMobilityAction()
@@ -396,6 +421,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (CheckMobilityAction()) return;
         
         if (CheckParryAction()) return;
+        if (CheckProjectileParryAction()) return;
         
         if (movingState == MovingStates.NonCombat) return;
         
@@ -635,6 +661,8 @@ public class PlayerStateMachine : MonoBehaviour
     
     public bool AttackIsAvailable(Attack attack)
     {
+        if (attack == null) return false;
+        
         if (!attack.isEnabled) return false;
         
         if (!NumActionsUsed.ContainsKey(attack) && attack.maxUses > 0)

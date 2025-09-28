@@ -19,7 +19,8 @@ MonoBehaviour:
   element: 0
   stats:
     restoreCharge: 1
-    chargeRequired: 10
+    charge: 10
+    ultimateCharge: 8
     damage: 0
   isLockedOn: 0
   requireElementTrigger: 0
@@ -38,15 +39,19 @@ MonoBehaviour:
     hitRegisterAngle: 120
     numTargets: 1
     attackCoolDown: 0.4
+    hitCoolDown: 0.4
     hitForce: 0
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  vfxInstantSpawns: 
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
-    onHitActionIndex: 0
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
     duration: 0.6
-    delay: 0
+    spawnDelay: 0
+    actionDelay: 0
     spawnTarget: 0
     parentToTarget: 0
     spawnTransform:

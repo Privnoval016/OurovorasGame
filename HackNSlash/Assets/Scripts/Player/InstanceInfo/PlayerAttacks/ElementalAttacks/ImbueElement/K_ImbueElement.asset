@@ -20,6 +20,7 @@ MonoBehaviour:
   stats:
     restoreCharge: 0
     charge: 40
+    ultimateCharge: 8
     damage: 0
   isLockedOn: 0
   requireElementTrigger: 1
@@ -38,10 +39,12 @@ MonoBehaviour:
     hitRegisterAngle: 120
     numTargets: 1
     attackCoolDown: 0.3
+    hitCoolDown: 0.3
     hitForce: 0
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  vfxInstantSpawns: 
   vfxInfos: []
   hitStopProfiles:
   - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}

@@ -35,6 +35,8 @@ public class OnEnemyEvents : MonoBehaviour
     {
         if (OnEnemyActionMap.TryGetValue(a.attack.attackAction, out Action<EnemyAttackInfo> method))
         {
+            this.KillObjectCoroutines();
+            
             method.Invoke(a);
         }
     }
@@ -49,9 +51,21 @@ public class OnEnemyEvents : MonoBehaviour
     private IEnumerator<float> BeginSpawnVFXAtHitbox(EnemyAttackInfo a)
     {
         VFXSpawnInfo vfxInfo = a.attack.vfxInfos[a.attack.attackEventIndex];
-        yield return Timing.WaitUntilTrue(() => ts.attackHitboxes[vfxInfo.vfxActionIndex].activeHitbox);
+        yield return Timing.WaitUntilTrue(() => ts.attackHitboxes[vfxInfo.vfxEnemyActionIndex].activeHitbox);
         
-        CreateVFX(a, a.attack.attackEventIndex, new TransformInfo(ts.attackHitboxes[vfxInfo.vfxActionIndex].transform));
+        // calculating direction to shoot from hitbox to player, but keeping the horizontal direction of the enemy's forward vector
+        Vector3 shootPosition = ts.attackHitboxes[vfxInfo.vfxEnemyActionIndex].transform.position;
+        Vector3 toB = ts.pc.transform.position - shootPosition;
+        Vector3 toBHorizontal = toB.ZeroVector3Axis();
+        float horizontalDist = toBHorizontal.magnitude;
+
+        Vector3 forwardXZ = ts.transform.forward.ZeroVector3Axis().normalized;
+
+        Vector3 shootDirection = forwardXZ.WithY(toB.y / horizontalDist);
+
+        CreateVFX(a, a.attack.attackEventIndex,
+            new TransformInfo(shootPosition, Quaternion.LookRotation(shootDirection), Vector3.one)
+        );
     }
     
     

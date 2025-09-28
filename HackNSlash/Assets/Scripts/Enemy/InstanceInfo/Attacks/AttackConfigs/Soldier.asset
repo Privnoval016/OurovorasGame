@@ -20,3 +20,10 @@ MonoBehaviour:
       distanceToTrigger: 3.5
       angleToTrigger: 150
       attackWeight: 0
+  - attack: {fileID: 11400000, guid: cfb4a1460334bad4c86aab1532cb61ca, type: 2}
+    damageInfo:
+      damageMultiplier: 1
+    triggerInfo:
+      distanceToTrigger: 15
+      angleToTrigger: 180
+      attackWeight: 0

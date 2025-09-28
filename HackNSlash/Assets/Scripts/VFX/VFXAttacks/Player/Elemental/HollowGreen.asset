@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb111e3fbd3c8a34496e456df7c86e62, type: 3}
+  m_Name: HollowGreen
+  m_EditorClassIdentifier: 
+  vfxHitBox: {fileID: 3712180620774419834, guid: 97d47329f7030cd41b3807742fe0e977,
+    type: 3}
+  vfxDatas:
+  - vfxType: 0
+    effect: {fileID: 289161321636050785, guid: 8438d949e16a5fd40a39d9b625c4c137, type: 3}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1, y: 1, z: 1}
+    durationScale: 1
+    delayScale: 0
+  maxVFXAlive: 1
+  vfxAction: 0
+  vfxEasing: 7
+  vfxSpeed: 20
+  canCollide: 1
