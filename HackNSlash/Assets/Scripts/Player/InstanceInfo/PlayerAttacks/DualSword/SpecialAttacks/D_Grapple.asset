@@ -39,15 +39,19 @@ MonoBehaviour:
     hitRegisterAngle: 360
     numTargets: 1
     attackCoolDown: 0.1
+    hitCoolDown: 0.1
     hitForce: -40
     hitDelay: 0.1
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  vfxInstantSpawns: 
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
-    vfxActionIndex: 0
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
     duration: 0.3
-    delay: 0
+    spawnDelay: 0
+    actionDelay: 0
     spawnTarget: 0
     parentToTarget: 0
     spawnTransform:
@@ -56,9 +60,11 @@ MonoBehaviour:
       Scale: {x: 1, y: 1, z: 1}
     applyParentPoseToPosition: 0
   - vfxAttack: {fileID: 11400000, guid: ed3fa491292b57b4fa609a54714bb85a, type: 2}
-    vfxActionIndex: 0
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
     duration: 0.6
-    delay: 0
+    spawnDelay: 0
+    actionDelay: 0
     spawnTarget: 2
     parentToTarget: 0
     spawnTransform:
@@ -67,9 +73,11 @@ MonoBehaviour:
       Scale: {x: 1, y: 1, z: 1}
     applyParentPoseToPosition: 0
   - vfxAttack: {fileID: 11400000, guid: 14697be9e967fdc40af0f7af8fa03a6f, type: 2}
-    vfxActionIndex: 1
+    vfxPlayerActionIndex: 1
+    vfxEnemyActionIndex: 0
     duration: 1
-    delay: 0
+    spawnDelay: 0
+    actionDelay: 0
     spawnTarget: 1
     parentToTarget: 0
     spawnTransform:

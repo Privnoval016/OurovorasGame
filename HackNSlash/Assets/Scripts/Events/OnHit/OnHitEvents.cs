@@ -18,7 +18,9 @@ public enum OnHitActions
     LockPhysics,
     PushUntilDistance,
     ForwardKnockback,
-    VerticalKnockback
+    VerticalKnockback,
+    Marked,
+    PullThenFollow
 }
 
 public class OnHitEvents : Singleton<OnHitEvents>
@@ -50,6 +52,8 @@ public class OnHitEvents : Singleton<OnHitEvents>
         OnHitActionMap.Add(OnHitActions.PushUntilDistance, PushUntilDistance);
         OnHitActionMap.Add(OnHitActions.ForwardKnockback, ForwardKnockback);
         OnHitActionMap.Add(OnHitActions.VerticalKnockback, VerticalKnockback);
+        OnHitActionMap.Add(OnHitActions.Marked, Marked);
+        OnHitActionMap.Add(OnHitActions.PullThenFollow, PullThenFollow);
     }
 
     #region Basic Knockback
@@ -63,6 +67,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
         
+        Transform targetTransform = t == null ? pc.transform : t;
         
         ec.PauseGravity(true);
 
@@ -70,15 +75,15 @@ public class OnHitEvents : Singleton<OnHitEvents>
         
         if (a.hitInfo.hitDirection != Vector3.zero)
         {
-            direction = a.hitInfo.hitDirection.GetRelativeVector3(t.forward).normalized;
+            direction = a.hitInfo.hitDirection.GetRelativeVector3(targetTransform.forward).normalized;
         }
-        else if (!ec.IsGrounded || pc.transform == t.transform && pc.psm.IsMidair)
+        else if (!ec.IsGrounded || pc.transform == targetTransform && pc.psm.IsMidair)
         {
             direction = Vector3.up;
         }
         else
         {
-            direction = (ec.TargetedPosition() - t.position).ZeroVector3Axis().normalized;
+            direction = (ec.TargetedPosition() - targetTransform.position).ZeroVector3Axis().normalized;
         }
         
         ec.ForceKnockback(direction * a.hitInfo.hitForce);
@@ -102,10 +107,12 @@ public class OnHitEvents : Singleton<OnHitEvents>
     IEnumerator<float> BeginMidairKnockback(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
+        
+        Transform targetTransform = t == null ? pc.transform : t;
 
         ec.PauseGravity(true);
         
-        Vector3 pos = ec.TargetedPosition().WithY(t.position.y) + Vector3.up * 0.5f * pc.psm.playerData.mediumRadius;
+        Vector3 pos = ec.TargetedPosition().WithY(targetTransform.position.y) + Vector3.up * 0.5f * pc.psm.playerData.mediumRadius;
         Vector3 movement = pos - ec.TargetedPosition();
         ec.TraverseDistKnockback(movement.normalized, movement.magnitude, parameters.midairKnockbackTime);
         
@@ -144,7 +151,8 @@ public class OnHitEvents : Singleton<OnHitEvents>
     IEnumerator<float> BeginFollowPlayerVelocity(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         ec.PauseGravity(true);
-        pc.IgnoreCollision(ec.col, true);
+        pc.IgnoreAllCollisionsWithLayer(ec.gameObject.layer, true);
+
         
         Vector3 lastNonZeroVelocity = Vector3.zero;
         
@@ -185,7 +193,8 @@ public class OnHitEvents : Singleton<OnHitEvents>
         }
 
         ec.PauseGravity(false, 0);
-        pc.IgnoreCollision(ec.col, false);
+        pc.IgnoreAllCollisionsWithLayer(ec.gameObject.layer, false);
+
         
     }
 
@@ -201,7 +210,8 @@ public class OnHitEvents : Singleton<OnHitEvents>
     IEnumerator<float> BeginLaunchDown(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
     {
         ec.PauseGravity(true);
-        pc.IgnoreCollision(ec.col, true);
+        pc.IgnoreAllCollisionsWithLayer(ec.gameObject.layer, true);
+
         
         bool forceApplied = false;
 
@@ -234,7 +244,8 @@ public class OnHitEvents : Singleton<OnHitEvents>
         }
 
         ec.PauseGravity(false);
-        pc.IgnoreCollision(ec.col, false);
+        pc.IgnoreAllCollisionsWithLayer(ec.gameObject.layer, true);
+
         
         
         
@@ -364,6 +375,7 @@ public class OnHitEvents : Singleton<OnHitEvents>
     {
         yield return Timing.WaitForSeconds(a.hitInfo.hitDelay);
         
+        Transform targetTransform = t == null ? pc.transform : t;
         
         ec.PauseGravity(true);
 
@@ -371,11 +383,11 @@ public class OnHitEvents : Singleton<OnHitEvents>
         
         if (a.hitInfo.hitDirection != Vector3.zero)
         {
-            direction = a.hitInfo.hitDirection.GetRelativeVector3(t.forward).normalized;
+            direction = a.hitInfo.hitDirection.GetRelativeVector3(targetTransform.forward).normalized;
         }
         else
         {
-            direction = (ec.TargetedPosition() - t.position).normalized;
+            direction = (ec.TargetedPosition() - targetTransform.position).normalized;
         }
         
         ec.ForceKnockback(direction * a.hitInfo.hitForce);
@@ -406,6 +418,68 @@ public class OnHitEvents : Singleton<OnHitEvents>
         ec.ForceKnockback(direction * a.hitInfo.hitForce);
         
         Timing.WaitUntilTrue(() => pc.psm.canAttack);
+        ec.PauseGravity(false, 0);
+        
+    }
+    
+    #endregion
+    
+    #region Marked
+    
+    private void Marked(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
+    {
+        var vfx = OnVFXEvents.Instance.SpawnPlayerVFX(pc, a, 1, 
+            new TransformInfo(ec.TargetedPosition(), Quaternion.identity, Vector3.one));
+        
+        
+        vfx.transform.SetParent(ec.transform);
+
+        vfx.activeHitbox = false;
+
+        vfx.RunSegmentCoroutine(ActivateDelayedHit(vfx, a).CancelWith(vfx), vfx.GetInstanceID().ToString());
+    }
+    
+    IEnumerator<float> ActivateDelayedHit(VFXController vfx, Attack a)
+    {
+        yield return Timing.WaitForSeconds(vfx.timeActive);
+        
+        vfx.activeHitbox = true;
+        
+        yield return Timing.WaitForSeconds(0.3f);
+        
+        if (vfx != null)
+            vfx.activeHitbox = false;
+    }
+    
+    #endregion
+    
+    #region PullThenFollow
+    
+    private void PullThenFollow(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
+    {
+        this.RunSegmentCoroutine(BeginPullThenFollow(pc, ec, a, t), ec.GetInstanceID().ToString());
+    }
+    
+    IEnumerator<float> BeginPullThenFollow(PlayerController pc, PhysicsEnemy ec, Attack a, Transform t)
+    {
+        if (!t.TryGetComponent(out KinematicBehaviour kb))
+        {
+            yield break;
+        }
+
+        if (kb.discreteVelocity.magnitude > 1000)
+        {
+            yield break;
+        }
+        
+        ec.PauseGravity(true);
+
+        float magnitude = kb.discreteVelocity.magnitude > 0.1f ? a.hitInfo.hitForce : a.hitInfo.hitForce * 0.5f;
+        Vector3 directionToAttack = -(ec.TargetedPosition() - t.position).normalized;
+        directionToAttack = (directionToAttack + kb.discreteVelocity.normalized).normalized;
+        ec.SetVelocityKnockback(directionToAttack * magnitude);
+
+        
         ec.PauseGravity(false, 0);
         
     }

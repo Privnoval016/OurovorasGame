@@ -127,10 +127,15 @@ public class VFXSpawnInfo
 {
     public VFXAttack vfxAttack;
     
+    [FormerlySerializedAs("vfxHitActionIndex")]
+    [FormerlySerializedAs("vfxActionIndex")]
     [Header("VFX Parameters")]
-    [Tooltip("Used for event specific purposes")] public int vfxActionIndex;
+    [Tooltip("Used for determining which hitAction to use by the player")] public int vfxPlayerActionIndex;
+
+    [FormerlySerializedAs("vfxEventActionIndex")] [Tooltip("Used in specific cases by enemies")] public int vfxEnemyActionIndex = 0;
     public float duration = 0.3f;
-    public float delay = 0;
+    [FormerlySerializedAs("delay")] public float spawnDelay = 0;
+    public float actionDelay = 0f;
 
     [Header("Default Spawn Parameters")] 
     public PlayerTarget spawnTarget = PlayerTarget.None;
@@ -149,9 +154,9 @@ public class VFXSpawnInfo
             copy[i] = new VFXSpawnInfo
             {
                 vfxAttack = original[i].vfxAttack,
-                vfxActionIndex = original[i].vfxActionIndex,
+                vfxPlayerActionIndex = original[i].vfxPlayerActionIndex,
                 duration = original[i].duration,
-                delay = original[i].delay,
+                spawnDelay = original[i].spawnDelay,
                 spawnTarget = original[i].spawnTarget,
                 parentToTarget = original[i].parentToTarget,
                 spawnTransform = original[i].spawnTransform,
@@ -185,6 +190,8 @@ public class HitInfo
     
     [Header("Stats")]
     public float attackCoolDown;
+
+    public float hitCoolDown;
     
     [Header("Hit Parameters")]
     
@@ -212,6 +219,7 @@ public class HitInfo
         hitRegisterAngle = copy.hitRegisterAngle;
         numTargets = copy.numTargets;
         attackCoolDown = copy.attackCoolDown;
+        hitCoolDown = copy.hitCoolDown;
         hitForce = copy.hitForce;
         hitDelay = copy.hitDelay;
         hitDirection = copy.hitDirection;

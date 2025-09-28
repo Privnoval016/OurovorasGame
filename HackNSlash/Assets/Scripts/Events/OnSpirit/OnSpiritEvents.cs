@@ -128,16 +128,26 @@ public class OnSpiritEvents : Singleton<OnSpiritEvents>
         ElementEffect element = spirit.pc.pi.currentElementEffect;
         
         HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
+
+        int maxVFX = a.vfxInstantSpawns.Length;
         
-        foreach (LockOnTarget enemy in enemies)
+        LockOnTarget[] enemiesToHit = new LockOnTarget[maxVFX];
+        
+        for (int i = 0; i < maxVFX; i++)
         {
-            Debug.Log($"HitScan VFX: {enemy.name} at {enemy.transform.position}");
+            enemiesToHit[i] = enemies.ElementAtOrDefault(i % enemies.Count);
+        }
+        
+        foreach (LockOnTarget enemy in enemiesToHit)
+        {
             CreateVFX(spirit, a, 0, new TransformInfo(enemy.transform, false));
             enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
             CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
+            
+            yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
         }
         
-        this.RunSegmentCoroutine(ResumeMoving(spirit, a, a.hitInfo.attackCoolDown));
+        this.RunSegmentCoroutine(ResumeMoving(spirit, a, 0));
         
         yield break;
     }

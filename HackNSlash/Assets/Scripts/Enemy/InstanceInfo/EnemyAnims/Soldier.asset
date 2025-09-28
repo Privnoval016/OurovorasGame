@@ -84,7 +84,7 @@ MonoBehaviour:
       _Callbacks: []
       _Names: []
     _Clip: {fileID: 7400000, guid: d244a7a15aa18f74d9b2204f1ce06d48, type: 2}
-    _NormalizedStartTime: NaN
+    _NormalizedStartTime: 0
   references:
     version: 2
     RefIds: []

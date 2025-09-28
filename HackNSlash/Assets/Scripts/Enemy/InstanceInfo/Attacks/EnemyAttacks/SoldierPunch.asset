@@ -28,7 +28,7 @@ MonoBehaviour:
       _Callbacks: []
       _Names: []
     _Clip: {fileID: 7400000, guid: 02e4f43d31059554aaa5c11cd63f6631, type: 2}
-    _NormalizedStartTime: NaN
+    _NormalizedStartTime: 0
   useRootMotion: 1
   vfxInfos: []
   references:

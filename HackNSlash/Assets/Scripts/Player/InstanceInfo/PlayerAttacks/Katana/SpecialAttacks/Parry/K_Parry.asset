@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
-  m_Name: D_Parry
+  m_Name: K_Parry
   m_EditorClassIdentifier: 
   updateLinkedAttack: 1
-  linkedAttack: {fileID: 11400000, guid: 637368b0d4c037441935cf60579f4150, type: 2}
+  linkedAttack: {fileID: 11400000, guid: fa9140f2cf8463a49ba206a9ad08f3ae, type: 2}
   isEnabled: 1
   attackType: 4
   element: 1
@@ -38,16 +38,20 @@ MonoBehaviour:
     verticalRadius: 3
     hitRegisterAngle: 120
     numTargets: 1
-    attackCoolDown: 0.01
+    attackCoolDown: 0.25
+    hitCoolDown: 0.25
     hitForce: 15
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 1}
     elasticCollision: 0
+  vfxInstantSpawns: 
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
-    onHitActionIndex: 0
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
     duration: 0.6
-    delay: 0
+    spawnDelay: 0
+    actionDelay: 0
     spawnTarget: 0
     parentToTarget: 0
     spawnTransform:
@@ -63,7 +67,7 @@ MonoBehaviour:
   moveCameraWithAttack: 1
   attackTransitions: []
   attackClips:
-  - {fileID: 7400000, guid: 8fc626150e225ee4baa8b8db376646bb, type: 2}
+  - {fileID: 7400000, guid: 0ab0316ccc4adb543abd94c257af2ac0, type: 2}
   animDelay: 0
   animFade: 0.2
   clipsToPlay: 1

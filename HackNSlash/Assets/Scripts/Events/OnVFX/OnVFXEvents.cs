@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Extensions.Utils;
 using MEC;
-using PrimeTween;
-using Unity.Mathematics;
-using UnityEngine.VFX;
 
 public enum OnVFXActions
 {
@@ -48,6 +44,11 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         OnVFXActionMap.Add(OnVFXActions.RotatingPath, RotatingPath);
     }
     
+    public static bool IsParryableMotion(OnVFXActions action)
+    {
+        return action == OnVFXActions.LinearPath || action == OnVFXActions.FollowGround;
+    }
+    
     #region VFX Invocation
 
     public VFXController SpawnHitStopVFX(ElementEffect e, PlayerController pc, Attack a, 
@@ -55,7 +56,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     {
         if (a == null || a.hitStopProfiles.Length == 0 || hitStopProfileIndex >= a.hitStopProfiles.Length)
         {
-            Debug.LogWarning("Invalid attack or hit stop profile index.");
+            Debug.LogWarning("Invalid attack or hit stop profile index for attack " + (a != null ? a.name : "null"));
             return null;
         }
         
@@ -81,7 +82,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         var vfxActivators = GetVFXActivators(hitStopProfile.hitStopVFX, vfxController, 
             GameManager.GetElementData(ElementData.GetElementFromAttack(e, pc)));
         
-        vfxController.InitializeVFX(e, start, hitStopProfile.hitStopVFX, vfxActivators, 0, 
+        vfxController.InitializeVFX(e, start, hitStopProfile.hitStopVFX, vfxActivators, 
             hitStopProfile.hitStopVFX.vfxAttack.canCollide);
         
         if (vfxController == null)
@@ -95,6 +96,23 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         return vfxController;
     }
     
+    public VFXController SpawnParriedProjectileVFX(PlayerController pc, Attack a, VFXSpawnInfo vfxInfo, 
+        TransformInfo overrideTransform = default, WeaponType weaponType = WeaponType.None)
+    {
+        if (vfxInfo == null) return null;
+        
+        VFXController vfx = InstantiatePlayerVFXWithVFXInfo(pc, vfxInfo, overrideTransform, ElementEffect.None);
+        if (vfx == null) return null;
+        
+        vfx.AddHitDetector(new PlayerVFXHitDetector(vfx, pc, a));
+        
+        if (vfx.HitDetector is PlayerVFXHitDetector) 
+            ((PlayerVFXHitDetector) vfx.HitDetector).followedWeaponType = weaponType;
+        
+        this.RunSegmentCoroutine(SpawnWithDelay(vfx, vfxInfo.spawnDelay));
+        return vfx;
+    }
+    
     public VFXController SpawnPlayerVFX(PlayerController pc, Attack a, int vfxIndex = 0, 
         TransformInfo overrideTransform = default, WeaponType weaponType = WeaponType.None)
     {
@@ -106,7 +124,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             ((PlayerVFXHitDetector) vfx.HitDetector).followedWeaponType = weaponType;
         
         
-        this.RunSegmentCoroutine(SpawnWithDelay(vfx, a.vfxInfos[vfxIndex].delay));
+        this.RunSegmentCoroutine(SpawnWithDelay(vfx, a.vfxInfos[vfxIndex].spawnDelay));
         return vfx;
     }
     
@@ -116,7 +134,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         if (a == null || a.attack.vfxInfos.Length == 0) return null;
         VFXController vfx = InstantiateEnemyVFX(ts, a, vfxIndex, overrideTransform);
         if (vfx == null) return null;
-        this.RunSegmentCoroutine(SpawnWithDelay(vfx, a.attack.vfxInfos[vfxIndex].delay));
+        this.RunSegmentCoroutine(SpawnWithDelay(vfx, a.attack.vfxInfos[vfxIndex].spawnDelay));
         return vfx;
     }
     
@@ -132,7 +150,18 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         if (a.vfxInfos.Length <= vfxIndex) return null;
 
         VFXSpawnInfo v = a.vfxInfos[vfxIndex];
+        
+        VFXController vc = InstantiatePlayerVFXWithVFXInfo(pc, v, overrideTransform, a.element);
+        
+        if (vc == null) return null;
+        vc.AddHitDetector(new PlayerVFXHitDetector(vc, pc, a));
+        
+        return vc;
+    }
 
+    private VFXController InstantiatePlayerVFXWithVFXInfo(PlayerController pc, VFXSpawnInfo v,
+        TransformInfo overrideTransform, ElementEffect attackElement)
+    {
         TransformInfo start = overrideTransform;
 
         Transform parent = null;
@@ -214,18 +243,17 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             vc.transform.Rotate(offset.Rotation.eulerAngles);
         }
         
-        ElementEffect element = ElementData.GetElementFromAttack(a.element, pc);
+        ElementEffect element = ElementData.GetElementFromAttack(attackElement, pc);
         
         ElementData e = GameManager.GetElementData(element);
         
         var vfxs = GetVFXActivators(v, vc, e);
 
-        vc.InitializeVFX(element, new TransformInfo(vfx.transform), v, vfxs, vfxIndex, v.vfxAttack.canCollide);
-        vc.AddHitDetector(new PlayerVFXHitDetector(vc, pc, a));
-        
+        vc.InitializeVFX(element, new TransformInfo(vfx.transform), v, vfxs, v.vfxAttack.canCollide);
+
         return vc;
     }
-    
+
     private VFXController InstantiateEnemyVFX(EnemyController ts, EnemyAttackInfo a, int vfxIndex = 0,
         TransformInfo overrideTransform = default)
     {
@@ -255,8 +283,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         
         var vfxActivators = GetVFXActivators(v, vfxController, GameManager.GetElementData(element));
         
-        vfxController.InitializeVFX(element, start, v, vfxActivators, vfxIndex, 
-            v.vfxAttack.canCollide);
+        vfxController.InitializeVFX(element, start, v, vfxActivators, v.vfxAttack.canCollide);
         vfxController.AddHitDetector(new EnemyVFXHitDetector(vfxController, ts, a));
         
         if (vfxController == null)
@@ -339,7 +366,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             ActiveVFXCount[vfx.vfxSpawnInfo.vfxAttack].Remove(vfx);
         }
         
-        activeVFX.Remove(vfx);
+        activeVFX?.Remove(vfx);
     }
 
     public void OnVFXPaused(bool paused)
@@ -368,12 +395,13 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     
     IEnumerator<float> BeginLinearPath(VFXController vfx)
     {
+        vfx.EnableVFX();
+        yield return Timing.WaitForSeconds(vfx.vfxSpawnInfo.actionDelay);
+        
         VFXAttack v = vfx.vfxSpawnInfo.vfxAttack;
         
         Vector3 direction = vfx.transform.forward;
-        vfx.transform.TweenDistance(direction, vfx.timeActive * v.vfxSpeed, vfx.timeActive, Ease.Linear);
-        
-        vfx.EnableVFX();
+        vfx.transform.TweenDistance(direction, vfx.timeActive * v.vfxSpeed, vfx.timeActive, v.vfxEasing);
         
         yield return Timing.WaitForSeconds(vfx.timeActive);
     }
@@ -397,6 +425,9 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             yield break;
         }
         
+        vfx.EnableVFX();
+        yield return Timing.WaitForSeconds(vfx.vfxSpawnInfo.actionDelay);
+        
         PlayerVFXHitDetector hitDetector = (PlayerVFXHitDetector) vfx.HitDetector;
         
         WeaponBody weaponBody = hitDetector.player.wc.GetWeapon(hitDetector.followedWeaponType);
@@ -411,8 +442,6 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         vfx.ChangeParent(weaponBody.transform);
         vfx.transform.localPosition = Vector3.zero;
         vfx.transform.localRotation = Quaternion.identity;
-        
-        vfx.EnableVFX();
         
         yield return Timing.WaitForSeconds(vfx.timeActive);
     }
@@ -430,9 +459,10 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     
     IEnumerator<float> BeginStationaryPath(VFXController vfx)
     {
-        VFXSpawnInfo v = vfx.vfxSpawnInfo;
-        
         vfx.EnableVFX();
+        yield return Timing.WaitForSeconds(vfx.vfxSpawnInfo.actionDelay);
+        
+        VFXSpawnInfo v = vfx.vfxSpawnInfo;
         
         yield return Timing.WaitForSeconds(v.duration);
     }
@@ -448,14 +478,15 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     
     IEnumerator<float> BeginFollowGround(VFXController vfx)
     {
+        vfx.EnableVFX();
+        yield return Timing.WaitForSeconds(vfx.vfxSpawnInfo.actionDelay);
+        
         Vector3 position = vfx.transform.GetGroundedPosition(GameManager.Instance.groundLayer);
         vfx.transform.position = position;
         
         float startTime = Time.time;
         float duration = vfx.timeActive - Time.deltaTime * 2;
         float speed = vfx.vfxSpawnInfo.vfxAttack.vfxSpeed;
-        
-        vfx.EnableVFX();
         
         while (Time.time - startTime < duration)
         {
@@ -484,6 +515,9 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
     
     IEnumerator<float> BeginRotatingPath(VFXController vfx)
     {
+        vfx.EnableVFX();
+        yield return Timing.WaitForSeconds(vfx.vfxSpawnInfo.actionDelay);
+        
         if (vfx.HitDetector.creatorTransform == null)
         {
             Debug.LogWarning($"VFX {vfx.name} does not have a creator transform. " +
@@ -495,7 +529,6 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         float duration = vfx.timeActive - Time.deltaTime * 2;
         float speed = vfx.vfxSpawnInfo.vfxAttack.vfxSpeed;
         
-        vfx.EnableVFX();
         
         while (Time.time - startTime < duration)
         {

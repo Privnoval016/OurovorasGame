@@ -153,6 +153,8 @@ public class EnemyStateMachine : PhysicsEnemy
     {
         if (player == null) return null;
         
+        if (sc.IsState<EnemyAttacking>()) return null;
+        
         List<EnemyAttackInfo> availableAttacks = new();
 
         foreach (var info in ts.attackConfig.infos)
@@ -169,7 +171,7 @@ public class EnemyStateMachine : PhysicsEnemy
 
         foreach (var info in availableAttacks)
         {
-            if (info.triggerInfo.distanceToTrigger >= a.triggerInfo.distanceToTrigger) a = info;
+            if (info.triggerInfo.distanceToTrigger <= a.triggerInfo.distanceToTrigger) a = info;
         }
 
         return a;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.Utils;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -28,6 +29,7 @@ public class VFXAttack : ScriptableObject
         
     [Header("Movement Settings")]
     public OnVFXActions vfxAction = OnVFXActions.FollowWeapon;
+    public Ease vfxEasing = Ease.Linear;
     public float vfxSpeed;
     public bool canCollide = true;
 }

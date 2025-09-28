@@ -75,7 +75,7 @@ public abstract class LockOnTarget : KinematicBehaviour
         }
         else
         {
-            damageCooldowns.Add(a, new DamageCooldown(a.hitInfo.attackCoolDown, Time.time));
+            damageCooldowns.Add(a, new DamageCooldown(a.hitInfo.hitCoolDown, Time.time));
         }
     }
     
@@ -100,7 +100,7 @@ public abstract class LockOnTarget : KinematicBehaviour
     
     private IEnumerator<float> ResetHit(PlayerController pc, Attack a)
     {
-        yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
+        yield return Timing.WaitForSeconds(a.hitInfo.hitCoolDown);
         if (damageCooldowns.ContainsKey(a))
         {
             damageCooldowns.Remove(a);

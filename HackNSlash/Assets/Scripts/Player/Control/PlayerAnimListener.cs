@@ -39,6 +39,8 @@ public class PlayerAnimListener : MonoBehaviour
         Debug.Log($"number of enemies in hit: {pc.psm.EnemiesInHit.Count}; {pc.psm.PlayHitStopThisAction}");
         if (!pc.psm.PlayHitStopThisAction) return;
         WeaponBody lastWeapon = pc.wc.GetWeapon(lastWeaponType);
-        CombatManager.Instance.PlayHitEffects(pc.psm.currentPlayerAttack.element, pc, pc.psm.currentPlayerAttack, lastWeapon, true, index);
+        ElementEffect element = pc.psm.currentPlayerAttack != null ? 
+            ElementData.GetElementFromAttack(pc.psm.currentPlayerAttack.element, pc) : ElementEffect.None;
+        CombatManager.Instance.PlayHitEffects(element, pc, pc.psm.currentPlayerAttack, lastWeapon, true, index);
     }
 }

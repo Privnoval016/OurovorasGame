@@ -17,6 +17,11 @@ MonoBehaviour:
   isEnabled: 1
   attackType: 3
   element: 1
+  stats:
+    restoreCharge: 1
+    charge: 0
+    ultimateCharge: 8
+    damage: 0
   isLockedOn: 1
   requireElementTrigger: 0
   triggerCoolDown: 0
@@ -34,16 +39,19 @@ MonoBehaviour:
     hitRegisterAngle: 120
     numTargets: 1
     attackCoolDown: 0.1
-    damage: 0
+    hitCoolDown: 0.1
     hitForce: 5
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  vfxInstantSpawns: 
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: cfca8351453784fe1a8fd1b140d0725c, type: 2}
-    onHitActionIndex: 0
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
     duration: 0.5
-    delay: 0
+    spawnDelay: 0
+    actionDelay: 0
     spawnTarget: 2
     parentToTarget: 0
     spawnTransform:
@@ -51,7 +59,9 @@ MonoBehaviour:
       Rotation: {x: 0, y: 0, z: 0, w: 1}
       Scale: {x: 1, y: 1, z: 1}
     applyParentPoseToPosition: 0
-  onAttackAction: 10
+  hitStopProfiles:
+  - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
+  onAttackAction: 0
   attackEventIndex: 0
   applyRootMotion: 0
   moveCameraWithAttack: 1

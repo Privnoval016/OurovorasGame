@@ -32,7 +32,11 @@ public class EnemyAttacking : EnemyState
             resetTime += clip.Length;
         }
         
+        Debug.Log($"EnemyAttacking: {attackInfo.attack.name}, ResetTime: {resetTime}");
+        
         ec.ts.currentAttackInfo = attackInfo;
+        
+        ec.ts.onEnemyEvents.TriggerOnEnemyAction(attackInfo);
         
         ec.RunSegmentCoroutine(PlayAttackAnimations(), nameof(PlayAttackAnimations));
     }
@@ -50,6 +54,10 @@ public class EnemyAttacking : EnemyState
     public override void OnExit()
     {
         base.OnExit();
+        
+        resetTimer = 0;
+        resetTime = 0;
+        
         ec.ts.ea.RootMotionEnabled(false);
         ec.ts.animListener.DeactivateAllHitboxes();
         ec.ts.parryWindowActive = false;
@@ -58,6 +66,10 @@ public class EnemyAttacking : EnemyState
     public override void OnInterrupt()
     {
         base.OnInterrupt();
+        
+        resetTimer = 0;
+        resetTime = 0;
+        
         ec.ts.ea.RootMotionEnabled(false);
         ec.ts.animListener.DeactivateAllHitboxes();
         ec.ts.parryWindowActive = false;

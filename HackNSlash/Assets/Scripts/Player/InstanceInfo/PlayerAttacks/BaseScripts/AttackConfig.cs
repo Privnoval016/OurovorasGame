@@ -41,9 +41,12 @@ public class AttackConfig : ScriptableObject
     
     public Attack[] enemyStepAttacks;
     
-    public Attack[] parryAttacks;
-    
     [SerializeField] private Attack[] specialAttacks; // priority 2
+    
+    [Header("Parry Parameters")]
+    
+    public Attack parryAttack;
+    public Attack projectileParryAttack;
 
     private void OnValidate()
     {

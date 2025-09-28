@@ -39,8 +39,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 77fe298cfd956dc4c84415b25f577742, type: 2}
   enemyStepAttacks:
   - {fileID: 11400000, guid: e53371ef873d6f34bbe79795ccd54c92, type: 2}
-  parryAttacks:
-  - {fileID: 11400000, guid: 637368b0d4c037441935cf60579f4150, type: 2}
   specialAttacks:
   - {fileID: 11400000, guid: 34f95dfc6f45a5044a1974ef78be28fb, type: 2}
   - {fileID: 11400000, guid: 03ec20722e27ae448a120c1dd88487e1, type: 2}
@@ -50,3 +48,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ec616182090914c40a1e4b2c24d9a3fa, type: 2}
   - {fileID: 11400000, guid: b0506a6107a57df4da3cf1cb17161f19, type: 2}
   - {fileID: 11400000, guid: 79e555173c7589b418755190f5787dbb, type: 2}
+  parryAttack: {fileID: 11400000, guid: 637368b0d4c037441935cf60579f4150, type: 2}
+  projectileParryAttack: {fileID: 11400000, guid: 31d983ef6b30fec45b2aa200128a8d1d,
+    type: 2}

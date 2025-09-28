@@ -17,6 +17,11 @@ MonoBehaviour:
   isEnabled: 1
   attackType: 5
   element: 0
+  stats:
+    restoreCharge: 1
+    charge: 0
+    ultimateCharge: 8
+    damage: 0
   isLockedOn: 0
   requireElementTrigger: 0
   triggerCoolDown: 0
@@ -34,12 +39,14 @@ MonoBehaviour:
     hitRegisterAngle: 120
     numTargets: 1
     attackCoolDown: 0.01
-    damage: 0
+    hitCoolDown: 0.01
     hitForce: 0
     hitDelay: 0
     hitDirection: {x: 0, y: 0, z: 0}
     elasticCollision: 0
+  vfxInstantSpawns: 
   vfxInfos: []
+  hitStopProfiles: []
   onAttackAction: 9
   attackEventIndex: 0
   applyRootMotion: 0
