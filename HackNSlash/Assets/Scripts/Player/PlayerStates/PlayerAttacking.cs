@@ -42,7 +42,7 @@ public class PlayerAttacking : PlayerState
         if (_playerAttack.attackTransitions.Length > 0) LaunchTransitionAttack();
         else if (_playerAttack.attackClips.Length > 0) LaunchClipAttack();
         
-        OnAttackEvents.Instance.InvokeOnAttack(pc, _playerAttack);
+        pc.oae.InvokeOnAttack(_playerAttack);
 
         if (_playerAttack.exitCondition == ExitConditions.Immediate)
         {
@@ -71,7 +71,7 @@ public class PlayerAttacking : PlayerState
 
     public override void OnExit()
     {
-        OnAttackEvents.Instance.KillObjectCoroutines();
+        pc.oae.KillObjectCoroutines();
         
         pc.rb.linearVelocity = Vector3.zero;
         

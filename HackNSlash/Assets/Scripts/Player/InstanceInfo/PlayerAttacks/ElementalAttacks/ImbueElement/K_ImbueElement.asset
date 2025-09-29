@@ -49,6 +49,9 @@ MonoBehaviour:
   hitStopProfiles:
   - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
   onAttackAction: 11
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587261
   attackEventIndex: 0
   applyRootMotion: 0
   moveCameraWithAttack: 1
@@ -61,3 +64,10 @@ MonoBehaviour:
   clipsToPlay: 0
   useNormalGravity: 0
   exitCondition: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587261
+      type: {class: ImbueElementAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        imbueElementDuration: 10

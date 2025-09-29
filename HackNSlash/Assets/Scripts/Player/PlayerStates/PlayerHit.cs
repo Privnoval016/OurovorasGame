@@ -20,7 +20,7 @@ public class PlayerHit : PlayerState
         pc.rb.linearVelocity = Vector3.zero;
         pc.psm.canAttack = false;
         
-        OnAttackEvents.Instance.KillObjectCoroutines();
+        pc.oae.KillObjectCoroutines();
         
         pc.psm.CalculateGravity();
         

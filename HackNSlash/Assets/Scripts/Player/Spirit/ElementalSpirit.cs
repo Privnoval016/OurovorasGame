@@ -17,6 +17,7 @@ public class ElementalSpirit : KinematicBehaviour, IContactDetector
     #region Components
 
     [HideInInspector] public PlayerController pc;
+    [HideInInspector] public OnSpiritEvents ose;
     
     #endregion
     
@@ -44,6 +45,7 @@ public class ElementalSpirit : KinematicBehaviour, IContactDetector
         SetKinematicAttributes();
         
         evaluator = GetComponent<SODEvaluator>(); 
+        ose = GetComponent<OnSpiritEvents>();
         
         sc = new StateController<SpiritState>(this);
         
@@ -79,7 +81,7 @@ public class ElementalSpirit : KinematicBehaviour, IContactDetector
     {
         pc.psm.timeSinceLastAttack = 0f;
         
-        if (a.onSpiritAction == OnSpiritActions.None) return;
+        if (a.spiritActions == null || a.spiritActions.Length == 0) return;
         
         sc.ChangeState(new SpiritAttacking(a));
     }
