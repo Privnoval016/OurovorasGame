@@ -13,145 +13,28 @@ public enum OnSpiritActions
     HitScanVFX
 }
 
-public class OnSpiritEvents : Singleton<OnSpiritEvents>
+public class OnSpiritEvents : MonoBehaviour
 {
+    [HideInInspector] public ElementalSpirit spirit;
     
-    public Dictionary<OnSpiritActions, Action<ElementalSpirit, SpiritAttack>> OnSpiritActionMap = new();
-    
-    public OnSpiritParameters parameters;
-    
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-        
-        AddOnSpiritEvents();
+        spirit = GetComponent<ElementalSpirit>();
     }
     
-    private void AddOnSpiritEvents()
+    public void InvokeOnSpiritAction(SpiritAttack a)
     {
-        OnSpiritActionMap.Add(OnSpiritActions.None, (spirit, a) => { });
-        OnSpiritActionMap.Add(OnSpiritActions.RangedAttack, RangedAttack);
-        OnSpiritActionMap.Add(OnSpiritActions.SpawnVFX, SpawnVFX);
-        OnSpiritActionMap.Add(OnSpiritActions.HitScanVFX, HitScanVFX);
-    }
-    
-    public void InvokeOnSpiritAction(ElementalSpirit spirit, SpiritAttack a)
-    {
-        Instance.OnSpiritActionMap[a.onSpiritAction](spirit, a);
-    }
-    
-    IEnumerator<float> ResumeMoving(ElementalSpirit spirit, Attack a, float time, Action action = null)
-    {
-        yield return Timing.WaitForSeconds(time);
-        action?.Invoke();
-        spirit.canAttack = true;
-    }
-
-    #region Ranged Attack
-    
-    private void RangedAttack(ElementalSpirit spirit, SpiritAttack a)
-    {
-        this.RunSegmentCoroutine(BeginRangedAttack(spirit, a));
-    }
-    
-    private IEnumerator<float> BeginRangedAttack(ElementalSpirit spirit, SpiritAttack a)
-    {
-        ElementEffect element = spirit.pc.pi.currentElementEffect;
-        
-        HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
-        
-        KeyBind[] holdKeys = InputManager.GetReleaseable(a.keyBinds);
-        float startTime = Time.time;
-        yield return Timing.WaitUntilTrue(() => holdKeys.Any(k => InputManager.KeyMap[k].releaseAction()));
-        float elapsedTime = Time.time - startTime;
-
- 
-        if (elapsedTime < parameters.spiritProjectileHoldTime)
+        foreach (SpiritActionInfo actionInfo in a.spiritActions)
         {
-            foreach (LockOnTarget enemy in enemies)
-            {
-                CreateVFX(spirit, a, 0);
-                enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
-                CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
-            }
+            if (actionInfo.spiritAction == null) continue;
+            this.RunSegmentCoroutine(PlaySpiritAction(actionInfo.spiritAction, a));
         }
-        else
-        {
-            foreach (LockOnTarget enemy in enemies)
-            {
-                CreateVFX(spirit, a, 0);
-                enemy.OnHit(element, spirit.pc, a, spirit.transform, 1);
-                CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 1);
-            }
-        }
-        
-        this.RunSegmentCoroutine(ResumeMoving(spirit, a, a.hitInfo.attackCoolDown));
     }
-
-    #endregion
     
-    #region SpawnVFX
-
-    private void SpawnVFX(ElementalSpirit spirit, SpiritAttack a)
+    private IEnumerator<float> PlaySpiritAction(ISpiritAction action, SpiritAttack a)
     {
-        this.RunSegmentCoroutine(BeginSpawnVFX(spirit, a));
+        action.Execute(this, a);
+        
+        yield return Timing.WaitForOneFrame;
     }
-    
-    private IEnumerator<float> BeginSpawnVFX(ElementalSpirit spirit, SpiritAttack a)
-    {
-        foreach (int i in a.vfxInstantSpawns)
-        {
-            CreateVFX(spirit, a, i);
-        }
-
-        this.RunSegmentCoroutine(ResumeMoving(spirit, a, a.hitInfo.attackCoolDown));
-
-        yield break;
-    }
-
-    private VFXController CreateVFX(ElementalSpirit spirit, SpiritAttack a, int i, TransformInfo overrideTransform = default)
-    {
-        return OnVFXEvents.Instance.SpawnPlayerVFX(spirit.pc, a, i, overrideTransform);
-    }
-
-    #endregion
-    
-    #region HitScan VFX
-    
-    private void HitScanVFX(ElementalSpirit spirit, SpiritAttack a)
-    {
-        this.RunSegmentCoroutine(BeginHitScanVFX(spirit, a));
-    }
-    
-    private IEnumerator<float> BeginHitScanVFX(ElementalSpirit spirit, SpiritAttack a)
-    {
-        ElementEffect element = spirit.pc.pi.currentElementEffect;
-        
-        HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(a.hitInfo.numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
-
-        int maxVFX = a.vfxInstantSpawns.Length;
-        
-        LockOnTarget[] enemiesToHit = new LockOnTarget[maxVFX];
-        
-        for (int i = 0; i < maxVFX; i++)
-        {
-            enemiesToHit[i] = enemies.ElementAtOrDefault(i % enemies.Count);
-        }
-        
-        foreach (LockOnTarget enemy in enemiesToHit)
-        {
-            CreateVFX(spirit, a, 0, new TransformInfo(enemy.transform, false));
-            enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
-            CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
-            
-            yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
-        }
-        
-        this.RunSegmentCoroutine(ResumeMoving(spirit, a, 0));
-        
-        yield break;
-    }
-    
-    
-    #endregion
 }

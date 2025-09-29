@@ -33,6 +33,7 @@ MonoBehaviour:
   maxUses: 0
   hitInfo:
     onHitActions: 00000000
+    hitActionInfos: []
     hitDetection: 0
     lateralRadius: 3
     verticalRadius: 3
@@ -47,8 +48,9 @@ MonoBehaviour:
   vfxInstantSpawns: 
   vfxInfos: []
   hitStopProfiles: []
-  onAttackAction: 9
-  attackEventIndex: 0
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587278
   applyRootMotion: 0
   moveCameraWithAttack: 1
   attackTransitions: []
@@ -59,3 +61,12 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587278
+      type: {class: EnemyStepAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        enemyStepHeight: 4
+        enemyStepTime: 0.3
+        enemyStepPushBack: 0

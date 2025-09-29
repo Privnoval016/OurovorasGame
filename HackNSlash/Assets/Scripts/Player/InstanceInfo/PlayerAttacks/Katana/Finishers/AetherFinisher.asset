@@ -33,6 +33,9 @@ MonoBehaviour:
   maxUses: 0
   hitInfo:
     onHitActions: 09000000
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587348
     hitDetection: 0
     lateralRadius: 3
     verticalRadius: 3
@@ -60,8 +63,9 @@ MonoBehaviour:
       Scale: {x: 1, y: 1, z: 1}
     applyParentPoseToPosition: 0
   hitStopProfiles: []
-  onAttackAction: 0
-  attackEventIndex: 0
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587247
   applyRootMotion: 1
   moveCameraWithAttack: 0
   attackTransitions: []
@@ -72,3 +76,15 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587247
+      type: {class: AetherFinisherAttackAction, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 2944900481171587348
+      type: {class: ForwardKnockbackHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0
+        hitForce: 12
+        hitDirection: {x: 0, y: 0, z: 1}

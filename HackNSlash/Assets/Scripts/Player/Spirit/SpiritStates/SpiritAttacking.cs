@@ -15,7 +15,7 @@ public class SpiritAttacking : SpiritState
         spirit.canAttack = false;
         spirit.lastAttackHoldDuration = 0;
         
-        OnSpiritEvents.Instance.InvokeOnSpiritAction(spirit, _playerAttack);
+        spirit.ose.InvokeOnSpiritAction(_playerAttack);
     }
     
     

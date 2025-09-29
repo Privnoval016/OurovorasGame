@@ -48,6 +48,9 @@ MonoBehaviour:
   vfxInfos: []
   hitStopProfiles: []
   onAttackAction: 4
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587285
   attackEventIndex: 2
   applyRootMotion: 0
   moveCameraWithAttack: 1
@@ -59,3 +62,12 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587285
+      type: {class: DodgeAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        attackEventIndex: 2
+        dodgeDistance: 8
+        dodgeTime: 0.2

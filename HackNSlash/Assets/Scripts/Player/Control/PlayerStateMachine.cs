@@ -317,13 +317,13 @@ public class PlayerStateMachine : MonoBehaviour
 
     private bool CheckProjectileParryAction()
     {
-        if (movingState == MovingStates.NonCombat || pauseMovement) return false;
+        if (movingState == MovingStates.NonCombat || pauseMovement || !canAttack) return false;
         
         PlayerAttack attack = (PlayerAttack) attackData.projectileParryAttack;
         if (!AttackIsAvailable(attack)) return false;
         
         ParriedProjectiles.Clear();
-        Collider[] colliders = Physics.OverlapSphere(transform.position, playerData.largeRadius);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, playerData.mediumRadius);
         
         Debug.Log("Checking Projectile Parry: Found " + colliders.Length + " colliders");
         
@@ -623,7 +623,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
-            OnAttackEvents.Instance.KillObjectCoroutines();
+            pc.oae.KillObjectCoroutines();
             pc.sc.ChangeState(new PlayerAttacking(action.playerAttack));
         }
     }
@@ -654,7 +654,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
-            OnAttackEvents.Instance.KillObjectCoroutines();
+            pc.oae.KillObjectCoroutines();
             pc.sc.ChangeState(new PlayerAttacking(playerAttack));
         }
     }
@@ -734,7 +734,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else
         {
-            OnAttackEvents.Instance.KillObjectCoroutines();
+            pc.oae.KillObjectCoroutines();
             pc.sc.ChangeState(new PlayerHit(hit));
         }
     }

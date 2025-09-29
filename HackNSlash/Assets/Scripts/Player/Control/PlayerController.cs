@@ -26,6 +26,8 @@ public class PlayerController : KinematicBehaviour
     [HideInInspector] public PlayerAnimator pac;
     [HideInInspector] public PlayerStateMachine psm;
     [HideInInspector] public PlayerInventory pi;
+    [HideInInspector] public OnAttackEvents oae;
+    [HideInInspector] public OnHitEvents ohe;
     
     public ElementalSpirit spirit;
     
@@ -46,6 +48,8 @@ public class PlayerController : KinematicBehaviour
         psm = GetComponent<PlayerStateMachine>();
         pi = GetComponent<PlayerInventory>();
         cl = GetComponentInChildren<CollisionListener>();
+        oae = GetComponent<OnAttackEvents>();
+        ohe = GetComponent<OnHitEvents>();
 
         allCols = GetComponents<CapsuleCollider>();
         
