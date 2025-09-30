@@ -69,8 +69,7 @@ public class PlayerInventory : MonoBehaviour
         
         InitializeStats();
 
-        InputManager.Instance.elementMenuOpen.performed += OnElementMenuAction;
-        InputManager.Instance.elementMenuOpen.canceled += OnElementMenuAction;
+        InputManager.Instance.onElementMenuOpen += OnElementMenuAction;
 
         CurrentLoadout.elementLoadout?.ValidateElementAttacks();
 
@@ -184,7 +183,7 @@ public class PlayerInventory : MonoBehaviour
 
     private void UpdateElementMenu()
     {
-        Vector2 inputDirection = InputManager.Instance.cameraMove.ReadValue<Vector2>();
+        Vector2 inputDirection = InputManager.Instance.CameraMove;
         inputDirection = inputDirection.magnitude > 0.4f ? inputDirection.normalized : Vector2.zero;
         RadialMenuOption<ElementEffect> selected = ElementRadialMenu.UpdateMenu(inputDirection);
 

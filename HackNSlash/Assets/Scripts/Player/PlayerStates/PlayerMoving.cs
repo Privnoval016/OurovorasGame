@@ -21,9 +21,10 @@ public class PlayerMoving : PlayerState
     {
 	    doNotRemove = true;
 	    
-	    InputManager.Instance.jump.performed += OnJumpAction;
-	    InputManager.Instance.swapMode.performed += OnSwitchAction;
-	    InputManager.Instance.ultimateMode.performed += OnUltimateAction;
+	    InputManager.Instance.onJump += OnJumpAction;
+	    InputManager.Instance.onSwapMode += OnSwitchAction;
+	    InputManager.Instance.onUltimateMode += OnUltimateAction;
+	    
 	    pc.pac.RootMotionEnabled(false);
 	    pc.cam.isFollowingPlayer = true;
 	    
@@ -72,8 +73,9 @@ public class PlayerMoving : PlayerState
 
     public override void OnExit()
     {
-	    InputManager.Instance.jump.performed -= OnJumpAction;
-	    InputManager.Instance.swapMode.performed -= OnSwitchAction;
+	    InputManager.Instance.onJump -= OnJumpAction;
+	    InputManager.Instance.onSwapMode -= OnSwitchAction;
+	    InputManager.Instance.onUltimateMode -= OnUltimateAction;
     }
 
     public override void OnInterrupt()

@@ -4,7 +4,7 @@ using Extensions.Utils;
 using UnityEngine;
 
 [RequireComponent(typeof(StateController<EnemyState>))]
-public class EnemyStateMachine : PhysicsEnemy
+public class EnemyStateMachine : MonoBehaviour
 {
     #region State Machine
     [HideInInspector] public StateController<EnemyState> sc;
@@ -13,6 +13,8 @@ public class EnemyStateMachine : PhysicsEnemy
     #region Components
     
     [Header("Enemy Components")]
+    
+    [HideInInspector] public EnemyController ts;
     
     public EnemyData enemyData;
     public EnemyAnimData enemyAnimData;
@@ -29,48 +31,90 @@ public class EnemyStateMachine : PhysicsEnemy
     [HideInInspector] public Vector3 currentWanderPoint;
     [HideInInspector] public int wanderIndex = 0;
     
-    public bool CanMove => physicsInteract;
+    public bool CanMove => ts.pe.physicsInteract;
     
     #endregion
 
-    public override void OnStart() 
+    private void Start() 
     {
-        base.OnStart();
-        
         sc = new StateController<EnemyState>(this);
-        
+        ts = GetComponent<EnemyController>();
         
         sc.ChangeState(new EnemyIdle());
+        
+        ts.pe.onHit += HitStateAction;
+        ts.pe.onStagger += StaggerStateAction;
     }
 
-    public override void OnUpdate()
+    private void Update()
     {
-        base.OnUpdate();
-        sc.PrintStates();
+        //sc.PrintStates();
     }
+    
+    #region Inheritance Methods
 
-    public override void OnHit(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
+    protected virtual void HitStateAction(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
         Debug.Log("Enemy Hit by " + a.name);
         
-        if (!knockbackImmune)
+        if (!ts.pe.knockbackImmune)
         {
             ts.animListener.DeactivateAllHitboxes();
             sc.ChangeState(new EnemyHit());
         }
-        
-        base.OnHit(element, pc, a, attackerTransform, actionIndex);
     }
     
-    public override void OnStagger(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
+    protected virtual void StaggerStateAction(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
         Debug.Log("Enemy Staggered by " + a.name);
 
         ts.animListener.DeactivateAllHitboxes();
         sc.ChangeState(new EnemyStagger());
-    
-        base.OnStagger(element, pc, a, attackerTransform, actionIndex);
     }
+
+    public virtual void HitboxActivate(int hitboxIndex = 0)
+    {
+        if (!sc.IsState<EnemyAttacking>()) return;
+
+        ts.attackHitboxes[hitboxIndex].activeHitbox = true;
+    }
+    
+    public virtual void HitboxDeactivate(int hitboxIndex = 0)
+    {
+        ts.attackHitboxes[hitboxIndex].activeHitbox = false;
+    }
+    
+    public virtual void AllHitboxesActivate()
+    {
+        if (!sc.IsState<EnemyAttacking>()) return;
+
+        foreach (EnemyHitbox eh in ts.attackHitboxes)
+        {
+            eh.activeHitbox = true;
+        }
+    }
+    
+    public virtual void AllHitboxesDeactivate()
+    {
+        foreach (EnemyHitbox eh in ts.attackHitboxes)
+        {
+            eh.activeHitbox = false;
+        }
+    }
+    
+    public virtual void ParryWindowActivate()
+    {
+        if (!sc.IsState<EnemyAttacking>()) return;
+
+        ts.parryWindowActive = true;
+    }
+    
+    public virtual void ParryWindowDeactivate()
+    {
+        ts.parryWindowActive = false;
+    }
+    
+    #endregion
     
     #region Movement Methods
     
@@ -83,16 +127,16 @@ public class EnemyStateMachine : PhysicsEnemy
         moveDirection = direction;
         
         Vector3 targetSpeed = direction * enemyData.speed;
-        targetSpeed = Vector3.Lerp(rb.linearVelocity, targetSpeed, lerpAmount);
+        targetSpeed = Vector3.Lerp(ts.pe.rb.linearVelocity, targetSpeed, lerpAmount);
 
 
         float accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? enemyData.runAccelAmount : enemyData.runDecelAmount;
 		
-        Vector3 speedDiff = targetSpeed - rb.linearVelocity.ZeroVector3Axis();
+        Vector3 speedDiff = targetSpeed - ts.pe.rb.linearVelocity.ZeroVector3Axis();
 		
         Vector3 movementForce = speedDiff * accelRate;
 		
-        rb.AddForce(movementForce, ForceMode.Acceleration);
+        ts.pe. rb.AddForce(movementForce, ForceMode.Acceleration);
         TurnToLook();
     }
 

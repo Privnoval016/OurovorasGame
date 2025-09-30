@@ -6,85 +6,31 @@ public class EnemyAnimListener : MonoBehaviour
     
     public void ActivateHitbox(int index = 0)
     {
-        if (ts.lot is EnemyStateMachine ec)
-        {
-            if (!ec.sc.IsState<EnemyAttacking>()) return;
-
-            ts.attackHitboxes[index].activeHitbox = true;
-        }
-        else if (ts.lot is BossStateMachine bc)
-        {
-            // Boss logic
-        }
+        ts.esm.HitboxActivate(index);
     }
     
     public void DeactivateHitbox(int index = 0)
     {
-        if (ts.lot is EnemyStateMachine ec)
-        {
-            ts.attackHitboxes[index].activeHitbox = false;
-        }
-        else if (ts.lot is BossStateMachine bc)
-        {
-            // Boss logic
-        }
+        ts.esm.HitboxDeactivate(index);
     }
     
     public void ActivateAllHitboxes()
     {
-        if (ts.lot is EnemyStateMachine ec)
-        {
-            if (!ec.sc.IsState<EnemyAttacking>()) return;
-
-            foreach (EnemyHitbox eh in ts.attackHitboxes)
-            {
-                eh.activeHitbox = true;
-            }
-        }
-        else if (ts.lot is BossStateMachine bc)
-        {
-            // Boss logic
-        }
+        ts.esm.AllHitboxesActivate();
     }
     
     public void DeactivateAllHitboxes()
     {
-        if (ts.lot is EnemyStateMachine ec)
-        {
-            foreach (EnemyHitbox eh in ts.attackHitboxes)
-            {
-                eh.activeHitbox = false;
-            }
-        }
-        else if (ts.lot is BossStateMachine bc)
-        {
-            // Boss logic
-        }
+        ts.esm.AllHitboxesDeactivate();
     }
     
     public void ActivateParryWindow()
     {
-        if (ts.lot is EnemyStateMachine ec)
-        {
-            if (!ec.sc.IsState<EnemyAttacking>()) return;
-
-            ts.parryWindowActive = true;
-        }
-        else if (ts.lot is BossStateMachine bc)
-        {
-            // Boss logic
-        }
+        ts.esm.ParryWindowActivate();
     }
     
     public void DeactivateParryWindow()
     {
-        if (ts.lot is EnemyStateMachine ec)
-        {
-            ts.parryWindowActive = false;
-        }
-        else if (ts.lot is BossStateMachine bc)
-        {
-            // Boss logic
-        }
+        ts.esm.ParryWindowDeactivate();
     }
 }

@@ -8,6 +8,9 @@ using PrimeTween;
 // All enemies that are able to take knockback should inherit from this class
 public class PhysicsEnemy : LockOnTarget
 {
+    public event Action<ElementEffect, PlayerController, Attack, Transform, int> onHit = delegate { };
+    public event Action<ElementEffect, PlayerController, Attack, Transform, int> onStagger = delegate { };
+    
     [Header("Physics Parameters")]
     
     public EnemyGravity gravityData;
@@ -208,6 +211,8 @@ public class PhysicsEnemy : LockOnTarget
 
     public override void OnHit(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
+        onHit?.Invoke(element, pc, a, attackerTransform, actionIndex);
+        
         base.OnHit(element, pc, a, attackerTransform, actionIndex);
 
 
@@ -222,8 +227,10 @@ public class PhysicsEnemy : LockOnTarget
     
     #endregion
     
-    public virtual void OnStagger(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
+    public override void OnStagger(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
-        OnHit(element, pc, a, attackerTransform, actionIndex);
+        onStagger?.Invoke(element, pc, a, attackerTransform, actionIndex);
+        
+        base.OnStagger(element, pc, a, attackerTransform, actionIndex);
     }
 }
