@@ -279,7 +279,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             return null;
         }
         
-        ElementEffect element = ts.GetElementFromAttack(a.attack.element);
+        ElementEffect element = ts.stats.GetElementFromAttack(a.attack.element);
         
         var vfxActivators = GetVFXActivators(v, vfxController, GameManager.GetElementData(element));
         

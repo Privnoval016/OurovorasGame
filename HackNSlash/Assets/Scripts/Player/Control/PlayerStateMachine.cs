@@ -137,9 +137,8 @@ public class PlayerStateMachine : MonoBehaviour
         
         pc.sc.ChangeState(new PlayerMoving());
         
-        InputManager.Instance.debug.performed += OnDebugInput;
-        InputManager.Instance.elementAttack.performed += OnElementAttackInput;
-        InputManager.Instance.elementAttack.canceled += OnElementAttackInput;
+        InputManager.Instance.onDebug += OnDebugInput;
+        InputManager.Instance.onElementAttack += OnElementAttackInput;
     }
     
     private void Update()
@@ -149,7 +148,7 @@ public class PlayerStateMachine : MonoBehaviour
         CheckGrounded();
         CheckAttackAction();
         
-        pc.sc.PrintStates();
+        //pc.sc.PrintStates();
     }
     
     private void FixedUpdate()
@@ -194,7 +193,7 @@ public class PlayerStateMachine : MonoBehaviour
     
     private void SetMoveValues()
     {
-        if (!CombatManager.Instance.entitiesStopped) moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
+        if (!CombatManager.Instance.entitiesStopped) moveInput = InputManager.Instance.Movement;
 
         inputDirQueue.Enqueue(StandardizedMoveDir);
         inputTimeQueue.Enqueue(Time.time);
@@ -420,9 +419,6 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (CheckMobilityAction()) return;
         
-        if (CheckParryAction()) return;
-        if (CheckProjectileParryAction()) return;
-        
         if (movingState == MovingStates.NonCombat) return;
         
         if (pauseMovement) return;
@@ -518,6 +514,9 @@ public class PlayerStateMachine : MonoBehaviour
             BeginAttack(a);
             return;
         }
+        
+        if (CheckParryAction()) return;
+        if (CheckProjectileParryAction()) return;
         
         if (possibleCombo != null)
         {

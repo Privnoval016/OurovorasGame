@@ -15,10 +15,15 @@ public class FollowVelocityHitAction : IHitAction
     public float hitForce = 10f;
     [Tooltip("Direction of the hit force. If zero, uses the player's forward direction.")]
     public Vector3 hitDirection = Vector3.zero;
-    [Tooltip("Minimum time of movement before the enemy can bounce.")]
-    public float minTimeToBounce = 0.2f;
+    
+    [Header("Bounce Parameters")]
+    
     [Tooltip("Whether the enemy should bounce upon landing.")]
     public bool elasticCollision = true;
+    
+    [Tooltip("Minimum time of movement before the enemy can bounce.")]
+    public float minTimeToBounce = 0.2f;
+    
     [Tooltip("Height of the bounce.")]
     public float bounceHeight = 5f;
     [Tooltip("Time taken to complete the bounce.")]

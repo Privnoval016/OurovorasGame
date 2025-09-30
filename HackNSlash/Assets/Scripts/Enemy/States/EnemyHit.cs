@@ -7,7 +7,7 @@ public class EnemyHit : EnemyState
     
     public override void OnEnter()
     {
-        isGrounded = ec.IsGrounded;
+        isGrounded = ec.ts.pe.IsGrounded;
         lastWasMidair = !isGrounded;
         PlayHitAnimation();
         ec.ts.animListener.DeactivateAllHitboxes();
@@ -16,9 +16,9 @@ public class EnemyHit : EnemyState
     public override void OnUpdate()
     {
         
-        if (!ec.IsGrounded) lastWasMidair = true;
+        if (!ec.ts.pe.IsGrounded) lastWasMidair = true;
                 
-        if (!ec.IsMidAttack && ec.IsGrounded)
+        if (!ec.ts.pe.IsMidAttack && ec.ts.pe.IsGrounded)
         {
             if (!lastWasMidair) 
                 ExitHit();
@@ -34,9 +34,9 @@ public class EnemyHit : EnemyState
 
     private void CheckHitAnimationSwap()
     {
-        if (ec.IsGrounded != isGrounded)
+        if (ec.ts.pe.IsGrounded != isGrounded)
         {
-            isGrounded = ec.IsGrounded;
+            isGrounded = ec.ts.pe.IsGrounded;
             PlayHitAnimation();
         }
     }

@@ -31,10 +31,7 @@ public class ParryAttackAction : IAttackAction
         HashSet<PhysicsEnemy> parriedEnemies = new();
         foreach (var hitbox in pc.psm.ParriedHitboxes)
         {
-            if (hitbox.ts.lot is PhysicsEnemy enemy)
-            {
-                parriedEnemies.Add(enemy);
-            }
+            parriedEnemies.Add(hitbox.ts.pe);
         }
 
         foreach (var e in parriedEnemies)

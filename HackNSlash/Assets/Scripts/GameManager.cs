@@ -62,7 +62,7 @@ public class GameManager : Singleton<GameManager>
         
         SetElementMap();
         
-        InputManager.Instance.pause.performed += OnPauseAction;
+        InputManager.Instance.onPause += OnPauseAction;
     }
 
     private void Start()

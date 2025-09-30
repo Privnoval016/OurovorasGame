@@ -3,13 +3,12 @@ using MEC;
 using UnityEngine;
 using Extensions.Utils;
 
-
 // Things with health that can take damage
 public abstract class LockOnTarget : KinematicBehaviour
 {
     [Header("Lock On Target Parameters")]
     
-    public EnemyController ts;
+    public IDamageable damageable;
     
     public float radius = 3f;
     
@@ -25,7 +24,7 @@ public abstract class LockOnTarget : KinematicBehaviour
 
     private void Start()
     {
-        ts = GetComponent<EnemyController>();
+        damageable = GetComponent<IDamageable>();
         
         SetKinematicAttributes();
         OnStart();
@@ -95,7 +94,12 @@ public abstract class LockOnTarget : KinematicBehaviour
         pc.psm.EnemiesInHit.Add(this);
         this.RunSegmentCoroutine(ResetHit(pc, a));
 
-        ts.TakeDamage(element, pc, a);
+        damageable.TakeDamage(element, pc, a);
+    }
+    
+    public virtual void OnStagger(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
+    {
+        OnHit(element, pc, a, attackerTransform, actionIndex);
     }
     
     private IEnumerator<float> ResetHit(PlayerController pc, Attack a)
@@ -123,5 +127,10 @@ public abstract class LockOnTarget : KinematicBehaviour
         }
     }
     
+}
+
+public interface IDamageable
+{
+    void TakeDamage(ElementEffect element, PlayerController pc, Attack a);
 }
 
