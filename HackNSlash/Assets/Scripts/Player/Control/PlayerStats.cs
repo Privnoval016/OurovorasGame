@@ -1,21 +1,28 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerStats
+public class PlayerStats : IDamageable
 {
     [HideInInspector] public PlayerInventory pi;
+    
+    #region Components
+
+    [Header("Components")] 
+    
+    public BaseStats baseStats;
+    
+    #endregion
 
     #region Stat Info
 
     [Header("Stat Info")]
 
-    public float currentHealth;
-    public float currentCharge;
-    public float currentUltimate;
+    public float CurrentHealth { get; private set; }
+    public float CurrentElementCharge { get; private set; }
+    public float CurrentUltimateCharge { get; private set; }
 
-    public float currentFinisher;
+    public float CurrentFinisherCharge { get; private set; }
 
-    public Dictionary<InnateStat, float> Stats = new();
+    public EvaluatedStats EvaluatedStats;
 
     #endregion
 
@@ -30,31 +37,23 @@ public class PlayerStats
 
     private void InitializeStats()
     {
-        Stats.Add(InnateStat.MaxHealth, 100f);
-        Stats.Add(InnateStat.MaxCharge, 200f);
-        Stats.Add(InnateStat.Strength, 10f);
-        Stats.Add(InnateStat.Defense, 5f);
+        EvaluatedStats = new EvaluatedStats(baseStats);
 
-        currentHealth = 0f;
-        currentCharge = 0f;
-        currentUltimate = 0f;
-        currentFinisher = 0f;
+        CurrentHealth = 0f;
+        CurrentElementCharge = 0f;
+        CurrentUltimateCharge = 0f;
+        CurrentFinisherCharge = 0f;
 
         ChangeHealth(GetStat(InnateStat.MaxHealth));
         SetCharge(GetStat(InnateStat.MaxCharge));
 
-        HUDMenuUI.Instance.UpdateUltimate(UltimatePercentage(currentUltimate));
-        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(currentFinisher));
+        HUDMenuUI.Instance.UpdateUltimate(UltimatePercentage(CurrentUltimateCharge));
+        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(CurrentFinisherCharge));
     }
 
     public float GetStat(InnateStat innateStat)
     {
-        if (Stats.TryGetValue(innateStat, out float value))
-        {
-            return value;
-        }
-
-        return 0f;
+        return EvaluatedStats.GetStat(innateStat);
     }
 
     public float StatPercentage(float value, InnateStat innateStat)
@@ -63,27 +62,27 @@ public class PlayerStats
         return maxStat > 0 ? value / maxStat : 0f;
     }
 
-    public void ChangeHealth(float amount)
+    private void ChangeHealth(float amount)
     {
         if (amount == 0) return;
 
-        currentHealth = Mathf.Clamp(currentHealth + amount, 0, GetStat(InnateStat.MaxHealth));
-        HUDMenuUI.Instance.UpdateHealth(StatPercentage(currentHealth, InnateStat.MaxHealth));
+        CurrentHealth = Mathf.Clamp(CurrentHealth + amount, 0, GetStat(InnateStat.MaxHealth));
+        HUDMenuUI.Instance.UpdateHealth(StatPercentage(CurrentHealth, InnateStat.MaxHealth));
     }
 
     public void ChangeCharge(float amount, Attack a)
     {
         if (amount == 0) return;
 
-        currentCharge = Mathf.Clamp(currentCharge + amount, 0, GetStat(InnateStat.MaxCharge));
+        CurrentElementCharge = Mathf.Clamp(CurrentElementCharge + amount, 0, GetStat(InnateStat.MaxCharge));
 
-        HUDMenuUI.Instance.UpdateCharge(StatPercentage(currentCharge, InnateStat.MaxCharge));
+        HUDMenuUI.Instance.UpdateCharge(StatPercentage(CurrentElementCharge, InnateStat.MaxCharge));
     }
 
     public void SetCharge(float value)
     {
-        currentCharge = Mathf.Clamp(value, 0, GetStat(InnateStat.MaxCharge));
-        HUDMenuUI.Instance.SetCharge(StatPercentage(currentCharge, InnateStat.MaxCharge));
+        CurrentElementCharge = Mathf.Clamp(value, 0, GetStat(InnateStat.MaxCharge));
+        HUDMenuUI.Instance.SetCharge(StatPercentage(CurrentElementCharge, InnateStat.MaxCharge));
     }
 
     public void ApplyAttackMeterChanges(Attack a)
@@ -102,7 +101,7 @@ public class PlayerStats
 
         if (minCharge <= 0) return 1f;
 
-        return Mathf.Clamp01(currentCharge / minCharge);
+        return Mathf.Clamp01(CurrentElementCharge / minCharge);
     }
 
 
@@ -118,8 +117,8 @@ public class PlayerStats
     {
         if (amount == 0) return;
 
-        currentUltimate = Mathf.Clamp(currentUltimate + amount, 0, pi.statData.maxUltimateCharge);
-        HUDMenuUI.Instance.UpdateUltimate(UltimatePercentage(currentUltimate));
+        CurrentUltimateCharge = Mathf.Clamp(CurrentUltimateCharge + amount, 0, pi.statData.maxUltimateCharge);
+        HUDMenuUI.Instance.UpdateUltimate(UltimatePercentage(CurrentUltimateCharge));
     }
 
     public float UltimatePercentage(float value)
@@ -135,7 +134,7 @@ public class PlayerStats
 
         ChangeUltimate(-pi.statData.ultimateDrainRate * Time.deltaTime);
 
-        if (currentUltimate <= 0)
+        if (CurrentUltimateCharge <= 0)
         {
             pi.pc.psm.SwapToUltimate();
         }
@@ -149,8 +148,8 @@ public class PlayerStats
     {
         if (amount == 0) return;
 
-        currentFinisher = Mathf.Clamp(currentFinisher + amount, 0, pi.statData.maxFinisherCharge);
-        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(currentFinisher));
+        CurrentFinisherCharge = Mathf.Clamp(CurrentFinisherCharge + amount, 0, pi.statData.maxFinisherCharge);
+        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(CurrentFinisherCharge));
     }
 
     public float FinisherPercentage(float value)
@@ -164,8 +163,8 @@ public class PlayerStats
     {
         if (a != null && !pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return;
 
-        currentFinisher = 0f;
-        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(currentFinisher));
+        CurrentFinisherCharge = 0f;
+        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(CurrentFinisherCharge));
     }
 
     #endregion
@@ -176,7 +175,7 @@ public class PlayerStats
     {
         if (pi.pc.psm.movingState == MovingStates.NonCombat) return false;
         if (!pi.pc.psm.canAttack) return false;
-        return pi.pc.psm.movingState == MovingStates.Katana || currentUltimate >= pi.statData.minActivationCharge;
+        return pi.pc.psm.movingState == MovingStates.Katana || CurrentUltimateCharge >= pi.statData.minActivationCharge;
     }
 
     public bool CanSwapToNonCombat()
@@ -202,8 +201,18 @@ public class PlayerStats
 
         if (target == null) return false;
 
-        return FinisherPercentage(currentFinisher) >= 1f;
+        return FinisherPercentage(CurrentFinisherCharge) >= 1f;
     }
 
     #endregion
+
+    public void TakeDamage(ElementEffect element, float damageAmount)
+    {
+        ChangeHealth(-damageAmount);
+    }
+    
+    public void Heal(float healAmount)
+    {
+        ChangeHealth(healAmount);
+    }
 }

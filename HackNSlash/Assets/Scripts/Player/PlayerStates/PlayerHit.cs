@@ -24,7 +24,7 @@ public class PlayerHit : PlayerState
         
         pc.psm.CalculateGravity();
         
-        pc.pi.ps.ChangeHealth(-hit.damage);
+        pc.pi.ps.TakeDamage(hit.element, hit.damage);
 
         AddKnockbackForce();
         
@@ -93,4 +93,5 @@ public struct HitInstance
     public Vector2 horizontalDirection;   // direction of the hit in the xz plane
     public Vector2 force;       // x: horizontal force, y: vertical force
     public float damage;
+    public ElementEffect element;
 }

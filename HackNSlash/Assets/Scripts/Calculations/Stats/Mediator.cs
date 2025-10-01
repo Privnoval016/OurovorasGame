@@ -58,12 +58,12 @@ public interface IQueryKey<out T> { }
  * of queries (e.g., stats, status effects) without needing to create separate classes for each type.
  * </summary>
  */
-public class QueryContext<T> where T : IQueryKey<T>
+public class QueryContext<TQueryKey> where TQueryKey : IQueryKey<TQueryKey>
 {
-    public T Key;
+    public TQueryKey Key;
     public int Value;
     
-    public QueryContext(T key, int value)
+    public QueryContext(TQueryKey key, int value)
     {
         Key = key;
         Value = value;
