@@ -69,7 +69,7 @@ public abstract class Attack : ScriptableObject
 
     public bool HasEnoughCharge(PlayerController pc)
     {
-        if (!stats.restoreCharge && stats.charge > 0 && pc.pi.ps.CurrentElementCharge < stats.charge) return false;
+        if (!stats.restoreCharge && stats.charge > 0 && pc.ps.CurrentElementCharge < stats.charge) return false;
 
         return true;
     }
@@ -78,7 +78,7 @@ public abstract class Attack : ScriptableObject
     {
         if (stats.charge <= 0) return 1f;
         
-        float percentage = pc.pi.ps.CurrentElementCharge / stats.charge;
+        float percentage = pc.ps.CurrentElementCharge / stats.charge;
         
         return Mathf.Clamp(percentage, 0f, 1f);
     }

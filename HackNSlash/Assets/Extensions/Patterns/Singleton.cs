@@ -1,7 +1,6 @@
-using System;
 using UnityEngine;
 
-namespace Extensions.Utils
+namespace Extensions.Patterns
 {
     public class Singleton<T> : MonoBehaviour where T : Component
     {
@@ -31,6 +30,7 @@ namespace Extensions.Utils
             }
             else
             {
+                Debug.LogWarning($"Another instance of {typeof(T).Name} already exists, located on {_instance.gameObject.name}. Destroying this instance.");
                 Destroy(gameObject);
             }
         }
