@@ -26,6 +26,7 @@ public class PlayerController : KinematicBehaviour
     [HideInInspector] public PlayerAnimator pac;
     [HideInInspector] public PlayerStateMachine psm;
     [HideInInspector] public PlayerInventory pi;
+    [HideInInspector] public PlayerStats ps;
     [HideInInspector] public OnAttackEvents oae;
     [HideInInspector] public OnHitEvents ohe;
     
@@ -50,6 +51,7 @@ public class PlayerController : KinematicBehaviour
         cl = GetComponentInChildren<CollisionListener>();
         oae = GetComponent<OnAttackEvents>();
         ohe = GetComponent<OnHitEvents>();
+        ps = GetComponent<PlayerStats>();
 
         allCols = GetComponents<CapsuleCollider>();
         

@@ -206,9 +206,6 @@ MonoBehaviour:
   physicsInteract: 1
   groundCheckPoint: {fileID: 9011854279037554396}
   groundCheckSize: {x: 0.49, y: 0.3, z: 0.49}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!114 &2116417143945433367
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,6 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d4823b5b94eb2c48a6aa207e7c6b500, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseStats: {fileID: 11400000, guid: bd4885e4017024a16980a234e23d4cf8, type: 2}
   currentHealth: 10
   currentElementEffect: 0
 --- !u!114 &1078203055275763964

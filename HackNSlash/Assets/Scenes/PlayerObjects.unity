@@ -10042,6 +10042,7 @@ GameObject:
   - component: {fileID: 1478948895}
   - component: {fileID: 1478948894}
   - component: {fileID: 1478948900}
+  - component: {fileID: 1478948903}
   - component: {fileID: 1478948901}
   - component: {fileID: 1478948902}
   - component: {fileID: 1478948893}
@@ -10253,6 +10254,7 @@ MonoBehaviour:
   pac: {fileID: 0}
   psm: {fileID: 0}
   pi: {fileID: 0}
+  ps: {fileID: 0}
   oae: {fileID: 0}
   ohe: {fileID: 0}
   spirit: {fileID: 2096512438}
@@ -10324,7 +10326,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pc: {fileID: 0}
-  statData: {fileID: 11400000, guid: 2b0b9827da322b24b91e9a4b6974f4ac, type: 2}
   attackDatas:
   - {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
   - {fileID: 11400000, guid: 9010127ed6498db40a36d66d3b487544, type: 2}
@@ -10336,10 +10337,6 @@ MonoBehaviour:
   imbuedElementEffect: 0
   elementEffects: 0200000003000000040000000500000006000000
   isInvincible: 0
-  currentHealth: 0
-  currentCharge: 0
-  currentUltimate: 0
-  currentFinisher: 0
 --- !u!114 &1478948901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10366,6 +10363,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pc: {fileID: 0}
+--- !u!114 &1478948903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478948889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983e28445a212b2428b3fdc9d9741fb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pc: {fileID: 0}
+  baseStats: {fileID: 11400000, guid: e44ef90645967424881e508625ece8e0, type: 2}
+  battleParameters: {fileID: 11400000, guid: 2b0b9827da322b24b91e9a4b6974f4ac, type: 2}
 --- !u!1 &1480798114
 GameObject:
   m_ObjectHideFlags: 0

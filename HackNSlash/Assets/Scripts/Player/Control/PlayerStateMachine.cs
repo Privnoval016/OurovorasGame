@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.EventBus;
 using Extensions.Utils;
 using Extensions.Timers;
 using UnityEngine;
@@ -197,13 +198,17 @@ public class PlayerStateMachine : MonoBehaviour
         if (context.performed)
         {
             isElementAttacking = true;
-            HUDMenuUI.Instance.ActivateElementalAttackIcons();
         }
         else if (context.canceled)
         {
             isElementAttacking = false;
-            HUDMenuUI.Instance.DeactivateElementalAttackIcons();
         }
+        
+        if (context.performed || context.canceled)
+            EventBus<ElementAttackUpdateEvent>.Raise(new ElementAttackUpdateEvent
+            {
+                isActive = isElementAttacking
+            });
     }
     
     #endregion
@@ -724,9 +729,9 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (!attack.HasEnoughCharge(pc)) return false;
         
-        if (!pc.pi.ps.FinishedElementCooldown(attack)) return false;
+        if (!pc.ps.FinishedElementCooldown(attack)) return false;
         
-        if (!pc.pi.ps.CanUseFinisher(attack)) return false;
+        if (!pc.ps.CanUseFinisher(attack)) return false;
 
         return true;
     }

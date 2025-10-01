@@ -34,6 +34,7 @@ public class BaseStats : ScriptableObject
     }
 }
 
+[Serializable]
 public struct StatInfo
 {
     public InnateStat InnateStat;

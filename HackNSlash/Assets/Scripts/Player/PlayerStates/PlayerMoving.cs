@@ -118,7 +118,7 @@ public class PlayerMoving : PlayerState
     {
 	    if (context.phase != InputActionPhase.Performed) return;
 	    
-	    if (!pc.pi.ps.CanSwapToNonCombat()) return;
+	    if (!pc.ps.CanSwapToNonCombat()) return;
 	    
 	    pc.psm.SwapToNonCombat();
     }
@@ -127,7 +127,7 @@ public class PlayerMoving : PlayerState
 	{
 		if (context.phase != InputActionPhase.Performed) return;
 		
-		if (!pc.pi.ps.CanUseUltimate()) return;
+		if (!pc.ps.CanUseUltimate()) return;
 
 		pc.psm.SwapToUltimate();
 	}

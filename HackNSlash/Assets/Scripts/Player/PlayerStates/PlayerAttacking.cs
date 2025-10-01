@@ -96,7 +96,7 @@ public class PlayerAttacking : PlayerState
         
         pc.rb.linearVelocity = Vector3.zero;
         
-        pc.pi.ps.ResetFinisherCharge(_playerAttack);
+        pc.ps.ResetFinisherCharge(_playerAttack);
         
         pc.psm.pauseComboReset = false;
         pc.pac.RootMotionEnabled(false);
@@ -228,13 +228,13 @@ public class PlayerAttacking : PlayerState
         {
             if (pc.psm.EnemiesInHit.Count > 0)
             {
-                pc.pi.ps.ApplyAttackMeterChanges(_playerAttack);
+                pc.ps.ApplyAttackMeterChanges(_playerAttack);
                 chargeUpdated = true;
             }
         }
         else
         {
-            pc.pi.ps.ApplyAttackMeterChanges(_playerAttack);
+            pc.ps.ApplyAttackMeterChanges(_playerAttack);
             chargeUpdated = true;
         }
     }
