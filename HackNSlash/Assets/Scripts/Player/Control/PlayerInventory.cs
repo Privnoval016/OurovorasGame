@@ -74,7 +74,7 @@ public class PlayerInventory : MonoBehaviour
         if (pc.psm.TimeSinceLastAttack.CurrentTime > statData.chargeRestoreTime)
         {
             // Restore charge over time
-            ps.SetCharge(ps.currentCharge + statData.chargeRestoreRate * Time.deltaTime);
+            ps.SetCharge(ps.CurrentElementCharge + statData.chargeRestoreRate * Time.deltaTime);
         }
     }
 

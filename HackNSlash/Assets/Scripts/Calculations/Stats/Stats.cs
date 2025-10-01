@@ -36,10 +36,10 @@ public class StatChange
 
 public class EvaluatedStats
 {
-    readonly BaseStats baseStats;
+    private readonly BaseStats baseStats;
     
-    public Mediator<StatQueryKey> StatMediator = new();
-    public Mediator<StatusEffectQueryKey> StatusEffectMediator = new();
+    public readonly Mediator<StatQueryKey> StatMediator;
+    public readonly Mediator<StatusEffectQueryKey> StatusEffectMediator;
 
     public Dictionary<InnateStat, int> Stats()
     {
@@ -73,6 +73,12 @@ public class EvaluatedStats
         this.baseStats = baseStats;
         StatMediator = statMediator ?? new Mediator<StatQueryKey>();
         StatusEffectMediator = statusEffectMediator ?? new Mediator<StatusEffectQueryKey>();
+    }
+    
+    public int GetStat(InnateStat innateStat)
+    {
+        var stats = Stats();
+        return stats.GetValueOrDefault(innateStat, 0);
     }
 
     public override string ToString()

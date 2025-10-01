@@ -94,7 +94,7 @@ public abstract class LockOnTarget : KinematicBehaviour
         pc.psm.EnemiesInHit.Add(this);
         this.RunSegmentCoroutine(ResetHit(pc, a));
 
-        damageable.TakeDamage(element, pc, a);
+        damageable.TakeDamage(element, a.stats.damage);
     }
     
     public virtual void OnStagger(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
@@ -128,9 +128,3 @@ public abstract class LockOnTarget : KinematicBehaviour
     }
     
 }
-
-public interface IDamageable
-{
-    void TakeDamage(ElementEffect element, PlayerController pc, Attack a);
-}
-
