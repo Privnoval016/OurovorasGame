@@ -132,7 +132,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     {
         ElementData elementData = GameManager.GetElementData(ElementEffect.Aether);
         
-        if (pc.pi.CanUseFinisher())
+        if (pc.pi.ps.CanUseFinisher())
         {
             // Enable finisher icon
             finisherIcon.color = elementData.elementColor;
@@ -358,10 +358,10 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
             return;
         }
         
-        if (!Mathf.Approximately(pc.pi.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
-            Tween.UISliderValue(attackIcon.chargeSlider, pc.pi.GetCooldownPercentage(k), 0.03f);
+        if (!Mathf.Approximately(pc.pi.ps.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
+            Tween.UISliderValue(attackIcon.chargeSlider, pc.pi.ps.GetCooldownPercentage(k), 0.03f);
         
-        if (pc.pi.FinishedElementCooldown(attack))
+        if (pc.pi.ps.FinishedElementCooldown(attack))
             EnableAttackIcon(attackIcon, attack);
         else
             DisableAttackIcon(attackIcon, attack);

@@ -33,7 +33,8 @@ public class FollowVelocityHitAction : IHitAction
     {
         base.Execute(onHitEvents, enemy, attack, attackerTransform);
         
-        ohe.RunSegmentCoroutine(BeginFollowPlayerVelocity(), ec.GetInstanceID().ToString());
+        ohe.RunSegmentCoroutine(BeginFollowPlayerVelocity(), ec.GetInstanceID().ToString()).
+            OnDestroy(() => ec.PauseGravity(false, 0));
     }
 
     IEnumerator<float> BeginFollowPlayerVelocity()

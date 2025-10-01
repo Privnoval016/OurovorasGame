@@ -122,7 +122,8 @@ public class PlayerAnimator : EntityAnimator
 			    break;
 		    
 		    case WalkingAnimStates.Falling:
-			    if (pc.psm.lastOnGroundTime > 0) SwitchAnimState(WalkingAnimStates.Idle);
+			    if (!pc.psm.LastOnGroundTimer.IsFinished)
+				    SwitchAnimState(WalkingAnimStates.Idle);
 			    
 			    break;
 		    

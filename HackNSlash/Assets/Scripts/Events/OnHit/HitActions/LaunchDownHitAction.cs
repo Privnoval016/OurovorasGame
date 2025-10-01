@@ -22,7 +22,12 @@ public class LaunchDownHitAction : IHitAction
     {
         base.Execute(onHitEvents, enemy, attack, attackerTransform);
         
-        ohe.RunSegmentCoroutine(BeginLaunchDown(), ec.GetInstanceID().ToString());
+        ohe.RunSegmentCoroutine(BeginLaunchDown(), ec.GetInstanceID().ToString()).
+            OnDestroy(() =>
+            {
+                ec.PauseGravity(false, 0);
+                pc.IgnoreAllCollisionsWithLayer(ec.gameObject.layer, false);
+            });
     }
     
     IEnumerator<float> BeginLaunchDown()

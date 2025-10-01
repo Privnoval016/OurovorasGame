@@ -5,7 +5,7 @@ public class EnemyStats : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     
-    public Dictionary<Stat, float> Stats = new();
+    public Dictionary<InnateStat, float> Stats = new();
     public float currentHealth;
     
     public ElementEffect currentElementEffect = ElementEffect.None;
