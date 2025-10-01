@@ -2882,10 +2882,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 465008913}
-  - component: {fileID: 465008917}
-  - component: {fileID: 465008916}
   - component: {fileID: 465008915}
-  - component: {fileID: 465008914}
   m_Layer: 0
   m_Name: ActionEvents
   m_TagString: Untagged
@@ -2908,19 +2905,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 944687184}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &465008914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 465008912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f430df3c343efb7488a1032328ca0a6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parameters: {fileID: 11400000, guid: b587f835dc4c1084a8e50bcb5dd4ae39, type: 2}
 --- !u!114 &465008915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2934,34 +2918,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parameters: {fileID: 11400000, guid: 805a7dfc5330afa4e95991587e0e26cb, type: 2}
---- !u!114 &465008916
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 465008912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce89fdf6dcc8d534284d9f7ae3daddca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parameters: {fileID: 11400000, guid: 739adcd3918c93c49b65f14e3a93a23d, type: 2}
---- !u!114 &465008917
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 465008912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1ace5b2907becc4c975ed45366be735, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackParametersArray:
-  - {fileID: 11400000, guid: 9ce06f85f5fbc234380473082b67671a, type: 2}
-  - {fileID: 11400000, guid: 89e4900d2f3553440b41b223d9cb07b1, type: 2}
 --- !u!1 &486284433
 GameObject:
   m_ObjectHideFlags: 0
@@ -7946,195 +7902,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 372d98d179298fe44acab5871363ea6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pause:
-    m_Name: Pause
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 07e9096c-1202-4ab4-b391-25a0e5437804
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  debug:
-    m_Name: Debug
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 3a085aa3-55a9-4fe1-ae55-b12f1963b952
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  movement:
-    m_Name: Movement
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: f1d3e52b-a086-465f-ac20-b8dd4d8f0db8
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  cameraMove:
-    m_Name: Camera Move
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: b576059c-422c-419c-bfec-3ca448ab5a4d
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  jump:
-    m_Name: Jump
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 3c3d8aeb-dbfb-47ad-8d6e-6bae9a7b8a16
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  dodge:
-    m_Name: Dodge
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 7d276121-25d1-4441-b770-4835b7c3b3bc
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  lockOn:
-    m_Name: Lock On
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 49a8d85d-81a6-45dd-b4a5-b753fa358533
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  retarget:
-    m_Name: Retarget
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 4ae744d0-1075-46dd-98c8-50887db01004
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  lightAttack:
-    m_Name: Light Attack
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 93fea409-e1f1-4080-a883-2b53f9b72102
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  heavyAttack:
-    m_Name: Heavy Attack
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 7b036315-cc91-41fe-8e40-2822d7c060a4
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  elementAttack:
-    m_Name: Element Attack
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: b59ea611-2457-4914-98ec-2c684d6175dc
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  swapMode:
-    m_Name: Swap Mode
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 2e5e70bf-fa4b-4ee5-8142-377169a4d11f
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  ultimateMode:
-    m_Name: Ultimate Mode
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 923bd356-6639-41d2-bd60-f1a376602b89
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  elementMenuOpen:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 6e6b7f9c-cda7-46b8-af78-0a5ca6dd6b0d
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  navigate:
-    m_Name: Navigate
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 3dfc49d1-811f-4df0-b1e8-9341672e5f7a
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  select:
-    m_Name: Select
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 9dd3b9a3-26e5-4b46-8126-d164e8d1cf9c
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  back:
-    m_Name: Back
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 016c583d-d372-4905-b479-16bc1aab578d
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  sort:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 553d9fc3-c4f9-4434-aabc-1d6c6d9055dd
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  tabLeft:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 6e1596ed-efce-456a-a468-00f631670ae8
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  tabRight:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: e86a541a-04d8-4659-81b6-d20ed8eb0370
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  scroll:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 518f43b8-d87d-468b-9adf-6f070dff6523
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
 --- !u!1 &1167654221
 GameObject:
   m_ObjectHideFlags: 0
@@ -10275,6 +10042,9 @@ GameObject:
   - component: {fileID: 1478948895}
   - component: {fileID: 1478948894}
   - component: {fileID: 1478948900}
+  - component: {fileID: 1478948903}
+  - component: {fileID: 1478948901}
+  - component: {fileID: 1478948902}
   - component: {fileID: 1478948893}
   - component: {fileID: 1478948892}
   - component: {fileID: 1478948891}
@@ -10445,10 +10215,6 @@ MonoBehaviour:
   playerData: {fileID: 11400000, guid: 492cc163f440d418791e35eea37104b1, type: 2}
   movingState: 0
   pauseMovement: 0
-  lastOnGroundTime: 0
-  lastDoubleJumpTime: 0
-  lastPressedJumpTime: 0
-  walkingTime: 0
   isDoubleJumpUsed: 0
   isJumping: 0
   isJumpFalling: 0
@@ -10463,11 +10229,8 @@ MonoBehaviour:
   isElementAttacking: 0
   currentPlayerAttack: {fileID: 0}
   comboChain: []
-  comboResetTimer: 0
   pauseComboReset: 0
-  timeSinceLastAttack: 0
   numMidairAttacks: 0
-  dodgeTimer: 0
 --- !u!114 &1478948897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10491,6 +10254,9 @@ MonoBehaviour:
   pac: {fileID: 0}
   psm: {fileID: 0}
   pi: {fileID: 0}
+  ps: {fileID: 0}
+  oae: {fileID: 0}
+  ohe: {fileID: 0}
   spirit: {fileID: 2096512438}
   cameraFollowTarget: {fileID: 164924545}
   model: {fileID: 1668608101}
@@ -10560,7 +10326,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pc: {fileID: 0}
-  statData: {fileID: 11400000, guid: 2b0b9827da322b24b91e9a4b6974f4ac, type: 2}
   attackDatas:
   - {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
   - {fileID: 11400000, guid: 9010127ed6498db40a36d66d3b487544, type: 2}
@@ -10572,10 +10337,47 @@ MonoBehaviour:
   imbuedElementEffect: 0
   elementEffects: 0200000003000000040000000500000006000000
   isInvincible: 0
-  currentHealth: 0
-  currentCharge: 0
-  currentUltimate: 0
-  currentFinisher: 0
+--- !u!114 &1478948901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478948889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1ace5b2907becc4c975ed45366be735, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pc: {fileID: 0}
+--- !u!114 &1478948902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478948889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce89fdf6dcc8d534284d9f7ae3daddca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pc: {fileID: 0}
+--- !u!114 &1478948903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478948889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983e28445a212b2428b3fdc9d9741fb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pc: {fileID: 0}
+  baseStats: {fileID: 11400000, guid: e44ef90645967424881e508625ece8e0, type: 2}
+  battleParameters: {fileID: 11400000, guid: 2b0b9827da322b24b91e9a4b6974f4ac, type: 2}
 --- !u!1 &1480798114
 GameObject:
   m_ObjectHideFlags: 0
@@ -14321,6 +14123,7 @@ GameObject:
   - component: {fileID: 2096512440}
   - component: {fileID: 2096512438}
   - component: {fileID: 2096512439}
+  - component: {fileID: 2096512441}
   m_Layer: 0
   m_Name: Spirit
   m_TagString: Untagged
@@ -14344,6 +14147,7 @@ MonoBehaviour:
   discreteVelocity: {x: 0, y: 0, z: 0}
   discreteAcceleration: {x: 0, y: 0, z: 0}
   pc: {fileID: 0}
+  ose: {fileID: 0}
   canAttack: 1
   lastAttackHoldDuration: 0
   evaluator: {fileID: 0}
@@ -14381,6 +14185,19 @@ Transform:
   - {fileID: 803987630}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2096512441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2096512437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f430df3c343efb7488a1032328ca0a6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spirit: {fileID: 2096512438}
 --- !u!1 &2106988877
 GameObject:
   m_ObjectHideFlags: 0

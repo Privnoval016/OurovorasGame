@@ -1,4 +1,6 @@
 using System;
+using Extensions.EventBus;
+using Extensions.Patterns;
 using Extensions.UI;
 using Extensions.Utils;
 using PrimeTween;
@@ -10,6 +12,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
 {
     public PlayerController pc;
     
+    #region Inspector Fields
     [Header("Health Sliders")]
     public Slider healthValueBar;
     public Slider healthDepleteBar;
@@ -65,8 +68,22 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     public ElementalAttackIcon southElementalAttack;
     public ElementalAttackIcon westElementalAttack;
     
+    #endregion
+    
     [HideInInspector] public EquippedElementAttack CurrentElementalAttacks => pc.pi.GetCurrentElementAttack();
     [HideInInspector] public ElementEffect Element => pc.pi.currentElementEffect;
+    
+    #region Events
+    
+    private EventBinding<HealthUpdateEvent> healthUpdateEventBinding;
+    private EventBinding<ChargeUpdateEvent> chargeUpdateEventBinding;
+    private EventBinding<FinisherUpdateEvent> finisherUpdateEventBinding;
+    private EventBinding<UltimateUpdateEvent> ultimateUpdateEventBinding;
+    private EventBinding<ElementMenuEvent> elementMenuEventBinding;
+    private EventBinding<ElementUpdateEvent> elementUpdateEventBinding;
+    private EventBinding<ElementAttackUpdateEvent> elementAttackUpdateEventBinding;
+    
+    #endregion
 
 
     #region MonoBehaviour Callbacks
@@ -74,6 +91,8 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     protected override void Awake()
     {
         base.Awake();
+        
+        gameObject.SetActive(true);
         
         elementalAttackContainerScale = elementalAttackContainer.localScale;
     }
@@ -89,12 +108,49 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         UpdateFinisherIcon();
     }
 
+    private void OnEnable()
+    {
+        healthUpdateEventBinding = new EventBinding<HealthUpdateEvent>(OnHealthUpdate);
+        EventBus<HealthUpdateEvent>.Register(healthUpdateEventBinding);
+        
+        chargeUpdateEventBinding = new EventBinding<ChargeUpdateEvent>(OnChargeUpdate);
+        EventBus<ChargeUpdateEvent>.Register(chargeUpdateEventBinding);
+        
+        finisherUpdateEventBinding = new EventBinding<FinisherUpdateEvent>(OnFinisherUpdate);
+        EventBus<FinisherUpdateEvent>.Register(finisherUpdateEventBinding);
+        
+        ultimateUpdateEventBinding = new EventBinding<UltimateUpdateEvent>(OnUltimateUpdate);
+        EventBus<UltimateUpdateEvent>.Register(ultimateUpdateEventBinding);
+        
+        elementMenuEventBinding = new EventBinding<ElementMenuEvent>(OnElementMenuUpdate);
+        EventBus<ElementMenuEvent>.Register(elementMenuEventBinding);
+        
+        elementUpdateEventBinding = new EventBinding<ElementUpdateEvent>(OnElementSelect);
+        EventBus<ElementUpdateEvent>.Register(elementUpdateEventBinding);
+        
+        elementAttackUpdateEventBinding = new EventBinding<ElementAttackUpdateEvent>(OnElementalAttackActivate);
+        EventBus<ElementAttackUpdateEvent>.Register(elementAttackUpdateEventBinding);
+    }
+
+    private void OnDisable()
+    {
+        EventBus<HealthUpdateEvent>.Deregister(healthUpdateEventBinding);
+        EventBus<ChargeUpdateEvent>.Deregister(chargeUpdateEventBinding);
+        EventBus<FinisherUpdateEvent>.Deregister(finisherUpdateEventBinding);
+        EventBus<UltimateUpdateEvent>.Deregister(ultimateUpdateEventBinding);
+        EventBus<ElementMenuEvent>.Deregister(elementMenuEventBinding);
+        EventBus<ElementUpdateEvent>.Deregister(elementUpdateEventBinding);
+        EventBus<ElementAttackUpdateEvent>.Deregister(elementAttackUpdateEventBinding);
+    }
+
     #endregion
     
     #region Other Slider Methods
     
-    public void UpdateUltimate(float ultimatePercentage)
+    private void OnUltimateUpdate(UltimateUpdateEvent e)
     {
+        float ultimatePercentage = e.ultimatePercentage;
+        
         float currentUltimate = ultimateValueBar.value;
         
         ultimateValueBar.value = currentUltimate;
@@ -111,8 +167,10 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         }
     }
     
-    public void UpdateFinisher(float finisherPercentage)
+    private void OnFinisherUpdate(FinisherUpdateEvent e)
     {
+        float finisherPercentage = e.finisherPercentage;
+        
         float currentFinisher = finisherValueBar.value;
         finisherValueBar.value = currentFinisher;
         
@@ -128,11 +186,14 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         }
     }
     
+    /**
+     * Needs to be called every frame because it changes depending on player position
+     */
     private void UpdateFinisherIcon()
     {
         ElementData elementData = GameManager.GetElementData(ElementEffect.Aether);
         
-        if (pc.pi.CanUseFinisher())
+        if (pc.ps.CanUseFinisher())
         {
             // Enable finisher icon
             finisherIcon.color = elementData.elementColor;
@@ -165,7 +226,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         DeactivateElementSwapMenu();
     }
     
-    public void DeactivateElementSwapMenu()
+    private void DeactivateElementSwapMenu()
     {
         if (radialMenuContainer == null) return;
 
@@ -184,8 +245,17 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         elementSelectBorder?.gameObject.SetActive(false);
         elementSelectLine?.gameObject.SetActive(false);
     }
+
+    private void OnElementMenuUpdate(ElementMenuEvent e)
+    {
+        if (e.isActive) ActivateElementSwapMenu();
+        else DeactivateElementSwapMenu();
+
+        SetRadialMenuLine(e.direction);
+        if (e.elementEffect != null) SetRadialMenuIcon((ElementEffect) e.elementEffect, e.elementIndex);
+    }
     
-    public void ActivateElementSwapMenu()
+    private void ActivateElementSwapMenu()
     {
         if (radialMenuContainer == null) return;
         
@@ -206,14 +276,18 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         selectedElementIndex = pc.pi.CurrentElementIndex;
     }
     
-    public void SetSelectedElementIcon(ElementEffect element)
+    private void OnElementSelect(ElementUpdateEvent e)
     {
+        ElementEffect element = e.elementEffect;
+        
         if (selectedElementIcon == null) return;
 
         selectedElementIcon.color = GameManager.GetElementData(element).elementColor;
+        
+        UpdateElementalAttackIcons();
     }
 
-    public void SetRadialMenuLine(Vector2 direction)
+    private void SetRadialMenuLine(Vector2 direction)
     {
         if (direction == Vector2.zero)
         {
@@ -228,7 +302,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         elementSelectLine.rotation = Quaternion.Euler(0, 0, angle);
     }
 
-    public void SetRadialMenuIcon(ElementEffect element, int index)
+    private void SetRadialMenuIcon(ElementEffect element, int index)
     {
         if (selectedElementIndex == index) return;
         
@@ -264,8 +338,10 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     
     #region Main Slider Methods
 
-    public void UpdateHealth(float healthPercentage)
+    private void OnHealthUpdate(HealthUpdateEvent e)
     {
+        float healthPercentage = e.healthPercentage;
+        
         float currentHealth = healthValueBar.value;
         
         healthValueBar.value = currentHealth;
@@ -287,8 +363,10 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         }
     }
     
-    public void UpdateCharge(float chargePercentage)
+    private void OnChargeUpdate(ChargeUpdateEvent e)
     {
+        float chargePercentage = e.chargePercentage;
+        
         float currentCharge = chargeValueBar.value;
         
         chargeValueBar.value = currentCharge;
@@ -308,14 +386,6 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         
         RefreshElementalAttackIconStatus();
     }
-    
-    public void SetCharge(float chargePercentage)
-    {
-        chargeValueBar.value = chargePercentage;
-        chargeDepleteBar.value = chargePercentage;
-        
-        RefreshElementalAttackIconStatus();
-    }
 
     #endregion
     
@@ -329,7 +399,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     }
     
     
-    public void UpdateElementalAttackIcons()
+    private void UpdateElementalAttackIcons()
     {
         if (elementalAttackContainer == null) return;
         
@@ -358,10 +428,10 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
             return;
         }
         
-        if (!Mathf.Approximately(pc.pi.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
-            Tween.UISliderValue(attackIcon.chargeSlider, pc.pi.GetCooldownPercentage(k), 0.03f);
+        if (!Mathf.Approximately(pc.ps.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
+            Tween.UISliderValue(attackIcon.chargeSlider, pc.ps.GetCooldownPercentage(k), 0.03f);
         
-        if (pc.pi.FinishedElementCooldown(attack))
+        if (pc.ps.FinishedElementCooldown(attack))
             EnableAttackIcon(attackIcon, attack);
         else
             DisableAttackIcon(attackIcon, attack);
@@ -389,20 +459,17 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         attackIcon.icon.color = c;
     }
 
-    public void ActivateElementalAttackIcons()
+    private void OnElementalAttackActivate(ElementAttackUpdateEvent e)
     {
         if (elementalAttackContainer == null) return;
-
-        Tween.Scale(elementalAttackContainer,
-            elementalAttackContainerScale * elementalAttackContainerScaleFactor,
-            0.2f);
-    }
-    
-    public void DeactivateElementalAttackIcons()
-    {
-        if (elementalAttackContainer == null) return;
-
-        Tween.Scale(elementalAttackContainer, elementalAttackContainerScale, 0.2f);
+        
+        bool activate = e.isActive;
+        if (!activate)
+            Tween.Scale(elementalAttackContainer, elementalAttackContainerScale, 0.2f);
+        else
+            Tween.Scale(elementalAttackContainer,
+                elementalAttackContainerScale * elementalAttackContainerScaleFactor,
+                0.2f);
     }
     
     #endregion
@@ -417,4 +484,44 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
 
 }
 
+public struct HealthUpdateEvent : IEvent
+{
+    public float healthPercentage;
+}
 
+public struct ChargeUpdateEvent : IEvent
+{
+    public float chargePercentage;
+}
+
+public struct FinisherUpdateEvent : IEvent
+{
+    public float finisherPercentage;
+}
+
+public struct UltimateUpdateEvent : IEvent
+{
+    public float ultimatePercentage;
+}
+
+public struct ElementUpdateEvent : IEvent
+{
+    public ElementEffect elementEffect;
+}
+
+public struct ElementAttackUpdateEvent : IEvent
+{
+    public AttacksByWeapon northAttack;
+    public AttacksByWeapon southAttack;
+    public AttacksByWeapon westAttack;
+
+    public bool isActive;
+}
+
+public struct ElementMenuEvent : IEvent
+{
+    public ElementEffect? elementEffect;
+    public int elementIndex;
+    public Vector2 direction;
+    public bool isActive;
+}

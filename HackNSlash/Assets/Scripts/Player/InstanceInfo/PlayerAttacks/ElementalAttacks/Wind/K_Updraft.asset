@@ -33,12 +33,16 @@ MonoBehaviour:
   maxUses: 0
   hitInfo:
     onHitActions: 01000000
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587346
     hitDetection: 4
     lateralRadius: 3
     verticalRadius: 3
     hitRegisterAngle: 0
     numTargets: 1
     attackCoolDown: 1.5
+    hitCoolDown: 0
     hitForce: 0
     hitDelay: 0.1
     hitDirection: {x: 0, y: 0, z: 0}
@@ -60,8 +64,11 @@ MonoBehaviour:
     applyParentPoseToPosition: 0
   hitStopProfiles:
   - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
-  onAttackAction: 2
-  attackEventIndex: -1
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587269
+  - attackAction:
+      rid: 2944900481171587270
   applyRootMotion: 0
   moveCameraWithAttack: 1
   attackTransitions: []
@@ -73,3 +80,23 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 1
   exitCondition: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587269
+      type: {class: SpawnVFXAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        vfxIndices: 00000000
+    - rid: 2944900481171587270
+      type: {class: LaunchUpAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        launchUpHeight: 15
+        launchUpTime: 0.3
+        launchUpHoldTime: 0.25
+        delayLaunchUp: 0
+    - rid: 2944900481171587346
+      type: {class: LaunchUpHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0.1
+        launchUpHeight: 15
+        launchUpTime: 0.3

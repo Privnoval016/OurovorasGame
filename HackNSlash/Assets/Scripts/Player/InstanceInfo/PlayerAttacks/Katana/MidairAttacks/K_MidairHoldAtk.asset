@@ -33,6 +33,9 @@ MonoBehaviour:
   maxUses: 0
   hitInfo:
     onHitActions: 02000000
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587367
     hitDetection: 1
     lateralRadius: 3
     verticalRadius: 1
@@ -61,8 +64,7 @@ MonoBehaviour:
     applyParentPoseToPosition: 0
   hitStopProfiles:
   - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
-  onAttackAction: 0
-  attackEventIndex: 0
+  attackActions: []
   applyRootMotion: 1
   moveCameraWithAttack: 1
   attackTransitions: []
@@ -73,3 +75,16 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587367
+      type: {class: FollowVelocityHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        followVelocityMultiplier: 1.5
+        hitForce: 70
+        hitDirection: {x: 0, y: -1, z: 0.3}
+        minTimeToBounce: 0.3
+        elasticCollision: 1
+        bounceHeight: 5
+        bounceTime: 0.3

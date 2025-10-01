@@ -32,7 +32,10 @@ MonoBehaviour:
   isMidair: 1
   maxUses: 0
   hitInfo:
-    onHitActions: 00000000
+    onHitActions: 0a000000
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587321
     hitDetection: 1
     lateralRadius: 3
     verticalRadius: 3
@@ -61,8 +64,7 @@ MonoBehaviour:
     applyParentPoseToPosition: 0
   hitStopProfiles:
   - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
-  onAttackAction: 0
-  attackEventIndex: 0
+  attackActions: []
   applyRootMotion: 0
   moveCameraWithAttack: 1
   attackTransitions: []
@@ -73,3 +75,10 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587321
+      type: {class: VerticalKnockbackHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitForce: 30

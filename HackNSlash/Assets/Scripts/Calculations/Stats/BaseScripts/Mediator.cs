@@ -1,0 +1,101 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+/**
+ * <summary>
+ * Mediator class that manages queries and modifiers. It allows adding modifiers that can modify the outcome of
+ * queries. The mediator raises events when a query is performed, and all registered modifiers can handle these events
+ * to modify the query context.
+ * </summary>
+ */
+public class Mediator<T> where T : IQueryKey<T>
+{
+    protected readonly List<Modifier<T>> Modifiers = new();
+    
+    public event EventHandler<QueryContext<T>> Queries;
+    
+    public void PerformQuery(object sender, QueryContext<T> queryContext)
+    {
+        Queries?.Invoke(sender, queryContext);
+    }
+    
+    public void AddModifier(Modifier<T> mod)
+    {
+        Modifiers.Add(mod);
+        mod.MarkedForRemoval = false;
+        Queries += mod.Handle;
+
+        mod.OnDisposed += _ => Modifiers.Remove(mod);
+        mod.OnDisposed += _ => Queries -= mod.Handle;
+    }
+
+    public void Update()
+    {
+        foreach (var mod in Modifiers)
+        {
+            mod.Update();
+        }
+        
+        foreach (var mod in Modifiers.Where(m => m.MarkedForRemoval).ToList())
+        {
+            mod.Dispose();
+        }
+    }
+}
+
+/**
+ * <summary>
+ * Interface for query types. This is a marker interface used to define different types of queries.
+ * </summary>
+ */
+public interface IQueryKey<out T> { }
+
+/**
+ * <summary>
+ * Context for a query, containing the key and value. This is an important wrapper class because it allows us to
+ * abstract away the key of the query, letting us reuse the same Mediator and Modifier classes for different types
+ * of queries (e.g., stats, status effects) without needing to create separate classes for each type.
+ * </summary>
+ */
+public class QueryContext<TQueryKey> where TQueryKey : IQueryKey<TQueryKey>
+{
+    public TQueryKey Key;
+    public int Value;
+    
+    public QueryContext(TQueryKey key, int value)
+    {
+        Key = key;
+        Value = value;
+    }
+}
+
+/**
+ * <summary>
+ * Generic wrapper for stat queries, containing the key (the stat to be queried).
+ * </summary>
+ */
+public class StatQueryKey : IQueryKey<StatQueryKey>
+{
+    public InnateStat Key { get; }
+
+    public StatQueryKey(InnateStat key)
+    {
+        Key = key;
+    }
+}
+
+/**
+ * <summary>
+ * Generic wrapper for status effect queries, containing the key (the status effect to be queried).
+ * </summary>
+ */
+public class StatusEffectQueryKey : IQueryKey<StatusEffectQueryKey>
+{
+    public InnateStat Key { get; }
+
+    public StatusEffectQueryKey(InnateStat key)
+    {
+        Key = key;;
+    }
+}

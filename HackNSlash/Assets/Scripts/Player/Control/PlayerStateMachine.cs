@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.EventBus;
 using Extensions.Utils;
+using Extensions.Timers;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -29,28 +31,29 @@ public class PlayerStateMachine : MonoBehaviour
      
     [HideInInspector] public bool pauseMovement;
     
-    [HideInInspector] public float lastOnGroundTime;
-    [HideInInspector] public float lastDoubleJumpTime;
-    [HideInInspector] public float lastPressedJumpTime;
-    [HideInInspector] public float walkingTime;
+    [HideInInspector] public CountdownTimer LastOnGroundTimer;
+    [HideInInspector] public CountdownTimer LastDoubleJumpTimer;
+    [HideInInspector] public CountdownTimer LastPressedJumpTimer;
+    [HideInInspector] public StopwatchTimer WalkingTimer;
 
     public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, GameManager.Instance.groundLayer);
     public bool IsMidair => !IsGrounded;
 
-    public bool CanJump => lastOnGroundTime > 0 && !isJumping;
+    public bool CanJump => !LastOnGroundTimer.IsFinished && !isJumping;
      
     [HideInInspector] public bool isDoubleJumpUsed;
-    public bool CanDoubleJump => lastDoubleJumpTime <= 0 && !isDoubleJumpUsed && canAttack && IsMidair;
+    public bool CanDoubleJump => LastDoubleJumpTimer.IsFinished
+                                 && !isDoubleJumpUsed && canAttack && IsMidair;
     
     //Walk
     public bool IsWalking => moveInput.magnitude > 0;
-    public bool IsSprinting => !pc.cam.IsLockedOn && IsWalking && walkingTime > playerData.sprintBuildupLength;
+    public bool IsSprinting => !pc.cam.IsLockedOn && IsWalking && WalkingTimer.CurrentTime > playerData.sprintBuildupLength;
     
     //Jump
     [HideInInspector] public bool isJumping;
     [HideInInspector] public bool isJumpFalling;
-    public bool IsJumpTriggered => lastPressedJumpTime > 0;
+    public bool IsJumpTriggered => !LastPressedJumpTimer.IsFinished;
     
     
     
@@ -89,12 +92,12 @@ public class PlayerStateMachine : MonoBehaviour
 
     [HideInInspector] public PlayerAttack currentPlayerAttack;
     
-    [HideInInspector] public HashSet<LockOnTarget> enemiesHitThisAction = new();
+    [HideInInspector] public HashSet<LockOnTarget> EnemiesHitThisAction = new();
     
     [HideInInspector] public List<ComboAction> comboChain = new();
-    [HideInInspector] public float comboResetTimer = 0;
+    [HideInInspector] public CountdownTimer ComboResetTimer;
     [HideInInspector] public bool pauseComboReset = false;
-    [HideInInspector] public float timeSinceLastAttack = 0;
+    [HideInInspector] public StopwatchTimer TimeSinceLastAttack;
     
     
     [HideInInspector] public int numMidairAttacks;
@@ -103,7 +106,7 @@ public class PlayerStateMachine : MonoBehaviour
     public LockOnTarget NearestHEnemy => pc.cam.IsLockedOn ? pc.cam.TargetedEnemy : 
         GetClosestEnemyInCapsule(playerData.mediumRadius, playerData.heightRadius, 300f);
     
-    [HideInInspector] public float dodgeTimer = 0;
+    [HideInInspector] public CountdownTimer DodgeTimer;
     
     public Vector3 TruePlayerForward => pc.pac.animancer.transform.forward; // Use the model's forward for more accurate direction during attacks
     
@@ -137,9 +140,10 @@ public class PlayerStateMachine : MonoBehaviour
         
         pc.sc.ChangeState(new PlayerMoving());
         
-        InputManager.Instance.debug.performed += OnDebugInput;
-        InputManager.Instance.elementAttack.performed += OnElementAttackInput;
-        InputManager.Instance.elementAttack.canceled += OnElementAttackInput;
+        InputManager.Instance.onDebug += OnDebugInput;
+        InputManager.Instance.onElementAttack += OnElementAttackInput;
+        
+        ActivateTimers();
     }
     
     private void Update()
@@ -149,14 +153,28 @@ public class PlayerStateMachine : MonoBehaviour
         CheckGrounded();
         CheckAttackAction();
         
-        pc.sc.PrintStates();
+        //pc.sc.PrintStates();
     }
     
     private void FixedUpdate()
     {
         ApplyGravity();
     }
-    
+
+    private void OnDestroy()
+    {
+        InputManager.Instance.onDebug -= OnDebugInput;
+        InputManager.Instance.onElementAttack -= OnElementAttackInput;
+        
+        LastOnGroundTimer.Dispose();
+        LastPressedJumpTimer.Dispose();
+        LastDoubleJumpTimer.Dispose();
+        WalkingTimer.Dispose();
+        ComboResetTimer.Dispose();
+        TimeSinceLastAttack.Dispose();
+        DodgeTimer.Dispose();
+    }
+
     #endregion
     
     #region Input Callbacks
@@ -170,6 +188,7 @@ public class PlayerStateMachine : MonoBehaviour
                 force = new Vector3(15, 0),
                 horizontalDirection = -TruePlayerForward.ToVector2(),
                 damage = 20,
+                element = ElementEffect.None
             });
         }
     }
@@ -179,13 +198,17 @@ public class PlayerStateMachine : MonoBehaviour
         if (context.performed)
         {
             isElementAttacking = true;
-            HUDMenuUI.Instance.ActivateElementalAttackIcons();
         }
         else if (context.canceled)
         {
             isElementAttacking = false;
-            HUDMenuUI.Instance.DeactivateElementalAttackIcons();
         }
+        
+        if (context.performed || context.canceled)
+            EventBus<ElementAttackUpdateEvent>.Raise(new ElementAttackUpdateEvent
+            {
+                isActive = isElementAttacking
+            });
     }
     
     #endregion
@@ -194,7 +217,7 @@ public class PlayerStateMachine : MonoBehaviour
     
     private void SetMoveValues()
     {
-        if (!CombatManager.Instance.entitiesStopped) moveInput = InputManager.Instance.movement.ReadValue<Vector2>();
+        if (!CombatManager.Instance.entitiesStopped) moveInput = InputManager.Instance.Movement;
 
         inputDirQueue.Enqueue(StandardizedMoveDir);
         inputTimeQueue.Enqueue(Time.time);
@@ -209,6 +232,35 @@ public class PlayerStateMachine : MonoBehaviour
         
         //Debug.Log(lastInputDir);
 
+    }
+
+    private void ActivateTimers()
+    {
+        LastOnGroundTimer = new CountdownTimer(playerData.coyoteTime);
+        LastOnGroundTimer.Start();
+        
+        LastPressedJumpTimer = new CountdownTimer(playerData.jumpInputBufferTime);
+        LastPressedJumpTimer.Start();
+        
+        LastDoubleJumpTimer = new CountdownTimer(playerData.doubleJumpWaitDuration);
+        LastDoubleJumpTimer.Start();
+        
+        WalkingTimer = new StopwatchTimer();
+        WalkingTimer.Start();
+        
+        ComboResetTimer = new CountdownTimer(attackData.comboResetTime);
+        ComboResetTimer.OnTimerStop += () =>
+        {
+            comboChain.Clear();
+            ComboResetTimer.Start();
+        };
+        ComboResetTimer.Start();
+        
+        TimeSinceLastAttack = new StopwatchTimer();
+        TimeSinceLastAttack.Start();
+        
+        DodgeTimer = new CountdownTimer(attackData.dodgeCoolDown);
+        DodgeTimer.Start();
     }
 
     public LockOnTarget GetClosestEnemyInCapsule(float radius, float height, float angle = 360f)
@@ -264,26 +316,12 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void SetActionTimers()
     {
-        timeSinceLastAttack += Time.deltaTime;
-
-        if (!pauseComboReset)
-        {
-            //Debug.Log(comboChain != null && comboChain.Count > 0 ? comboChain.Last().actionType.ToString() : "No Combo Chain");
-            comboResetTimer += Time.deltaTime;
-        }
-        else
-        {
-            comboResetTimer = 0;
-        }
-
-        //Debug.Log("Combo Reset Timer: " + comboResetTimer + " Combo Chain: " + comboChain.Count);
+        //Debug.Log(comboChain != null && comboChain.Count > 0 ? comboChain.Last().actionType.ToString() : "No Combo Chain");
         
-        if (comboResetTimer > attackData.comboResetTime)
+        if (pauseComboReset)
         {
-            comboChain.Clear();
+            ComboResetTimer.Stop();
         }
-        
-        dodgeTimer += Time.deltaTime;
     }
 
     private bool CheckParryAction()
@@ -317,13 +355,13 @@ public class PlayerStateMachine : MonoBehaviour
 
     private bool CheckProjectileParryAction()
     {
-        if (movingState == MovingStates.NonCombat || pauseMovement) return false;
+        if (movingState == MovingStates.NonCombat || pauseMovement || !canAttack) return false;
         
         PlayerAttack attack = (PlayerAttack) attackData.projectileParryAttack;
         if (!AttackIsAvailable(attack)) return false;
         
         ParriedProjectiles.Clear();
-        Collider[] colliders = Physics.OverlapSphere(transform.position, playerData.largeRadius);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, playerData.mediumRadius);
         
         Debug.Log("Checking Projectile Parry: Found " + colliders.Length + " colliders");
         
@@ -352,13 +390,13 @@ public class PlayerStateMachine : MonoBehaviour
             #region Dodge
 
             List<PlayerAttack> validDodges = new();
-            if (dodgeTimer > attackData.dodgeCoolDown)
+            if (DodgeTimer.IsFinished)
             {
                 foreach (PlayerAttack attack in attackData.dodgeAttacks)
                 {
                     if (!AttackIsAvailable(attack)) continue;
 
-                    dodgeTimer = 0;
+                    DodgeTimer.Start();
                     validDodges.Add(attack);
                 }
             }
@@ -401,7 +439,8 @@ public class PlayerStateMachine : MonoBehaviour
         if (attackData.doubleJumpEnabled && CanDoubleJump && KeyMap[KeyBind.South].action() && !isElementAttacking)
         {
             Debug.Log("Double Jump");
-            lastDoubleJumpTime = 0;
+
+            LastDoubleJumpTimer.Stop();
             isDoubleJumpUsed = true;
             Jump(playerData.doubleJumpForce, true, WalkingAnimStates.DoubleJumping);
             return true;
@@ -419,9 +458,6 @@ public class PlayerStateMachine : MonoBehaviour
         if (CombatManager.Instance.entitiesStopped) return;
         
         if (CheckMobilityAction()) return;
-        
-        if (CheckParryAction()) return;
-        if (CheckProjectileParryAction()) return;
         
         if (movingState == MovingStates.NonCombat) return;
         
@@ -519,6 +555,9 @@ public class PlayerStateMachine : MonoBehaviour
             return;
         }
         
+        if (CheckParryAction()) return;
+        if (CheckProjectileParryAction()) return;
+        
         if (possibleCombo != null)
         {
             BeginComboAttack(possibleCombo);
@@ -567,7 +606,7 @@ public class PlayerStateMachine : MonoBehaviour
                     break;
                 
                 case ComboActionType.Pause:
-                    if (comboResetTimer > nextAction.time)
+                    if (ComboResetTimer.ElapsedTime > nextAction.time)
                     {
                         comboChain.Add(nextAction);
                     }
@@ -604,7 +643,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void BeginComboAttack(ComboAction action)
     {
-        comboResetTimer = 0;
+        ComboResetTimer.Reset();
         comboChain.Add(action);
         
         if (action == null) return;
@@ -615,7 +654,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (NumActionsUsed.ContainsKey(action.playerAttack)) NumActionsUsed[action.playerAttack]++;
         
-        timeSinceLastAttack = 0f;
+        TimeSinceLastAttack.Reset();
         
         if (pc.sc.GetCurrentState() is PlayerMoving)
         {
@@ -623,14 +662,14 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
-            OnAttackEvents.Instance.KillObjectCoroutines();
+            pc.oae.KillObjectCoroutines();
             pc.sc.ChangeState(new PlayerAttacking(action.playerAttack));
         }
     }
 
     private void BeginAttack(PlayerAttack playerAttack, ComboActionType type = ComboActionType.Special, float actionTime = 0)
     {
-        comboResetTimer = 0;
+        ComboResetTimer.Reset();
         comboChain.Add(new ComboAction()
         {
             actionType = type,
@@ -646,7 +685,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (NumActionsUsed.ContainsKey(playerAttack)) NumActionsUsed[playerAttack]++;
         
-        timeSinceLastAttack = 0f;
+        TimeSinceLastAttack.Reset();
         
         if (pc.sc.GetCurrentState() is PlayerMoving)
         {
@@ -654,7 +693,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else if (pc.sc.GetCurrentState() is PlayerAttacking)
         {
-            OnAttackEvents.Instance.KillObjectCoroutines();
+            pc.oae.KillObjectCoroutines();
             pc.sc.ChangeState(new PlayerAttacking(playerAttack));
         }
     }
@@ -690,9 +729,9 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (!attack.HasEnoughCharge(pc)) return false;
         
-        if (!pc.pi.FinishedElementCooldown(attack)) return false;
+        if (!pc.ps.FinishedElementCooldown(attack)) return false;
         
-        if (!pc.pi.CanUseFinisher(attack)) return false;
+        if (!pc.ps.CanUseFinisher(attack)) return false;
 
         return true;
     }
@@ -734,7 +773,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else
         {
-            OnAttackEvents.Instance.KillObjectCoroutines();
+            pc.oae.KillObjectCoroutines();
             pc.sc.ChangeState(new PlayerHit(hit));
         }
     }
@@ -762,14 +801,10 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (pc.psm.IsGrounded)
         {
-            pc.psm.lastOnGroundTime = pc.psm.playerData.coyoteTime;
+            pc.psm.LastOnGroundTimer.Start();
             isDoubleJumpUsed = false;
-            pc.psm.lastDoubleJumpTime = playerData.doubleJumpWaitDuration;
+            pc.psm.LastDoubleJumpTimer.Reset();
             ResetActions();
-        }
-        else
-        {
-            pc.psm.lastDoubleJumpTime -= Time.deltaTime;
         }
 	    
         if (pc.rb.linearVelocity.y < -0.1f && pc.psm.isJumping)
@@ -870,7 +905,8 @@ public class PlayerStateMachine : MonoBehaviour
                     {
                         force = eh.GetCurrentAttackInfo().attack.attackKnockback,
                         horizontalDirection = (transform.position - eh.ts.transform.position).ToVector2().normalized,
-                        damage = eh.GetCurrentAttackInfo().attack.damage * eh.GetCurrentAttackInfo().damageInfo.damageMultiplier
+                        damage = eh.GetCurrentAttackInfo().attack.damage * eh.GetCurrentAttackInfo().damageInfo.damageMultiplier,
+                        element = eh.GetCurrentAttackInfo().attack.element
                     });
     }
 
@@ -884,7 +920,8 @@ public class PlayerStateMachine : MonoBehaviour
         {
             force = evhd.attackInfo.attack.attackKnockback,
             horizontalDirection = (transform.position - evhd.vfx.transform.position).ToVector2().normalized,
-            damage = evhd.attackInfo.attack.damage * evhd.attackInfo.damageInfo.damageMultiplier
+            damage = evhd.attackInfo.attack.damage * evhd.attackInfo.damageInfo.damageMultiplier,
+            element = evhd.attackInfo.attack.element
         });
     }
     

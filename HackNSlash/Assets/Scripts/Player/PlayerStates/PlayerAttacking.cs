@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Animancer;
+using Extensions.Timers;
 using Extensions.Utils;
 using MEC;
 using Unity.VisualScripting.FullSerializer;
@@ -12,8 +13,8 @@ public class PlayerAttacking : PlayerState
 
     public bool readyToHit = true;
 
-    private float attackCoolDownTime;
-    private float attackEndTime;
+    private CountdownTimer attackCoolDownTimer;
+    private CountdownTimer attackEndTimer;
     
     private bool chargeUpdated = false;
     
@@ -42,18 +43,38 @@ public class PlayerAttacking : PlayerState
         if (_playerAttack.attackTransitions.Length > 0) LaunchTransitionAttack();
         else if (_playerAttack.attackClips.Length > 0) LaunchClipAttack();
         
-        OnAttackEvents.Instance.InvokeOnAttack(pc, _playerAttack);
+        pc.oae.InvokeOnAttack(_playerAttack);
 
         if (_playerAttack.exitCondition == ExitConditions.Immediate)
         {
-            attackEndTime = _playerAttack.hitInfo.attackCoolDown;
+            attackEndTimer = new CountdownTimer(0);
         }
+        
+        if (attackCoolDownTimer != null)
+        {
+            attackCoolDownTimer.OnTimerStop += () =>
+            {
+                if (_playerAttack.exitCondition == ExitConditions.ExternalExit) return;
+                pc.psm.canAttack = true;
+            };
+            attackCoolDownTimer.Start();
+        }
+        
+        if (attackEndTimer != null)
+        {
+            attackEndTimer.OnTimerStop += () =>
+            {
+                if (_playerAttack.exitCondition == ExitConditions.ExternalExit) return;
+                pc.psm.canAttack = true;
+                sc.ResumePrevious();
+            };
+            attackEndTimer.Start();
+        }
+        
     }
 
     public override void OnUpdate()
     {
-        attackCoolDownTime -= Time.deltaTime;
-        attackEndTime -= Time.deltaTime;
         
         if (InputManager.GetHoldable(_playerAttack.keyBinds).Length == 0) InputManager.Instance.ReleaseHoldAttacks();
         
@@ -71,11 +92,11 @@ public class PlayerAttacking : PlayerState
 
     public override void OnExit()
     {
-        OnAttackEvents.Instance.KillObjectCoroutines();
+        pc.oae.KillObjectCoroutines();
         
         pc.rb.linearVelocity = Vector3.zero;
         
-        pc.pi.ResetFinisherCharge(_playerAttack);
+        pc.ps.ResetFinisherCharge(_playerAttack);
         
         pc.psm.pauseComboReset = false;
         pc.pac.RootMotionEnabled(false);
@@ -83,6 +104,9 @@ public class PlayerAttacking : PlayerState
         
         pc.wc.DeactivateWeaponTrail();
         pc.wc.ActivateImbuedWeaponVFX();
+        
+        attackCoolDownTimer?.Dispose();
+        attackEndTimer?.Dispose();
     }
     
     #endregion
@@ -93,8 +117,8 @@ public class PlayerAttacking : PlayerState
     {
         if (_playerAttack.exitCondition == ExitConditions.ExternalExit)
         {
-            attackEndTime = 10;
-            attackCoolDownTime = 10;
+            attackCoolDownTimer?.Reset();
+            attackEndTimer?.Reset();
             if (pc.psm.canAttack)
             {
                 sc.ResumePrevious();
@@ -105,18 +129,7 @@ public class PlayerAttacking : PlayerState
             pc.psm.canAttack = true;
         }
         
-        if (attackCoolDownTime < 0)
-        {
-            pc.psm.canAttack = true;
-        }
-        
-        if (attackEndTime < 0)
-        {
-            pc.psm.canAttack = true;
-            sc.ResumePrevious();
-        }
-        
-        if (attackCoolDownTime < -pc.psm.attackData.moveInterruptBuffer && pc.psm.StandardizedMoveDir.magnitude > 0.1f)
+        if (attackCoolDownTimer?.ElapsedTime < -pc.psm.attackData.moveInterruptBuffer && pc.psm.StandardizedMoveDir.magnitude > 0.1f)
         {
             sc.ResumePrevious();
         }
@@ -129,7 +142,7 @@ public class PlayerAttacking : PlayerState
 
     private void LaunchClipAttack()
     {
-        attackCoolDownTime = _playerAttack.hitInfo.attackCoolDown;
+        attackCoolDownTimer = new CountdownTimer(_playerAttack.hitInfo.attackCoolDown);
 
         List<AnimationClip> clips = new();
         
@@ -138,18 +151,22 @@ public class PlayerAttacking : PlayerState
             clips.Add(_playerAttack.attackClips[i]);
         }
         
-        attackEndTime = 0;
+        float attackEndTime = 0;
         foreach (var clip in clips)
         {
             attackEndTime += clip.length;
         }
+        
+        this.attackEndTimer = new CountdownTimer(attackEndTime);
+        
 
         pc.RunSegmentCoroutine(AttackWithClip(clips));
     }
 
     private void LaunchTransitionAttack()
     {
-        attackCoolDownTime = _playerAttack.hitInfo.attackCoolDown;
+        attackCoolDownTimer = new CountdownTimer(_playerAttack.hitInfo.attackCoolDown);
+        
         
         List<TransitionAsset> transitions = new();
         
@@ -158,11 +175,13 @@ public class PlayerAttacking : PlayerState
             transitions.Add(_playerAttack.attackTransitions[i]);
         }
         
-        attackEndTime = 0;
+        float attackEndTime = 0;
         foreach (var clip in transitions)
         {
             attackEndTime += clip.MaximumDuration / clip.Speed;
         }
+        
+        this.attackEndTimer = new CountdownTimer(attackEndTime);
 
         pc.RunSegmentCoroutine(AttackWithTransition(transitions));
     }
@@ -209,13 +228,13 @@ public class PlayerAttacking : PlayerState
         {
             if (pc.psm.EnemiesInHit.Count > 0)
             {
-                pc.pi.ApplyAttackMeterChanges(_playerAttack);
+                pc.ps.ApplyAttackMeterChanges(_playerAttack);
                 chargeUpdated = true;
             }
         }
         else
         {
-            pc.pi.ApplyAttackMeterChanges(_playerAttack);
+            pc.ps.ApplyAttackMeterChanges(_playerAttack);
             chargeUpdated = true;
         }
     }
@@ -231,19 +250,19 @@ public class PlayerAttacking : PlayerState
         switch (_playerAttack.hitInfo.hitDetection)
         {
             case HitDetections.WeaponCollider:
-                pc.psm.enemiesHitThisAction = EnemiesInWeaponCollider().Union(EnemiesInWeaponTrail()).ToHashSet();
+                pc.psm.EnemiesHitThisAction = EnemiesInWeaponCollider().Union(EnemiesInWeaponTrail()).ToHashSet();
                 break;
             case HitDetections.WeaponTrail:
-                pc.psm.enemiesHitThisAction = EnemiesInWeaponTrail();
+                pc.psm.EnemiesHitThisAction = EnemiesInWeaponTrail();
                 break;
             case HitDetections.SphereCast:
-                pc.psm.enemiesHitThisAction = EnemiesInSphere();
+                pc.psm.EnemiesHitThisAction = EnemiesInSphere();
                 break;
             case HitDetections.HitScan:
-                pc.psm.enemiesHitThisAction = EnemiesByHitScan();
+                pc.psm.EnemiesHitThisAction = EnemiesByHitScan();
                 break;
             case HitDetections.None:
-                pc.psm.enemiesHitThisAction = new HashSet<LockOnTarget>();
+                pc.psm.EnemiesHitThisAction = new HashSet<LockOnTarget>();
                 break;
         }
 
@@ -252,13 +271,13 @@ public class PlayerAttacking : PlayerState
             HashSet<LockOnTarget> secondaryTargts = pc.wc.EnemiesFromFollowWeapons(_playerAttack);
             if (secondaryTargts.Count > 0)
             {
-                pc.psm.enemiesHitThisAction = pc.psm.enemiesHitThisAction.Union(secondaryTargts).ToHashSet();
+                pc.psm.EnemiesHitThisAction = pc.psm.EnemiesHitThisAction.Union(secondaryTargts).ToHashSet();
             }
         }
         
-        if (pc.psm.enemiesHitThisAction.Count == 0) return;
+        if (pc.psm.EnemiesHitThisAction.Count == 0) return;
         
-        foreach (LockOnTarget enemy in pc.psm.enemiesHitThisAction)
+        foreach (LockOnTarget enemy in pc.psm.EnemiesHitThisAction)
         {
             enemy.OnHit(ElementData.GetElementFromAttack(_playerAttack.element, pc), pc, _playerAttack, pc.transform);
         }

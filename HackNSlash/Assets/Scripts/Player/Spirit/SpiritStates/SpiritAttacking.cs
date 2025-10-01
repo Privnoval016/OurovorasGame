@@ -15,7 +15,7 @@ public class SpiritAttacking : SpiritState
         spirit.canAttack = false;
         spirit.lastAttackHoldDuration = 0;
         
-        OnSpiritEvents.Instance.InvokeOnSpiritAction(spirit, _playerAttack);
+        spirit.ose.InvokeOnSpiritAction(_playerAttack);
     }
     
     
@@ -48,13 +48,13 @@ public class SpiritAttacking : SpiritState
         {
             if (spirit.pc.psm.EnemiesInHit.Count > 0)
             {
-                spirit.pc.pi.ApplyAttackMeterChanges(_playerAttack);
+                spirit.pc.ps.ApplyAttackMeterChanges(_playerAttack);
                 chargeUpdated = true;
             }
         }
         else
         {
-            spirit.pc.pi.ApplyAttackMeterChanges(_playerAttack);
+            spirit.pc.ps.ApplyAttackMeterChanges(_playerAttack);
             chargeUpdated = true;
         }
     }

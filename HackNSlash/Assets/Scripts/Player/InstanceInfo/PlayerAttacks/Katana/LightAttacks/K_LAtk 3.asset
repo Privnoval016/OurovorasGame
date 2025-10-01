@@ -33,6 +33,9 @@ MonoBehaviour:
   maxUses: 0
   hitInfo:
     onHitActions: 00000000
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587353
     hitDetection: 1
     lateralRadius: 3
     verticalRadius: 3
@@ -61,8 +64,9 @@ MonoBehaviour:
     applyParentPoseToPosition: 0
   hitStopProfiles:
   - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
-  onAttackAction: 6
-  attackEventIndex: 0
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587273
   applyRootMotion: 1
   moveCameraWithAttack: 1
   attackTransitions: []
@@ -73,3 +77,17 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587273
+      type: {class: MashAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        mashInterval: 0.5
+        mashDuration: 3
+    - rid: 2944900481171587353
+      type: {class: BasicKnockbackHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0
+        hitForce: 15
+        hitDirection: {x: 0, y: 0, z: 0}

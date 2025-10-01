@@ -63,10 +63,9 @@ public class CameraController : MonoBehaviour
         
         player.TryGetComponent(out pc);
         TryGetComponent(out camBrain);
-        
-        InputManager.Instance.lockOn.performed += OnLockOnAction;
-        InputManager.Instance.lockOn.canceled += OnLockOnAction;
-        InputManager.Instance.retarget.performed += OnRetargetAction;
+
+        InputManager.Instance.onLockOn += OnLockOnAction;
+        InputManager.Instance.onRetarget += OnRetargetAction;
         
         InitializeCamData();
         
