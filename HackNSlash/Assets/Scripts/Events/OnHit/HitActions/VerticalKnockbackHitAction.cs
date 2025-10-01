@@ -14,7 +14,8 @@ public class VerticalKnockbackHitAction : IHitAction
     {
         base.Execute(onHitEvents, enemy, attack, attackerTransform);
         
-        ohe.RunSegmentCoroutine(BeginVerticalKnockback(), ec.GetInstanceID().ToString());
+        ohe.RunSegmentCoroutine(BeginVerticalKnockback(), ec.GetInstanceID().ToString()).
+            OnDestroy(() => ec.PauseGravity(false, 0));
     }
     
     IEnumerator<float> BeginVerticalKnockback()

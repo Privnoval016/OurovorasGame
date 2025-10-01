@@ -19,7 +19,8 @@ public class ForwardKnockbackHitAction : IHitAction
     {
         base.Execute(onHitEvents, enemy, attack, attackerTransform);
         
-        ohe.RunSegmentCoroutine(BeginForwardKnockback(), ec.GetInstanceID().ToString());
+        ohe.RunSegmentCoroutine(BeginForwardKnockback(), ec.GetInstanceID().ToString()).
+            OnDestroy(() => ec.PauseGravity(false, 0));
     }
     
     

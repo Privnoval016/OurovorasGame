@@ -14,7 +14,8 @@ public class GrappleHitAction : IHitAction
     {
         base.Execute(onHitEvents, enemy, attack, attackerTransform);
         
-        ohe.RunSegmentCoroutine(BeginGrapple(), ec.GetInstanceID().ToString());
+        ohe.RunSegmentCoroutine(BeginGrapple(), ec.GetInstanceID().ToString()).
+            OnDestroy(() => ec.PauseGravity(false, 0));
     }
     
     IEnumerator<float> BeginGrapple()

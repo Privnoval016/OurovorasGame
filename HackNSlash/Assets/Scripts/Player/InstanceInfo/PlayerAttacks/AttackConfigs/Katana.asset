@@ -47,7 +47,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 80aef43054668d74b83255a26517cee2, type: 2}
   - {fileID: 11400000, guid: ec616182090914c40a1e4b2c24d9a3fa, type: 2}
   - {fileID: 11400000, guid: b0506a6107a57df4da3cf1cb17161f19, type: 2}
-  - {fileID: 11400000, guid: 79e555173c7589b418755190f5787dbb, type: 2}
   parryAttack: {fileID: 11400000, guid: 637368b0d4c037441935cf60579f4150, type: 2}
   projectileParryAttack: {fileID: 11400000, guid: 31d983ef6b30fec45b2aa200128a8d1d,
     type: 2}

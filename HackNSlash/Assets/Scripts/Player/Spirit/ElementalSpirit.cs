@@ -79,7 +79,7 @@ public class ElementalSpirit : KinematicBehaviour, IContactDetector
     
     public void InvokeOnSpiritAttack(SpiritAttack a)
     {
-        pc.psm.timeSinceLastAttack = 0f;
+        pc.psm.TimeSinceLastAttack.Reset();
         
         if (a.spiritActions == null || a.spiritActions.Length == 0) return;
         

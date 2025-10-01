@@ -15,7 +15,8 @@ public class CrossSlashHitAction : IHitAction
     {
         base.Execute(onHitEvents, enemy, attack, attackerTransform);
         
-        ohe.RunSegmentCoroutine(BeginCrossSlash(), ec.GetInstanceID().ToString());
+        ohe.RunSegmentCoroutine(BeginCrossSlash(), ec.GetInstanceID().ToString()).
+            OnDestroy(() => ec.PauseGravity(false, 0));
     }
     
     

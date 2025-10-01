@@ -14,7 +14,8 @@ public class PullThenFollowHitAction : IHitAction
     {
         base.Execute(onHitEvents, enemy, attack, attackerTransform);
         
-        ohe.RunSegmentCoroutine(BeginPullThenFollow(), ec.GetInstanceID().ToString());
+        ohe.RunSegmentCoroutine(BeginPullThenFollow(), ec.GetInstanceID().ToString()).
+            OnDestroy(() => ec.PauseGravity(false, 0));
     }
     
     

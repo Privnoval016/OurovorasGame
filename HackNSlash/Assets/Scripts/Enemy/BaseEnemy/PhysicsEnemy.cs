@@ -20,7 +20,7 @@ public class PhysicsEnemy : LockOnTarget
     private bool pauseGravity;
 
     public bool IsGrounded =>
-        Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, groundLayer);
+        Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, GameManager.Instance.groundLayer);
 
     public bool knockbackImmune;
     public bool TakeKnockback => !knockbackImmune && physicsInteract;
@@ -32,8 +32,6 @@ public class PhysicsEnemy : LockOnTarget
 
     [Header("Checks")] [SerializeField] public Transform groundCheckPoint;
     [SerializeField] public Vector3 groundCheckSize = new Vector3(0.49f, 0.3f, 0.49f);
-
-    [SerializeField] private LayerMask groundLayer;
 
     #endregion
 

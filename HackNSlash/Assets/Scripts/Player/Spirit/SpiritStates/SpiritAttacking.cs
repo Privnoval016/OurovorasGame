@@ -48,13 +48,13 @@ public class SpiritAttacking : SpiritState
         {
             if (spirit.pc.psm.EnemiesInHit.Count > 0)
             {
-                spirit.pc.pi.ApplyAttackMeterChanges(_playerAttack);
+                spirit.pc.pi.ps.ApplyAttackMeterChanges(_playerAttack);
                 chargeUpdated = true;
             }
         }
         else
         {
-            spirit.pc.pi.ApplyAttackMeterChanges(_playerAttack);
+            spirit.pc.pi.ps.ApplyAttackMeterChanges(_playerAttack);
             chargeUpdated = true;
         }
     }

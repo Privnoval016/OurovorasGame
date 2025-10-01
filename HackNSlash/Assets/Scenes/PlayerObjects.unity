@@ -10214,10 +10214,6 @@ MonoBehaviour:
   playerData: {fileID: 11400000, guid: 492cc163f440d418791e35eea37104b1, type: 2}
   movingState: 0
   pauseMovement: 0
-  lastOnGroundTime: 0
-  lastDoubleJumpTime: 0
-  lastPressedJumpTime: 0
-  walkingTime: 0
   isDoubleJumpUsed: 0
   isJumping: 0
   isJumpFalling: 0
@@ -10232,11 +10228,8 @@ MonoBehaviour:
   isElementAttacking: 0
   currentPlayerAttack: {fileID: 0}
   comboChain: []
-  comboResetTimer: 0
   pauseComboReset: 0
-  timeSinceLastAttack: 0
   numMidairAttacks: 0
-  dodgeTimer: 0
 --- !u!114 &1478948897
 MonoBehaviour:
   m_ObjectHideFlags: 0

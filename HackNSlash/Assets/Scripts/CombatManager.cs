@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Extensions.Timers;
 using Extensions.Utils;
 using MEC;
 using UnityEngine;
@@ -19,12 +20,20 @@ public class CombatManager : Singleton<CombatManager>
     private float preHitStopTimescale = 1f;
 
     [FormerlySerializedAs("playerStopped")] [FormerlySerializedAs("isPaused")] public bool entitiesStopped;
+
+    private CountdownTimer HitStopTimer;
     
     #endregion
 
     #region Monobehaviour Callbacks
 
-    
+    protected override void Awake()
+    {
+        base.Awake();
+        HitStopTimer = new CountdownTimer(0f, true);
+        HitStopTimer.OnTimerStop += ResetHitStop;
+        ResetHitStop();
+    }
 
     #endregion
     
@@ -68,9 +77,15 @@ public class CombatManager : Singleton<CombatManager>
         
         pc.cam.ShakeCamera(hitStopProfile.hitStopDuration, hitStopProfile.screenShakeMagnitude);
 
-        this.KillObjectCoroutines(nameof(ApplyHitStopTimescale));
-        this.RunSegmentCoroutine(ApplyHitStopTimescale(hitStopProfile, playImmediately), 
-            nameof(ApplyHitStopTimescale)).OnDestroy(ResetHitStop);
+        // this.KillObjectCoroutines(nameof(ApplyHitStopTimescale));
+        // this.RunSegmentCoroutine(ApplyHitStopTimescale(hitStopProfile, playImmediately), 
+        //     nameof(ApplyHitStopTimescale)).OnDestroy(ResetHitStop);
+        
+        HitStopTimer.Stop();
+        ResetHitStop();
+        HitStopTimer.Reset(hitStopProfile.hitStopDuration);
+        ApplyHitStop(hitStopProfile.hitStopTimescale);
+        HitStopTimer.Start();
     }
     
     IEnumerator<float> ApplyHitStopTimescale(HitStopProfile h, bool playImmediately)
@@ -88,6 +103,13 @@ public class CombatManager : Singleton<CombatManager>
     {
         SetTimeScale(preHitStopTimescale);
         hitStopped = false;
+    }
+
+    private void ApplyHitStop(float timeScale)
+    {
+        hitStopped = true;
+        preHitStopTimescale = Time.timeScale;
+        SetTimeScale(timeScale);
     }
     
     #endregion

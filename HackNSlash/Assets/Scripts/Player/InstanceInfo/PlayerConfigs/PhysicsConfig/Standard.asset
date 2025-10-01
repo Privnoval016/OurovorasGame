@@ -39,7 +39,7 @@ MonoBehaviour:
   dashForce: 50
   coyoteTime: 0.05
   jumpInputBufferTime: 0.14
-  lockOnRange: 40
+  lockOnRange: 60
   lockOnRotateLimit: 15
   pushbackForce: 0.7
   midairAtkGravScale: 0.5

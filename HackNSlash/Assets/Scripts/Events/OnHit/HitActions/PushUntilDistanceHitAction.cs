@@ -22,7 +22,8 @@ public class PushUntilDistanceHitAction : IHitAction
     {
         base.Execute(onHitEvents, enemy, attack, attackerTransform);
         
-        ohe.RunSegmentCoroutine(BeginPushUntilDistance(), ec.GetInstanceID().ToString());
+        ohe.RunSegmentCoroutine(BeginPushUntilDistance(), ec.GetInstanceID().ToString()).
+            OnDestroy(() => ec.PauseGravity(false));
     }
     
     IEnumerator<float> BeginPushUntilDistance()

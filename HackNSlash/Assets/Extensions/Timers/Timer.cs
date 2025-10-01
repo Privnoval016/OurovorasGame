@@ -9,15 +9,19 @@ namespace Extensions.Timers
         public bool IsRunning { get; private set; }
 
         protected float initialTime;
+        
+        protected bool UseUnscaledTime;
+        protected float DeltaTime => UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
 
         public float Progress => Mathf.Clamp(CurrentTime / initialTime, 0, 1);
 
         public Action OnTimerStart = delegate { };
         public Action OnTimerStop = delegate { };
 
-        protected Timer(float value)
+        protected Timer(float value, bool unscaled = false)
         {
             initialTime = value;
+            UseUnscaledTime = unscaled;
         }
 
         public void Start()
@@ -33,6 +37,8 @@ namespace Extensions.Timers
 
         public void Stop()
         {
+            CurrentTime = 0;
+            
             if (IsRunning)
             {
                 IsRunning = false;
@@ -90,7 +96,9 @@ namespace Extensions.Timers
      */
     public class CountdownTimer : Timer
     {
-        public CountdownTimer(float value) : base(value)
+        public float ElapsedTime => initialTime - CurrentTime;
+        
+        public CountdownTimer(float value, bool unscaled = false) : base(value, unscaled)
         {
         }
 
@@ -98,7 +106,7 @@ namespace Extensions.Timers
         {
             if (IsRunning && CurrentTime > 0)
             {
-                CurrentTime -= Time.deltaTime;
+                CurrentTime -= DeltaTime;
             }
 
             if (IsRunning && CurrentTime <= 0)
@@ -124,7 +132,7 @@ namespace Extensions.Timers
 
         float timeThreshold;
 
-        public FrequencyTimer(int ticksPerSecond) : base(0)
+        public FrequencyTimer(int ticksPerSecond, bool unscaled = false) : base(0, unscaled)
         {
             CalculateTimeThreshold(ticksPerSecond);
         }
@@ -139,7 +147,7 @@ namespace Extensions.Timers
 
             if (IsRunning && CurrentTime < timeThreshold)
             {
-                CurrentTime += Time.deltaTime;
+                CurrentTime += DeltaTime;
             }
         }
 
@@ -176,7 +184,7 @@ namespace Extensions.Timers
 
         public Action OnInterval = delegate { };
 
-        public IntervalTimer(float totalTime, float intervalSeconds) : base(totalTime)
+        public IntervalTimer(float totalTime, float intervalSeconds, bool unscaled = false) : base(totalTime, unscaled)
         {
             interval = intervalSeconds;
             nextInterval = totalTime - interval;
@@ -186,7 +194,7 @@ namespace Extensions.Timers
         {
             if (IsRunning && CurrentTime > 0)
             {
-                CurrentTime -= Time.deltaTime;
+                CurrentTime -= DeltaTime;
 
                 // Fire interval events as long as thresholds are crossed
                 while (CurrentTime <= nextInterval && nextInterval >= 0)
@@ -208,7 +216,7 @@ namespace Extensions.Timers
 
     /**
      * <summary>
-     * A stopwatch timer that counts up indefinitely from zero.
+     * A stopwatch timer that counts up indefinitely from zero or a specified start time.
      * </summary>
      */
     public class StopwatchTimer : Timer
@@ -216,12 +224,17 @@ namespace Extensions.Timers
         public StopwatchTimer() : base(0)
         {
         }
+        
+        public StopwatchTimer(float startTime, bool unscaled = false) : base(0, unscaled)
+        {
+            CurrentTime = startTime;
+        }
 
         public override void Tick()
         {
             if (IsRunning)
             {
-                CurrentTime += Time.deltaTime;
+                CurrentTime += DeltaTime;
             }
         }
 

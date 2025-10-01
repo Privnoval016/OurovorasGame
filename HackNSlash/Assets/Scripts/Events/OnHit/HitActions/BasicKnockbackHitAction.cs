@@ -19,7 +19,8 @@ public class BasicKnockbackHitAction : IHitAction
     {
         base.Execute(onHitEvents, enemy, attack, attackerTransform);
         
-        ohe.RunSegmentCoroutine(BeginBasicKnockBack(), ec.GetInstanceID().ToString());
+        ohe.RunSegmentCoroutine(BeginBasicKnockBack(), ec.GetInstanceID().ToString()).
+            OnDestroy(() => ec.PauseGravity(false, 0));
     }
 
     IEnumerator<float> BeginBasicKnockBack()
