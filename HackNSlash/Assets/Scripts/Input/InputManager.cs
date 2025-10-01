@@ -2,62 +2,60 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.Patterns;
 using Extensions.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
+using static PlayerInputActions;
 
-public class InputManager : Singleton<InputManager>
+public class InputManager : Singleton<InputManager>, IPlayerActions, IMenuActions, IStateControlActions
 {
     private PlayerInputActions InputMap;
-    public InputAction pause;
-    public InputAction debug;
     
-    // dictionary of gamestates and their respective input actions
+    public event Action<InputAction.CallbackContext> onPause = delegate { };
+    public event Action<InputAction.CallbackContext> onDebug = delegate { };
+    
     public static readonly Dictionary<GameState, InputActionMap> GameStateInputs = new();
-
     
     #region Player Keybinds
+    public Vector2 Movement => InputMap.Player.Move.ReadValue<Vector2>();
+    public Vector2 CameraMove => InputMap.Player.Camera.ReadValue<Vector2>();
     
-    public InputAction movement;
-    public InputAction cameraMove;
+    public event Action<InputAction.CallbackContext> onJump = delegate { };
+    public event Action<InputAction.CallbackContext> onLockOn = delegate { };
+    public event Action<InputAction.CallbackContext> onRetarget = delegate { };
+    public event Action<InputAction.CallbackContext> onElementAttack = delegate { };
+    public event Action<InputAction.CallbackContext> onSwapMode = delegate { };
+    public event Action<InputAction.CallbackContext> onUltimateMode = delegate { };
+    public event Action<InputAction.CallbackContext> onElementMenuOpen = delegate { };
+
     
-    public InputAction jump;
-    public InputAction dodge;
-    
-    public InputAction lockOn;
-    public InputAction retarget;
-
-    public InputAction lightAttack;
-    public InputAction heavyAttack;
-    public InputAction elementAttack;
-
-    public InputAction swapMode;
-    public InputAction ultimateMode;
-
-    public InputAction elementMenuOpen;
-
-    private bool lightAttacking, heavyAttacking, jumping;
+    private InputAction westButtonPressed;
+    private InputAction northButtonPressed;
+    private InputAction eastButtonPressed;
+    private InputAction southButtonPressed;
+    private bool westButtonHeld, northButtonHeld, southButtonHeld, eastButtonHeld;
     
     #endregion
     
     #region Menu Keybinds
     
-    public InputAction navigate;
-    public InputAction select;
-    public InputAction back;
-    public InputAction sort;
-    
-    public InputAction tabLeft;
-    public InputAction tabRight;
-
-    public InputAction scroll;
+    public event Action<InputAction.CallbackContext> onNavigate = delegate { };
+    public event Action<InputAction.CallbackContext> onSelect = delegate { };
+    public event Action<InputAction.CallbackContext> onBack = delegate { };
+    public event Action<InputAction.CallbackContext> onSort = delegate { };
+    public event Action<InputAction.CallbackContext> onTabLeft = delegate { };
+    public event Action<InputAction.CallbackContext> onTabRight = delegate { };
+    public event Action<InputAction.CallbackContext> onScroll = delegate { };
     
     #endregion
     
     
     public static readonly Dictionary<KeyBind, KeyBindData> KeyMap = new();
 
+    #region MonoBehaviour Callbacks
+    
     protected override void Awake()
     {
         base.Awake();
@@ -74,11 +72,11 @@ public class InputManager : Singleton<InputManager>
                 }
             };
         
-        
         SetPlayerKeybinds();
-        SetMenuKeybinds();
         
-        InputMap.Player.Enable();
+        InputMap.Player.SetCallbacks(this);
+        InputMap.Menu.SetCallbacks(this);
+        InputMap.StateControl.SetCallbacks(this);
     }
     
     private void Update()
@@ -88,28 +86,40 @@ public class InputManager : Singleton<InputManager>
 
     private void LateUpdate()
     {
-        KeyMap[KeyBind.West].holdTime = lightAttacking ? KeyMap[KeyBind.West].holdTime + Time.deltaTime : 0;
-        KeyMap[KeyBind.North].holdTime = heavyAttacking ? KeyMap[KeyBind.North].holdTime + Time.deltaTime : 0;
-        KeyMap[KeyBind.South].holdTime = jumping ? KeyMap[KeyBind.South].holdTime + Time.deltaTime : 0;
+        KeyMap[KeyBind.West].holdTime = westButtonHeld ? KeyMap[KeyBind.West].holdTime + Time.deltaTime : 0;
+        KeyMap[KeyBind.North].holdTime = northButtonHeld ? KeyMap[KeyBind.North].holdTime + Time.deltaTime : 0;
+        KeyMap[KeyBind.South].holdTime = southButtonHeld ? KeyMap[KeyBind.South].holdTime + Time.deltaTime : 0;
+        KeyMap[KeyBind.East].holdTime = eastButtonHeld ? KeyMap[KeyBind.East].holdTime + Time.deltaTime : 0;
         
-        KeyMap[KeyBind.West].lastTime = lightAttack.triggered ? 0 : KeyMap[KeyBind.West].lastTime + Time.deltaTime;
-        KeyMap[KeyBind.North].lastTime = heavyAttack.triggered ? 0 : KeyMap[KeyBind.North].lastTime + Time.deltaTime;
-        KeyMap[KeyBind.South].lastTime = jumping ? 0 : KeyMap[KeyBind.South].lastTime + Time.deltaTime;
+        KeyMap[KeyBind.West].lastTime = westButtonPressed.triggered ? 0 : KeyMap[KeyBind.West].lastTime + Time.deltaTime;
+        KeyMap[KeyBind.North].lastTime = northButtonPressed.triggered ? 0 : KeyMap[KeyBind.North].lastTime + Time.deltaTime;
+        KeyMap[KeyBind.South].lastTime = southButtonHeld ? 0 : KeyMap[KeyBind.South].lastTime + Time.deltaTime;
+        KeyMap[KeyBind.East].lastTime = eastButtonHeld ? 0 : KeyMap[KeyBind.East].lastTime + Time.deltaTime;
     }
+
+    private void OnEnable()
+    {
+        InputMap.Enable();
+    }
+    
+    private void OnDisable()
+    {
+        InputMap.Disable();
+    }
+
+    #endregion
 
     public void ReleaseHoldAttacks()
     {
-        lightAttacking = false;
-        heavyAttacking = false;
-        jumping = false;
+        westButtonHeld = false;
+        northButtonHeld = false;
+        southButtonHeld = false;
     }
     
     #region Setup Keybinds
 
     private void AddGameStateInputs()
     {
-        pause = InputMap.StateControl.Pause;
-        debug = InputMap.StateControl.Debug;
         InputMap.StateControl.Enable();
         
         GameStateInputs.Add(GameState.PlayerControl, InputMap.Player);
@@ -118,40 +128,30 @@ public class InputManager : Singleton<InputManager>
     
     private void SetPlayerKeybinds()
     {
-        movement = InputMap.Player.Move;
-        cameraMove = InputMap.Player.Camera;
-        jump = InputMap.Player.Jump;
-        dodge = InputMap.Player.Dodge;
-        lockOn = InputMap.Player.LockOn;
-        retarget = InputMap.Player.Retarget;
-        swapMode = InputMap.Player.EnterCombat;
-        ultimateMode = InputMap.Player.ActivateUltimate;
-        elementMenuOpen = InputMap.Player.ElementMenu;
-
         KeyMap.Add(KeyBind.None, new KeyBindData() {action = () => true});
 
         
-        lightAttack = InputMap.Player.LightAttack;
-        lightAttack.performed += ctx => lightAttacking = true;
-        lightAttack.canceled += ctx => lightAttacking = false;
+        westButtonPressed = InputMap.Player.LightAttack;
+        westButtonPressed.performed += ctx => westButtonHeld = true;
+        westButtonPressed.canceled += ctx => westButtonHeld = false;
         
         KeyMap.Add(KeyBind.West, new KeyBindData
         {
-            action = () => lightAttack.triggered,
-            holdAction = () => lightAttacking,
-            releaseAction = () => lightAttack.WasReleasedThisFrame(),
+            action = () => westButtonPressed.triggered,
+            holdAction = () => westButtonHeld,
+            releaseAction = () => westButtonPressed.WasReleasedThisFrame(),
         });
         
         
-        heavyAttack = InputMap.Player.HeavyAttack;
-        heavyAttack.performed += ctx => heavyAttacking = true;
-        heavyAttack.canceled += ctx => heavyAttacking = false;
+        northButtonPressed = InputMap.Player.HeavyAttack;
+        northButtonPressed.performed += ctx => northButtonHeld = true;
+        northButtonPressed.canceled += ctx => northButtonHeld = false;
         
         KeyMap.Add(KeyBind.North, new KeyBindData
         {
-            action = () => heavyAttack.triggered,
-            holdAction = () => heavyAttacking,
-            releaseAction = () => heavyAttack.WasReleasedThisFrame(),
+            action = () => northButtonPressed.triggered,
+            holdAction = () => northButtonHeld,
+            releaseAction = () => northButtonPressed.WasReleasedThisFrame(),
         });
         
         
@@ -162,29 +162,21 @@ public class InputManager : Singleton<InputManager>
             releaseAction = () => KeyMap[KeyBind.West].releaseAction() || KeyMap[KeyBind.North].releaseAction(),
         });
         
-        
-        KeyMap.Add(KeyBind.East, new KeyBindData {action = () => dodge.triggered});
-        KeyMap.Add(KeyBind.South, new KeyBindData
+        eastButtonPressed = InputMap.Player.Dodge;
+        KeyMap.Add(KeyBind.East, new KeyBindData
         {
-            action = () => jump.triggered,
-            holdAction = () => jumping,
-            releaseAction = () => jump.WasReleasedThisFrame(),
+            action = () => eastButtonPressed.triggered,
+            holdAction = () => eastButtonHeld,
+            releaseAction = () => eastButtonPressed.WasReleasedThisFrame(),
         });
         
-        
-        elementAttack = InputMap.Player.ElementAttack;
-    }
-    
-    private void SetMenuKeybinds()
-    {
-        navigate = InputMap.Menu.Navigate;
-        select = InputMap.Menu.Select;
-        back = InputMap.Menu.Deselect;
-        tabLeft = InputMap.Menu.TabLeft;
-        tabRight = InputMap.Menu.TabRight;
-        
-        sort = InputMap.Menu.Sort;
-        scroll = InputMap.Menu.Scroll;
+        southButtonPressed = InputMap.Player.Jump;
+        KeyMap.Add(KeyBind.South, new KeyBindData
+        {
+            action = () => southButtonPressed.triggered,
+            holdAction = () => southButtonHeld,
+            releaseAction = () => southButtonPressed.WasReleasedThisFrame(),
+        });
     }
 
     public void EnableStateInputs(GameState state)
@@ -245,6 +237,110 @@ public class InputManager : Singleton<InputManager>
         }
         
         return false;
+    }
+    
+    #endregion
+    
+    #region Player Input Callbacks
+    
+    public void OnMove(InputAction.CallbackContext context) { }
+
+    public void OnCamera(InputAction.CallbackContext context) { }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        onJump?.Invoke(context);
+        southButtonHeld = context.performed;
+    }
+    
+    public void OnDodge(InputAction.CallbackContext context) { }
+    
+    public void OnLockOn(InputAction.CallbackContext context)
+    {
+        onLockOn?.Invoke(context);
+    }
+    
+    public void OnRetarget(InputAction.CallbackContext context)
+    {
+        onRetarget?.Invoke(context);
+    }
+
+    public void OnLightAttack(InputAction.CallbackContext context) { }
+
+    public void OnHeavyAttack(InputAction.CallbackContext context) { }
+    
+    public void OnElementAttack(InputAction.CallbackContext context)
+    {
+        onElementAttack?.Invoke(context);
+    }
+    
+    public void OnEnterCombat(InputAction.CallbackContext context)
+    {
+        Debug.Log("Enter Combat");
+        onSwapMode?.Invoke(context);
+    }
+    
+    public void OnActivateUltimate(InputAction.CallbackContext context)
+    {
+        onUltimateMode?.Invoke(context);
+    }
+    
+    public void OnElementMenu(InputAction.CallbackContext context)
+    {
+        onElementMenuOpen?.Invoke(context);
+    }
+    
+    #endregion
+    
+    #region Menu Input Callbacks
+    
+    public void OnNavigate(InputAction.CallbackContext context)
+    {
+        onNavigate?.Invoke(context);
+    }
+    
+    public void OnSelect(InputAction.CallbackContext context)
+    {
+        onSelect?.Invoke(context);
+    }
+    
+    public void OnDeselect(InputAction.CallbackContext context)
+    {
+        onBack?.Invoke(context);
+    }
+    
+    public void OnTabLeft(InputAction.CallbackContext context)
+    {
+        onTabLeft?.Invoke(context);
+    }
+    
+    public void OnTabRight(InputAction.CallbackContext context)
+    {
+        onTabRight?.Invoke(context);
+    }
+    
+    public void OnSort(InputAction.CallbackContext context)
+    {
+        onSort?.Invoke(context);
+    }
+    
+    public void OnScroll(InputAction.CallbackContext context)
+    {
+        onScroll?.Invoke(context);
+    }
+    
+    #endregion
+    
+    #region State Control Input Callbacks
+    
+    public void OnPause(InputAction.CallbackContext context)
+    {
+        onPause.Invoke(context);
+    }
+    
+    public void OnDebug(InputAction.CallbackContext context)
+    {
+        onDebug.Invoke(context);
     }
     
     #endregion

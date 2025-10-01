@@ -6,13 +6,17 @@ public class EnemyController : MonoBehaviour
 {
     [Header("Components")]
     
-    [HideInInspector] public LockOnTarget lot;
+    [HideInInspector] public PhysicsEnemy pe;
     
     public PhysicsNavigator nav;
 
     [HideInInspector] public EnemyAnimator ea;
 
     [HideInInspector] public PlayerController pc;
+    
+    [HideInInspector] public EnemyStateMachine esm;
+    
+    [HideInInspector] public EnemyStats stats;
     
     [HideInInspector] public OnEnemyEvents onEnemyEvents;
 
@@ -31,21 +35,16 @@ public class EnemyController : MonoBehaviour
 
     #endregion
     
-    [Header("Stats")]
-    
-    public Dictionary<Stat, float> Stats = new();
-    public float currentHealth;
-    
-    public ElementEffect currentElementEffect = ElementEffect.None;
-    
     #region Monobehaviour Callbacks
 
     private void Awake()
     {
         nav = GetComponent<PhysicsNavigator>();
         ea = GetComponent<EnemyAnimator>();
-        lot = GetComponent<LockOnTarget>();
+        pe = GetComponent<PhysicsEnemy>();
         onEnemyEvents = GetComponent<OnEnemyEvents>();
+        esm = GetComponent<EnemyStateMachine>();
+        stats = GetComponent<EnemyStats>();
         
         animListener.ts = this;
         
@@ -55,33 +54,5 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    #endregion
-
-    #region Element Methods
-    
-    public ElementEffect GetElementFromAttack(ElementEffect attackElement)
-    {
-        ElementEffect element = attackElement;
-
-        if (element == ElementEffect.MatchCurrent)
-        {
-            element = currentElementEffect;
-        }
-        
-        return element;
-    }
-    
-    #endregion
-    
-    #region Stat Methods
-    
-    public virtual void TakeDamage(ElementEffect element, PlayerController pc, Attack a)
-    {
-        
-        Debug.Log($"{gameObject.name} took {a.name} attack from {pc.gameObject.name} with element {element}.");
-        
-        // Override this method to implement damage logic
-    }
-    
     #endregion
 }

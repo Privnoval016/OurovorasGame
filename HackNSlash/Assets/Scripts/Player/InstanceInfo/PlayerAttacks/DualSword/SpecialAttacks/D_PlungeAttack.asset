@@ -32,7 +32,9 @@ MonoBehaviour:
   isMidair: 1
   maxUses: 0
   hitInfo:
-    onHitActions: 03000000
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587331
     hitDetection: 1
     lateralRadius: 5
     verticalRadius: 3
@@ -40,10 +42,6 @@ MonoBehaviour:
     numTargets: 1
     attackCoolDown: 0.3
     hitCoolDown: 0.3
-    hitForce: 20
-    hitDelay: 0
-    hitDirection: {x: 0, y: 0, z: 0}
-    elasticCollision: 1
   vfxInstantSpawns: 
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
@@ -61,8 +59,9 @@ MonoBehaviour:
     applyParentPoseToPosition: 0
   hitStopProfiles:
   - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
-  onAttackAction: 3
-  attackEventIndex: 0
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587239
   applyRootMotion: 0
   moveCameraWithAttack: 1
   attackTransitions: []
@@ -75,3 +74,18 @@ MonoBehaviour:
   clipsToPlay: 0
   useNormalGravity: 0
   exitCondition: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587239
+      type: {class: PlungeAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        plungeSpeed: 75
+        minPlungeTime: 0.02
+    - rid: 2944900481171587331
+      type: {class: LaunchDownHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        launchDownVelocityMultiplier: 1.5
+        bounceHeight: 5
+        bounceTime: 0.3
+        elasticCollision: 1

@@ -20,11 +20,11 @@ public class PlayerHit : PlayerState
         pc.rb.linearVelocity = Vector3.zero;
         pc.psm.canAttack = false;
         
-        OnAttackEvents.Instance.KillObjectCoroutines();
+        pc.oae.KillObjectCoroutines();
         
         pc.psm.CalculateGravity();
         
-        pc.pi.ChangeHealth(-hit.damage);
+        pc.ps.TakeDamage(hit.element, hit.damage);
 
         AddKnockbackForce();
         
@@ -93,4 +93,5 @@ public struct HitInstance
     public Vector2 horizontalDirection;   // direction of the hit in the xz plane
     public Vector2 force;       // x: horizontal force, y: vertical force
     public float damage;
+    public ElementEffect element;
 }

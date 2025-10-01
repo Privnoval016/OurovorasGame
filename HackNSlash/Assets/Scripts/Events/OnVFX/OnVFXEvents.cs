@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Extensions.Patterns;
 using UnityEngine;
 using Extensions.Utils;
 using MEC;
@@ -279,7 +280,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
             return null;
         }
         
-        ElementEffect element = ts.GetElementFromAttack(a.attack.element);
+        ElementEffect element = ts.stats.GetElementFromAttack(a.attack.element);
         
         var vfxActivators = GetVFXActivators(v, vfxController, GameManager.GetElementData(element));
         

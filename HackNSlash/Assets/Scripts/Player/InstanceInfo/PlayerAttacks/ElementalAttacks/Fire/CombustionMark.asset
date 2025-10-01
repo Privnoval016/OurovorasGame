@@ -33,6 +33,11 @@ MonoBehaviour:
   maxUses: 0
   hitInfo:
     onHitActions: 0b00000000000000
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587338
+    - hitAction:
+        rid: 2944900481171587339
     hitDetection: 1
     lateralRadius: 10
     verticalRadius: 3
@@ -75,4 +80,23 @@ MonoBehaviour:
   hitStopProfiles:
   - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
   onSpiritMovement: 0
-  onSpiritAction: 2
+  spiritActions:
+  - spiritAction:
+      rid: 2944900481171587258
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587258
+      type: {class: SpawnVFXSpiritAction, ns: , asm: Assembly-CSharp}
+      data:
+        vfxInstantSpawns: 00000000
+    - rid: 2944900481171587338
+      type: {class: MarkedHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        markedType: 0
+    - rid: 2944900481171587339
+      type: {class: BasicKnockbackHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0
+        hitForce: 10
+        hitDirection: {x: 0, y: 0.5, z: 1}

@@ -21,9 +21,10 @@ public class PlayerMoving : PlayerState
     {
 	    doNotRemove = true;
 	    
-	    InputManager.Instance.jump.performed += OnJumpAction;
-	    InputManager.Instance.swapMode.performed += OnSwitchAction;
-	    InputManager.Instance.ultimateMode.performed += OnUltimateAction;
+	    InputManager.Instance.onJump += OnJumpAction;
+	    InputManager.Instance.onSwapMode += OnSwitchAction;
+	    InputManager.Instance.onUltimateMode += OnUltimateAction;
+	    
 	    pc.pac.RootMotionEnabled(false);
 	    pc.cam.isFollowingPlayer = true;
 	    
@@ -36,21 +37,12 @@ public class PlayerMoving : PlayerState
 
     public override void OnUpdate()
     {
-	    #region Timers
-	    
-	    pc.psm.lastOnGroundTime -= Time.deltaTime;
-	    pc.psm.lastPressedJumpTime -= Time.deltaTime;
-
-	    if (pc.psm.IsWalking && !pc.cam.IsLockedOn && pc.rb.linearVelocity.ZeroVector3Axis().magnitude > 0.01f && pc.psm.moveInput.magnitude > 0.95f)
+	    if (!(pc.psm.IsWalking && !pc.cam.IsLockedOn && pc.rb.linearVelocity.ZeroVector3Axis().magnitude > 0.01f 
+	        && pc.psm.moveInput.magnitude > 0.95f))
 	    {
-		    pc.psm.walkingTime += Time.deltaTime;
+		    pc.psm.WalkingTimer.Reset();
+		    
 	    }
-	    else
-	    {
-		    pc.psm.walkingTime = 0;
-	    }
-	    
-	    #endregion
 	    
 	    pc.psm.CalculateGravity();
 	    
@@ -72,8 +64,9 @@ public class PlayerMoving : PlayerState
 
     public override void OnExit()
     {
-	    InputManager.Instance.jump.performed -= OnJumpAction;
-	    InputManager.Instance.swapMode.performed -= OnSwitchAction;
+	    InputManager.Instance.onJump -= OnJumpAction;
+	    InputManager.Instance.onSwapMode -= OnSwitchAction;
+	    InputManager.Instance.onUltimateMode -= OnUltimateAction;
     }
 
     public override void OnInterrupt()
@@ -117,20 +110,24 @@ public class PlayerMoving : PlayerState
 	    if (pc.psm.CanJump)
 	    {
 		    InputManager.Instance.ReleaseHoldAttacks();
-		    pc.psm.lastPressedJumpTime = pc.psm.playerData.jumpInputBufferTime;
+		    pc.psm.LastPressedJumpTimer.Start();
 	    }
     }
     
     private void OnSwitchAction(InputAction.CallbackContext context)
     {
-	    if (!pc.pi.CanSwapToNonCombat()) return;
+	    if (context.phase != InputActionPhase.Performed) return;
+	    
+	    if (!pc.ps.CanSwapToNonCombat()) return;
 	    
 	    pc.psm.SwapToNonCombat();
     }
     
     private void OnUltimateAction(InputAction.CallbackContext context)
 	{
-		if (!pc.pi.CanUseUltimate()) return;
+		if (context.phase != InputActionPhase.Performed) return;
+		
+		if (!pc.ps.CanUseUltimate()) return;
 
 		pc.psm.SwapToUltimate();
 	}
@@ -151,7 +148,7 @@ public class PlayerMoving : PlayerState
 
 
 		float accelRate;
-		if (pc.psm.lastOnGroundTime > 0)
+		if (!pc.psm.LastOnGroundTimer.IsFinished)
 			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.psm.playerData.runAccelAmount : pc.psm.playerData.runDecelAmount;
 		else
 			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.psm.playerData.runAccelAmount * pc.psm.playerData.accelInAir : 
@@ -186,9 +183,9 @@ public class PlayerMoving : PlayerState
 		    if (pc.psm.IsJumpTriggered)
 		    {
 			    pc.psm.isJumping = true;
-			    pc.psm.lastPressedJumpTime = 0;
+			    pc.psm.LastPressedJumpTimer.Stop();
 			    
-			    pc.psm.lastDoubleJumpTime = pc.psm.playerData.doubleJumpWaitDuration;
+			    pc.psm.LastDoubleJumpTimer.Start();
 
 			    pc.psm.Jump(pc.psm.playerData.jumpForce, true, WalkingAnimStates.Jumping);
 		    }

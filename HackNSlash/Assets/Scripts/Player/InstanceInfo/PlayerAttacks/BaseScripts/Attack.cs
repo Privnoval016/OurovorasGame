@@ -65,49 +65,11 @@ public abstract class Attack : ScriptableObject
     protected virtual void OnValidate()
     {
         stats.charge = Mathf.Abs(stats.charge);
-        UpdateLinkedAttack();
-    }
-
-    protected virtual void UpdateLinkedAttack()
-    {
-        if (linkedAttack == this) linkedAttack = null;
-        if (linkedAttack == null) return;
-        
-        linkedAttack.updateLinkedAttack = updateLinkedAttack;
-        
-        if (!updateLinkedAttack) return;
-    
-        linkedAttack.isEnabled = isEnabled;
-        linkedAttack.attackType = attackType;
-        linkedAttack.element = element;
-        
-        linkedAttack.stats = new AttackStats(stats);
-        
-        linkedAttack.isLockedOn = isLockedOn;
-        linkedAttack.requireElementTrigger = requireElementTrigger;
-        linkedAttack.triggerCoolDown = triggerCoolDown;
-        
-        linkedAttack.keyBinds = keyBinds;
-        linkedAttack.inputDirection = inputDirection;
-        linkedAttack.comboDirection = comboDirection;
-        linkedAttack.applyTargetDirection = applyTargetDirection;
-        
-        linkedAttack.isMidair = isMidair;
-        linkedAttack.maxUses = maxUses;
-        linkedAttack.hitInfo = new HitInfo(hitInfo);
-        
-        linkedAttack.vfxInstantSpawns = (int[]) vfxInstantSpawns?.Clone();
-
-        linkedAttack.vfxInfos = VFXSpawnInfo.DeepCopy(vfxInfos);
-        
-        linkedAttack.hitStopProfiles = HitStopProfile.ShallowCopy(hitStopProfiles);
-        
-        linkedAttack.linkedAttack = this;
     }
 
     public bool HasEnoughCharge(PlayerController pc)
     {
-        if (!stats.restoreCharge && stats.charge > 0 && pc.pi.currentCharge < stats.charge) return false;
+        if (!stats.restoreCharge && stats.charge > 0 && pc.ps.CurrentElementCharge < stats.charge) return false;
 
         return true;
     }
@@ -116,7 +78,7 @@ public abstract class Attack : ScriptableObject
     {
         if (stats.charge <= 0) return 1f;
         
-        float percentage = pc.pi.currentCharge / stats.charge;
+        float percentage = pc.ps.CurrentElementCharge / stats.charge;
         
         return Mathf.Clamp(percentage, 0f, 1f);
     }
@@ -179,7 +141,7 @@ public enum HitDetections
 [Serializable]
 public class HitInfo
 {
-    public OnHitActions[] onHitActions = {OnHitActions.BasicKnockBack};
+    public HitActionInfo[] hitActionInfos;
     
     [Header ("Hit Detection")]
     public HitDetections hitDetection;
@@ -192,41 +154,14 @@ public class HitInfo
     public float attackCoolDown;
 
     public float hitCoolDown;
-    
-    [Header("Hit Parameters")]
-    
-    [Tooltip("Used for knockback and other select hit actions")]
-    public float hitForce;
-    [Tooltip("Used for knockback and other select hit actions")]
-    public float hitDelay;
-
-    [Tooltip("Used for follow velocity and other select hit actions")]
-    public Vector3 hitDirection;
-    
-    [Tooltip("Used for follow velocity and other select hit actions")]
-    public bool elasticCollision = false;
-
-    public HitInfo()
-    {
-    }
-
-    public HitInfo(HitInfo copy)
-    {
-        onHitActions = (OnHitActions[]) copy.onHitActions.Clone();
-        hitDetection = copy.hitDetection;
-        lateralRadius = copy.lateralRadius;
-        verticalRadius = copy.verticalRadius;
-        hitRegisterAngle = copy.hitRegisterAngle;
-        numTargets = copy.numTargets;
-        attackCoolDown = copy.attackCoolDown;
-        hitCoolDown = copy.hitCoolDown;
-        hitForce = copy.hitForce;
-        hitDelay = copy.hitDelay;
-        hitDirection = copy.hitDirection;
-        elasticCollision = copy.elasticCollision;
-    }
-        
 }
+
+[Serializable]
+public struct HitActionInfo
+{
+    [SerializeReference] public IHitAction hitAction;
+}
+
 
 [Serializable]
 public class AttackStats

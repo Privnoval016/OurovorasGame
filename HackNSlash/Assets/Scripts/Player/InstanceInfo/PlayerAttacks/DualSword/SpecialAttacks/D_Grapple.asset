@@ -33,6 +33,11 @@ MonoBehaviour:
   maxUses: 1
   hitInfo:
     onHitActions: 0600000001000000
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587326
+    - hitAction:
+        rid: 2944900481171587327
     hitDetection: 1
     lateralRadius: 3
     verticalRadius: 3
@@ -87,8 +92,9 @@ MonoBehaviour:
     applyParentPoseToPosition: 1
   hitStopProfiles:
   - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
-  onAttackAction: 8
-  attackEventIndex: 0
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587236
   applyRootMotion: 0
   moveCameraWithAttack: 1
   attackTransitions: []
@@ -101,3 +107,20 @@ MonoBehaviour:
   clipsToPlay: 1
   useNormalGravity: 0
   exitCondition: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587236
+      type: {class: GrappleAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        grappleMaxTime: 0.2
+    - rid: 2944900481171587326
+      type: {class: GrappleHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        grappleSpeed: 150
+    - rid: 2944900481171587327
+      type: {class: LaunchUpHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0.1
+        launchUpHeight: 15
+        launchUpTime: 0.3

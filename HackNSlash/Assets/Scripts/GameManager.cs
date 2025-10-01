@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Extensions.Patterns;
 using Extensions.Utils;
 using MEC;
 using UnityEngine;
@@ -62,7 +63,7 @@ public class GameManager : Singleton<GameManager>
         
         SetElementMap();
         
-        InputManager.Instance.pause.performed += OnPauseAction;
+        InputManager.Instance.onPause += OnPauseAction;
     }
 
     private void Start()

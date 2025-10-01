@@ -33,6 +33,11 @@ MonoBehaviour:
   maxUses: 0
   hitInfo:
     onHitActions: 0000000001000000
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587299
+    - hitAction:
+        rid: 2944900481171587300
     hitDetection: 2
     lateralRadius: 3
     verticalRadius: 3
@@ -62,4 +67,25 @@ MonoBehaviour:
   hitStopProfiles:
   - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
   onSpiritMovement: 0
-  onSpiritAction: 1
+  spiritActions:
+  - spiritAction:
+      rid: 2944900481171587272
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587272
+      type: {class: RangedSpiritAction, ns: , asm: Assembly-CSharp}
+      data:
+        spiritProjectileHoldTime: 0.5
+        numTargets: 1
+    - rid: 2944900481171587299
+      type: {class: BasicKnockbackHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0
+        hitForce: 10
+        hitDirection: {x: 0, y: 0, z: 0}
+    - rid: 2944900481171587300
+      type: {class: LaunchUpHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        launchUpHeight: 15
+        launchUpTime: 0.3
