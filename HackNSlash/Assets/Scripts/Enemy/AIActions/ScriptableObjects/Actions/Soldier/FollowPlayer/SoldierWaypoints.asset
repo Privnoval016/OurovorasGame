@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SoldierWaypoints
   m_EditorClassIdentifier: 
   actionKey: 0
-  consideration: {fileID: 0}
+  consideration: {fileID: 11400000, guid: 69af0a91a05f34a589cb503a82adcf5a, type: 2}
   moveSpeed: 2
