@@ -32,7 +32,6 @@ MonoBehaviour:
   isMidair: 0
   maxUses: 0
   hitInfo:
-    onHitActions: 0900000001000000
     hitActionInfos:
     - hitAction:
         rid: 2944900481171587328
@@ -43,12 +42,8 @@ MonoBehaviour:
     verticalRadius: 3
     hitRegisterAngle: 120
     numTargets: 1
-    attackCoolDown: 0.35
-    hitCoolDown: 0
-    hitForce: 30
-    hitDelay: 0.1
-    hitDirection: {x: 0, y: 0, z: 0}
-    elasticCollision: 0
+    attackCoolDown: 0.2
+    hitCoolDown: 0.2
   vfxInstantSpawns: 
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
@@ -94,7 +89,7 @@ MonoBehaviour:
     - rid: 2944900481171587328
       type: {class: ForwardKnockbackHitAction, ns: , asm: Assembly-CSharp}
       data:
-        hitDelay: 0.1
+        hitDelay: 0
         hitForce: 30
         hitDirection: {x: 0, y: 0, z: 1}
     - rid: 2944900481171587329

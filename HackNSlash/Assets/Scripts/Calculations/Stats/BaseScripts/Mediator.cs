@@ -92,9 +92,9 @@ public class StatQueryKey : IQueryKey<StatQueryKey>
  */
 public class StatusEffectQueryKey : IQueryKey<StatusEffectQueryKey>
 {
-    public InnateStat Key { get; }
+    public StatusEffect Key { get; }
 
-    public StatusEffectQueryKey(InnateStat key)
+    public StatusEffectQueryKey(StatusEffect key)
     {
         Key = key;;
     }

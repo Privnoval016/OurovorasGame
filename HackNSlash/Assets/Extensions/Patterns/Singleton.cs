@@ -12,10 +12,7 @@ namespace Extensions.Patterns
             {
                 if (_instance == null)
                 {
-                    GameObject obj = new GameObject();
-                    obj.name = typeof(T).Name;
-                    obj.hideFlags = HideFlags.HideAndDontSave;
-                    _instance = obj.AddComponent<T>();
+                    Debug.LogWarning($"No instance of {typeof(T).Name} found in the scene. Please ensure that an instance is present.");
                 }
 
                 return _instance;

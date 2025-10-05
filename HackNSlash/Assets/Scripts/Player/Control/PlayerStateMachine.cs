@@ -163,9 +163,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void OnDestroy()
     {
-        InputManager.Instance.onDebug -= OnDebugInput;
-        InputManager.Instance.onElementAttack -= OnElementAttackInput;
-        
         LastOnGroundTimer.Dispose();
         LastPressedJumpTimer.Dispose();
         LastDoubleJumpTimer.Dispose();
@@ -340,7 +337,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             if (!col.TryGetComponent(out EnemyHitbox eh)) continue;
             if (!eh.ts.parryWindowActive) continue;
-            if (!eh.GetCurrentAttackInfo().attack.isParryable) continue;
+            if (!eh.GetCurrentAttackAIAction()?.attack.isParryable ?? true) continue;
             foundParry = true;
             
             ParriedHitboxes.Add(eh);
@@ -729,7 +726,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (!attack.HasEnoughCharge(pc)) return false;
         
-        if (!pc.ps.FinishedElementCooldown(attack)) return false;
+        if (!pc.pi.FinishedElementCooldown(attack)) return false;
         
         if (!pc.ps.CanUseFinisher(attack)) return false;
 
@@ -900,13 +897,17 @@ public class PlayerStateMachine : MonoBehaviour
         if (pc.sc.IsState<PlayerHit>()) return;
         if (!eh.activeHitbox) return;
         
+        var attackAction = eh.GetCurrentAttackAIAction();
+        
+        if (attackAction == null) return;
+        
         
         PlayerIsHit(new HitInstance()
                     {
-                        force = eh.GetCurrentAttackInfo().attack.attackKnockback,
+                        force = attackAction.attack.attackKnockback,
                         horizontalDirection = (transform.position - eh.ts.transform.position).ToVector2().normalized,
-                        damage = eh.GetCurrentAttackInfo().attack.damage * eh.GetCurrentAttackInfo().damageInfo.damageMultiplier,
-                        element = eh.GetCurrentAttackInfo().attack.element
+                        damage = attackAction.attack.damage * attackAction.damageInfo.damageMultiplier,
+                        element = attackAction.attack.element
                     });
     }
 

@@ -7,22 +7,23 @@ public class EnemyHit : EnemyState
     
     public override void OnEnter()
     {
-        isGrounded = ec.ts.pe.IsGrounded;
+        esm.PauseUtilityAITimer(true);
+        isGrounded = esm.ts.pe.IsGrounded;
         lastWasMidair = !isGrounded;
         PlayHitAnimation();
-        ec.ts.animListener.DeactivateAllHitboxes();
+        esm.ts.animListener.DeactivateAllHitboxes();
     }
 
     public override void OnUpdate()
     {
         
-        if (!ec.ts.pe.IsGrounded) lastWasMidair = true;
+        if (!esm.ts.pe.IsGrounded) lastWasMidair = true;
                 
-        if (!ec.ts.pe.IsMidAttack && ec.ts.pe.IsGrounded)
+        if (!esm.ts.pe.IsMidAttack && esm.ts.pe.IsGrounded)
         {
             if (!lastWasMidair) 
                 ExitHit();
-            else ec.ts.ea.ExitTimeAnimation(ec.enemyAnimData.getUpClip, null, ExitHit);
+            else esm.ts.ea.ExitTimeAnimation(esm.enemyAnimData.getUpClip, null, ExitHit);
             
             exitTriggered = true;
         }
@@ -32,29 +33,35 @@ public class EnemyHit : EnemyState
         }
     }
 
+    public override void OnExit()
+    {
+        base.OnExit();
+        esm.PauseUtilityAITimer(false);
+    }
+
     private void CheckHitAnimationSwap()
     {
-        if (ec.ts.pe.IsGrounded != isGrounded)
+        if (esm.ts.pe.IsGrounded != isGrounded)
         {
-            isGrounded = ec.ts.pe.IsGrounded;
+            isGrounded = esm.ts.pe.IsGrounded;
             PlayHitAnimation();
         }
     }
     
     private void ExitHit()
     {
-        ec.sc.ResumePrevious();
+        esm.sc.ResumePrevious();
     }
 
     private void PlayHitAnimation()
     {
         if (isGrounded)
         {
-            ec.ts.ea.SwitchAnimState(ec.enemyAnimData.groundHitClip);
+            esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.groundHitClip);
         }
         else
         {
-            ec.ts.ea.SwitchAnimState(ec.enemyAnimData.airHitClip);
+            esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.airHitClip);
         }
     }
 }

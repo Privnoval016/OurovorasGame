@@ -45,6 +45,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     private void Update()
     {
+        EvaluatedStats.Update();
         UpdateUltimateChargeOverTime();
     }
 
@@ -120,15 +121,6 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         if (pc.psm.movingState != MovingStates.Katana)
             ChangeUltimate(a.stats.ultimateCharge);
-    }
-
-    public float GetCooldownPercentage(KeyBind k)
-    {
-        float minCharge = pc.pi.CurrentLoadout.elementLoadout.GetMinCharge(k);
-
-        if (minCharge <= 0) return 1f;
-
-        return Mathf.Clamp01(CurrentElementCharge / minCharge);
     }
 
 
@@ -216,13 +208,6 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (!pc.pi.pc.psm.IsGrounded) return false;
 
         return true;
-    }
-
-    public bool FinishedElementCooldown(Attack a)
-    {
-        if (!pc.pi.AttackInElementLoadout(a)) return true;
-
-        return GetCooldownPercentage(a.keyBinds[0]) >= 1f;
     }
 
     public bool CanUseFinisher(Attack a = null)
