@@ -11,11 +11,15 @@ public abstract class IEnemyAttackStrategy
     protected OnEnemyEvents oee;
     protected EnemyController ts;
     protected EnemyAttackAIAction a;
+    protected PlayerController pc;
+    
     public void Execute(OnEnemyEvents onEnemyEvents, EnemyAttackAIAction attack)
     { 
         oee = onEnemyEvents;
         ts = oee.ts;
         a = attack;
+
+        ts.esm.sensor.GetNearestDetectedObject(EnemyAIContextKey.Player).TryGetComponent(out pc);
 
         Debug.Log("Executing Enemy Strategy");
         

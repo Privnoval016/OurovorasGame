@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SoldierPunch
   m_EditorClassIdentifier: 
   actionKey: 0
-  consideration: {fileID: 11400000, guid: 559e08ad99ad94b37a72f22e2c15ddfa, type: 2}
+  consideration: {fileID: 11400000, guid: 7672009353a66406ea9596c9f51b7325, type: 2}
   attack:
     isEnabled: 1
     element: 0
@@ -33,7 +33,7 @@ MonoBehaviour:
       _Clip: {fileID: 7400000, guid: 02e4f43d31059554aaa5c11cd63f6631, type: 2}
       _NormalizedStartTime: 0
     animDelay: 0
-    useRootMotion: 0
+    useRootMotion: 1
     exitConditions: 0
     vfxInfos: []
   damageInfo:

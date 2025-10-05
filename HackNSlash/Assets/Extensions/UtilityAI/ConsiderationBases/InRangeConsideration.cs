@@ -21,20 +21,17 @@ namespace Extensions.UtilityAI.ConsiderationBases
         public override float Evaluate(IContextBase context)
         {
             var target = context.GetSensorTarget(targetKey.GetKey(out var enumType));
-            UnityUtil.Print($"Evaluating InRangeConsideration for target: {target?.name ?? "null"}");
             if (target == null) return 0f;
             
             bool isInRange = context.GetBrainTransform().forward.IsInDirectionCone(
                 target.position - context.GetBrainTransform().position, maxAngle) &&
                              Vector3.Distance(context.GetBrainTransform().position, target.position) <= maxDistance;
             
-            UnityUtil.Print($"Is In Range: {isInRange}");
             if (!isInRange) return 0f;
             
             Vector3 directionToTarget = (target.position - context.GetBrainTransform().position).normalized;
             float distanceToTarget = directionToTarget.ZeroVector3Axis().magnitude;
             
-            UnityUtil.Print($"Distance to Target: {distanceToTarget}, Max Distance: {maxDistance}, Normalized Distance: {distanceToTarget / maxDistance}");
             
             float normalizedDistance = Mathf.Clamp01(distanceToTarget / maxDistance);
             

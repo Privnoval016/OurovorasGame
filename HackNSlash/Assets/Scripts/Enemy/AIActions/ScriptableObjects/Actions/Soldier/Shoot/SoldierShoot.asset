@@ -15,14 +15,14 @@ MonoBehaviour:
   actionKey: 0
   consideration: {fileID: 11400000, guid: 1aa351aebcc4d4f5caa3174ec2d64bdc, type: 2}
   attack:
-    isEnabled: 0
-    element: 0
-    damage: 0
-    attackKnockback: {x: 0, y: 0}
+    isEnabled: 1
+    element: 1
+    damage: 10
+    attackKnockback: {x: 15, y: 0}
     attackCooldown: 0
-    isParryable: 0
+    isParryable: 1
     enemyAttack:
-      rid: 278943961285918829
+      rid: 278943961285918928
     attackClips:
     - _FadeDuration: 0.25
       _Speed: 1
@@ -38,7 +38,7 @@ MonoBehaviour:
     vfxInfos:
     - vfxAttack: {fileID: 11400000, guid: cfe375fdfad015a43859ac203c72f414, type: 2}
       vfxPlayerActionIndex: 0
-      vfxEnemyActionIndex: 0
+      vfxEnemyActionIndex: 1
       duration: 2
       spawnDelay: 0
       actionDelay: 0
@@ -54,7 +54,7 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 278943961285918829
+    - rid: 278943961285918928
       type: {class: SpawnVFXEnemyAttackStrategy, ns: , asm: Assembly-CSharp}
       data:
         VFXSpawnIndex: 0
