@@ -5,7 +5,7 @@ public class EnemyAnimator : EntityAnimator
 {
     public Object CurrentAnim;
     
-    public void PlayEnemyAnimation(Object animToPlay, Action onExit = null, bool playExit = true)
+    public void PlayEnemyAnimation(object animToPlay, Action onExit = null, bool playExit = false)
     {
         PlayEntityAnimation(CurrentAnim, animToPlay, onExit, playExit);
         CurrentAnim = animToPlay;
