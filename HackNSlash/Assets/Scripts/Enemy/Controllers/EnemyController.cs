@@ -9,9 +9,7 @@ public class EnemyController : MonoBehaviour
     public PhysicsNavigator nav;
 
     [HideInInspector] public EnemyAnimator ea;
-
-    [HideInInspector] public PlayerController pc;
-
+    
     [HideInInspector] public EnemyStateMachine esm;
 
     [HideInInspector] public EnemyStats stats;

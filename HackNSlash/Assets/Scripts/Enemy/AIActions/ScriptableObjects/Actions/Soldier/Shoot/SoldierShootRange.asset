@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1071f5f87b5d47a8ae277172590de57f, type: 3}
   m_Name: SoldierShootRange
   m_EditorClassIdentifier: 
-  maxDistance: 10
-  maxAngle: 150
+  maxDistance: 20
+  maxAngle: 360
   targetKey:
     rid: 278943961285918830
   curve:
@@ -28,6 +28,15 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0
+    - serializedVersion: 3
+      time: 0.14643593
+      value: 0.91537285
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 1
