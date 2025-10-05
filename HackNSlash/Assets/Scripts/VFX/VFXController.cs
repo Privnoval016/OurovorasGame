@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.Timers;
 using Extensions.Utils;
 using UnityEngine;
 
@@ -30,7 +31,7 @@ public class VFXController : KinematicBehaviour, IContactDetector
     public bool activeHitbox = true;
     public float hitboxEnableDelay = 0f;
     private bool delayedHitboxEnabled = false;
-    private float elapsedTime;
+    private StopwatchTimer elapsedTimer;
     public bool vfxEnabled;
 
     private void Awake()
@@ -56,6 +57,9 @@ public class VFXController : KinematicBehaviour, IContactDetector
                 hitbox.EnableCollider();
             }
         }
+        
+        elapsedTimer = new StopwatchTimer();
+        elapsedTimer.Start();
     }
     
     private void Update()
@@ -64,11 +68,9 @@ public class VFXController : KinematicBehaviour, IContactDetector
         
         if (!vfxEnabled) return;
         
-        elapsedTime += Time.deltaTime;
-        
         if (hitboxEnableDelay > 0f && !delayedHitboxEnabled)
         {
-            if (elapsedTime >= hitboxEnableDelay)
+            if (elapsedTimer.CurrentTime >= hitboxEnableDelay)
             {
                 delayedHitboxEnabled = true;
                 foreach (VFXHitbox hitbox in hitboxes)
@@ -78,18 +80,18 @@ public class VFXController : KinematicBehaviour, IContactDetector
             }
         }
         
-        if (elapsedTime >= timeActive)
+        if (elapsedTimer.CurrentTime >= timeActive)
         {
             DisableVFX();
         }
         
-        if (elapsedTime >= timeVFXEnabled)
+        if (elapsedTimer.CurrentTime >= timeVFXEnabled)
         {
             DestroyVFX();
             return;
         }
 
-        vfxDelays.Keys.Where(effect => elapsedTime >= vfxDelays[effect] * timeActive).ToList().ForEach(effect =>
+        vfxDelays.Keys.Where(effect => elapsedTimer.CurrentTime >= vfxDelays[effect] * timeActive).ToList().ForEach(effect =>
         {
             effect.PlayVFX();
             vfxDelays.Remove(effect);

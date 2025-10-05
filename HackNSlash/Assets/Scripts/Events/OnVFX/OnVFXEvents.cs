@@ -129,7 +129,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         return vfx;
     }
     
-    public VFXController SpawnEnemyVFX(EnemyController ts, EnemyAttackInfo a, int vfxIndex = 0, 
+    public VFXController SpawnEnemyVFX(EnemyController ts, EnemyAttackAIAction a, int vfxIndex = 0, 
         TransformInfo overrideTransform = default)
     {
         if (a == null || a.attack.vfxInfos.Length == 0) return null;
@@ -255,7 +255,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         return vc;
     }
 
-    private VFXController InstantiateEnemyVFX(EnemyController ts, EnemyAttackInfo a, int vfxIndex = 0,
+    private VFXController InstantiateEnemyVFX(EnemyController ts, EnemyAttackAIAction a, int vfxIndex = 0,
         TransformInfo overrideTransform = default)
     {
         if (a.attack.vfxInfos.Length <= vfxIndex) return null;

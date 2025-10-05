@@ -129,8 +129,9 @@ public class PlayerAttacking : PlayerState
             pc.psm.canAttack = true;
         }
         
-        if (attackCoolDownTimer?.ElapsedTime < -pc.psm.attackData.moveInterruptBuffer && pc.psm.StandardizedMoveDir.magnitude > 0.1f)
+        if (attackCoolDownTimer?.ElapsedTime > pc.psm.attackData.moveInterruptBuffer && pc.psm.StandardizedMoveDir.magnitude > 0.1f)
         {
+            pc.psm.canAttack = true;
             sc.ResumePrevious();
         }
     }
@@ -288,6 +289,8 @@ public class PlayerAttacking : PlayerState
         HashSet<Collider> enemies = pc.psm
             .GetAllEnemiesInCapsule(pc.psm.playerData.largeRadius, pc.psm.playerData.largeRadius, 360)
             .Select(e => e.GetComponent<Collider>()).ToHashSet();
+        
+        if (enemies.Count == 0) return new HashSet<LockOnTarget>();
         
         enemies = enemies.Where(e => pc.wc.IsIntersecting(e)).ToHashSet();
         

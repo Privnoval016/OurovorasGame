@@ -59,7 +59,7 @@ public class EvaluatedStats
         var evaluatedStatusEffects = new Dictionary<StatusEffect, int>();
         foreach (var kvp in baseStats.StatusEffects)
         {
-            var query = new StatusEffectQueryKey((InnateStat)kvp.Key);
+            var query = new StatusEffectQueryKey(kvp.Key);
             var queryContext = new QueryContext<StatusEffectQueryKey>(query, kvp.Value);
             StatusEffectMediator.PerformQuery(this, queryContext);
             evaluatedStatusEffects[kvp.Key] = queryContext.Value;
@@ -79,6 +79,12 @@ public class EvaluatedStats
     {
         var stats = Stats();
         return stats.GetValueOrDefault(innateStat, 0);
+    }
+
+    public void Update()
+    {
+        StatMediator.Update();
+        StatusEffectMediator.Update();
     }
 
     public override string ToString()

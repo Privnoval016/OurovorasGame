@@ -92,6 +92,8 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     {
         base.Awake();
         
+        ActivateEventBindings();
+        
         gameObject.SetActive(true);
         
         elementalAttackContainerScale = elementalAttackContainer.localScale;
@@ -108,7 +110,13 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         UpdateFinisherIcon();
     }
 
-    private void OnEnable()
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        DeactivateEventBindings();
+    }
+
+    private void ActivateEventBindings()
     {
         healthUpdateEventBinding = new EventBinding<HealthUpdateEvent>(OnHealthUpdate);
         EventBus<HealthUpdateEvent>.Register(healthUpdateEventBinding);
@@ -132,7 +140,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         EventBus<ElementAttackUpdateEvent>.Register(elementAttackUpdateEventBinding);
     }
 
-    private void OnDisable()
+    private void DeactivateEventBindings()
     {
         EventBus<HealthUpdateEvent>.Deregister(healthUpdateEventBinding);
         EventBus<ChargeUpdateEvent>.Deregister(chargeUpdateEventBinding);
@@ -428,10 +436,10 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
             return;
         }
         
-        if (!Mathf.Approximately(pc.ps.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
-            Tween.UISliderValue(attackIcon.chargeSlider, pc.ps.GetCooldownPercentage(k), 0.03f);
+        if (!Mathf.Approximately(pc.pi.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
+            Tween.UISliderValue(attackIcon.chargeSlider, pc.pi.GetCooldownPercentage(k), 0.03f);
         
-        if (pc.ps.FinishedElementCooldown(attack))
+        if (pc.pi.FinishedElementCooldown(attack))
             EnableAttackIcon(attackIcon, attack);
         else
             DisableAttackIcon(attackIcon, attack);

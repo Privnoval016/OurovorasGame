@@ -3,12 +3,12 @@ using Object = System.Object;
 
 public class EnemyAnimator : EntityAnimator
 {
-    public Object CurrentAnim = null;
+    public Object CurrentAnim;
     
-    public void SwitchAnimState(Object nextAnim, Action onExit = null, bool playExit = false)
+    public void PlayEnemyAnimation(Object animToPlay, Action onExit = null, bool playExit = true)
     {
-        PlayEntityAnimation(CurrentAnim, nextAnim, onExit, playExit);
-        CurrentAnim = nextAnim;
+        PlayEntityAnimation(CurrentAnim, animToPlay, onExit, playExit);
+        CurrentAnim = animToPlay;
     }
 }
 
