@@ -77,7 +77,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public float GetStat(InnateStat innateStat)
     {
-        return EvaluatedStats.GetStat(innateStat);
+        return EvaluatedStats.GetInnateStat(innateStat);
     }
 
     public float GetStatPercentage(float value, InnateStat innateStat)
@@ -122,12 +122,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (pc.psm.movingState != MovingStates.Katana)
             ChangeUltimate(a.stats.ultimateCharge);
     }
-
-
-    public void ApplyStatChange(StatChange change)
-    {
-    }
-
+    
     #endregion
 
     #region Ultimate Methods
@@ -224,7 +219,16 @@ public class PlayerStats : MonoBehaviour, IDamageable
     #endregion
 
     #region IDamageable Implementation
-    
+
+    public void ApplyStatusEffect(Modifier<StatusEffectQueryKey> statusEffectModifier)
+    {
+        if (statusEffectModifier?.Key == null ||
+            statusEffectModifier.Key.Key is NoStatusEffect) return;
+        
+        EvaluatedStats.StatusEffectMediator.AddModifier(statusEffectModifier);
+        Debug.Log($"{gameObject.name} applied status effect {statusEffectModifier.Key.Key}");
+    }
+
     public void TakeDamage(ElementEffect element, float damageAmount)
     {
         ChangeHealth(-damageAmount);

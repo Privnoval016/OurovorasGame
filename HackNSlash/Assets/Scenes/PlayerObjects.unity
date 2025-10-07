@@ -6544,6 +6544,7 @@ Transform:
   - {fileID: 1163887534}
   - {fileID: 465008913}
   - {fileID: 2106988878}
+  - {fileID: 1126868366}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &953000609
@@ -7659,6 +7660,83 @@ Transform:
   - {fileID: 1410171315}
   m_Father: {fileID: 1715996072}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1126868365
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1126868366}
+  - component: {fileID: 1126868367}
+  m_Layer: 0
+  m_Name: EffectManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1126868366
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126868365}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 944687184}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1126868367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126868365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6dab11f4ad46c49b67ba476783e558, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statusEffects:
+  - statusEffect:
+      rid: 278943961285919097
+  - statusEffect:
+      rid: 278943961285919098
+  - statusEffect:
+      rid: 278943961285919099
+  - statusEffect:
+      rid: 278943961285919100
+  - statusEffect:
+      rid: 278943961285919101
+  references:
+    version: 2
+    RefIds:
+    - rid: 278943961285919097
+      type: {class: NoStatusEffect, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 278943961285919098
+      type: {class: DamageOverTimeStatusEffect, ns: , asm: Assembly-CSharp}
+      data:
+        dotDamageMultiplier: 0.01
+    - rid: 278943961285919099
+      type: {class: SharedDamageStatusEffect, ns: , asm: Assembly-CSharp}
+      data:
+        sharedDamagePercentagePerStack: 0.01
+    - rid: 278943961285919100
+      type: {class: SpeedDebuffStatusEffect, ns: , asm: Assembly-CSharp}
+      data:
+        speedDebuffMultiplierPerStack: 0.01
+    - rid: 278943961285919101
+      type: {class: VulnerabilityStatusEffect, ns: , asm: Assembly-CSharp}
+      data:
+        vulnerabilityMultiplierPerStack: 0.01
 --- !u!1 &1147462219
 GameObject:
   m_ObjectHideFlags: 0

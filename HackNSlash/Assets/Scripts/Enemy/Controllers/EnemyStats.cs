@@ -15,7 +15,7 @@ public class EnemyStats : MonoBehaviour, IDamageable
     private void Awake()
     {
         EvaluatedStats = new EvaluatedStats(baseStats);
-        currentHealth = EvaluatedStats.GetStat(InnateStat.MaxHealth);
+        currentHealth = EvaluatedStats.GetInnateStat(InnateStat.MaxHealth);
     }
 
     private void Update()
@@ -45,12 +45,21 @@ public class EnemyStats : MonoBehaviour, IDamageable
 
     public float GetStat(InnateStat stat)
     {
-        return EvaluatedStats.GetStat(stat);
+        return EvaluatedStats.GetInnateStat(stat);
     }
 
     #endregion
 
     #region Damageable Methods
+    
+    public virtual void ApplyStatusEffect(Modifier<StatusEffectQueryKey> statusEffectModifier)
+    {
+        if (statusEffectModifier?.Key == null ||
+            statusEffectModifier.Key.Key is NoStatusEffect) return;
+        
+        EvaluatedStats.StatusEffectMediator.AddModifier(statusEffectModifier);
+        Debug.Log($"{gameObject.name} applied status effect {statusEffectModifier.Key.Key}");
+    }
 
     public virtual void TakeDamage(ElementEffect element, float damageAmount)
     {

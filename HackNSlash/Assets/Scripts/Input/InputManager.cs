@@ -78,7 +78,12 @@ public class InputManager : Singleton<InputManager>, IPlayerActions, IMenuAction
         InputMap.Menu.SetCallbacks(this);
         InputMap.StateControl.SetCallbacks(this);
     }
-    
+
+    private void Start()
+    {
+        
+    }
+
     private void Update()
     {
         

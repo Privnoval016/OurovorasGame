@@ -10,28 +10,13 @@ public enum InnateStat : int // value based stats
     Defense,
 }
 
-public enum StatusEffect : int // stack based status effects
+public enum StatusEffectTargets
 {
-    Speed,
-    Vulnerability,
-    SharedDamage,
-    DoT
-}
-
-public enum ChangeType
-{
-    Flat,
-    AdditivePercent,
-    MultiplicativePercent,
-}
-
-[Serializable]
-public class StatChange
-{
-    
-    [FormerlySerializedAs("stat")] public InnateStat innateStat;
-    public float value;
-    public ChangeType changeType;
+    None,
+    Speed,          // affects move speed
+    DamageDealt,    // affects damage dealt to others
+    DamageTaken,    // affects damage taken from others
+    DynamicDamage   // affects damage taken during updates/not necessarily just when hit (shared damage, DOT, etc)
 }
 
 public class EvaluatedStats
@@ -47,9 +32,11 @@ public class EvaluatedStats
         foreach (var kvp in baseStats.Stats)
         {
             var query = new StatQueryKey(kvp.Key);
-            var queryContext = new QueryContext<StatQueryKey>(query, kvp.Value);
+            var queryContext = new QueryContext<StatQueryKey>(query,
+                kvp.Value,
+                kvp.Value);
             StatMediator.PerformQuery(this, queryContext);
-            evaluatedStats[kvp.Key] = queryContext.Value;
+            evaluatedStats[kvp.Key] = queryContext.CurrentValue;
         }
         return evaluatedStats;
     }
@@ -60,9 +47,11 @@ public class EvaluatedStats
         foreach (var kvp in baseStats.StatusEffects)
         {
             var query = new StatusEffectQueryKey(kvp.Key);
-            var queryContext = new QueryContext<StatusEffectQueryKey>(query, kvp.Value);
+            var queryContext = new QueryContext<StatusEffectQueryKey>(query,
+                kvp.Value,
+                kvp.Value);
             StatusEffectMediator.PerformQuery(this, queryContext);
-            evaluatedStatusEffects[kvp.Key] = queryContext.Value;
+            evaluatedStatusEffects[kvp.Key] = queryContext.CurrentValue;
         }
         return evaluatedStatusEffects;
     }
@@ -75,10 +64,36 @@ public class EvaluatedStats
         StatusEffectMediator = statusEffectMediator ?? new Mediator<StatusEffectQueryKey>();
     }
     
-    public int GetStat(InnateStat innateStat)
+    public int GetInnateStat(InnateStat innateStat)
     {
         var stats = Stats();
         return stats.GetValueOrDefault(innateStat, 0);
+    }
+    
+    /**
+     * <summary>
+     * Calculates the total multiplier for a given status effect target by combining the multipliers of all
+     * relevant status effects.
+     * </summary>
+     *
+     * <param name="statusEffectTarget">The target type of the status effects to consider.</param>
+     * <returns>The combined multiplier for the specified status effect target.</returns>
+     */
+    public float GetStatusEffectMultiplier(StatusEffectTargets statusEffectTarget)
+    {
+        var statusEffects = StatusEffects();
+        
+        float totalMultiplier = 1;
+
+        foreach (var kvp in statusEffects)
+        {
+            if (kvp.Key.Target == statusEffectTarget)
+            {
+                totalMultiplier *= kvp.Key.CalculateMultiplier(kvp.Value);
+            }
+        }
+        
+        return totalMultiplier;
     }
 
     public void Update()

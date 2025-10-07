@@ -87,6 +87,8 @@ MonoBehaviour:
       Entry: 8
       Data: 
   element: 3
+  statusEffect:
+    rid: 278943961285919109
   elementColor: {r: 0.7272412, g: 1.0484729, b: 2.1216774, a: 1}
   elementInactiveColor: {r: 0.37023848, g: 0.6037736, b: 0.6037736, a: 1}
   vfxPureColor: {r: 0.7272412, g: 1.0484729, b: 2.1216774, a: 1}
@@ -123,3 +125,10 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 4
   weaponTrailMaterial: {fileID: 2100000, guid: 73744314319be6b4c82485a6d7782627, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 278943961285919109
+      type: {class: SpeedDebuffStatusEffect, ns: , asm: Assembly-CSharp}
+      data:
+        speedDebuffMultiplierPerStack: 0.01

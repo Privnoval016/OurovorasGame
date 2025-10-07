@@ -87,6 +87,8 @@ MonoBehaviour:
       Entry: 8
       Data: 
   element: 4
+  statusEffect:
+    rid: 278943961285919110
   elementColor: {r: 0.43692562, g: 0.2924527, b: 1, a: 1}
   elementInactiveColor: {r: 0.1831967, g: 0.08276958, b: 0.5849056, a: 1}
   vfxPureColor: {r: 0.30471283, g: 0, b: 1.4942632, a: 1}
@@ -123,3 +125,10 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 4
   weaponTrailMaterial: {fileID: 2100000, guid: 9a07a127cb207e0488db561e8f51a550, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 278943961285919110
+      type: {class: VulnerabilityStatusEffect, ns: , asm: Assembly-CSharp}
+      data:
+        vulnerabilityMultiplierPerStack: 0.01

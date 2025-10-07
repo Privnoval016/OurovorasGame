@@ -1,5 +1,5 @@
 
 public interface IModifierStrategy
 {
-    int Modify(int value); // Method to modify the value
+    (int, int) Modify(int baseValue, int currentValue); // Method to modify the value
 }

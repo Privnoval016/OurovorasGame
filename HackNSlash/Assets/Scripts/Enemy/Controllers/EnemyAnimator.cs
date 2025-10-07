@@ -9,6 +9,8 @@ public class EnemyAnimator : EntityAnimator
     {
         PlayEntityAnimation(CurrentAnim, animToPlay, onExit, playExit);
         CurrentAnim = animToPlay;
+        
+        
     }
 }
 

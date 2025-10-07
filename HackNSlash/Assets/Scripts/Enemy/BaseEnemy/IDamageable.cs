@@ -1,6 +1,8 @@
 ﻿public interface IDamageable
 {
-    void TakeDamage(ElementEffect element, float damageAmount);
+    public void ApplyStatusEffect(Modifier<StatusEffectQueryKey> statusEffectModifier);
     
-    void Heal(float healAmount);
+    public void TakeDamage(ElementEffect element, float damageAmount);
+    
+    public void Heal(float healAmount);
 }

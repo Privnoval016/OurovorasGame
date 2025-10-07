@@ -1,20 +1,42 @@
 ﻿public interface IModifierFactory<T> where T : IQueryKey<T>
 {
-    Modifier<T> Create(T key, float value, float duration = 0f);
+    Modifier<T> Create(IStatChangeProvider statChange);
 }
 
 public class StatModifierFactory : IModifierFactory<StatQueryKey>
 {
-    public Modifier<StatQueryKey> Create(StatQueryKey key, float value, float duration = 0f)
+    public Modifier<StatQueryKey> Create(IStatChangeProvider statChange)
     {
-        return null; // TODO after implementing strategies
+        if (statChange is not InnateStatChange innateStatChange) return null;
+        
+        IModifierStrategy strategy = new StatChangeModifierStrategy(
+            innateStatChange.changeType, innateStatChange.value);
+        
+        var key = new StatQueryKey(innateStatChange.innateStat);
+        
+        int priority = innateStatChange.changeType switch
+        {
+            ChangeType.Flat => 0,
+            ChangeType.AdditivePercent => 1,
+            ChangeType.MultiplicativePercent => 2,
+            _ => 0
+        };
+        
+        return new Modifier<StatQueryKey>(key, strategy, innateStatChange.duration, priority);
     }
 }
 
 public class StatusEffectModifierFactory : IModifierFactory<StatusEffectQueryKey>
 {
-    public Modifier<StatusEffectQueryKey> Create(StatusEffectQueryKey key, float value, float duration = 0f)
+    public Modifier<StatusEffectQueryKey> Create(IStatChangeProvider statChange)
     {
-        return null; // TODO after implementing strategies
+        if (statChange is not StatusEffectChange statusEffectChange) return null;
+        
+        IModifierStrategy strategy = new StatusEffectModifierStrategy(
+            statusEffectChange.stacks);
+        
+        var key = new StatusEffectQueryKey(statusEffectChange.StatusEffect);
+        
+        return new Modifier<StatusEffectQueryKey>(key, strategy, statusEffectChange.duration);
     }
 }
