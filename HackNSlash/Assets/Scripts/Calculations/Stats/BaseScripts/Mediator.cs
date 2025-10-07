@@ -11,23 +11,24 @@ using System.Linq;
  */
 public class Mediator<T> where T : IQueryKey<T>
 {
-    protected readonly List<Modifier<T>> Modifiers = new();
-    
-    public event EventHandler<QueryContext<T>> Queries;
+    private readonly List<Modifier<T>> Modifiers = new();
     
     public void PerformQuery(object sender, QueryContext<T> queryContext)
     {
-        Queries?.Invoke(sender, queryContext);
+        foreach (var modifier in Modifiers)
+        {
+            modifier.Handle(sender, queryContext);
+        }
     }
     
     public void AddModifier(Modifier<T> mod)
     {
         Modifiers.Add(mod);
+        Modifiers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+        
         mod.MarkedForRemoval = false;
-        Queries += mod.Handle;
 
         mod.OnDisposed += _ => Modifiers.Remove(mod);
-        mod.OnDisposed += _ => Queries -= mod.Handle;
     }
 
     public void Update()
@@ -61,12 +62,14 @@ public interface IQueryKey<out T> { }
 public class QueryContext<TQueryKey> where TQueryKey : IQueryKey<TQueryKey>
 {
     public TQueryKey Key;
-    public int Value;
+    public int BaseValue;
+    public int CurrentValue;
     
-    public QueryContext(TQueryKey key, int value)
+    public QueryContext(TQueryKey key, int baseValue, int currentValue)
     {
         Key = key;
-        Value = value;
+        BaseValue = baseValue;
+        CurrentValue = currentValue;
     }
 }
 

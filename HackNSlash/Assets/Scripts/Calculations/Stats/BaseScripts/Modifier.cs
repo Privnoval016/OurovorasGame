@@ -11,16 +11,19 @@ public class Modifier<T> where T : IQueryKey<T>
     public T Key { get; }
     public IModifierStrategy Strategy { get; }
     
+    public int Priority { get; set; } = 0;
+    
     public bool MarkedForRemoval { get; set; }
     
     public event Action<Modifier<T>> OnDisposed = delegate { };
 
     private readonly CountdownTimer timer;
     
-    protected Modifier(T key, IModifierStrategy strategy, float duration = 0f)
+    public Modifier(T key, IModifierStrategy strategy, float duration = 0f, int priority = 0)
     {
         Key = key;
         Strategy = strategy;
+        Priority = priority;
         
         if (duration <= 0f) return;
         
@@ -38,7 +41,8 @@ public class Modifier<T> where T : IQueryKey<T>
     {
         if (!Key.Equals(queryContext.Key)) return;
         
-        queryContext.Value = Strategy.Modify(queryContext.Value);
+        (queryContext.BaseValue, queryContext.CurrentValue) = 
+            Strategy.Modify(queryContext.BaseValue, queryContext.CurrentValue);
     }
     
     public void Dispose()

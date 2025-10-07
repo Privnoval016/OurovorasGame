@@ -87,6 +87,8 @@ MonoBehaviour:
       Entry: 8
       Data: 
   element: 0
+  statusEffect:
+    rid: 278943961285919111
   elementColor: {r: 3.9491246, g: 3.9491246, b: 3.9491246, a: 1}
   elementInactiveColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
   vfxPureColor: {r: 3.9491246, g: 3.9491246, b: 3.9491246, a: 1}
@@ -123,3 +125,9 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 4
   weaponTrailMaterial: {fileID: 2100000, guid: ecde06cddf4f6b64c939d99c2730f55e, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 278943961285919111
+      type: {class: NoStatusEffect, ns: , asm: Assembly-CSharp}
+      data: 

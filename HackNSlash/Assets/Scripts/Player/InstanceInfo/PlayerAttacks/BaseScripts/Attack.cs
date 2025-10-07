@@ -169,7 +169,12 @@ public class AttackStats
     public bool restoreCharge = true;
     [FormerlySerializedAs("chargeRequired")] public float charge = 0f;
     public float ultimateCharge = 8f;
+    
     public float damage = 0f;
+
+    public int statusEffectStacks = 1;
+    
+    public float statusEffectDuration = 5f;
 
 
     public AttackStats()

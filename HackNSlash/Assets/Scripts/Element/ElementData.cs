@@ -10,6 +10,10 @@ public class ElementData : SerializedScriptableObject
 {
     public ElementEffect element;
     
+    [Header("Element Status Effects")]
+    [Tooltip("Values in this serialize reference are NOT used! Refer to EffectManager for actual values.")]
+    [SerializeReference] private StatusEffect statusEffect;
+    
     [Header("Element Colors")]
     [ColorUsage(true, false)]
     public Color elementColor;
@@ -42,6 +46,11 @@ public class ElementData : SerializedScriptableObject
         return ElementVFXs.GetValueOrDefault(type, null);
     }
 
+    public StatusEffect GetStatusEffect()
+    {
+        return EffectManager.Instance?.GetStatusEffect(statusEffect);
+    }
+
     public static ElementEffect GetElementFromAttack(ElementEffect attackElement, PlayerController pc)
     {
         ElementEffect element = attackElement;
@@ -60,11 +69,6 @@ public class ElementData : SerializedScriptableObject
         }
 
         return element;
-    }
-
-    private void OnValidate()
-    {
-        
     }
 }
 

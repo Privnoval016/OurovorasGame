@@ -10,6 +10,8 @@ public abstract class LockOnTarget : KinematicBehaviour
     
     public IDamageable damageable;
     
+    private StatusEffectModifierFactory statusEffectModifierFactory;
+    
     public float radius = 3f;
     
     public Collider col;
@@ -25,6 +27,8 @@ public abstract class LockOnTarget : KinematicBehaviour
     private void Start()
     {
         damageable = GetComponent<IDamageable>();
+        
+        statusEffectModifierFactory = new StatusEffectModifierFactory();
         
         SetKinematicAttributes();
         OnStart();
@@ -93,7 +97,16 @@ public abstract class LockOnTarget : KinematicBehaviour
         SetDamageCooldown(a);
         pc.psm.EnemiesInHit.Add(this);
         this.RunSegmentCoroutine(ResetHit(pc, a));
+        
+        StatusEffectChange effect = new StatusEffectChange
+        {
+            StatusEffect = GameManager.GetElementData(element).GetStatusEffect(),
+            stacks = a.stats.statusEffectStacks,
+            duration = a.stats.statusEffectDuration
+        };
 
+        var statusEffectModifier = statusEffectModifierFactory.Create(effect);
+        damageable.ApplyStatusEffect(statusEffectModifier);
         damageable.TakeDamage(element, a.stats.damage);
     }
     

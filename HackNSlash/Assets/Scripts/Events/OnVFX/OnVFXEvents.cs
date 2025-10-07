@@ -18,13 +18,13 @@ public enum OnVFXActions
 
 public class OnVFXEvents : Singleton<OnVFXEvents>
 {
-    public static Dictionary<OnVFXActions, Action<VFXController>> OnVFXActionMap;
+    private static Dictionary<OnVFXActions, Action<VFXController>> OnVFXActionMap;
     
     public OnVFXParameters parameters;
     
     private List<VFXController> activeVFX = new();
     
-    public Dictionary<VFXAttack, List<VFXController>> ActiveVFXCount = new();
+    private Dictionary<VFXAttack, List<VFXController>> ActiveVFXCount = new();
     
     protected override void Awake()
     {
