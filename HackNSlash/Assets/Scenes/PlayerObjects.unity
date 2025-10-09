@@ -10387,7 +10387,6 @@ MonoBehaviour:
   currentElementEffect: 3
   imbuedElementEffect: 0
   elementEffects: 0200000003000000040000000500000006000000
-  isInvincible: 0
 --- !u!114 &1478948901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10429,6 +10428,7 @@ MonoBehaviour:
   pc: {fileID: 0}
   baseStats: {fileID: 11400000, guid: e44ef90645967424881e508625ece8e0, type: 2}
   battleParameters: {fileID: 11400000, guid: 2b0b9827da322b24b91e9a4b6974f4ac, type: 2}
+  isInvincible: 0
 --- !u!1 &1480798114
 GameObject:
   m_ObjectHideFlags: 0
