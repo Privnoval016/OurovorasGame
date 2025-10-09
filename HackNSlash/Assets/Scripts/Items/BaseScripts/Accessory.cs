@@ -5,7 +5,7 @@ public class Accessory : InventoryItem
 {
     [Header("Accessory Details")]
     
-    public StatChange[] statChanges; // Array of stat changes this accessory provides
+    public InnateStatChange[] statChanges; // Array of stat changes this accessory provides
     
     public EquipmentEffect[] equipmentEffects; // Array of effects this accessory provides
 }

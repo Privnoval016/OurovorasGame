@@ -10,7 +10,8 @@ public class MoveAnimData : ScriptableObject
 {
     public MovingStates state;
     
-    public Dictionary<WalkingAnimStates, Object> _animStates;
+    [NonSerialized]
+    private Dictionary<WalkingAnimStates, Object> _animStates;
     
     [Header("Idle")]
     public ClipTransition idleClip;
@@ -52,6 +53,13 @@ public class MoveAnimData : ScriptableObject
         _animStates.Add(WalkingAnimStates.Falling, fallClip);
         _animStates.Add(WalkingAnimStates.Swapping, swapClip);
         _animStates.Add(WalkingAnimStates.Ultimate, ultClip);
+    }
+    
+    public Object GetAnimState(WalkingAnimStates walkState)
+    {
+        if (_animStates == null) OnValidate();
+        
+        return _animStates.GetValueOrDefault(walkState, null);
     }
 }
 

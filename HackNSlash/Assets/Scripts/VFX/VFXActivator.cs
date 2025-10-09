@@ -6,7 +6,6 @@ using Extensions.Utils;
 using UnityEngine;
 using UnityEngine.VFX;
 using MEC;
-using NaughtyAttributes;
 using UnityEngine.Serialization;
 
 public class VFXActivator : MonoBehaviour
@@ -104,7 +103,6 @@ public class VFXActivator : MonoBehaviour
     
     
     
-    [Button]
     public void PlayVFX()
     {
         if (!lifetimesSet) SetEffectLifetimes(totalDuration);
