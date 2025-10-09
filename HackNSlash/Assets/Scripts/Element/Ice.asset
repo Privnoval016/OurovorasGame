@@ -12,7 +12,82 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 711da0ead83f73c4b9556f763e33c8ed, type: 3}
   m_Name: Ice
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects:
+    - {fileID: 289161321636050785, guid: 8ec69289443dd9b4d82fb190f1454e33, type: 3}
+    - {fileID: 289161321636050785, guid: 531168a6c832ee44484a39c3dfd47b3d, type: 3}
+    - {fileID: 289161321636050785, guid: 4b3166f00ae017c479b2d5dfa847a3fe, type: 3}
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: ElementVFXs
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[VFXType, Assembly-CSharp],[UnityEngine.GameObject,
+        UnityEngine.CoreModule]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.EnumEqualityComparer`1[[VFXType, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 5
+    - Name: $v
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 10
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
   element: 3
+  statusEffect: {fileID: 11400000, guid: a7b19bb4c1e8e4edbaedbdd30c8cee98, type: 2}
   elementColor: {r: 0.7272412, g: 1.0484729, b: 2.1216774, a: 1}
   elementInactiveColor: {r: 0.37023848, g: 0.6037736, b: 0.6037736, a: 1}
   vfxPureColor: {r: 0.7272412, g: 1.0484729, b: 2.1216774, a: 1}
@@ -48,14 +123,4 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 4
-  elementVFXs:
-  - vfxType: 0
-    vfxPrefab: {fileID: 289161321636050785, guid: 8ec69289443dd9b4d82fb190f1454e33,
-      type: 3}
-  - vfxType: 3
-    vfxPrefab: {fileID: 289161321636050785, guid: 4b3166f00ae017c479b2d5dfa847a3fe,
-      type: 3}
-  - vfxType: 5
-    vfxPrefab: {fileID: 289161321636050785, guid: 531168a6c832ee44484a39c3dfd47b3d,
-      type: 3}
   weaponTrailMaterial: {fileID: 2100000, guid: 73744314319be6b4c82485a6d7782627, type: 2}

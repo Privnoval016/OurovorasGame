@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.EventBus;
 using Extensions.UI;
 using Extensions.Utils;
 using UnityEngine;
@@ -9,13 +10,10 @@ using UnityEngine.InputSystem;
 public class PlayerInventory : MonoBehaviour
 {
     [HideInInspector] public PlayerController pc;
-    public PlayerStats ps;
 
     #region Loadout Info
     
     [Header("Loadout Info")]
-    
-    public StatData statData;
 
     public AttackConfig[] attackDatas;
 
@@ -43,8 +41,6 @@ public class PlayerInventory : MonoBehaviour
     
     
     #endregion
-    
-    public bool isInvincible = false;
 
     #region MonoBehaviour Callbacks
 
@@ -52,10 +48,8 @@ public class PlayerInventory : MonoBehaviour
     {
         pc = GetComponent<PlayerController>();
         
-        ps = new PlayerStats(this);
-
         InitializeElementMenu();
-
+        
         InputManager.Instance.onElementMenuOpen += OnElementMenuAction;
 
         CurrentLoadout.elementLoadout?.ValidateElementAttacks();
@@ -63,19 +57,14 @@ public class PlayerInventory : MonoBehaviour
         ActivateAttacksFromSkillTree();
     }
 
-    private void Update()
+    private void Start()
     {
-        ps.UpdateUltimateCharge();
-        UpdateElementMenu();
+        
     }
 
-    private void LateUpdate()
+    private void Update()
     {
-        if (pc.psm.TimeSinceLastAttack.CurrentTime > statData.chargeRestoreTime)
-        {
-            // Restore charge over time
-            ps.SetCharge(ps.CurrentElementCharge + statData.chargeRestoreRate * Time.deltaTime);
-        }
+        UpdateElementMenu();
     }
 
     #endregion
@@ -89,14 +78,26 @@ public class PlayerInventory : MonoBehaviour
             CombatManager.Instance.ApplySlowedTimeScale(pc, true);
             
             ElementRadialMenu.OnElementMenuOpen(CurrentElementOption);
-            HUDMenuUI.Instance.ActivateElementSwapMenu();
+            EventBus<ElementMenuEvent>.Raise(new ElementMenuEvent
+            {
+                elementEffect = currentElementEffect,
+                elementIndex = CurrentElementIndex,
+                isActive = true,
+                direction = Vector2.zero,
+            });
         }
         else if (context.canceled)
         {
             CombatManager.Instance.ApplySlowedTimeScale(pc, false);
             
             var option = ElementRadialMenu.OnElementMenuClose();
-            HUDMenuUI.Instance.DeactivateElementSwapMenu();
+            EventBus<ElementMenuEvent>.Raise(new ElementMenuEvent
+            {
+                elementEffect = option?.data,
+                elementIndex = option?.index ?? -1,
+                isActive = false,
+                direction = Vector2.zero,
+            });
             
             if (option == null || option.data == currentElementEffect) return;
             
@@ -164,22 +165,44 @@ public class PlayerInventory : MonoBehaviour
     public void SwapElement(ElementEffect next)
     {
         currentElementEffect = next;
-        HUDMenuUI.Instance.SetSelectedElementIcon(next);
-        HUDMenuUI.Instance.UpdateElementalAttackIcons();
+        EventBus<ElementUpdateEvent>.Raise(new ElementUpdateEvent
+        {
+            elementEffect = currentElementEffect,
+        });
     }
 
     private void UpdateElementMenu()
     {
         Vector2 inputDirection = InputManager.Instance.CameraMove;
         inputDirection = inputDirection.magnitude > 0.4f ? inputDirection.normalized : Vector2.zero;
+
+        if (inputDirection == Vector2.zero) return;
+        
         RadialMenuOption<ElementEffect> selected = ElementRadialMenu.UpdateMenu(inputDirection);
 
-        HUDMenuUI.Instance.SetRadialMenuLine(inputDirection);
-        
-        if (selected != null)
+        EventBus<ElementMenuEvent>.Raise(new ElementMenuEvent
         {
-            HUDMenuUI.Instance.SetRadialMenuIcon(selected.data, selected.index);
-        }
+            elementEffect = selected?.data,
+            elementIndex = selected?.index ?? -1,
+            isActive = ElementRadialMenu.isMenuOpen,
+            direction = inputDirection,
+        });
+    }
+    
+    public float GetCooldownPercentage(KeyBind k)
+    {
+        float minCharge = CurrentLoadout.elementLoadout.GetMinCharge(k);
+
+        if (minCharge <= 0) return 1f;
+
+        return Mathf.Clamp01(pc.ps.CurrentElementCharge / minCharge);
+    }
+    
+    public bool FinishedElementCooldown(Attack a)
+    {
+        if (!pc.pi.AttackInElementLoadout(a)) return true;
+
+        return GetCooldownPercentage(a.keyBinds[0]) >= 1f;
     }
     
     #endregion

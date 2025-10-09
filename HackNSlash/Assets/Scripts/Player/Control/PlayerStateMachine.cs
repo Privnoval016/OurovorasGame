@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.EventBus;
 using Extensions.Utils;
 using Extensions.Timers;
 using UnityEngine;
@@ -70,8 +71,8 @@ public class PlayerStateMachine : MonoBehaviour
     public Vector2 StandardizedMoveDir => moveInput.Rotate(-transform.right.ToVector2().ToAngle()).
                                                 Rotate(pc.cam.transform.right.ToVector2().ToAngle()).normalized;
 
-    public Queue<Vector2> inputDirQueue = new();
-    public Queue<float> inputTimeQueue = new();
+    private Queue<Vector2> inputDirQueue = new();
+    private Queue<float> inputTimeQueue = new();
     [HideInInspector] public Vector2 lastInputDir;
     
     #endregion
@@ -100,7 +101,9 @@ public class PlayerStateMachine : MonoBehaviour
     
     
     [HideInInspector] public int numMidairAttacks;
-    public Dictionary<Attack, int> NumActionsUsed = new();
+    
+    
+    private Dictionary<Attack, int> NumActionsUsed = new();
 
     public LockOnTarget NearestHEnemy => pc.cam.IsLockedOn ? pc.cam.TargetedEnemy : 
         GetClosestEnemyInCapsule(playerData.mediumRadius, playerData.heightRadius, 300f);
@@ -117,7 +120,7 @@ public class PlayerStateMachine : MonoBehaviour
     
     #endregion
     
-    public Dictionary<KeyBind, KeyBindData> KeyMap;
+    private Dictionary<KeyBind, KeyBindData> KeyMap;
     
     
     #region MonoBehaviour Callbacks
@@ -162,9 +165,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void OnDestroy()
     {
-        InputManager.Instance.onDebug -= OnDebugInput;
-        InputManager.Instance.onElementAttack -= OnElementAttackInput;
-        
         LastOnGroundTimer.Dispose();
         LastPressedJumpTimer.Dispose();
         LastDoubleJumpTimer.Dispose();
@@ -197,13 +197,17 @@ public class PlayerStateMachine : MonoBehaviour
         if (context.performed)
         {
             isElementAttacking = true;
-            HUDMenuUI.Instance.ActivateElementalAttackIcons();
         }
         else if (context.canceled)
         {
             isElementAttacking = false;
-            HUDMenuUI.Instance.DeactivateElementalAttackIcons();
         }
+        
+        if (context.performed || context.canceled)
+            EventBus<ElementAttackUpdateEvent>.Raise(new ElementAttackUpdateEvent
+            {
+                isActive = isElementAttacking
+            });
     }
     
     #endregion
@@ -335,7 +339,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             if (!col.TryGetComponent(out EnemyHitbox eh)) continue;
             if (!eh.ts.parryWindowActive) continue;
-            if (!eh.GetCurrentAttackInfo().attack.isParryable) continue;
+            if (!eh.GetCurrentAttackAIAction()?.attack.isParryable ?? true) continue;
             foundParry = true;
             
             ParriedHitboxes.Add(eh);
@@ -343,7 +347,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (!foundParry) return false;
         
-        pc.pi.isInvincible = true;
+        pc.ps.isInvincible = true;
         BeginAttack(attack);
         return true;
     }
@@ -372,7 +376,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
         
         if (!foundParry) return false;
-        pc.pi.isInvincible = true;
+        pc.ps.isInvincible = true;
         BeginAttack(attack);
         return true;
     }
@@ -466,7 +470,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         #region Directional Attacks
 
-        foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Directional])
+        foreach (PlayerAttack attack in attackData.GetAttacksByType(AttackTypes.Directional))
         {
             if (!AttackIsAvailable(attack)) continue;
             
@@ -479,7 +483,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         if (a == null)
         {
-            foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Special])
+            foreach (PlayerAttack attack in attackData.GetAttacksByType(AttackTypes.Special))
             {
                 if (!AttackIsAvailable(attack)) continue;
 
@@ -493,14 +497,14 @@ public class PlayerStateMachine : MonoBehaviour
 
         if (possibleCombo == null)
         {
-            foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Light])
+            foreach (PlayerAttack attack in attackData.GetAttacksByType(AttackTypes.Light))
             {
                 if (!AttackIsAvailable(attack)) continue;
 
                 starter = attack;
             }
 
-            foreach (PlayerAttack attack in attackData.AttackMap[AttackTypes.Midair])
+            foreach (PlayerAttack attack in attackData.GetAttacksByType(AttackTypes.Midair))
             {
                 if (!AttackIsAvailable(attack)) continue;
 
@@ -720,13 +724,14 @@ public class PlayerStateMachine : MonoBehaviour
         if (attack.keyBinds.Any(k => !KeyMap[k].action())) return false;
         
         Vector2 direction = attack.applyTargetDirection ? StandardizedMoveDir : moveInput;
+
         if (attack.inputDirection != Vector2.zero && !direction.IsInDirectionCone(attack.inputDirection, 92f)) return false;
         
         if (!attack.HasEnoughCharge(pc)) return false;
         
-        if (!pc.pi.ps.FinishedElementCooldown(attack)) return false;
+        if (!pc.pi.FinishedElementCooldown(attack)) return false;
         
-        if (!pc.pi.ps.CanUseFinisher(attack)) return false;
+        if (!pc.ps.CanUseFinisher(attack)) return false;
 
         return true;
     }
@@ -890,24 +895,28 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void CheckEnemyCollision(Collider other)
     {
-        if (pc.pi.isInvincible) return;
+        if (pc.ps.isInvincible) return;
         if (!other.TryGetComponent(out EnemyHitbox eh)) return;
         if (pc.sc.IsState<PlayerHit>()) return;
         if (!eh.activeHitbox) return;
         
+        var attackAction = eh.GetCurrentAttackAIAction();
+        
+        if (attackAction == null) return;
+        
         
         PlayerIsHit(new HitInstance()
                     {
-                        force = eh.GetCurrentAttackInfo().attack.attackKnockback,
+                        force = attackAction.attack.attackKnockback,
                         horizontalDirection = (transform.position - eh.ts.transform.position).ToVector2().normalized,
-                        damage = eh.GetCurrentAttackInfo().attack.damage * eh.GetCurrentAttackInfo().damageInfo.damageMultiplier,
-                        element = eh.GetCurrentAttackInfo().attack.element
+                        damage = attackAction.attack.damage * attackAction.damageInfo.damageMultiplier,
+                        element = attackAction.attack.element
                     });
     }
 
     public void CheckEnemyProjectileCollision(EnemyVFXHitDetector evhd)
     {
-        if (pc.pi.isInvincible) return;
+        if (pc.ps.isInvincible) return;
         if (pc.sc.IsState<PlayerHit>()) return;
         if (!evhd.vfx.activeHitbox || !evhd.vfx.vfxEnabled) return;
         

@@ -6544,6 +6544,7 @@ Transform:
   - {fileID: 1163887534}
   - {fileID: 465008913}
   - {fileID: 2106988878}
+  - {fileID: 1126868366}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &953000609
@@ -7659,6 +7660,56 @@ Transform:
   - {fileID: 1410171315}
   m_Father: {fileID: 1715996072}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1126868365
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1126868366}
+  - component: {fileID: 1126868367}
+  m_Layer: 0
+  m_Name: EffectManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1126868366
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126868365}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 944687184}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1126868367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126868365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6dab11f4ad46c49b67ba476783e558, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statusEffects:
+  - {fileID: 11400000, guid: 450e9962c9c9d43c3a548437f98fb908, type: 2}
+  - {fileID: 11400000, guid: d3b89159263b44cd5aab6ca208bf40da, type: 2}
+  - {fileID: 11400000, guid: 3e8504fd16f1a475c985b9077fc561c2, type: 2}
+  - {fileID: 11400000, guid: a7b19bb4c1e8e4edbaedbdd30c8cee98, type: 2}
+  - {fileID: 11400000, guid: ab3eb7359e4804cd1b0321e418186d5e, type: 2}
 --- !u!1 &1147462219
 GameObject:
   m_ObjectHideFlags: 0
@@ -10042,6 +10093,7 @@ GameObject:
   - component: {fileID: 1478948895}
   - component: {fileID: 1478948894}
   - component: {fileID: 1478948900}
+  - component: {fileID: 1478948903}
   - component: {fileID: 1478948901}
   - component: {fileID: 1478948902}
   - component: {fileID: 1478948893}
@@ -10253,6 +10305,7 @@ MonoBehaviour:
   pac: {fileID: 0}
   psm: {fileID: 0}
   pi: {fileID: 0}
+  ps: {fileID: 0}
   oae: {fileID: 0}
   ohe: {fileID: 0}
   spirit: {fileID: 2096512438}
@@ -10324,7 +10377,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pc: {fileID: 0}
-  statData: {fileID: 11400000, guid: 2b0b9827da322b24b91e9a4b6974f4ac, type: 2}
   attackDatas:
   - {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
   - {fileID: 11400000, guid: 9010127ed6498db40a36d66d3b487544, type: 2}
@@ -10332,14 +10384,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 44c9ac1f83155234abb0af495a4ebbf0, type: 2}
   currentLoadoutIndex: 0
   skillTree: {fileID: 11400000, guid: 9908d9d3d1473ec4598685ec9c4dc9e9, type: 2}
-  currentElementEffect: 0
+  currentElementEffect: 3
   imbuedElementEffect: 0
   elementEffects: 0200000003000000040000000500000006000000
   isInvincible: 0
-  currentHealth: 0
-  currentCharge: 0
-  currentUltimate: 0
-  currentFinisher: 0
 --- !u!114 &1478948901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10366,6 +10414,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pc: {fileID: 0}
+--- !u!114 &1478948903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478948889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983e28445a212b2428b3fdc9d9741fb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pc: {fileID: 0}
+  baseStats: {fileID: 11400000, guid: e44ef90645967424881e508625ece8e0, type: 2}
+  battleParameters: {fileID: 11400000, guid: 2b0b9827da322b24b91e9a4b6974f4ac, type: 2}
 --- !u!1 &1480798114
 GameObject:
   m_ObjectHideFlags: 0

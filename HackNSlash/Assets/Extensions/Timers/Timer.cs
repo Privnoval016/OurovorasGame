@@ -216,6 +216,55 @@ namespace Extensions.Timers
 
     /**
      * <summary>
+     * A stopwatch timer that counts up indefinitely from zero or a specified start time, firing an action at regular intervals.
+     * </summary>
+     */
+    public class TickTimer : Timer
+    {
+        readonly float interval;
+        float nextInterval;
+
+        public Action OnTick = delegate { };
+
+        public TickTimer(float intervalSeconds, bool unscaled = false) : base(0, unscaled)
+        {
+            interval = intervalSeconds;
+            nextInterval = interval;
+        }
+
+        public TickTimer(float startTime, float intervalSeconds, bool unscaled = false) : base(0, unscaled)
+        {
+            CurrentTime = startTime;
+            interval = intervalSeconds;
+            nextInterval = CurrentTime + interval;
+        }
+
+        public override void Tick()
+        {
+            if (IsRunning)
+            {
+                CurrentTime += DeltaTime;
+
+                // Fire tick events as long as thresholds are crossed
+                while (CurrentTime >= nextInterval)
+                {
+                    OnTick.Invoke();
+                    nextInterval += interval;
+                }
+            }
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            nextInterval = interval;
+        }
+
+        public override bool IsFinished => false;
+    }
+
+    /**
+     * <summary>
      * A stopwatch timer that counts up indefinitely from zero or a specified start time.
      * </summary>
      */

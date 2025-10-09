@@ -1,21 +1,25 @@
+using System;
+using Extensions.EventBus;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class PlayerStats : IDamageable
+public class PlayerStats : MonoBehaviour, IDamageable
 {
-    [HideInInspector] public PlayerInventory pi;
+    [HideInInspector] public PlayerController pc;
     
     #region Components
 
     [Header("Components")] 
     
     public BaseStats baseStats;
+    [FormerlySerializedAs("statData")] public BattleParameters battleParameters;
     
     #endregion
 
     #region Stat Info
 
     [Header("Stat Info")]
-
+    
     public float CurrentHealth { get; private set; }
     public float CurrentElementCharge { get; private set; }
     public float CurrentUltimateCharge { get; private set; }
@@ -23,15 +27,39 @@ public class PlayerStats : IDamageable
     public float CurrentFinisherCharge { get; private set; }
 
     public EvaluatedStats EvaluatedStats;
+    
+    public bool isInvincible = false;
 
     #endregion
+    
+    #region MonoBehaviour Callbacks
 
-    public PlayerStats(PlayerInventory playerInventory)
+    private void Awake()
     {
-        pi = playerInventory;
+        pc = GetComponent<PlayerController>();
+    }
 
+    private void Start()
+    {
         InitializeStats();
     }
+
+    private void Update()
+    {
+        EvaluatedStats.Update();
+        UpdateUltimateChargeOverTime();
+    }
+
+    private void LateUpdate()
+    {
+        if (pc.psm.TimeSinceLastAttack.CurrentTime > pc.ps.battleParameters.chargeRestoreTime)
+        {
+            // Restore charge over time
+            pc.ps.SetCharge(pc.ps.CurrentElementCharge + battleParameters.chargeRestoreRate * Time.deltaTime);
+        }
+    }
+
+    #endregion
 
     #region Stat Methods
 
@@ -44,45 +72,46 @@ public class PlayerStats : IDamageable
         CurrentUltimateCharge = 0f;
         CurrentFinisherCharge = 0f;
 
-        ChangeHealth(GetStat(InnateStat.MaxHealth));
+        SetHealth(GetStat(InnateStat.MaxHealth));
         SetCharge(GetStat(InnateStat.MaxCharge));
-
-        HUDMenuUI.Instance.UpdateUltimate(UltimatePercentage(CurrentUltimateCharge));
-        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(CurrentFinisherCharge));
     }
 
     public float GetStat(InnateStat innateStat)
     {
-        return EvaluatedStats.GetStat(innateStat);
+        return EvaluatedStats.GetInnateStat(innateStat);
     }
 
-    public float StatPercentage(float value, InnateStat innateStat)
+    public float GetStatPercentage(float value, InnateStat innateStat)
     {
         float maxStat = GetStat(innateStat);
         return maxStat > 0 ? value / maxStat : 0f;
     }
 
-    private void ChangeHealth(float amount)
+    private void ChangeHealth(float amount) => SetHealth(CurrentHealth + amount);
+    
+    public void SetHealth(float value)
     {
-        if (amount == 0) return;
-
-        CurrentHealth = Mathf.Clamp(CurrentHealth + amount, 0, GetStat(InnateStat.MaxHealth));
-        HUDMenuUI.Instance.UpdateHealth(StatPercentage(CurrentHealth, InnateStat.MaxHealth));
+        if (Mathf.Approximately(value, CurrentHealth)) return;
+        
+        CurrentHealth = Mathf.Clamp(value, 0, GetStat(InnateStat.MaxHealth));
+        
+        EventBus<HealthUpdateEvent>.Raise(new HealthUpdateEvent
+        {
+            healthPercentage = GetStatPercentage(CurrentHealth, InnateStat.MaxHealth)
+        });
     }
 
-    public void ChangeCharge(float amount, Attack a)
-    {
-        if (amount == 0) return;
-
-        CurrentElementCharge = Mathf.Clamp(CurrentElementCharge + amount, 0, GetStat(InnateStat.MaxCharge));
-
-        HUDMenuUI.Instance.UpdateCharge(StatPercentage(CurrentElementCharge, InnateStat.MaxCharge));
-    }
+    public void ChangeCharge(float amount, Attack a) => SetCharge(CurrentElementCharge + amount);
 
     public void SetCharge(float value)
     {
+        if (Mathf.Approximately(value, CurrentElementCharge)) return;
+        
         CurrentElementCharge = Mathf.Clamp(value, 0, GetStat(InnateStat.MaxCharge));
-        HUDMenuUI.Instance.SetCharge(StatPercentage(CurrentElementCharge, InnateStat.MaxCharge));
+        EventBus<ChargeUpdateEvent>.Raise(new ChargeUpdateEvent
+        {
+            chargePercentage = GetStatPercentage(CurrentElementCharge, InnateStat.MaxCharge),
+        });
     }
 
     public void ApplyAttackMeterChanges(Attack a)
@@ -91,52 +120,40 @@ public class PlayerStats : IDamageable
 
         ChangeFinisherCharge(a.stats.ultimateCharge);
 
-        if (pi.pc.psm.movingState != MovingStates.Katana)
+        if (pc.psm.movingState != MovingStates.Katana)
             ChangeUltimate(a.stats.ultimateCharge);
     }
-
-    public float GetCooldownPercentage(KeyBind k)
-    {
-        float minCharge = pi.CurrentLoadout.elementLoadout.GetMinCharge(k);
-
-        if (minCharge <= 0) return 1f;
-
-        return Mathf.Clamp01(CurrentElementCharge / minCharge);
-    }
-
-
-    public void ApplyStatChange(StatChange change)
-    {
-    }
-
+    
     #endregion
 
     #region Ultimate Methods
 
-    public void ChangeUltimate(float amount)
+    public void ChangeUltimate(float amount) => SetUltimate(CurrentUltimateCharge + amount);
+    
+    public void SetUltimate(float value)
     {
-        if (amount == 0) return;
-
-        CurrentUltimateCharge = Mathf.Clamp(CurrentUltimateCharge + amount, 0, pi.statData.maxUltimateCharge);
-        HUDMenuUI.Instance.UpdateUltimate(UltimatePercentage(CurrentUltimateCharge));
+        if (Mathf.Approximately(value, CurrentUltimateCharge)) return;
+        
+        CurrentUltimateCharge = Mathf.Clamp(value, 0, battleParameters.maxUltimateCharge);
+        
+        EventBus<UltimateUpdateEvent>.Raise(new UltimateUpdateEvent
+        {
+            ultimatePercentage = GetUltimatePercentage(CurrentUltimateCharge)
+        });
     }
 
-    public float UltimatePercentage(float value)
+    public float GetUltimatePercentage(float value) => 
+        battleParameters.maxUltimateCharge > 0 ? value / battleParameters.maxUltimateCharge : 0f;
+
+    public void UpdateUltimateChargeOverTime()
     {
-        float maxUltimate = pi.statData.maxUltimateCharge;
+        if (pc.pi.pc.psm.movingState != MovingStates.Katana) return;
 
-        return maxUltimate > 0 ? value / maxUltimate : 0f;
-    }
-
-    public void UpdateUltimateCharge()
-    {
-        if (pi.pc.psm.movingState != MovingStates.Katana) return;
-
-        ChangeUltimate(-pi.statData.ultimateDrainRate * Time.deltaTime);
+        ChangeUltimate(-battleParameters.ultimateDrainRate * Time.deltaTime);
 
         if (CurrentUltimateCharge <= 0)
         {
-            pi.pc.psm.SwapToUltimate();
+            pc.pi.pc.psm.SwapToUltimate();
         }
     }
 
@@ -144,28 +161,31 @@ public class PlayerStats : IDamageable
 
     #region Finisher Methods
 
-    public void ChangeFinisherCharge(float amount)
+    public void ChangeFinisherCharge(float amount) => SetFinisherCharge(CurrentFinisherCharge + amount);
+    
+    public void SetFinisherCharge(float value)
     {
-        if (amount == 0) return;
-
-        CurrentFinisherCharge = Mathf.Clamp(CurrentFinisherCharge + amount, 0, pi.statData.maxFinisherCharge);
-        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(CurrentFinisherCharge));
+        if (Mathf.Approximately(value, CurrentFinisherCharge)) return;
+        
+        CurrentFinisherCharge = Mathf.Clamp(value, 0, battleParameters.maxFinisherCharge);
+        
+        EventBus<FinisherUpdateEvent>.Raise(new FinisherUpdateEvent
+        {
+            finisherPercentage = GetFinisherPercentage(CurrentFinisherCharge)
+        });
     }
 
-    public float FinisherPercentage(float value)
+    public float GetFinisherPercentage(float value) => 
+        battleParameters.maxFinisherCharge > 0 ? value / battleParameters.maxFinisherCharge : 0f;
+
+
+    public void ResetFinisherCharge(Attack a)
     {
-        float maxFinisher = pi.statData.maxFinisherCharge;
-
-        return maxFinisher > 0 ? value / maxFinisher : 0f;
+        if (a != null && !pc.pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return;
+        ResetFinisherCharge();
     }
-
-    public void ResetFinisherCharge(Attack a = null)
-    {
-        if (a != null && !pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return;
-
-        CurrentFinisherCharge = 0f;
-        HUDMenuUI.Instance.UpdateFinisher(FinisherPercentage(CurrentFinisherCharge));
-    }
+    
+    public void ResetFinisherCharge() => SetFinisherCharge(0f);
 
     #endregion
 
@@ -173,38 +193,42 @@ public class PlayerStats : IDamageable
 
     public bool CanUseUltimate()
     {
-        if (pi.pc.psm.movingState == MovingStates.NonCombat) return false;
-        if (!pi.pc.psm.canAttack) return false;
-        return pi.pc.psm.movingState == MovingStates.Katana || CurrentUltimateCharge >= pi.statData.minActivationCharge;
+        if (pc.pi.pc.psm.movingState == MovingStates.NonCombat) return false;
+        if (!pc.pi.pc.psm.canAttack) return false;
+        return pc.pi.pc.psm.movingState == MovingStates.Katana || CurrentUltimateCharge >= battleParameters.minActivationCharge;
     }
 
     public bool CanSwapToNonCombat()
     {
-        if (!pi.pc.psm.canAttack) return false;
-        if (!pi.pc.psm.IsGrounded) return false;
+        if (!pc.pi.pc.psm.canAttack) return false;
+        if (!pc.pi.pc.psm.IsGrounded) return false;
 
         return true;
     }
 
-    public bool FinishedElementCooldown(Attack a)
-    {
-        if (!pi.AttackInElementLoadout(a)) return true;
-
-        return GetCooldownPercentage(a.keyBinds[0]) >= 1f;
-    }
-
     public bool CanUseFinisher(Attack a = null)
     {
-        if (a != null && !pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return true;
+        if (a != null && !pc.pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return true;
 
-        LockOnTarget target = pi.pc.psm.NearestHEnemy;
+        LockOnTarget target = pc.pi.pc.psm.NearestHEnemy;
 
         if (target == null) return false;
 
-        return FinisherPercentage(CurrentFinisherCharge) >= 1f;
+        return GetFinisherPercentage(CurrentFinisherCharge) >= 1f;
     }
 
     #endregion
+
+    #region IDamageable Implementation
+
+    public void ApplyStatusEffect(Modifier<StatusEffectQueryKey> statusEffectModifier)
+    {
+        if (statusEffectModifier?.Key == null ||
+            statusEffectModifier.Key.Key is NoStatusEffect) return;
+        
+        EvaluatedStats.StatusEffectMediator.AddModifier(statusEffectModifier);
+        Debug.Log($"{gameObject.name} applied status effect {statusEffectModifier.Key.Key}");
+    }
 
     public void TakeDamage(ElementEffect element, float damageAmount)
     {
@@ -215,4 +239,6 @@ public class PlayerStats : IDamageable
     {
         ChangeHealth(healAmount);
     }
+    
+    #endregion
 }

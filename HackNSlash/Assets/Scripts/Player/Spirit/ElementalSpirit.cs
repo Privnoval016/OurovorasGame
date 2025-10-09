@@ -90,7 +90,7 @@ public class ElementalSpirit : KinematicBehaviour, IContactDetector
     {
         if (!canAttack) return false;
 
-        foreach (SpiritAttack a in pc.psm.attackData.AttackMap[AttackTypes.Spirit])
+        foreach (SpiritAttack a in pc.psm.attackData.GetAttacksByType(AttackTypes.Spirit))
         {
             if (!pc.psm.AttackIsAvailable(a)) continue;
             

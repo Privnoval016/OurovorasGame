@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Extensions.Utils;
+using MEC;
 using UnityEngine;
 
 public class PlayerHit : PlayerState
@@ -6,6 +8,8 @@ public class PlayerHit : PlayerState
     public HitInstance hit { get; private set; }
 
     private bool midairKnockback;
+
+    private bool exiting;
     
     #region State Methods
     
@@ -21,10 +25,12 @@ public class PlayerHit : PlayerState
         pc.psm.canAttack = false;
         
         pc.oae.KillObjectCoroutines();
+        pc.IgnoreAllCollisionsWithLayer(GameManager.Instance.enemyLayer, false);
+
         
         pc.psm.CalculateGravity();
         
-        pc.pi.ps.TakeDamage(hit.element, hit.damage);
+        pc.ps.TakeDamage(hit.element, hit.damage);
 
         AddKnockbackForce();
         
@@ -37,7 +43,13 @@ public class PlayerHit : PlayerState
         if (midairKnockback && pc.psm.IsGrounded)
         {
             pc.rb.linearVelocity = Vector3.zero;
-            pc.pac.ExitTimeAnimation(pc.pac.HitAnims.airHit.EndClip, null, ExitHit);
+            pc.pac.PlayAnimation(pc.pac.HitAnims.airHit.EndClip);
+
+            if (!exiting)
+            {
+                pc.RunSegmentCoroutine(ExitHit(pc.pac.HitAnims.airHit.EndClip.FadeDuration));
+                exiting = true;
+            }
         }
     }
 
@@ -73,14 +85,17 @@ public class PlayerHit : PlayerState
         
         pc.pac.SetAnimancerParam("HitX", hit.horizontalDirection.x, false);
         pc.pac.SetAnimancerParam("HitZ", hit.horizontalDirection.y, false);
-        Debug.Log("Hit Direction: " + hit.horizontalDirection);
-        pc.pac.ExitTimeAnimation(pc.pac.HitAnims.groundHit, null, ExitHit);
+
+        pc.pac.PlayAnimation(pc.pac.HitAnims.groundHit);
+        
+        pc.RunSegmentCoroutine(ExitHit(pc.pac.HitAnims.groundHit.FadeDuration));
     }
     
     #endregion
 
-    private void ExitHit()
+    private IEnumerator<float> ExitHit(float time)
     {
+        yield return Timing.WaitForSeconds(time);
         pc.psm.canAttack = true;
         sc.ResumePrevious();
     }

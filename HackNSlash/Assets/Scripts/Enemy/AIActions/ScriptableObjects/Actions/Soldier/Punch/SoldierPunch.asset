@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c188fc340d84d73b4f509ea57d0fae6, type: 3}
+  m_Name: SoldierPunch
+  m_EditorClassIdentifier: 
+  actionKey: 0
+  consideration: {fileID: 11400000, guid: 7672009353a66406ea9596c9f51b7325, type: 2}
+  attack:
+    isEnabled: 1
+    element: 0
+    damage: 10
+    attackKnockback: {x: 15, y: 0}
+    attackCooldown: 0.5
+    isParryable: 1
+    enemyAttack:
+      rid: 278943961285918886
+    attackClips:
+    - _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 7400000, guid: 02e4f43d31059554aaa5c11cd63f6631, type: 2}
+      _NormalizedStartTime: 0
+    animDelay: 0
+    useRootMotion: 1
+    exitConditions: 0
+    vfxInfos: []
+  damageInfo:
+    damageMultiplier: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 278943961285918886
+      type: {class: NoneEnemyAttackStrategy, ns: , asm: Assembly-CSharp}
+      data: 
