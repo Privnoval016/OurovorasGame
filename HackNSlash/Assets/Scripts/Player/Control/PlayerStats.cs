@@ -1,7 +1,6 @@
 using System;
 using Extensions.EventBus;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 
 public class PlayerStats : MonoBehaviour, IDamageable
@@ -28,6 +27,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public float CurrentFinisherCharge { get; private set; }
 
     public EvaluatedStats EvaluatedStats;
+    
+    public bool isInvincible = false;
 
     #endregion
     

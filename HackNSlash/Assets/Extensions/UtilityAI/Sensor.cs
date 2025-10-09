@@ -58,8 +58,6 @@ namespace Extensions.UtilityAI
             float nearestDistanceSqr = float.MaxValue;
             Vector3 currentPosition = transform.position;
             
-            Debug.Log($"Detected Objects Count: {detectedObjects.Count}");
-
             foreach (var obj in detectedObjects)
             {
                 if (obj == null) continue; // Skip null references

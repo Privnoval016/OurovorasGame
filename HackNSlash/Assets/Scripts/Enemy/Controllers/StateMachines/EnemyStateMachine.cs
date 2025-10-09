@@ -31,7 +31,7 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
 
     [HideInInspector] public EnemyController ts;
 
-    public EnemyData enemyData;
+    [SerializeField] private EnemyData enemyData;
     public EnemyAnimData enemyAnimData;
 
     #endregion
@@ -45,6 +45,9 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
     public Transform[] wanderPoints;
     [HideInInspector] public Vector3 currentWanderPoint;
     [HideInInspector] public int wanderIndex = 0;
+
+    public float MoveSpeed =>
+        enemyData.speed * ts.stats.EvaluatedStats.GetStatusEffectMultiplier(StatusEffectTargets.Speed);
 
     public bool CanMove => ts.pe.physicsInteract;
 

@@ -85,7 +85,7 @@ public class PlayerHit : PlayerState
         
         pc.pac.SetAnimancerParam("HitX", hit.horizontalDirection.x, false);
         pc.pac.SetAnimancerParam("HitZ", hit.horizontalDirection.y, false);
-        Debug.Log("Hit Direction: " + hit.horizontalDirection);
+
         pc.pac.PlayAnimation(pc.pac.HitAnims.groundHit);
         
         pc.RunSegmentCoroutine(ExitHit(pc.pac.HitAnims.groundHit.FadeDuration));

@@ -1,5 +1,6 @@
 ﻿using System;
 using Extensions.Timers;
+using UnityEngine;
 
 /**
  * <summary>
@@ -39,7 +40,11 @@ public class Modifier<T> where T : IQueryKey<T>
 
     public void Handle(object sender, QueryContext<T> queryContext)
     {
+        Debug.LogWarning("Handle: Handling modifier for key: " + Key + " with current query key: " + queryContext.Key + " equals " + Key.Equals(queryContext.Key));
+        
         if (!Key.Equals(queryContext.Key)) return;
+        // IT DOESNT FUCKING WORK HERE !!!!!!
+        Debug.LogWarning("Handle: Applying modifier strategy for key: " + Key);
         
         (queryContext.BaseValue, queryContext.CurrentValue) = 
             Strategy.Modify(queryContext.BaseValue, queryContext.CurrentValue);
@@ -49,5 +54,32 @@ public class Modifier<T> where T : IQueryKey<T>
     {
         MarkedForRemoval = true;
         OnDisposed?.Invoke(this);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is Modifier<T> other) 
+        {
+            return Key.Equals(other.Key) && Strategy.Equals(other.Strategy);
+        }
+        
+        return false;
+    }
+    
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Key, Strategy);
+    }
+    
+    public static bool operator ==(Modifier<T> left, Modifier<T> right)
+    {
+        if (left is null && right is null) return true;
+        if (left is null || right is null) return false;
+        return left.Equals(right);
+    }
+    
+    public static bool operator !=(Modifier<T> left, Modifier<T> right)
+    {
+        return !(left == right);
     }
 }

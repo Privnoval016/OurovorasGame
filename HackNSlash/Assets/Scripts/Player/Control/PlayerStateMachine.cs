@@ -347,7 +347,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (!foundParry) return false;
         
-        pc.pi.isInvincible = true;
+        pc.ps.isInvincible = true;
         BeginAttack(attack);
         return true;
     }
@@ -376,7 +376,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
         
         if (!foundParry) return false;
-        pc.pi.isInvincible = true;
+        pc.ps.isInvincible = true;
         BeginAttack(attack);
         return true;
     }
@@ -895,7 +895,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void CheckEnemyCollision(Collider other)
     {
-        if (pc.pi.isInvincible) return;
+        if (pc.ps.isInvincible) return;
         if (!other.TryGetComponent(out EnemyHitbox eh)) return;
         if (pc.sc.IsState<PlayerHit>()) return;
         if (!eh.activeHitbox) return;
@@ -916,7 +916,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void CheckEnemyProjectileCollision(EnemyVFXHitDetector evhd)
     {
-        if (pc.pi.isInvincible) return;
+        if (pc.ps.isInvincible) return;
         if (pc.sc.IsState<PlayerHit>()) return;
         if (!evhd.vfx.activeHitbox || !evhd.vfx.vfxEnabled) return;
         

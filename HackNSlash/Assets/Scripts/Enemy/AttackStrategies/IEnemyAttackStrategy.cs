@@ -25,7 +25,7 @@ public abstract class IEnemyAttackStrategy
         
         ts.esm.SetIsAttacking(true);
 
-        ts.esm.RunSegmentCoroutine(LaunchClipAttacks());
+        oee.RunSegmentCoroutine(LaunchClipAttacks());
         
         OnExecute();
     }

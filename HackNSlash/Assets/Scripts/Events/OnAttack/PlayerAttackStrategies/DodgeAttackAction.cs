@@ -35,7 +35,7 @@ public class DodgeAttackAction : IAttackAction
         
         IEnumerator<float> attack = BeginRegularDodge();
         
-        pc.pi.isInvincible = true;
+        pc.ps.isInvincible = true;
         
         switch (attackEventIndex)
         {

@@ -11,7 +11,7 @@ public class ParryAttackAction : IAttackAction
     {
         base.Execute(onAttackEvents, attack);
         
-        oae.RunSegmentCoroutine(BeginParry()).OnDestroy(() => pc.pi.isInvincible = false);
+        oae.RunSegmentCoroutine(BeginParry()).OnDestroy(() => pc.ps.isInvincible = false);
     }
     
     private IEnumerator<float> BeginParry()
@@ -20,13 +20,13 @@ public class ParryAttackAction : IAttackAction
 
         if (pc.wc.activeWeapons.Count == 0)
         {
-            pc.pi.isInvincible = false;
+            pc.ps.isInvincible = false;
             yield break;
         }
         
         pc.rb.linearVelocity = Vector3.zero;
         
-        pc.pi.isInvincible = true;
+        pc.ps.isInvincible = true;
 
         HashSet<PhysicsEnemy> parriedEnemies = new();
         foreach (var hitbox in pc.psm.ParriedHitboxes)
@@ -45,6 +45,6 @@ public class ParryAttackAction : IAttackAction
         
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
         
-        pc.pi.isInvincible = false;
+        pc.ps.isInvincible = false;
     }
 }
