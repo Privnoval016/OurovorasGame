@@ -1,60 +1,68 @@
+using Extensions.Utils;
 using Pathfinding;
 using UnityEngine;
 
 public class EnemyHit : EnemyState
 {
-    private bool isGrounded, lastWasMidair, exitTriggered;
+    private bool lastWasMidair;
     
     public override void OnEnter()
     {
-        isGrounded = ec.ts.pe.IsGrounded;
-        lastWasMidair = !isGrounded;
+        esm.PauseUtilityAITimer(true);
+        
+        esm.ts.onEnemyEvents.KillObjectCoroutines();
+        esm.SetIsAttacking(false);
+        
+        lastWasMidair = !esm.ts.pe.IsGrounded; // Track if we start midair
+        
+        esm.ts.animListener.DeactivateAllHitboxes();
+        
         PlayHitAnimation();
-        ec.ts.animListener.DeactivateAllHitboxes();
     }
 
     public override void OnUpdate()
     {
-        
-        if (!ec.ts.pe.IsGrounded) lastWasMidair = true;
+        CheckHitAnimationSwap();
                 
-        if (!ec.ts.pe.IsMidAttack && ec.ts.pe.IsGrounded)
+        if (!esm.ts.pe.IsMidAttack && esm.ts.pe.IsGrounded)
         {
-            if (!lastWasMidair) 
+            if (!lastWasMidair) // If we were never midair, we can exit immediately
                 ExitHit();
-            else ec.ts.ea.ExitTimeAnimation(ec.enemyAnimData.getUpClip, null, ExitHit);
-            
-            exitTriggered = true;
+            else // If we were midair, we need to play the landing animation first
+                esm.ts.ea.ExitTimeAnimation(esm.enemyAnimData.getUpClip, null, ExitHit); 
         }
-        else
-        {
-            CheckHitAnimationSwap();
-        }
+    }
+
+    public override void OnExit()
+    {
+        base.OnExit();
+        esm.PauseUtilityAITimer(false);
     }
 
     private void CheckHitAnimationSwap()
     {
-        if (ec.ts.pe.IsGrounded != isGrounded)
+        if (!esm.ts.pe.IsGrounded && !lastWasMidair) // If we just went midair, swap to midair hit animation
         {
-            isGrounded = ec.ts.pe.IsGrounded;
             PlayHitAnimation();
         }
+        
+        if (!esm.ts.pe.IsGrounded) lastWasMidair = true; // Track if we were ever midair during this hit
     }
     
     private void ExitHit()
     {
-        ec.sc.ResumePrevious();
+        esm.sc.ResumePrevious();
     }
 
     private void PlayHitAnimation()
     {
-        if (isGrounded)
+        if (esm.ts.pe.IsGrounded)
         {
-            ec.ts.ea.SwitchAnimState(ec.enemyAnimData.groundHitClip);
+            esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.groundHitClip);
         }
         else
         {
-            ec.ts.ea.SwitchAnimState(ec.enemyAnimData.airHitClip);
+            esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.airHitClip);
         }
     }
 }

@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.Utils;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Player/AttackConfig")]
-public class AttackConfig : ScriptableObject
+public class AttackConfig : SerializedScriptableObject
 {
     public MovingStates movingState = MovingStates.NonCombat;
     
-    public Dictionary<AttackTypes, Attack[]> AttackMap = new Dictionary<AttackTypes, Attack[]>();
+    
+    private Dictionary<AttackTypes, Attack[]> AttackMap = new Dictionary<AttackTypes, Attack[]>();
     public HashSet<Attack> allAttacks = new HashSet<Attack>();
     
     [Header("Unlock Parameters")] 
@@ -73,6 +75,16 @@ public class AttackConfig : ScriptableObject
             
             AttackMap[attack.attackType] = AttackMap[attack.attackType].Append(attack).ToArray();
         }
+    }
+    
+    public Attack[] GetAttacksByType(AttackTypes type)
+    {
+        if (AttackMap.Count == 0)
+        {
+            RefreshAttackData();
+        }
+        
+        return AttackMap.GetValueOrDefault(type, Array.Empty<Attack>());
     }
 }
 

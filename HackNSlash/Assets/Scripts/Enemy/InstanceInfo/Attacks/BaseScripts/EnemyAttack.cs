@@ -1,9 +1,10 @@
 using System;
 using Animancer;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-[CreateAssetMenu(fileName = "EnemyAttack", menuName = "Enemy/EnemyAttack", order = 1)]
-public class EnemyAttack : ScriptableObject
+[Serializable]
+public class EnemyAttack
 {
     [Header("General")] 
     public bool isEnabled;
@@ -14,16 +15,19 @@ public class EnemyAttack : ScriptableObject
     public Vector2 attackKnockback;
     public float attackCooldown;
     public bool isParryable;
-    
-    [Header("Attack Events")]
-    
-    public OnEnemyActions attackAction;
-    [Tooltip("Case specific index, used for different events")] public int attackEventIndex;
+
+    [FormerlySerializedAs("enemyAction")]
+    [Header("Attack Events")] 
+    [SerializeReference] public IEnemyAttackStrategy enemyAttack;
 
     [Header("Animations")] 
     public ClipTransition[] attackClips;
 
+    public float animDelay = 0f;
+
     public bool useRootMotion;
+    
+    public ExitConditions exitConditions = ExitConditions.AnimationEnd;
 
     [Header("VFX")] 
     
@@ -31,21 +35,6 @@ public class EnemyAttack : ScriptableObject
 
 }
 
-[Serializable]
-public class EnemyAttackTriggerInfo
-{
-    public float distanceToTrigger;
-    public float angleToTrigger;
-    public float attackWeight;
-}
-
-[Serializable]
-public class EnemyAttackInfo
-{
-    public EnemyAttack attack;
-    public EnemyAttackDamageInfo damageInfo;
-    public EnemyAttackTriggerInfo triggerInfo;
-}
 
 [Serializable]
 public class EnemyAttackDamageInfo

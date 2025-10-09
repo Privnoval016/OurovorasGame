@@ -12,8 +12,11 @@ public class EnemyHitbox : MonoBehaviour
         hitboxCollider = GetComponent<Collider>();
     }
 
-    public EnemyAttackInfo GetCurrentAttackInfo()
+    public EnemyAttackAIAction GetCurrentAttackAIAction()
     {
-        return ts.currentAttackInfo;
+        if (ts.esm.currentAction is EnemyAttackAIAction action)
+            return action;
+        
+        return null;
     }
 }

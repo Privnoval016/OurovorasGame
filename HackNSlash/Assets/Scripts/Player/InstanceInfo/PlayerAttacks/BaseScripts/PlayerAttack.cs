@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Animancer;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Player/Attacks/PlayerAttack")]
 public class PlayerAttack : Attack
@@ -39,7 +40,7 @@ public class PlayerAttack : Attack
 [Serializable]
 public struct AttackActionInfo
 {
-    [SerializeReference] public IAttackAction attackAction;
+    [FormerlySerializedAs("playerAttackStrategy")] [SerializeReference] public IAttackAction attackAction;
 }
 
 public enum ExitConditions

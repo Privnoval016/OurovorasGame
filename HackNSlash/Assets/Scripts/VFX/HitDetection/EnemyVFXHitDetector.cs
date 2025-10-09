@@ -3,9 +3,9 @@ using UnityEngine;
 public class EnemyVFXHitDetector : VFXHitDetector
 {
     public EnemyController ts;
-    public EnemyAttackInfo attackInfo;
+    public EnemyAttackAIAction attackInfo;
     
-    public EnemyVFXHitDetector(VFXController vfx, EnemyController ts, EnemyAttackInfo attackInfo) : base(vfx, ts.transform)
+    public EnemyVFXHitDetector(VFXController vfx, EnemyController ts, EnemyAttackAIAction attackInfo) : base(vfx, ts.transform)
     {
         this.ts = ts;
         this.attackInfo = attackInfo;

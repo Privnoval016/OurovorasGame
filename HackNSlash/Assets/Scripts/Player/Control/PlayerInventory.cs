@@ -41,22 +41,25 @@ public class PlayerInventory : MonoBehaviour
     
     
     #endregion
-    
-    public bool isInvincible = false;
 
     #region MonoBehaviour Callbacks
 
     private void Awake()
     {
         pc = GetComponent<PlayerController>();
-
+        
         InitializeElementMenu();
-
+        
         InputManager.Instance.onElementMenuOpen += OnElementMenuAction;
 
         CurrentLoadout.elementLoadout?.ValidateElementAttacks();
 
         ActivateAttacksFromSkillTree();
+    }
+
+    private void Start()
+    {
+        
     }
 
     private void Update()
@@ -184,6 +187,22 @@ public class PlayerInventory : MonoBehaviour
             isActive = ElementRadialMenu.isMenuOpen,
             direction = inputDirection,
         });
+    }
+    
+    public float GetCooldownPercentage(KeyBind k)
+    {
+        float minCharge = CurrentLoadout.elementLoadout.GetMinCharge(k);
+
+        if (minCharge <= 0) return 1f;
+
+        return Mathf.Clamp01(pc.ps.CurrentElementCharge / minCharge);
+    }
+    
+    public bool FinishedElementCooldown(Attack a)
+    {
+        if (!pc.pi.AttackInElementLoadout(a)) return true;
+
+        return GetCooldownPercentage(a.keyBinds[0]) >= 1f;
     }
     
     #endregion

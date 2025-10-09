@@ -1,7 +1,6 @@
 using System;
 using Extensions.EventBus;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 
 public class PlayerStats : MonoBehaviour, IDamageable
@@ -20,8 +19,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     #region Stat Info
 
     [Header("Stat Info")]
-
-    // TODO: make event bus for ui updates
+    
     public float CurrentHealth { get; private set; }
     public float CurrentElementCharge { get; private set; }
     public float CurrentUltimateCharge { get; private set; }
@@ -29,6 +27,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public float CurrentFinisherCharge { get; private set; }
 
     public EvaluatedStats EvaluatedStats;
+    
+    public bool isInvincible = false;
 
     #endregion
     
@@ -46,7 +46,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     private void Update()
     {
-        UpdateUltimateCharge();
+        EvaluatedStats.Update();
+        UpdateUltimateChargeOverTime();
     }
 
     private void LateUpdate()
@@ -71,61 +72,45 @@ public class PlayerStats : MonoBehaviour, IDamageable
         CurrentUltimateCharge = 0f;
         CurrentFinisherCharge = 0f;
 
-        ChangeHealth(GetStat(InnateStat.MaxHealth));
+        SetHealth(GetStat(InnateStat.MaxHealth));
         SetCharge(GetStat(InnateStat.MaxCharge));
-
-        EventBus<UltimateUpdateEvent>.Raise(new UltimateUpdateEvent
-        {
-            ultimatePercentage = UltimatePercentage(CurrentUltimateCharge)
-        });
-        
-        EventBus<FinisherUpdateEvent>.Raise(new FinisherUpdateEvent
-        {
-            finisherPercentage = FinisherPercentage(CurrentFinisherCharge)
-        });
     }
 
     public float GetStat(InnateStat innateStat)
     {
-        return EvaluatedStats.GetStat(innateStat);
+        return EvaluatedStats.GetInnateStat(innateStat);
     }
 
-    public float StatPercentage(float value, InnateStat innateStat)
+    public float GetStatPercentage(float value, InnateStat innateStat)
     {
         float maxStat = GetStat(innateStat);
         return maxStat > 0 ? value / maxStat : 0f;
     }
 
-    private void ChangeHealth(float amount)
+    private void ChangeHealth(float amount) => SetHealth(CurrentHealth + amount);
+    
+    public void SetHealth(float value)
     {
-        if (amount == 0) return;
-
-        CurrentHealth = Mathf.Clamp(CurrentHealth + amount, 0, GetStat(InnateStat.MaxHealth));
-
+        if (Mathf.Approximately(value, CurrentHealth)) return;
+        
+        CurrentHealth = Mathf.Clamp(value, 0, GetStat(InnateStat.MaxHealth));
+        
         EventBus<HealthUpdateEvent>.Raise(new HealthUpdateEvent
         {
-            healthPercentage = StatPercentage(CurrentHealth, InnateStat.MaxHealth)
+            healthPercentage = GetStatPercentage(CurrentHealth, InnateStat.MaxHealth)
         });
     }
 
-    public void ChangeCharge(float amount, Attack a)
-    {
-        if (amount == 0) return;
-
-        CurrentElementCharge = Mathf.Clamp(CurrentElementCharge + amount, 0, GetStat(InnateStat.MaxCharge));
-
-        EventBus<ChargeUpdateEvent>.Raise(new ChargeUpdateEvent
-        {
-            chargePercentage = StatPercentage(CurrentElementCharge, InnateStat.MaxCharge),
-        });
-    }
+    public void ChangeCharge(float amount, Attack a) => SetCharge(CurrentElementCharge + amount);
 
     public void SetCharge(float value)
     {
+        if (Mathf.Approximately(value, CurrentElementCharge)) return;
+        
         CurrentElementCharge = Mathf.Clamp(value, 0, GetStat(InnateStat.MaxCharge));
         EventBus<ChargeUpdateEvent>.Raise(new ChargeUpdateEvent
         {
-            chargePercentage = StatPercentage(CurrentElementCharge, InnateStat.MaxCharge),
+            chargePercentage = GetStatPercentage(CurrentElementCharge, InnateStat.MaxCharge),
         });
     }
 
@@ -138,45 +123,29 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (pc.psm.movingState != MovingStates.Katana)
             ChangeUltimate(a.stats.ultimateCharge);
     }
-
-    public float GetCooldownPercentage(KeyBind k)
-    {
-        float minCharge = pc.pi.CurrentLoadout.elementLoadout.GetMinCharge(k);
-
-        if (minCharge <= 0) return 1f;
-
-        return Mathf.Clamp01(CurrentElementCharge / minCharge);
-    }
-
-
-    public void ApplyStatChange(StatChange change)
-    {
-    }
-
+    
     #endregion
 
     #region Ultimate Methods
 
-    public void ChangeUltimate(float amount)
+    public void ChangeUltimate(float amount) => SetUltimate(CurrentUltimateCharge + amount);
+    
+    public void SetUltimate(float value)
     {
-        if (amount == 0) return;
-
-        CurrentUltimateCharge = Mathf.Clamp(CurrentUltimateCharge + amount, 0, battleParameters.maxUltimateCharge);
+        if (Mathf.Approximately(value, CurrentUltimateCharge)) return;
+        
+        CurrentUltimateCharge = Mathf.Clamp(value, 0, battleParameters.maxUltimateCharge);
         
         EventBus<UltimateUpdateEvent>.Raise(new UltimateUpdateEvent
         {
-            ultimatePercentage = UltimatePercentage(CurrentUltimateCharge)
+            ultimatePercentage = GetUltimatePercentage(CurrentUltimateCharge)
         });
     }
 
-    public float UltimatePercentage(float value)
-    {
-        float maxUltimate = battleParameters.maxUltimateCharge;
+    public float GetUltimatePercentage(float value) => 
+        battleParameters.maxUltimateCharge > 0 ? value / battleParameters.maxUltimateCharge : 0f;
 
-        return maxUltimate > 0 ? value / maxUltimate : 0f;
-    }
-
-    public void UpdateUltimateCharge()
+    public void UpdateUltimateChargeOverTime()
     {
         if (pc.pi.pc.psm.movingState != MovingStates.Katana) return;
 
@@ -192,35 +161,31 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     #region Finisher Methods
 
-    public void ChangeFinisherCharge(float amount)
+    public void ChangeFinisherCharge(float amount) => SetFinisherCharge(CurrentFinisherCharge + amount);
+    
+    public void SetFinisherCharge(float value)
     {
-        if (amount == 0) return;
-
-        CurrentFinisherCharge = Mathf.Clamp(CurrentFinisherCharge + amount, 0, battleParameters.maxFinisherCharge);
+        if (Mathf.Approximately(value, CurrentFinisherCharge)) return;
+        
+        CurrentFinisherCharge = Mathf.Clamp(value, 0, battleParameters.maxFinisherCharge);
         
         EventBus<FinisherUpdateEvent>.Raise(new FinisherUpdateEvent
         {
-            finisherPercentage = FinisherPercentage(CurrentFinisherCharge)
+            finisherPercentage = GetFinisherPercentage(CurrentFinisherCharge)
         });
     }
 
-    public float FinisherPercentage(float value)
-    {
-        float maxFinisher = battleParameters.maxFinisherCharge;
+    public float GetFinisherPercentage(float value) => 
+        battleParameters.maxFinisherCharge > 0 ? value / battleParameters.maxFinisherCharge : 0f;
 
-        return maxFinisher > 0 ? value / maxFinisher : 0f;
-    }
 
-    public void ResetFinisherCharge(Attack a = null)
+    public void ResetFinisherCharge(Attack a)
     {
         if (a != null && !pc.pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return;
-
-        CurrentFinisherCharge = 0f;
-        EventBus<FinisherUpdateEvent>.Raise(new FinisherUpdateEvent
-        {
-            finisherPercentage = FinisherPercentage(CurrentFinisherCharge)
-        });
+        ResetFinisherCharge();
     }
+    
+    public void ResetFinisherCharge() => SetFinisherCharge(0f);
 
     #endregion
 
@@ -241,13 +206,6 @@ public class PlayerStats : MonoBehaviour, IDamageable
         return true;
     }
 
-    public bool FinishedElementCooldown(Attack a)
-    {
-        if (!pc.pi.AttackInElementLoadout(a)) return true;
-
-        return GetCooldownPercentage(a.keyBinds[0]) >= 1f;
-    }
-
     public bool CanUseFinisher(Attack a = null)
     {
         if (a != null && !pc.pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return true;
@@ -256,10 +214,21 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         if (target == null) return false;
 
-        return FinisherPercentage(CurrentFinisherCharge) >= 1f;
+        return GetFinisherPercentage(CurrentFinisherCharge) >= 1f;
     }
 
     #endregion
+
+    #region IDamageable Implementation
+
+    public void ApplyStatusEffect(Modifier<StatusEffectQueryKey> statusEffectModifier)
+    {
+        if (statusEffectModifier?.Key == null ||
+            statusEffectModifier.Key.Key is NoStatusEffect) return;
+        
+        EvaluatedStats.StatusEffectMediator.AddModifier(statusEffectModifier);
+        Debug.Log($"{gameObject.name} applied status effect {statusEffectModifier.Key.Key}");
+    }
 
     public void TakeDamage(ElementEffect element, float damageAmount)
     {
@@ -270,4 +239,6 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         ChangeHealth(healAmount);
     }
+    
+    #endregion
 }

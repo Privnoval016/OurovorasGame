@@ -1,42 +1,32 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 [CreateAssetMenu(fileName = "BaseStats", menuName = "ScriptableObjects/BaseStats", order = 1)]
-public class BaseStats : ScriptableObject
+public class BaseStats : SerializedScriptableObject
 {
-    [SerializeField] private List<StatInfo> baseStatsList = new();
-    
     public readonly Dictionary<InnateStat, int> Stats = new();
+    
+    private Dictionary<StatusEffect, int> statusEffects = new();
 
-    [HideInInspector] public readonly Dictionary<StatusEffect, int> StatusEffects = new();
-
-    private void OnValidate()
+    public Dictionary<StatusEffect, int> GetBaseStatusEffects()
     {
-        Stats.Clear();
-        foreach (var statInfo in baseStatsList)
+        if (statusEffects == null || statusEffects.Count == 0)
         {
-            if (!Stats.ContainsKey(statInfo.InnateStat))
-            {
-                Stats.Add(statInfo.InnateStat, statInfo.value);
-            }
-            else
-            {
-                Debug.LogWarning($"Duplicate stat {statInfo.InnateStat} found in {name}. Only the first occurrence will be used.");
-            }
+            Initialize();
         }
         
-        StatusEffects.Clear();
-        foreach (StatusEffect status in Enum.GetValues(typeof(StatusEffect)))
+        return statusEffects;
+    }
+
+    private void Initialize()
+    {
+        statusEffects = new Dictionary<StatusEffect, int>();
+        statusEffects.Clear();
+        foreach (var statusEffect in EffectManager.Instance.statusEffects)
         {
-            StatusEffects[status] = 0;
+            statusEffects[statusEffect] = 0;
         }
     }
-}
-
-[Serializable]
-public struct StatInfo
-{
-    public InnateStat InnateStat;
-    public int value;
 }

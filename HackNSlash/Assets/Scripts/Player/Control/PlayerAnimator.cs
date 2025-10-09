@@ -24,7 +24,7 @@ public class PlayerAnimator : EntityAnimator
     
     public AnimContainer[] animDataArray;
     
-    public Dictionary<MovingStates, AnimContainer> animDataDict;
+    private Dictionary<MovingStates, AnimContainer> animDataDict;
     
     #endregion
     
@@ -140,8 +140,8 @@ public class PlayerAnimator : EntityAnimator
     
     public void SwitchAnimState(WalkingAnimStates newState, Action onExit = null, bool playExit = false)
     {
-	    Object currentAnim = MovingAnims._animStates[walkingAnim];
-	    Object nextAnim = MovingAnims._animStates[newState];
+	    Object currentAnim = MovingAnims.GetAnimState(walkingAnim);
+	    Object nextAnim = MovingAnims.GetAnimState(newState);
 	    
 	    PlayEntityAnimation(currentAnim, nextAnim, onExit, playExit);
 	    

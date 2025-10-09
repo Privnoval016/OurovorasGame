@@ -16,7 +16,7 @@ MonoBehaviour:
   - InnateStat: 0
     value: 100
   - InnateStat: 1
-    value: 100
+    value: 200
   - InnateStat: 2
     value: 100
   - InnateStat: 3

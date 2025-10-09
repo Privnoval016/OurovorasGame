@@ -18,13 +18,13 @@ public enum OnVFXActions
 
 public class OnVFXEvents : Singleton<OnVFXEvents>
 {
-    public static Dictionary<OnVFXActions, Action<VFXController>> OnVFXActionMap;
+    private static Dictionary<OnVFXActions, Action<VFXController>> OnVFXActionMap;
     
     public OnVFXParameters parameters;
     
     private List<VFXController> activeVFX = new();
     
-    public Dictionary<VFXAttack, List<VFXController>> ActiveVFXCount = new();
+    private Dictionary<VFXAttack, List<VFXController>> ActiveVFXCount = new();
     
     protected override void Awake()
     {
@@ -129,7 +129,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         return vfx;
     }
     
-    public VFXController SpawnEnemyVFX(EnemyController ts, EnemyAttackInfo a, int vfxIndex = 0, 
+    public VFXController SpawnEnemyVFX(EnemyController ts, EnemyAttackAIAction a, int vfxIndex = 0, 
         TransformInfo overrideTransform = default)
     {
         if (a == null || a.attack.vfxInfos.Length == 0) return null;
@@ -255,7 +255,7 @@ public class OnVFXEvents : Singleton<OnVFXEvents>
         return vc;
     }
 
-    private VFXController InstantiateEnemyVFX(EnemyController ts, EnemyAttackInfo a, int vfxIndex = 0,
+    private VFXController InstantiateEnemyVFX(EnemyController ts, EnemyAttackAIAction a, int vfxIndex = 0,
         TransformInfo overrideTransform = default)
     {
         if (a.attack.vfxInfos.Length <= vfxIndex) return null;

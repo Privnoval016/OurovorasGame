@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Extensions.Utils;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "ElementLoadout", menuName = "Inventory/ElementLoadout", order = 2)]
-public class ElementLoadout : ScriptableObject
+public class ElementLoadout : SerializedScriptableObject
 {
     [Header("Cooldowns")] 
     public ElementCooldownInfo northCooldown = new ElementCooldownInfo(79f, 1.0f);
@@ -63,9 +64,9 @@ public class ElementLoadout : ScriptableObject
             return null;
         }
 
-        if (elementAttack.keyBindAttackMap.TryGetValue(k, out var attack))
+        if (elementAttack.TryGetAttackByKeyBind(k, out var attack))
         {
-            elementAttack.keyBindAttackMap.Remove(k);
+            elementAttack.RemoveAttack(k);
             ValidateElementAttacks();
             return attack;
         }
@@ -106,6 +107,11 @@ public class ElementLoadout : ScriptableObject
     
     public EquippedElementAttack GetElementAttack(ElementEffect elementEffect)
     {
+        if (elementAttackMap.Keys.Count == 0)
+        {
+            ValidateElementAttacks();
+        }
+        
         if (elementAttackMap.TryGetValue(elementEffect, out var elementAttack))
         {
             return elementAttack;
@@ -224,7 +230,7 @@ public class EquippedElementAttack
     public AttacksByWeapon westAttack;
     public AttacksByWeapon southAttack;
     
-    public Dictionary<KeyBind, AttacksByWeapon> keyBindAttackMap = new Dictionary<KeyBind, AttacksByWeapon>();
+    private Dictionary<KeyBind, AttacksByWeapon> keyBindAttackMap = new Dictionary<KeyBind, AttacksByWeapon>();
 
     public void ValidateKeyBinds()
     {
@@ -259,6 +265,16 @@ public class EquippedElementAttack
                 southAttack.SwordAttack.keyBinds = new KeyBind[] { KeyBind.South };
             }
         }
+    }
+    
+    public bool TryGetAttackByKeyBind(KeyBind key, out AttacksByWeapon attack)
+    {
+        return keyBindAttackMap.TryGetValue(key, out attack);
+    }
+
+    public void RemoveAttack(KeyBind key)
+    {
+        keyBindAttackMap.Remove(key);
     }
 
     public Attack[] GetSwordAttacks()

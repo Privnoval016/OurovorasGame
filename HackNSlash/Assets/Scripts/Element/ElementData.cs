@@ -1,14 +1,14 @@
-using System;
 using System.Collections.Generic;
-using Extensions.Utils;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "ElementData", menuName = "Element Data", order = 0)]
-public class ElementData : ScriptableObject
+public class ElementData : SerializedScriptableObject
 {
     public ElementEffect element;
+    
+    [Header("Element Status Effects")]
+    [SerializeField] private StatusEffect statusEffect;
     
     [Header("Element Colors")]
     [ColorUsage(true, false)]
@@ -31,16 +31,20 @@ public class ElementData : ScriptableObject
 
 
     [Header("VFX Attributes")] 
-    public VFXObjectInfo[] elementVFXs;
     
-    private Dictionary<VFXType, GameObject> vfxDict = new();
+    public Dictionary<VFXType, GameObject> ElementVFXs = new();
     
     public Material weaponTrailMaterial;
     
     
     public GameObject GetVFX(VFXType type)
     {
-        return vfxDict.GetValueOrDefault(type, null);
+        return ElementVFXs.GetValueOrDefault(type, null);
+    }
+
+    public StatusEffect GetStatusEffect()
+    {
+        return EffectManager.Instance?.GetStatusEffect(statusEffect);
     }
 
     public static ElementEffect GetElementFromAttack(ElementEffect attackElement, PlayerController pc)
@@ -61,26 +65,6 @@ public class ElementData : ScriptableObject
         }
 
         return element;
-    }
-
-    private void OnValidate()
-    {
-        vfxDict = new Dictionary<VFXType, GameObject>();
-        
-        foreach (VFXObjectInfo vfxInfo in elementVFXs)
-        {
-            if (vfxInfo.vfxPrefab != null && !vfxDict.ContainsKey(vfxInfo.vfxType))
-            {
-                vfxDict.Add(vfxInfo.vfxType, vfxInfo.vfxPrefab);
-            }
-        }
-    }
-    
-    [Serializable]
-    public class VFXObjectInfo
-    {
-        public VFXType vfxType;
-        public GameObject vfxPrefab;
     }
 }
 
