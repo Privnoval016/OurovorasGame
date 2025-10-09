@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Extensions.Patterns;
 using Extensions.Utils;
 using MEC;
 using UnityEngine;
@@ -124,6 +125,8 @@ public class GameManager : Singleton<GameManager>
     private void SetPlayerControlState()
     {
         OverworldMenuUI.Instance.CloseMenu();
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         CombatManager.Instance.ApplyPausedTimescale(pc, false);
     }
     
@@ -136,6 +139,8 @@ public class GameManager : Singleton<GameManager>
     private void SetMenuState()
     {
         OverworldMenuUI.Instance.OpenMenu();
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         CombatManager.Instance.ApplyPausedTimescale(pc, true);
     }
     

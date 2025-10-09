@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.Patterns;
 using Extensions.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -77,7 +78,12 @@ public class InputManager : Singleton<InputManager>, IPlayerActions, IMenuAction
         InputMap.Menu.SetCallbacks(this);
         InputMap.StateControl.SetCallbacks(this);
     }
-    
+
+    private void Start()
+    {
+        
+    }
+
     private void Update()
     {
         

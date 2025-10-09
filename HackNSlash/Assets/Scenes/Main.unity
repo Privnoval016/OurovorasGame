@@ -1334,9 +1334,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
         type: 3}
-      propertyPath: wanderPoints.Array.size
-      value: 3
+      propertyPath: actions.Array.size
+      value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+        type: 3}
+      propertyPath: 'actions.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 3167ec802c51c4ffd8d30ce0d5cdbde9,
+        type: 2}
+    - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+        type: 3}
+      propertyPath: 'actions.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 127769fa215fb40d2a50eed7bb8bc1c5,
+        type: 2}
     - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
         type: 3}
       propertyPath: 'wanderPoints.Array.data[0]'
@@ -1352,21 +1364,6 @@ PrefabInstance:
       propertyPath: 'wanderPoints.Array.data[2]'
       value: 
       objectReference: {fileID: 1649445614}
-    - target: {fileID: 4241132978300236699, guid: 62d9b8bdffb744a4fa6a82f72f869352,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4241132978300236699, guid: 62d9b8bdffb744a4fa6a82f72f869352,
-        type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4241132978300236699, guid: 62d9b8bdffb744a4fa6a82f72f869352,
-        type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2.1
-      objectReference: {fileID: 0}
     - target: {fileID: 4241132978300236699, guid: 62d9b8bdffb744a4fa6a82f72f869352,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1417,26 +1414,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4241132978300236699, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+    - target: {fileID: 6229334532059045415, guid: 62d9b8bdffb744a4fa6a82f72f869352,
         type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
+      propertyPath: detectionRadius
+      value: 60
       objectReference: {fileID: 0}
-    - target: {fileID: 5271013210882329713, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+    - target: {fileID: 6229334532059045415, guid: 62d9b8bdffb744a4fa6a82f72f869352,
         type: 3}
-      propertyPath: gravityData
-      value: 
-      objectReference: {fileID: 11400000, guid: 5de1e4539ea37ee49aba6ea1c3c40f96,
-        type: 2}
-    - target: {fileID: 5271013210882329713, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+      propertyPath: detectionTags.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6229334532059045415, guid: 62d9b8bdffb744a4fa6a82f72f869352,
         type: 3}
-      propertyPath: groundCheckPoint
-      value: 
-      objectReference: {fileID: 1211075228}
-    - target: {fileID: 5271013210882329713, guid: 62d9b8bdffb744a4fa6a82f72f869352,
-        type: 3}
-      propertyPath: groundLayer.m_Bits
-      value: 64
+      propertyPath: 'detectionTags.Array.data[1]'
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1446,12 +1437,6 @@ PrefabInstance:
 --- !u!4 &1177926775 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4241132978300236699, guid: 62d9b8bdffb744a4fa6a82f72f869352,
-    type: 3}
-  m_PrefabInstance: {fileID: 1177926774}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1211075228 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 9011854279037554396, guid: 62d9b8bdffb744a4fa6a82f72f869352,
     type: 3}
   m_PrefabInstance: {fileID: 1177926774}
   m_PrefabAsset: {fileID: 0}
@@ -1467,6 +1452,40 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Enemy (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+        type: 3}
+      propertyPath: actions.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+        type: 3}
+      propertyPath: 'actions.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 756ebd88748ad456e97fea4372fc292b,
+        type: 2}
+    - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+        type: 3}
+      propertyPath: 'actions.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a87d4445694e649aab2d7ddf6bfb9352,
+        type: 2}
+    - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+        type: 3}
+      propertyPath: 'actions.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 3167ec802c51c4ffd8d30ce0d5cdbde9,
+        type: 2}
+    - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+        type: 3}
+      propertyPath: 'actions.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 127769fa215fb40d2a50eed7bb8bc1c5,
+        type: 2}
+    - target: {fileID: 2116417143945433367, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+        type: 3}
+      propertyPath: wanderPoints.Array.size
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4241132978300236699, guid: 62d9b8bdffb744a4fa6a82f72f869352,
         type: 3}
@@ -1537,6 +1556,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5427409953206228783, guid: 62d9b8bdffb744a4fa6a82f72f869352,
+        type: 3}
+      propertyPath: attackHitboxes.Array.size
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
