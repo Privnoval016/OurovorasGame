@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using Extensions.Utils;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "ElementData", menuName = "Element Data", order = 0)]
@@ -11,8 +8,7 @@ public class ElementData : SerializedScriptableObject
     public ElementEffect element;
     
     [Header("Element Status Effects")]
-    [Tooltip("Values in this serialize reference are NOT used! Refer to EffectManager for actual values.")]
-    [SerializeReference] private StatusEffect statusEffect;
+    [SerializeField] private StatusEffect statusEffect;
     
     [Header("Element Colors")]
     [ColorUsage(true, false)]

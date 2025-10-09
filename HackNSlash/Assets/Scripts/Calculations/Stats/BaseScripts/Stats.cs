@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 public enum InnateStat : int // value based stats
@@ -25,9 +26,18 @@ public class EvaluatedStats
     
     public readonly Mediator<StatQueryKey> StatMediator;
     public readonly Mediator<StatusEffectQueryKey> StatusEffectMediator;
+    
+    private Dictionary<InnateStat, int> cachedStats;
+    private Dictionary<StatusEffect, int> cachedStatusEffects;
 
     public Dictionary<InnateStat, int> Stats()
     {
+        return cachedStats;
+    }
+    
+    private void EvaluateStats()
+    {
+                
         var evaluatedStats = new Dictionary<InnateStat, int>();
         foreach (var kvp in baseStats.Stats)
         {
@@ -38,13 +48,19 @@ public class EvaluatedStats
             StatMediator.PerformQuery(this, queryContext);
             evaluatedStats[kvp.Key] = queryContext.CurrentValue;
         }
-        return evaluatedStats;
+        
+        cachedStats = evaluatedStats;
     }
     
     public Dictionary<StatusEffect, int> StatusEffects()
     {
+        return cachedStatusEffects;
+    }
+
+    private void EvaluateStatusEffects()
+    {
         var evaluatedStatusEffects = new Dictionary<StatusEffect, int>();
-        foreach (var kvp in baseStats.StatusEffects)
+        foreach (var kvp in baseStats.GetBaseStatusEffects())
         {
             var query = new StatusEffectQueryKey(kvp.Key);
             var queryContext = new QueryContext<StatusEffectQueryKey>(query,
@@ -53,7 +69,8 @@ public class EvaluatedStats
             StatusEffectMediator.PerformQuery(this, queryContext);
             evaluatedStatusEffects[kvp.Key] = queryContext.CurrentValue;
         }
-        return evaluatedStatusEffects;
+        
+        cachedStatusEffects = evaluatedStatusEffects;
     }
     
     public EvaluatedStats(BaseStats baseStats, Mediator<StatQueryKey> statMediator = null,
@@ -62,6 +79,12 @@ public class EvaluatedStats
         this.baseStats = baseStats;
         StatMediator = statMediator ?? new Mediator<StatQueryKey>();
         StatusEffectMediator = statusEffectMediator ?? new Mediator<StatusEffectQueryKey>();
+        
+        StatMediator.OnModifiersChanged += EvaluateStats;
+        StatusEffectMediator.OnModifiersChanged += EvaluateStatusEffects;
+        
+        EvaluateStats();
+        EvaluateStatusEffects();
     }
     
     public int GetInnateStat(InnateStat innateStat)
@@ -84,7 +107,7 @@ public class EvaluatedStats
         var statusEffects = StatusEffects();
         
         float totalMultiplier = 1;
-
+        
         foreach (var kvp in statusEffects)
         {
             if (kvp.Key.Target == statusEffectTarget)

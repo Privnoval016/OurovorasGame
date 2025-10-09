@@ -14,7 +14,7 @@ public class ProjectileParryAttackAction : IAttackAction
         oae.RunSegmentCoroutine(BeginProjectileParry())
             .OnDestroy(() =>
             {
-                pc.pi.isInvincible = false;
+                pc.ps.isInvincible = false;
             });
     }
     
@@ -24,13 +24,13 @@ public class ProjectileParryAttackAction : IAttackAction
 
         if (pc.wc.activeWeapons.Count == 0)
         {
-            pc.pi.isInvincible = false;
+            pc.ps.isInvincible = false;
             yield break;
         }
         
         pc.rb.linearVelocity = Vector3.zero;
         
-        pc.pi.isInvincible = true;
+        pc.ps.isInvincible = true;
         
         foreach (VFXHitbox h in pc.psm.ParriedProjectiles)
         {

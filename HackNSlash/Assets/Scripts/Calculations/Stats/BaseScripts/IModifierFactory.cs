@@ -1,4 +1,6 @@
-﻿public interface IModifierFactory<T> where T : IQueryKey<T>
+﻿using UnityEngine;
+
+public interface IModifierFactory<T> where T : IQueryKey<T>
 {
     Modifier<T> Create(IStatChangeProvider statChange);
 }
@@ -32,8 +34,12 @@ public class StatusEffectModifierFactory : IModifierFactory<StatusEffectQueryKey
     {
         if (statChange is not StatusEffectChange statusEffectChange) return null;
         
+        Debug.LogWarning("Creating StatusEffectModifier for " + statusEffectChange.StatusEffect.name + 
+                         " with stacks: " + statusEffectChange.stacks + 
+                         " and duration: " + statusEffectChange.duration);
+        
         IModifierStrategy strategy = new StatusEffectModifierStrategy(
-            statusEffectChange.stacks);
+            statusEffectChange.stacks, 0,  statusEffectChange.StatusEffect.MaxStacks);
         
         var key = new StatusEffectQueryKey(statusEffectChange.StatusEffect);
         

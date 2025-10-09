@@ -21,7 +21,7 @@ public abstract class IAttackAction
     {
         yield return Timing.WaitForSeconds(time);
         
-        pc.pi.isInvincible = false;
+        pc.ps.isInvincible = false;
         
         action?.Invoke();
         pc.psm.canAttack = true;

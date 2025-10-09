@@ -41,8 +41,6 @@ public class PlayerInventory : MonoBehaviour
     
     
     #endregion
-    
-    public bool isInvincible = false;
 
     #region MonoBehaviour Callbacks
 

@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
 using Extensions.Patterns;
 using UnityEngine;
 
 public class EffectManager : Singleton<EffectManager>
 {
-    [SerializeField] private List<StatusEffectInfo> statusEffects = new();
+    public StatusEffect[] statusEffects;
     
     #region MonoBehaviour Callbacks
     
@@ -21,12 +19,12 @@ public class EffectManager : Singleton<EffectManager>
     
     public StatusEffect GetStatusEffect(StatusEffect statusEffect)
     {
-        statusEffect ??= new NoStatusEffect();
+        statusEffect ??= ScriptableObject.CreateInstance<NoStatusEffect>();
         
-        foreach (var effectInfo in statusEffects)
+        foreach (var effect in statusEffects)
         {
-            if (effectInfo.statusEffect.Equals(statusEffect))
-                return effectInfo.statusEffect;
+            if (effect.Equals(statusEffect))
+                return effect;
         }
 
         Debug.LogError($"Status Effect {statusEffect} not found in EffectManager.");
@@ -34,10 +32,4 @@ public class EffectManager : Singleton<EffectManager>
     }
     
     #endregion
-}
-
-[Serializable]
-public class StatusEffectInfo
-{
-    [SerializeReference] public StatusEffect statusEffect;
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 /**
  * <summary>
@@ -13,8 +14,11 @@ public class Mediator<T> where T : IQueryKey<T>
 {
     private readonly List<Modifier<T>> Modifiers = new();
     
+    public Action OnModifiersChanged = delegate { };
+    
     public void PerformQuery(object sender, QueryContext<T> queryContext)
     {
+        
         foreach (var modifier in Modifiers)
         {
             modifier.Handle(sender, queryContext);
@@ -28,7 +32,13 @@ public class Mediator<T> where T : IQueryKey<T>
         
         mod.MarkedForRemoval = false;
 
-        mod.OnDisposed += _ => Modifiers.Remove(mod);
+        mod.OnDisposed += _ =>
+        {
+            Modifiers.Remove(mod);
+            OnModifiersChanged?.Invoke();
+        };
+        
+        OnModifiersChanged?.Invoke();
     }
 
     public void Update()
@@ -50,7 +60,34 @@ public class Mediator<T> where T : IQueryKey<T>
  * Interface for query types. This is a marker interface used to define different types of queries.
  * </summary>
  */
-public interface IQueryKey<out T> { }
+public abstract class IQueryKey<T>
+{
+    public override bool Equals(object obj)
+    {
+        return OnEquals(obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return OnGetHashCode();
+    }
+    
+    public static bool operator ==(IQueryKey<T> a, IQueryKey<T> b)
+    {
+        if (ReferenceEquals(a, b)) return true;
+        if (a is null || b is null) return false;
+        return a.Equals(b);
+    }
+    
+    public static bool operator !=(IQueryKey<T> a, IQueryKey<T> b)
+    {
+        return !(a == b);
+    }
+    
+    protected abstract bool OnEquals(object obj); // Implement a proper equality method
+    
+    protected abstract int OnGetHashCode(); // Implement a proper hash code method
+}
 
 /**
  * <summary>
@@ -86,6 +123,16 @@ public class StatQueryKey : IQueryKey<StatQueryKey>
     {
         Key = key;
     }
+    
+    protected override bool OnEquals(object obj)
+    {
+        return obj is StatQueryKey other && Key == other.Key;
+    }
+    
+    protected override int OnGetHashCode()
+    {
+        return Key.GetHashCode();
+    }
 }
 
 /**
@@ -100,5 +147,15 @@ public class StatusEffectQueryKey : IQueryKey<StatusEffectQueryKey>
     public StatusEffectQueryKey(StatusEffect key)
     {
         Key = key;;
+    }
+
+    protected override bool OnEquals(object obj)
+    {
+        return obj is StatusEffectQueryKey other && Key.Equals(other.Key);
+    }
+    
+    protected override int OnGetHashCode()
+    {
+        return Key.GetHashCode();
     }
 }

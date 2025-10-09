@@ -22,6 +22,8 @@ MonoBehaviour:
     charge: 15
     ultimateCharge: 8
     damage: 0
+    statusEffectStacks: 1
+    statusEffectDuration: 5
   isLockedOn: 0
   requireElementTrigger: 0
   triggerCoolDown: 0

@@ -87,8 +87,7 @@ MonoBehaviour:
       Entry: 8
       Data: 
   element: 2
-  statusEffect:
-    rid: 278943961285919108
+  statusEffect: {fileID: 11400000, guid: d3b89159263b44cd5aab6ca208bf40da, type: 2}
   elementColor: {r: 0.7490196, g: 0.03696346, b: 0, a: 1}
   elementInactiveColor: {r: 0.37106913, g: 0.017484931, b: 0, a: 1}
   vfxPureColor: {r: 4, g: 0, b: 0.42912674, a: 0}
@@ -125,10 +124,3 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 4
   weaponTrailMaterial: {fileID: 2100000, guid: a7e17421356e98242ac37a4bea1dbeab, type: 2}
-  references:
-    version: 2
-    RefIds:
-    - rid: 278943961285919108
-      type: {class: DamageOverTimeStatusEffect, ns: , asm: Assembly-CSharp}
-      data:
-        dotDamageMultiplier: 0.01

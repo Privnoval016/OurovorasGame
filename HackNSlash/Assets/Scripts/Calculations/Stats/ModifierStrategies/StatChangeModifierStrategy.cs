@@ -9,7 +9,7 @@ public class StatChangeModifierStrategy : IModifierStrategy
         this.value = value;
     }
 
-    public (int, int) Modify(int baseValue, int currentValue)
+    public override (int, int) Modify(int baseValue, int currentValue)
     {
         switch (changeType)
         {
