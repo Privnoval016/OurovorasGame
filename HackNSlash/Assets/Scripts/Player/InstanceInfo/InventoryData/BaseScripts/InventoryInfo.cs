@@ -9,23 +9,41 @@ public class InventoryInfo : ScriptableObject
     public List<InventoryStack<Consumable>> consumables = new List<InventoryStack<Consumable>>();
     public List<InventoryStack<Resource>> resources = new List<InventoryStack<Resource>>();
     public List<InventoryStack<KeyItem>> keyItems = new List<InventoryStack<KeyItem>>();
+    
+    public InventoryStack<T> GetStackOfType<T>(T item) where T : InventoryItem
+    {
+        List<InventoryStack<T>> stackList = item switch
+        {
+            Accessory => accessories as List<InventoryStack<T>>,
+            Consumable => consumables as List<InventoryStack<T>>,
+            Resource => resources as List<InventoryStack<T>>,
+            KeyItem => keyItems as List<InventoryStack<T>>,
+            _ => accessories as List<InventoryStack<T>>
+        };
+
+        return stackList?.Find(stack => stack.item == item);
+    }
+    
+    public int GetIndexOfStack<T>(T item) where T : InventoryItem
+    {
+        List<InventoryStack<T>> stackList = item switch
+        {
+            Accessory => accessories as List<InventoryStack<T>>,
+            Consumable => consumables as List<InventoryStack<T>>,
+            Resource => resources as List<InventoryStack<T>>,
+            KeyItem => keyItems as List<InventoryStack<T>>,
+            _ => accessories as List<InventoryStack<T>>
+        };
+
+        return stackList?.FindIndex(stack => stack.item == item) ?? -1;
+    }
 }
 
 [Serializable]
-public class InventoryStack<T> : ScrollItem where T : InventoryItem
+public class InventoryStack<T> where T : InventoryItem
 {
     public T item;
     public int amount;
-
-    public void OnScrollActive()
-    {
-        
-    }
-    
-    public void OnScrollInactive()
-    {
-        
-    }
     
     public ItemUIInfo GetItemUIInfo()
     {
@@ -33,8 +51,10 @@ public class InventoryStack<T> : ScrollItem where T : InventoryItem
         {
             itemName = item.itemName,
             itemDescription = item.itemDescription,
-            amount = amount
-            //itemRarity = item.itemRarity
+            amount = amount,
+            isStackable = item.isStackable,
+            itemRarity = item.itemRarity,
+            icon = item.itemIcon
         };
     }
 }
