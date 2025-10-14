@@ -10,15 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd35f9fb2e9c1b941b90fdd5adaa69c5, type: 3}
-  m_Name: New Accessory
+  m_Name: VampiricFangs 4
   m_EditorClassIdentifier: 
-  itemName: 
-  itemDescription: 
+  itemName: Vampiric Fangs 4
+  itemDescription: use use use wa
   itemRarity: 0
   itemIcon: {fileID: 0}
+  isStackable: 0
+  maxStackSize: 99
   purchasePrice: 0
   statChanges:
-  - stat: 0
-    value: 0
+  - innateStat: 0
     changeType: 0
+    value: 0
+    duration: 0
   equipmentEffects: 

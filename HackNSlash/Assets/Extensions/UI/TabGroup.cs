@@ -12,16 +12,14 @@ namespace Extensions.UI
         private int SelectedTabIndex => tabButtons.IndexOf(selectedTab);
 
         [Header("Input Actions")] 
-        public InputActionReference tabLeft;
-        public InputActionReference tabRight;
         public bool tabActive = true;
 
         #region MonoBehaviour Callbacks
 
         private void Awake()
         {
-            tabLeft.action.performed += OnTabLeft;
-            tabRight.action.performed += OnTabRight;
+            InputManager.Instance.onTabLeft += OnTabLeft;
+            InputManager.Instance.onTabRight += OnTabRight;
         }
 
         private void Start()
@@ -40,6 +38,8 @@ namespace Extensions.UI
 
         private void OnTabLeft(InputAction.CallbackContext context)
         {
+            if (!context.performed) return;
+            
             if (!tabActive) return;
 
             if (tabButtons.Count == 0) return;
@@ -63,6 +63,8 @@ namespace Extensions.UI
 
         private void OnTabRight(InputAction.CallbackContext context)
         {
+            if (!context.performed) return;
+            
             if (!tabActive) return;
 
             if (tabButtons.Count == 0) return;

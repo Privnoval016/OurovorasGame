@@ -22,6 +22,8 @@ public class PlayerInventory : MonoBehaviour
     public EquipmentLoadout CurrentLoadout => loadouts[currentLoadoutIndex];
 
     public PlayerSkillTree skillTree;
+    
+    public InventoryInfo inventoryInfo;
 
     #endregion
 

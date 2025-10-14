@@ -1,66 +1,287 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DanielLochner.Assets.SimpleScrollSnap;
-using Unity.VisualScripting;
+using Extensions.Timers;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
+using PrimeTween;
+using UnityEngine.Serialization;
 
 namespace Extensions.UI
 {
+    public enum MovementAxis
+    {
+        Horizontal,
+        Vertical
+    }
     public class ScrollMenu : MonoBehaviour
     {
-        public List<ScrollItem> scrollItems;
-        public int SelectedItemIndex => scrollSnap.SelectedPanel;
-        public ScrollItem SelectedItem => scrollItems[SelectedItemIndex];
+        [Header("Scroll Settings")]
+        public MovementAxis axis;
+        
+        public int NumPanels => scrollItemUIPanels.Count;
+        [HideInInspector] public bool ableToScroll = true;
+        
+        [Header("Item Settings")]
+        public Transform scrollItemContainer;
+        public List<ScrollUIPanel> scrollItemUIPanels;
+        [FormerlySerializedAs("selectedItemIndex")] public int selectedUIPanelIndex = 0;
+        public ScrollUIPanel SelectedItem => scrollItemUIPanels[selectedUIPanelIndex];
+        
+        private List<Vector3> itemPositions = new List<Vector3>();
+        
+        private CountdownTimer scrollCooldownTimer;
+        private float scrollCooldown = 0.11f;
+        private float scrollDuration = 0.1f;
+
+        [HideInInspector] public int activePanels;
+        
+        [HideInInspector] public bool canScroll = true;
+        
+        #region Inventory Parameters
+        
+        private IList inventoryItems;
+        private int inventoryStartIndex = 0;
+        private Func<object, ItemUIInfo> getItemInfoFunc;
         
         
-        public SimpleScrollSnap scrollSnap;
-
-        public InputActionReference scroll;
-
-        private float itemDistance;
+        #endregion
 
 
-        private void Awake()
+        private void Start()
         {
-            scrollSnap = GetComponent<SimpleScrollSnap>();
+            scrollItemUIPanels = scrollItemContainer.GetComponentsInChildren<ScrollUIPanel>(true).ToList();
+
+            itemPositions = scrollItemUIPanels.Select(panel => panel.rectTransform.localPosition).ToList();
             
-            if (scroll != null)
-            {
-                scroll.action.performed += OnScroll;
-            } 
+            scrollCooldownTimer = new CountdownTimer(scrollCooldown, true);
+            
+            scrollCooldownTimer.OnTimerStart += () => canScroll = false;
+            scrollCooldownTimer.OnTimerStop += () => canScroll = true;
+
+            ableToScroll = true;
+        }
+        
+        public void Activate<T>(List<T> items, int initialIndex, Func<T, ItemUIInfo> getInfoFunc)
+        {
+            selectedUIPanelIndex = 0;
+            InputManager.Instance.onScroll += OnScroll;
+            scrollCooldownTimer.Stop();
+            InitializeMenuWithInventory(items, initialIndex, getInfoFunc);
+        }
+        
+        public void Deactivate()
+        {
+            InputManager.Instance.onScroll -= OnScroll;
+            scrollCooldownTimer.Stop();
+            
+            inventoryItems = null;
+            getItemInfoFunc = null;
+            inventoryStartIndex = 0;
         }
         
         private void OnScroll(InputAction.CallbackContext context)
         {
             if (!context.performed) return;
+            
+            if (!canScroll) return;
+            
+            scrollCooldownTimer.Restart();
 
             Vector2 scrollValue = context.ReadValue<Vector2>();
-            float value = (scrollSnap.MovementAxis == MovementAxis.Horizontal) ? scrollValue.x : scrollValue.y;
+            float value = (axis == MovementAxis.Horizontal) ? scrollValue.x : scrollValue.y;
+            
             if (value > 0f)
             {
-                scrollSnap.GoToNextPanel();
+                ScrollRight();
             }
             else if (value < 0f)
             {
-                scrollSnap.GoToPreviousPanel();
+                ScrollLeft();
             }
         }
         
-        public void ScrollLeft()
+        private void ScrollLeft()
         {
-            scrollSnap.GoToPreviousPanel();
+            Debug.Log("Scrolling Left");
+            
+            SelectedItem.OnDeselected();
+            
+            var shiftedPanel = scrollItemUIPanels[0];
+            scrollItemUIPanels.RemoveAt(0);
+            scrollItemUIPanels.Add(shiftedPanel);
+            
+            if (!ableToScroll)
+            {
+                selectedUIPanelIndex -= 1;
+                
+                int direction = -1;
+                if (selectedUIPanelIndex < 0)
+                {
+                    selectedUIPanelIndex = 0;
+                    direction = 0;
+                }
+                ScrollIndex(direction);
+                
+                SelectedItem.OnSelected();
+                return;
+            }
+
+            selectedUIPanelIndex = 0;
+            
+            ScrollIndex(-1);
+            SelectedItem.OnSelected();
+            
+            for (int i = 0; i < scrollItemUIPanels.Count - 1; i++)
+            {
+                var panel = scrollItemUIPanels[i];
+                var targetPosition = itemPositions[i];
+                
+                Tween.LocalPosition(panel.rectTransform, targetPosition, scrollDuration, Ease.InOutQuad, 1, 
+                    CycleMode.Restart, 0, 0, true);
+            }
+            
+            var newPosition = itemPositions[0] + (itemPositions[0] - itemPositions[1]);
+            
+            Tween.LocalPosition(shiftedPanel.rectTransform, newPosition, scrollDuration, Ease.InOutQuad, 1, 
+                CycleMode.Restart, 0, 0, true).OnComplete(() =>
+            {
+                shiftedPanel.rectTransform.localPosition = itemPositions.Last();
+            });
+            
+            RefreshScrollPanels(-1, shiftedPanel);
         }
         
-        public void ScrollRight()
+        private void ScrollRight()
         {
-            scrollSnap.GoToNextPanel();
+            Debug.Log("Scrolling Right");
+            
+            SelectedItem.OnDeselected();
+            
+            var shiftedPanel = scrollItemUIPanels.Last();
+            scrollItemUIPanels.RemoveAt(scrollItemUIPanels.Count - 1);
+            scrollItemUIPanels.Insert(0, shiftedPanel);
+            
+            if (!ableToScroll)
+            {
+                selectedUIPanelIndex += 1;
+                
+                int direction = 1;
+                if (selectedUIPanelIndex >= activePanels)
+                {
+                    selectedUIPanelIndex = activePanels - 1;
+                    direction = 0;
+                }
+                ScrollIndex(direction);
+                
+                SelectedItem.OnSelected();
+                return;
+            }
+            
+            ScrollIndex(1);
+            SelectedItem.OnSelected();
+            
+            RefreshScrollPanels(1, shiftedPanel);
+            
+            for (int i = 1; i < scrollItemUIPanels.Count; i++)
+            {
+                var panel = scrollItemUIPanels[i];
+                var targetPosition = itemPositions[i];
+
+                Tween.LocalPosition(panel.rectTransform, targetPosition, scrollDuration, Ease.InOutQuad, 1, 
+                    CycleMode.Restart, 0, 0, true);
+            }
+            
+            var newPosition = itemPositions[0] + (itemPositions[0] - itemPositions[1]);
+            
+            shiftedPanel.rectTransform.localPosition = newPosition;
+            
+            Tween.LocalPosition(shiftedPanel.rectTransform, itemPositions[0], scrollDuration, Ease.InOutQuad, 1,
+                CycleMode.Restart, 0, 0, true);
+        }
+
+        /**
+         * <summary>
+         * Initializes the scroll menu with a list of items from an inventory.
+         * </summary>
+         *
+         * <typeparam name="T">The type of items in the inventory.</typeparam>
+         * <param name="items">The list of items to display in the scroll menu.</param>
+         * <param name="initialIndex">The index of the item to be initially selected.</param>
+         * <param name="getInfoFunc">A function that takes an item of type T and returns its ItemUIInfo.</param>
+         */
+        private void InitializeMenuWithInventory<T>(List<T> items, int initialIndex, Func<T, ItemUIInfo> getInfoFunc)
+        {
+            if (initialIndex < 0) initialIndex = 0;
+            
+            ableToScroll = items.Count >= NumPanels;
+            
+            activePanels = 0;
+            for (int i = 0; i < NumPanels; i++)
+            {
+                int index = initialIndex + i;
+                var panel = scrollItemUIPanels[i];
+                if (index >= items.Count)
+                {
+                    panel.gameObject.SetActive(false);
+                }
+                else
+                {
+                    panel.gameObject.SetActive(true);
+                    Debug.Log("Refreshing panel " + panel.name + " with accessory at index " + index);
+                    var accessory = items[index];
+                    panel.Refresh(getInfoFunc(accessory));
+                    activePanels++;
+                }
+            }
+            
+            inventoryItems = items;
+            inventoryStartIndex = initialIndex;
+            getItemInfoFunc = obj => getInfoFunc((T)obj);
+        }
+
+        /**
+         * <summary>
+         * Scrolls the stored indices of the menu in the given direction.
+         * </summary>
+         */
+        private void ScrollIndex(int direction)
+        {
+            inventoryStartIndex -= direction;
+            inventoryStartIndex += inventoryItems.Count;
+            inventoryStartIndex %= inventoryItems.Count;
+            Debug.Log("Current item stack index in UI: " + inventoryStartIndex);
         }
         
-        public int GetSelectedIndex()
+        /**
+         * <summary>
+         * Refreshes the scroll panels based on the information from the inventory.
+         * </summary>
+         *
+         * <param name="direction">The direction of the scroll (1 for right, -1 for up).</param>
+         * <param name="refreshedPanel">The panel that was refreshed (if any).</param>
+         */
+        private void RefreshScrollPanels(int direction, ScrollUIPanel refreshedPanel)
         {
-            return scrollSnap.SelectedPanel;
+            int refreshedItemIndex = direction > 0 ? inventoryStartIndex : NumPanels - 1 + inventoryStartIndex;
+            refreshedItemIndex %= inventoryItems.Count;
+        
+            var accessory = inventoryItems[refreshedItemIndex];
+            refreshedPanel.Refresh(getItemInfoFunc(accessory));
+        }
+
+        /**
+         * <summary>
+         * Gets the index of the currently selected item in the inventory list.
+         * </summary>
+         *
+         * <returns>The index of the selected item in the inventory list.</returns>
+         */
+        public int GetIndexInInventory()
+        {
+            return 0;
         }
     }
 }
