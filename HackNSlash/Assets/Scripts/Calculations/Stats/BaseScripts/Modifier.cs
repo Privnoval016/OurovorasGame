@@ -40,11 +40,7 @@ public class Modifier<T> where T : IQueryKey<T>
 
     public void Handle(object sender, QueryContext<T> queryContext)
     {
-        Debug.LogWarning("Handle: Handling modifier for key: " + Key + " with current query key: " + queryContext.Key + " equals " + Key.Equals(queryContext.Key));
-        
         if (!Key.Equals(queryContext.Key)) return;
-        // IT DOESNT FUCKING WORK HERE !!!!!!
-        Debug.LogWarning("Handle: Applying modifier strategy for key: " + Key);
         
         (queryContext.BaseValue, queryContext.CurrentValue) = 
             Strategy.Modify(queryContext.BaseValue, queryContext.CurrentValue);

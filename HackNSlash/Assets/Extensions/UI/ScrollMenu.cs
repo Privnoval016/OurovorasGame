@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using DanielLochner.Assets.SimpleScrollSnap;
 using Extensions.Timers;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -22,7 +21,7 @@ namespace Extensions.UI
         public MovementAxis axis;
         
         public int NumPanels => scrollItemUIPanels.Count;
-        [HideInInspector] public bool ableToScroll = true;
+        [HideInInspector] public bool ableToScroll = true; // Is scrolling enabled based on number of items vs panels
         
         [Header("Item Settings")]
         public Transform scrollItemContainer;
@@ -50,24 +49,34 @@ namespace Extensions.UI
         #endregion
 
 
-        private void Start()
+        private void Awake()
         {
             scrollItemUIPanels = scrollItemContainer.GetComponentsInChildren<ScrollUIPanel>(true).ToList();
 
             itemPositions = scrollItemUIPanels.Select(panel => panel.rectTransform.localPosition).ToList();
             
+            InitializeScrollTimer();
+
+            ableToScroll = true;
+        }
+        
+        private void InitializeScrollTimer()
+        {
+            if (scrollCooldownTimer != null) return;
+            
             scrollCooldownTimer = new CountdownTimer(scrollCooldown, true);
             
             scrollCooldownTimer.OnTimerStart += () => canScroll = false;
             scrollCooldownTimer.OnTimerStop += () => canScroll = true;
-
-            ableToScroll = true;
         }
         
         public void Activate<T>(List<T> items, int initialIndex, Func<T, ItemUIInfo> getInfoFunc)
         {
             selectedUIPanelIndex = 0;
             InputManager.Instance.onScroll += OnScroll;
+            
+            InitializeScrollTimer();
+            
             scrollCooldownTimer.Stop();
             InitializeMenuWithInventory(items, initialIndex, getInfoFunc);
         }
@@ -75,6 +84,9 @@ namespace Extensions.UI
         public void Deactivate()
         {
             InputManager.Instance.onScroll -= OnScroll;
+            
+            InitializeScrollTimer();
+            
             scrollCooldownTimer.Stop();
             
             inventoryItems = null;
@@ -84,7 +96,7 @@ namespace Extensions.UI
         
         private void OnScroll(InputAction.CallbackContext context)
         {
-            if (!context.performed) return;
+            if (context.phase == InputActionPhase.Canceled) return;
             
             if (!canScroll) return;
             
@@ -139,13 +151,13 @@ namespace Extensions.UI
                 var panel = scrollItemUIPanels[i];
                 var targetPosition = itemPositions[i];
                 
-                Tween.LocalPosition(panel.rectTransform, targetPosition, scrollDuration, Ease.InOutQuad, 1, 
+                Tween.LocalPosition(panel.rectTransform, targetPosition, scrollDuration, Ease.InOutCubic, 1, 
                     CycleMode.Restart, 0, 0, true);
             }
             
             var newPosition = itemPositions[0] + (itemPositions[0] - itemPositions[1]);
             
-            Tween.LocalPosition(shiftedPanel.rectTransform, newPosition, scrollDuration, Ease.InOutQuad, 1, 
+            Tween.LocalPosition(shiftedPanel.rectTransform, newPosition, scrollDuration, Ease.InOutCubic, 1, 
                 CycleMode.Restart, 0, 0, true).OnComplete(() =>
             {
                 shiftedPanel.rectTransform.localPosition = itemPositions.Last();
@@ -190,7 +202,7 @@ namespace Extensions.UI
                 var panel = scrollItemUIPanels[i];
                 var targetPosition = itemPositions[i];
 
-                Tween.LocalPosition(panel.rectTransform, targetPosition, scrollDuration, Ease.InOutQuad, 1, 
+                Tween.LocalPosition(panel.rectTransform, targetPosition, scrollDuration, Ease.InOutCubic, 1, 
                     CycleMode.Restart, 0, 0, true);
             }
             
@@ -198,7 +210,7 @@ namespace Extensions.UI
             
             shiftedPanel.rectTransform.localPosition = newPosition;
             
-            Tween.LocalPosition(shiftedPanel.rectTransform, itemPositions[0], scrollDuration, Ease.InOutQuad, 1,
+            Tween.LocalPosition(shiftedPanel.rectTransform, itemPositions[0], scrollDuration, Ease.InOutCubic, 1,
                 CycleMode.Restart, 0, 0, true);
         }
 
@@ -249,6 +261,8 @@ namespace Extensions.UI
          */
         private void ScrollIndex(int direction)
         {
+            if (direction == 0) return;
+            
             inventoryStartIndex -= direction;
             inventoryStartIndex += inventoryItems.Count;
             inventoryStartIndex %= inventoryItems.Count;
@@ -265,6 +279,8 @@ namespace Extensions.UI
          */
         private void RefreshScrollPanels(int direction, ScrollUIPanel refreshedPanel)
         {
+            if (direction == 0) return;
+            
             int refreshedItemIndex = direction > 0 ? inventoryStartIndex : NumPanels - 1 + inventoryStartIndex;
             refreshedItemIndex %= inventoryItems.Count;
         
