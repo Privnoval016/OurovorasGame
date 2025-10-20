@@ -15,6 +15,6 @@ MonoBehaviour:
   loadoutName: 
   elementLoadout: {fileID: 11400000, guid: c9357080a4b35d34fafa3b8f5eec6220, type: 2}
   equippedAccessories:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 05da69199f12e1949b266b43ec1ec0ac, type: 2}
   - {fileID: 0}
   - {fileID: 0}
