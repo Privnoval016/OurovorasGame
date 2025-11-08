@@ -1222,24 +1222,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   questEventData: {fileID: 11400000, guid: a790979d1b6fc45ae9475746f12394a1, type: 2}
-  requiredBroadcastStrategies:
-  - questEventBroadcastStrategy:
-      rid: 6772710336550404203
+  questEventCondition:
+    rid: 6772710336550404231
   questEventExecutionStrategy:
     rid: 6772710336550404206
   eventTriggered: 0
   references:
     version: 2
     RefIds:
-    - rid: 6772710336550404203
-      type: {class: ItemsInInventoryBroadcastStrategy, ns: , asm: Assembly-CSharp}
-      data:
-        strategyId: 1
-        player: {fileID: 0}
-        requiredItems: []
     - rid: 6772710336550404206
       type: {class: ActivateCutsceneExecutionStrategy, ns: , asm: Assembly-CSharp}
       data: 
+    - rid: 6772710336550404231
+      type: {class: 'AndCondition`1[[QuestEventData, Assembly-CSharp]]', ns: Extensions.CustomMath.LogicComposition,
+        asm: Assembly-CSharp}
+      data:
+        children: []
 --- !u!1 &904838481
 GameObject:
   m_ObjectHideFlags: 0
