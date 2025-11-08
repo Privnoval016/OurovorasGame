@@ -1,4 +1,5 @@
 using System;
+using Extensions.CustomMath.LogicComposition;
 using UnityEngine;
 
 /**
@@ -6,7 +7,7 @@ using UnityEngine;
  * holding something, etc.).
  */
 [Serializable]
-public abstract class IQuestEventBroadcastStrategy
+public abstract class IQuestEventBroadcastStrategy : ICondition<QuestEventData>
 {
     [Header("Strategy Identifier")]
     [Tooltip("Unique identifier for this broadcast strategy (doesn't have to be globally unique, just unique per quest event receiver).")]
@@ -78,5 +79,10 @@ public abstract class IQuestEventBroadcastStrategy
     protected void Broadcast(QuestEventReceiver receiver)
     {
         receiver.RegisterBroadcast(strategyId);
+    }
+
+    public bool Evaluate(QuestEventData context)
+    {
+        return context.IsBroadcastComplete(strategyId);
     }
 }

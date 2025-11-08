@@ -19,4 +19,9 @@ public class TriggerEnterBroadcastStrategy : IQuestEventBroadcastStrategy
         
         Broadcast(Receiver);
     }
+
+    public override string ToString()
+    {
+        return "Trigger Enter";
+    }
 }

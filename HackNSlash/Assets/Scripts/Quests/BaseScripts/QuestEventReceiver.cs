@@ -1,8 +1,9 @@
 using System;
-using Extensions.EventBus;
-using Unity.VisualScripting;
+using System.Collections.Generic;
+using System.Linq;
+using Extensions.CustomMath.LogicComposition;
+using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 /**
  * Attach to a GameObject to receive and handle quest events based on the given strategy.
@@ -13,14 +14,19 @@ public class QuestEventReceiver : MonoBehaviour
     public QuestEventData questEventData;
     
     [Header("Event Strategies")]
-    public BroadcastStrategy[] requiredBroadcastStrategies;
+    [SerializeReference] 
+    [ValueDropdown("GetBroadcastStrategies")]
+    public ICondition<QuestEventData> questEventCondition;
     [SerializeReference] public IQuestEventExecutionStrategy questEventExecutionStrategy;
+    
+    private List<IQuestEventBroadcastStrategy> broadcastStrategies;
 
     public bool eventTriggered;
 
     private void Awake()
     {
         eventTriggered = false;
+        Collect(questEventCondition, broadcastStrategies);
         RunBroadcastCheck(strategy => strategy.Initialize(this), false);
     }
 
@@ -75,13 +81,13 @@ public class QuestEventReceiver : MonoBehaviour
     {
         if (skipIfTriggered && eventTriggered) return;
         
-        foreach (var strategy in requiredBroadcastStrategies)
+        foreach (var strategy in broadcastStrategies)
         {
-            if (strategy.questEventBroadcastStrategy == null || 
-                questEventData.IsBroadcastComplete(strategy.questEventBroadcastStrategy.strategyId))
+            if (strategy == null || 
+                questEventData.IsBroadcastComplete(strategy.strategyId))
                 continue; // Already registered
             
-            action(strategy.questEventBroadcastStrategy);
+            action(strategy);
             
         }
     }
@@ -98,6 +104,39 @@ public class QuestEventReceiver : MonoBehaviour
         
         questEventData.RegisterEvent(broadcastId);
     }
+    
+    private void Collect<TContext>(ICondition<TContext> condition, List<IQuestEventBroadcastStrategy> list)
+    {
+        switch (condition)
+        {
+            case IQuestEventBroadcastStrategy leaf:
+                list.Add(leaf);
+                break;
+
+            case AndCondition<TContext> andC:
+                foreach (var child in andC.children)
+                    Collect(child, list);
+                break;
+
+            case OrCondition<TContext> orC:
+                foreach (var child in orC.children)
+                    Collect(child, list);
+                break;
+
+            case NotCondition<TContext> notC:
+                if (notC.child != null)
+                    Collect(notC.child, list);
+                break;
+        }
+    }
+    
+    private IEnumerable<ValueDropdownItem> GetBroadcastStrategies()
+    {
+        return ICondition<QuestEventData>.GetBroadcastStrategies();
+    }
+
+    
+
 }
 
 /**

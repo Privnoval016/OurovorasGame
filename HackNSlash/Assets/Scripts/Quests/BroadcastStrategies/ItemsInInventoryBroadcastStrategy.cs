@@ -42,4 +42,9 @@ public class ItemsInInventoryBroadcastStrategy : IQuestEventBroadcastStrategy
         
         Broadcast(Receiver);
     }
+
+    public override string ToString()
+    {
+        return "Items In Inventory";
+    }
 }

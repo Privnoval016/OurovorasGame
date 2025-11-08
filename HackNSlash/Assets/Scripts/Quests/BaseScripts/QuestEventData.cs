@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Extensions.CustomMath.LogicComposition;
 using UnityEngine;
 
 /**
- * ScriptableObject to hold quest event data (acts as an index for quest-related information).
+ * ScriptableObject to hold quest event data (acts as an index for quest-related information). Also acts
+ * as a persistent data holder for quest progress tracking (across scene loads, etc).
  */
 [CreateAssetMenu(fileName = "New Quest Event Data", menuName = "Quests/Quest Event Data")]
 public class QuestEventData : ScriptableObject
@@ -24,8 +26,6 @@ public class QuestEventData : ScriptableObject
         {
             return; // Event from this broadcastId has already been counted
         }
-        
-        currentCount++;
 
         if (currentCount >= requiredEvents)
         {
