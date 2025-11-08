@@ -36,7 +36,7 @@ public class ParryAttackAction : IAttackAction
 
         foreach (var e in parriedEnemies)
         {
-            e.OnStagger(pc.pi.currentElementEffect, pc, a, pc.transform, 0);
+            e.OnStagger(pc.pcc.currentElementEffect, pc, a, pc.transform, 0);
         }
         
         Collider[] hitboxes = parriedEnemies.Select(e => e.col).ToArray();

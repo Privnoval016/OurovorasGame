@@ -25,7 +25,7 @@ public class HitScanSpiritAction : ISpiritAction
     
     private IEnumerator<float> BeginHitScanVFX()
     {
-        ElementEffect element = spirit.pc.pi.currentElementEffect;
+        ElementEffect element = spirit.pc.pcc.currentElementEffect;
         
         HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
 

@@ -37,8 +37,57 @@ public class InventoryInfo : ScriptableObject
 
         return stackList?.FindIndex(stack => stack.item == item) ?? -1;
     }
+    
+    public void AddItem<T>(T item, int amount = 1) where T : InventoryItem
+    {
+        List<InventoryStack<T>> stackList = item switch
+        {
+            Accessory => accessories as List<InventoryStack<T>>,
+            Consumable => consumables as List<InventoryStack<T>>,
+            Resource => resources as List<InventoryStack<T>>,
+            KeyItem => keyItems as List<InventoryStack<T>>,
+            _ => accessories as List<InventoryStack<T>>
+        };
+
+        InventoryStack<T> existingStack = stackList?.Find(stack => stack.item == item);
+        if (existingStack != null)
+        {
+            existingStack.amount += amount;
+        }
+        else
+        {
+            stackList?.Add(new InventoryStack<T> { item = item, amount = amount });
+        }
+    }
+    
+    public T RemoveItem<T>(T item, int amount = 1) where T : InventoryItem
+    {
+        List<InventoryStack<T>> stackList = item switch
+        {
+            Accessory => accessories as List<InventoryStack<T>>,
+            Consumable => consumables as List<InventoryStack<T>>,
+            Resource => resources as List<InventoryStack<T>>,
+            KeyItem => keyItems as List<InventoryStack<T>>,
+            _ => accessories as List<InventoryStack<T>>
+        };
+
+        InventoryStack<T> existingStack = stackList?.Find(stack => stack.item == item);
+        if (existingStack != null && existingStack.amount >= amount)
+        {
+            existingStack.amount -= amount;
+            if (existingStack.amount <= 0)
+            {
+                stackList?.Remove(existingStack);
+            }
+            return item;
+        }
+        return null;
+    }
 }
 
+/**
+ * Serializable class representing a stack of items of a specific subtype to ensure uniformity.
+ */
 [Serializable]
 public class InventoryStack<T> where T : InventoryItem
 {
@@ -56,5 +105,21 @@ public class InventoryStack<T> where T : InventoryItem
             itemRarity = item.itemRarity,
             icon = item.itemIcon
         };
+    }
+}
+
+/**
+ * Serializable struct representing a stack of items with a required amount. Does not need to be of the same subtype.
+ */
+[Serializable]
+public struct ItemStack
+{
+    public InventoryItem item;
+    public int requiredAmount;
+    
+    public ItemStack(InventoryItem item, int requiredAmount)
+    {
+        this.item = item;
+        this.requiredAmount = requiredAmount;
     }
 }

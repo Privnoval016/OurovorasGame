@@ -70,8 +70,8 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     
     #endregion
     
-    [HideInInspector] public EquippedElementAttack CurrentElementalAttacks => pc.pi.GetCurrentElementAttack();
-    [HideInInspector] public ElementEffect Element => pc.pi.currentElementEffect;
+    [HideInInspector] public EquippedElementAttack CurrentElementalAttacks => pc.pcc.GetCurrentElementAttack();
+    [HideInInspector] public ElementEffect Element => pc.pcc.currentElementEffect;
     
     #region Events
     
@@ -223,7 +223,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         for (int i = 0; i < elementIcons.Length; i++)
         {
             elementIconRects[i] = elementIcons[i].GetComponent<RectTransform>();
-            ElementEffect element = pc.pi.elementEffects[i];
+            ElementEffect element = pc.pcc.elementEffects[i];
             
             // Set icon sprite later
             elementIcons[i].color = GameManager.GetElementData(element).elementInactiveColor;
@@ -281,7 +281,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         elementSelectBorder?.gameObject.SetActive(false);
         elementSelectLine?.gameObject.SetActive(false);
 
-        selectedElementIndex = pc.pi.CurrentElementIndex;
+        selectedElementIndex = pc.pcc.CurrentElementIndex;
     }
     
     private void OnElementSelect(ElementUpdateEvent e)
@@ -333,7 +333,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
             }
             else
             {
-                elementIcons[i].color = GameManager.GetElementData(pc.pi.elementEffects[i]).elementInactiveColor;
+                elementIcons[i].color = GameManager.GetElementData(pc.pcc.elementEffects[i]).elementInactiveColor;
                 if (i == selectedElementIndex)
                     Tween.Scale(elementIconRects[i], radialMenuDefaultScale, 0.1f, useUnscaledTime: true);
             }
@@ -436,10 +436,10 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
             return;
         }
         
-        if (!Mathf.Approximately(pc.pi.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
-            Tween.UISliderValue(attackIcon.chargeSlider, pc.pi.GetCooldownPercentage(k), 0.03f);
+        if (!Mathf.Approximately(pc.pcc.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
+            Tween.UISliderValue(attackIcon.chargeSlider, pc.pcc.GetCooldownPercentage(k), 0.03f);
         
-        if (pc.pi.FinishedElementCooldown(attack))
+        if (pc.pcc.FinishedElementCooldown(attack))
             EnableAttackIcon(attackIcon, attack);
         else
             DisableAttackIcon(attackIcon, attack);

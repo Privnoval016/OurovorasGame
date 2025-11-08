@@ -181,7 +181,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public void ResetFinisherCharge(Attack a)
     {
-        if (a != null && !pc.pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return;
+        if (a != null && !pc.pcc.CurrentElementLoadout.AttackIsFinisher(a)) return;
         ResetFinisherCharge();
     }
     
@@ -208,7 +208,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public bool CanUseFinisher(Attack a = null)
     {
-        if (a != null && !pc.pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return true;
+        if (a != null && !pc.pcc.CurrentElementLoadout.AttackIsFinisher(a)) return true;
 
         LockOnTarget target = pc.pi.pc.psm.NearestHEnemy;
 

@@ -80,7 +80,7 @@ public class FloorDashAttackAction : IAttackAction
         {
             foreach (var hit in collidersInPath)
             {
-                if (hit.collider.TryGetComponent(out LockOnTarget d)) d.OnHit(pc.pi.currentElementEffect, pc, a, pc.transform, 1);
+                if (hit.collider.TryGetComponent(out LockOnTarget d)) d.OnHit(pc.pcc.currentElementEffect, pc, a, pc.transform, 1);
                 pc.IgnoreAllCollisionsWithLayer(hit.collider.gameObject.layer, false);
             }
         }

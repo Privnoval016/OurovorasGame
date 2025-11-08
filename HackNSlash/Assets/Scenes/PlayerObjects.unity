@@ -10695,6 +10695,7 @@ GameObject:
   - component: {fileID: 1478948895}
   - component: {fileID: 1478948894}
   - component: {fileID: 1478948900}
+  - component: {fileID: 1478948904}
   - component: {fileID: 1478948903}
   - component: {fileID: 1478948901}
   - component: {fileID: 1478948902}
@@ -10907,6 +10908,7 @@ MonoBehaviour:
   pac: {fileID: 0}
   psm: {fileID: 0}
   pi: {fileID: 0}
+  pcc: {fileID: 0}
   ps: {fileID: 0}
   oae: {fileID: 0}
   ohe: {fileID: 0}
@@ -10979,17 +10981,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pc: {fileID: 0}
-  attackDatas:
-  - {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
-  - {fileID: 11400000, guid: 9010127ed6498db40a36d66d3b487544, type: 2}
   loadouts:
   - {fileID: 11400000, guid: 44c9ac1f83155234abb0af495a4ebbf0, type: 2}
   currentLoadoutIndex: 0
-  skillTree: {fileID: 11400000, guid: 9908d9d3d1473ec4598685ec9c4dc9e9, type: 2}
   inventoryInfo: {fileID: 11400000, guid: f7f009b4bc96df94bb3260ab8f4c64dc, type: 2}
-  currentElementEffect: 3
-  imbuedElementEffect: 0
-  elementEffects: 0200000003000000040000000500000006000000
 --- !u!114 &1478948901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11032,6 +11027,29 @@ MonoBehaviour:
   baseStats: {fileID: 11400000, guid: e44ef90645967424881e508625ece8e0, type: 2}
   battleParameters: {fileID: 11400000, guid: 2b0b9827da322b24b91e9a4b6974f4ac, type: 2}
   isInvincible: 0
+--- !u!114 &1478948904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478948889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29547f3d3aec4512ba96ae999ff88dd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pc: {fileID: 0}
+  attackDatas:
+  - {fileID: 11400000, guid: 7f1588c25ea734f54a95221b22c0c241, type: 2}
+  - {fileID: 11400000, guid: 9010127ed6498db40a36d66d3b487544, type: 2}
+  skillTree: {fileID: 0}
+  elementLoadouts:
+  - {fileID: 11400000, guid: c9357080a4b35d34fafa3b8f5eec6220, type: 2}
+  currentElementLoadoutIndex: 0
+  currentElementEffect: 6
+  imbuedElementEffect: 0
+  elementEffects: 0600000002000000050000000400000003000000
 --- !u!1 &1480798114
 GameObject:
   m_ObjectHideFlags: 0
