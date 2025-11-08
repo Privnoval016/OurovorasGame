@@ -53,11 +53,11 @@ public class ElementData : SerializedScriptableObject
 
         if (element == ElementEffect.MatchCurrent)
         {
-            element = pc.pi.currentElementEffect;
+            element = pc.pcc.currentElementEffect;
         }
-        else if (element == ElementEffect.None && pc.pi.imbuedElementEffect != ElementEffect.None)
+        else if (element == ElementEffect.None && pc.pcc.imbuedElementEffect != ElementEffect.None)
         {
-            element = pc.pi.imbuedElementEffect;
+            element = pc.pcc.imbuedElementEffect;
         }
         else if (element == ElementEffect.None && pc.psm.movingState == MovingStates.Katana)
         {

@@ -135,7 +135,7 @@ public class PlayerStateMachine : MonoBehaviour
         KeyMap = InputManager.KeyMap;
         
         attackDataDict = new Dictionary<MovingStates, AttackConfig>();
-        foreach (AttackConfig attackConfig in pc.pi.attackDatas)
+        foreach (AttackConfig attackConfig in pc.pcc.attackDatas)
         {
             attackDataDict.TryAdd(attackConfig.movingState, attackConfig);
         }
@@ -516,7 +516,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         #region Elemental Attack
 
-        Attack[] elementAttacks = pc.pi.CurrentLoadout.elementLoadout?.GetElementAttacks(pc.pi.currentElementEffect, movingState);
+        Attack[] elementAttacks = pc.pcc.CurrentElementLoadout?.GetElementAttacks(pc.pcc.currentElementEffect, movingState);
 
         SpiritAttack s = null;
         foreach (var e in elementAttacks)
@@ -729,7 +729,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (!attack.HasEnoughCharge(pc)) return false;
         
-        if (!pc.pi.FinishedElementCooldown(attack)) return false;
+        if (!pc.pcc.FinishedElementCooldown(attack)) return false;
         
         if (!pc.ps.CanUseFinisher(attack)) return false;
 

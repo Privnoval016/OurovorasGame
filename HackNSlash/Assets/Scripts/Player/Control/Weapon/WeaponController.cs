@@ -197,18 +197,18 @@ public class WeaponController : MonoBehaviour
     
     public void ActivateImbuedWeaponVFX()
     {
-        if (pc.pi.imbuedElementEffect != ElementEffect.None)
+        if (pc.pcc.imbuedElementEffect != ElementEffect.None)
         {
             foreach (var weaponBody in activeWeapons)
             {
-                weaponBody.ActivateVFX(pc.pi.imbuedElementEffect);
+                weaponBody.ActivateVFX(pc.pcc.imbuedElementEffect);
             }
 
             if (pc.psm.movingState != MovingStates.Katana) return;
 
             foreach (var weapon in followWeapons)
             {
-                weapon.ActivateVFX(pc.pi.imbuedElementEffect);
+                weapon.ActivateVFX(pc.pcc.imbuedElementEffect);
             }
         }
         else

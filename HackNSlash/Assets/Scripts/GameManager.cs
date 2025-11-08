@@ -157,7 +157,7 @@ public class GameManager : Singleton<GameManager>
             ElementMap.Add(element.element, () => element);
         }
         
-        ElementMap.Add(ElementEffect.MatchCurrent, () => GetElementData(pc?.pi?.currentElementEffect ?? ElementEffect.None));
+        ElementMap.Add(ElementEffect.MatchCurrent, () => GetElementData(pc?.pcc?.currentElementEffect ?? ElementEffect.None));
     }
     
     public static ElementData GetElementData(ElementEffect elementEffect)

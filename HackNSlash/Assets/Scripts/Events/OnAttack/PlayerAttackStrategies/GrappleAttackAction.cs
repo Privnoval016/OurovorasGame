@@ -38,7 +38,7 @@ public class GrappleAttackAction : IAttackAction
 
             if (pc.cam.IsLockedOn)
             {
-                pc.cam.TargetedEnemy.OnHit(pc.pi.currentElementEffect, pc, a, pc.transform, 0);
+                pc.cam.TargetedEnemy.OnHit(pc.pcc.currentElementEffect, pc, a, pc.transform, 0);
                 CombatManager.Instance.PlayHitEffects(a.element, pc, a, vfx, true, 0);
             }
             

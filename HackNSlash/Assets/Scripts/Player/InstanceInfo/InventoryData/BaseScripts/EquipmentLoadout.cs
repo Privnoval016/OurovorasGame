@@ -7,10 +7,6 @@ public class EquipmentLoadout : ScriptableObject
 {
     public string loadoutName;
     
-    [Header("Element Info")]
-
-    public ElementLoadout elementLoadout;
-    
     // public Reaction[] activeReactions;
     
     [Header("Equipped Items")]
