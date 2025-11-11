@@ -14,7 +14,6 @@ public class QuestEventData : ScriptableObject
     
     [Header("Quest Requirements")]
     public int requiredEvents = 1;
-    private int currentCount = 0;
     
     private HashSet<string> completedBroadcasts = new HashSet<string>();
     
@@ -27,8 +26,9 @@ public class QuestEventData : ScriptableObject
             return; // Event from this broadcastId has already been counted
         }
 
-        if (currentCount >= requiredEvents)
+        if (completedBroadcasts.Count >= requiredEvents)
         {
+            Debug.Log("Quest Event activated: " + name);
             if (OnQuestTriggered?.Target != null)
                 OnQuestTriggered?.Invoke();
         }
@@ -39,7 +39,6 @@ public class QuestEventData : ScriptableObject
 
     public void ResetProgress()
     {
-        currentCount = 0;
         completedBroadcasts.Clear();
     }
     

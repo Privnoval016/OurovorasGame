@@ -115,6 +115,8 @@ public class PlayerCombatControl : MonoBehaviour
                 attack.isEnabled = true;
             }
         }
+        
+        if (!skillTree) return;
 
         foreach (var node in skillTree.skillTreeNodes)
         {

@@ -12,21 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1bad3d577494694d9808c6e082280f1, type: 3}
   m_Name: InventoryInfo
   m_EditorClassIdentifier: 
-  accessories:
-  - item: {fileID: 11400000, guid: 05da69199f12e1949b266b43ec1ec0ac, type: 2}
-    amount: 1
-  - item: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
-    amount: 1
-  - item: {fileID: 11400000, guid: daaffd68ee01a4dd89bd5542dc318835, type: 2}
-    amount: 1
-  - item: {fileID: 11400000, guid: b554526be74dd42c7bf351df66fa9096, type: 2}
-    amount: 1
-  consumables:
-  - item: {fileID: 0}
-    amount: 0
-  resources:
-  - item: {fileID: 0}
-    amount: 0
-  keyItems:
-  - item: {fileID: 0}
-    amount: 0
+  categories:
+  - rid: 6772710401733820539
+  - rid: 6772710401733820540
+  - rid: 6772710401733820541
+  - rid: 6772710401733820542
+  references:
+    version: 2
+    RefIds:
+    - rid: 6772710401733820539
+      type: {class: AccessoryCategory, ns: , asm: Assembly-CSharp}
+      data:
+        stacks:
+        - item: {fileID: 11400000, guid: 05da69199f12e1949b266b43ec1ec0ac, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: daaffd68ee01a4dd89bd5542dc318835, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: b554526be74dd42c7bf351df66fa9096, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
+          amount: 1
+    - rid: 6772710401733820540
+      type: {class: ConsumableCategory, ns: , asm: Assembly-CSharp}
+      data:
+        stacks:
+        - item: {fileID: 0}
+          amount: 0
+    - rid: 6772710401733820541
+      type: {class: KeyItemCategory, ns: , asm: Assembly-CSharp}
+      data:
+        stacks:
+        - item: {fileID: 0}
+          amount: 0
+    - rid: 6772710401733820542
+      type: {class: ResourceCategory, ns: , asm: Assembly-CSharp}
+      data:
+        stacks:
+        - item: {fileID: 0}
+          amount: 0

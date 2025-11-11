@@ -10985,6 +10985,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 44c9ac1f83155234abb0af495a4ebbf0, type: 2}
   currentLoadoutIndex: 0
   inventoryInfo: {fileID: 11400000, guid: f7f009b4bc96df94bb3260ab8f4c64dc, type: 2}
+  testItem: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
 --- !u!114 &1478948901
 MonoBehaviour:
   m_ObjectHideFlags: 0
