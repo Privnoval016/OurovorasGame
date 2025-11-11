@@ -23,6 +23,8 @@ public class PlayerInventory : MonoBehaviour
     public EquipmentLoadout CurrentLoadout => loadouts.Length > 0 ? loadouts[currentLoadoutIndex] : null;
     
     public InventoryInfo inventoryInfo;
+    
+    public InventoryItem testItem;
 
     #endregion
     
@@ -31,8 +33,18 @@ public class PlayerInventory : MonoBehaviour
     private void Awake()
     {
         pc = GetComponent<PlayerController>();
+        inventoryInfo?.Initialize();
     }
-    
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            Debug.Log("L key pressed");
+            AddItemToInventory(testItem, 1);
+        }
+    }
+
     #endregion
     
     #region Inventory Management
@@ -54,6 +66,7 @@ public class PlayerInventory : MonoBehaviour
     
     public void AddItemToInventory(InventoryItem item, int amount = 1)
     {
+        Debug.Log("Adding item to player inventory");
         inventoryInfo.AddItem(item, amount);
         EventBus<OnInventoryUpdatedEvent>.Raise(new OnInventoryUpdatedEvent
         {

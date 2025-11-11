@@ -1216,7 +1216,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 885097629}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 56f95ac11603413f81dd0374fa57c154, type: 3}
   m_Name: 
@@ -1225,19 +1225,35 @@ MonoBehaviour:
   questEventCondition:
     rid: 6772710336550404231
   questEventExecutionStrategy:
-    rid: 6772710336550404206
+    rid: 6772710401733820525
   eventTriggered: 0
   references:
     version: 2
     RefIds:
-    - rid: 6772710336550404206
-      type: {class: ActivateCutsceneExecutionStrategy, ns: , asm: Assembly-CSharp}
-      data: 
     - rid: 6772710336550404231
       type: {class: 'AndCondition`1[[QuestEventData, Assembly-CSharp]]', ns: Extensions.CustomMath.LogicComposition,
         asm: Assembly-CSharp}
       data:
-        children: []
+        children:
+        - rid: 6772710401733820419
+        - rid: 6772710401733820553
+    - rid: 6772710401733820419
+      type: {class: ItemsInInventoryBroadcastStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        strategyId: 2
+        requiredItems:
+        - item: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
+          requiredAmount: 1
+    - rid: 6772710401733820525
+      type: {class: ShakePlayerExecutionStrategy, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 6772710401733820553
+      type: {class: ItemsInInventoryBroadcastStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        strategyId: 1
+        requiredItems:
+        - item: {fileID: 11400000, guid: 05da69199f12e1949b266b43ec1ec0ac, type: 2}
+          requiredAmount: 1
 --- !u!1 &904838481
 GameObject:
   m_ObjectHideFlags: 0

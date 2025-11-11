@@ -26,6 +26,7 @@ public class QuestEventReceiver : MonoBehaviour
     private void Awake()
     {
         eventTriggered = false;
+        broadcastStrategies = new List<IQuestEventBroadcastStrategy>();
         Collect(questEventCondition, broadcastStrategies);
         RunBroadcastCheck(strategy => strategy.Initialize(this), false);
     }
@@ -95,12 +96,17 @@ public class QuestEventReceiver : MonoBehaviour
     private void OnQuestTriggered()
     {
         eventTriggered = true;
+        Debug.Log("Quest event triggered");
         questEventExecutionStrategy.Initialize(this);
     }
     
     public void RegisterBroadcast(string broadcastId)
     {
-        if (questEventData.IsBroadcastComplete(broadcastId)) return; // Already registered
+        if (questEventData.IsBroadcastComplete(broadcastId)) 
+        {
+            Debug.Log("QuestEventReceiver: Broadcast ID " + broadcastId + " is already registered in QuestEventData.");
+            return; // Already registered}
+        }
         
         questEventData.RegisterEvent(broadcastId);
     }
@@ -134,16 +140,4 @@ public class QuestEventReceiver : MonoBehaviour
     {
         return ICondition<QuestEventData>.GetBroadcastStrategies();
     }
-
-    
-
-}
-
-/**
- * Wrapper struct for serializing different broadcast strategies (without it, Unity does some weird stuff).
- */
-[Serializable]
-public struct BroadcastStrategy
-{
-    [SerializeReference] public IQuestEventBroadcastStrategy questEventBroadcastStrategy;
 }

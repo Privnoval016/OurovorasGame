@@ -95,7 +95,7 @@ public class EquipmentMenuUI : TabSelection
         var currentAccessory = equipmentLoadout.equippedAccessories[currentItemIndex];
         currentItemStackIndexInUI = inventoryInfo.GetIndexOfStack(currentAccessory);
         
-        equipmentScrollMenu.Activate(inventoryInfo.accessories, 
+        equipmentScrollMenu.Activate(inventoryInfo.GetStacksOfType<Accessory>(), 
             currentItemStackIndexInUI, stack => stack.GetItemUIInfo());
     }
 

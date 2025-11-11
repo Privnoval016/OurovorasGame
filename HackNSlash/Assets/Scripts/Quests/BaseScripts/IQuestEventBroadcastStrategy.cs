@@ -78,6 +78,7 @@ public abstract class IQuestEventBroadcastStrategy : ICondition<QuestEventData>
      */
     protected void Broadcast(QuestEventReceiver receiver)
     {
+        Debug.Log("Broadcasting event for strategy ID: " + strategyId);
         receiver.RegisterBroadcast(strategyId);
     }
 
