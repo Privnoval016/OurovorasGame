@@ -1,6 +1,6 @@
 using Extensions.Utils;
 
-public class ActivateCutsceneExecutionStrategy : IQuestEventExecutionStrategy
+public class ActivateCutsceneExecutionStrategy : IQuestExecutionStrategy
 {
     public override string ToString()
     {

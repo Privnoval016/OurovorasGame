@@ -38,10 +38,15 @@ public class PlayerInventory : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.L))
+        if (Input.GetKeyDown(KeyCode.Quote))
         {
             Debug.Log("L key pressed");
             AddItemToInventory(testItem, 1);
+        }
+        else if (Input.GetKeyDown(KeyCode.Semicolon))
+        {
+            Debug.Log("K key pressed");
+            RemoveItemFromInventory(testItem, 1);
         }
     }
 
