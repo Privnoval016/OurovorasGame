@@ -1,143 +1,103 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Extensions.CustomMath.LogicComposition;
-using Sirenix.OdinInspector;
+using Extensions.EventBus;
 using UnityEngine;
 
 /**
- * Attach to a GameObject to receive and handle quest events based on the given strategy.
+ * Attach to a GameObject to receive quest events and execute corresponding strategies. Should exist in the
+ * scene where the quest event needs to be handled.
  */
 public class QuestEventReceiver : MonoBehaviour
 {
-    [Header("Corresponding Quest")]
-    public QuestEventData questEventData;
+    public QuestOutcome questOutcome;
+    [SerializeReference] public IQuestExecutionStrategy executionStrategy;
     
-    [Header("Event Strategies")]
-    [SerializeReference] 
-    [ValueDropdown("GetBroadcastStrategies")]
-    public ICondition<QuestEventData> questEventCondition;
-    [SerializeReference] public IQuestEventExecutionStrategy questEventExecutionStrategy;
+    public bool canBeDeactivated = true;
+
+    private EventBinding<QuestBroadcastEvent> eventBinding;
     
-    private List<IQuestEventBroadcastStrategy> broadcastStrategies;
+    private bool isTriggered;
 
-    public bool eventTriggered;
-
-    private void Awake()
+    private void Start()
     {
-        eventTriggered = false;
-        broadcastStrategies = new List<IQuestEventBroadcastStrategy>();
-        Collect(questEventCondition, broadcastStrategies);
-        RunBroadcastCheck(strategy => strategy.Initialize(this), false);
+        Debug.Log($"[QuestEventReceiver] Scene load check: Triggering quest outcome {questOutcome.name} as conditions are already met.");
+        TryTrigger();
+        
     }
 
     private void OnEnable()
     {
-        if (questEventData != null)
-            questEventData.OnQuestTriggered += OnQuestTriggered;
+        eventBinding = new EventBinding<QuestBroadcastEvent>(OnQuestTriggered);
+        EventBus<QuestBroadcastEvent>.Register(eventBinding);
     }
 
     private void OnDisable()
     {
-        if (questEventData != null)
-            questEventData.OnQuestTriggered -= OnQuestTriggered;
+        EventBus<QuestBroadcastEvent>.Deregister(eventBinding);
+    }
+    
+
+    private void OnQuestTriggered(QuestBroadcastEvent e)
+    {
+        if (e.objective != questOutcome)
+        {
+            Debug.LogWarning($"[QuestEventReceiver] Received event for different outcome: {e.objective.name}");
+            return;
+        }
+
+        bool result = e.Evaluator();
+        Debug.Log($"[QuestEventReceiver] Received event for outcome: {questOutcome.name} with result: {result}");
+
+        if (result)
+        {
+            TryTrigger();
+        }
+        else
+        {
+            Deactivate();
+        }
+    }
+
+    private void TryTrigger()
+    {
+        if (!isTriggered)
+        {
+            var instance = QuestManager.Instance.GetOrCreateInstance(questOutcome);
+            
+            
+            if (instance.TryCompleteByReceiver()) // if able to be executed, do so
+            {
+                Debug.Log($"[QuestEventReceiver] Triggering quest outcome: {questOutcome.name}");
+                isTriggered = true;
+                executionStrategy?.Initialize(this);
+            }
+            else
+            {
+                Debug.LogWarning($"[QuestEventReceiver] Quest outcome {questOutcome.name} does not need to be executed.");
+            }
+        }
+    }
+    
+    private void Deactivate()
+    {
+        if (isTriggered && canBeDeactivated)
+        {
+            isTriggered = false;
+            executionStrategy?.Deactivate();
+        }
     }
 
     private void Update()
     {
-        RunBroadcastCheck(strategy => strategy.Update());
-        
-        if (eventTriggered)
-        {
-            questEventExecutionStrategy.Update();
-        }
+        if (isTriggered) executionStrategy.Update();
     }
 
     private void LateUpdate()
-    { 
-        RunBroadcastCheck(strategy => strategy.LateUpdate());
-        
-        if (eventTriggered)
-        {
-            questEventExecutionStrategy.LateUpdate();
-        }
+    {
+        if (isTriggered) executionStrategy.LateUpdate();
     }
 
     private void FixedUpdate()
     {
-        RunBroadcastCheck(strategy => strategy.FixedUpdate());
-        
-        if (eventTriggered)
-        {
-            questEventExecutionStrategy.FixedUpdate();
-        }
-    }
-
-    private void OnDestroy()
-    {
-        RunBroadcastCheck(strategy => strategy.Destroy(), false);
-    }
-
-    private void RunBroadcastCheck(Action<IQuestEventBroadcastStrategy> action, bool skipIfTriggered = true)
-    {
-        if (skipIfTriggered && eventTriggered) return;
-        
-        foreach (var strategy in broadcastStrategies)
-        {
-            if (strategy == null || 
-                questEventData.IsBroadcastComplete(strategy.strategyId))
-                continue; // Already registered
-            
-            action(strategy);
-            
-        }
-    }
-    
-    private void OnQuestTriggered()
-    {
-        eventTriggered = true;
-        Debug.Log("Quest event triggered");
-        questEventExecutionStrategy.Initialize(this);
-    }
-    
-    public void RegisterBroadcast(string broadcastId)
-    {
-        if (questEventData.IsBroadcastComplete(broadcastId)) 
-        {
-            Debug.Log("QuestEventReceiver: Broadcast ID " + broadcastId + " is already registered in QuestEventData.");
-            return; // Already registered}
-        }
-        
-        questEventData.RegisterEvent(broadcastId);
-    }
-    
-    private void Collect<TContext>(ICondition<TContext> condition, List<IQuestEventBroadcastStrategy> list)
-    {
-        switch (condition)
-        {
-            case IQuestEventBroadcastStrategy leaf:
-                list.Add(leaf);
-                break;
-
-            case AndCondition<TContext> andC:
-                foreach (var child in andC.children)
-                    Collect(child, list);
-                break;
-
-            case OrCondition<TContext> orC:
-                foreach (var child in orC.children)
-                    Collect(child, list);
-                break;
-
-            case NotCondition<TContext> notC:
-                if (notC.child != null)
-                    Collect(notC.child, list);
-                break;
-        }
-    }
-    
-    private IEnumerable<ValueDropdownItem> GetBroadcastStrategies()
-    {
-        return ICondition<QuestEventData>.GetBroadcastStrategies();
+        if (isTriggered) executionStrategy.FixedUpdate();
     }
 }

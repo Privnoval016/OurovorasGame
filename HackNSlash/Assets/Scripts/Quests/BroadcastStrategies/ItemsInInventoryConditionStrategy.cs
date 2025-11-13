@@ -6,11 +6,13 @@ using UnityEngine;
 /**
  * Broadcast strategy that triggers when the player has specific items in their inventory.
  */
-public class ItemsInInventoryBroadcastStrategy : IQuestEventBroadcastStrategy
+public class ItemsInInventoryConditionStrategy : IQuestConditionStrategy
 {
     [Header("Inventory Check Settings")]
     private PlayerController player;
     public List<ItemStack> requiredItems = new();
+    
+    private bool hasItemsInInventory = false;
     
     private EventBinding<OnInventoryUpdatedEvent> inventoryUpdateBinding; // only performs check when inventory is updated
 
@@ -42,15 +44,22 @@ public class ItemsInInventoryBroadcastStrategy : IQuestEventBroadcastStrategy
             if (stack == null || stack.amount < req.requiredAmount)
             {
                 Debug.Log($"Not enough of item: {req.item.itemName} because stack is {(stack == null ? "null" : "not enough")}");
+                hasItemsInInventory = false;
+                Broadcast(Broadcaster); // broadcast even if condition not met to turn off objectives that were previously completed
                 return;
             }
         }
         
-        Broadcast(Receiver);
+        hasItemsInInventory = true;
+        Broadcast(Broadcaster);
     }
 
     public override string ToString()
     {
         return "Items In Inventory";
     }
+
+    public override bool Evaluate() => hasItemsInInventory;
+
+    public override bool StopIfTriggered() => false;
 }

@@ -12,5 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e082a36cf9aa4cf4b61e1ec740fad593, type: 3}
   m_Name: Test
   m_EditorClassIdentifier: 
-  description: 
-  requiredEvents: 1
+  description: w
+  maxCompletions: 3
+  questCondition:
+    rid: 6772710401733820625
+  references:
+    version: 2
+    RefIds:
+    - rid: 6772710401733820625
+      type: {class: 'AndCondition`1[[QuestOutcome, Assembly-CSharp]]', ns: Extensions.CustomMath.LogicComposition,
+        asm: Assembly-CSharp}
+      data:
+        children:
+        - rid: 6772710401733820626
+        - rid: 6772710401733820627
+    - rid: 6772710401733820626
+      type: {class: ObjectiveCondition, ns: , asm: Assembly-CSharp}
+      data:
+        objectiveKey: {fileID: 11400000, guid: 07427ed4866144e779de389cfc542df5, type: 2}
+    - rid: 6772710401733820627
+      type: {class: ObjectiveCondition, ns: , asm: Assembly-CSharp}
+      data:
+        objectiveKey: {fileID: 11400000, guid: c2d0a8c05d79f4543a98707206830d42, type: 2}
