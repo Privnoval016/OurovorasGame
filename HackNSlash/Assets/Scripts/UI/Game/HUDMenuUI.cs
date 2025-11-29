@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class HUDMenuUI : Singleton<HUDMenuUI>
+public class HUDMenuUI : MonoBehaviour
 {
     public PlayerController pc;
     
@@ -88,10 +88,8 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
 
     #region MonoBehaviour Callbacks
 
-    protected override void Awake()
+    public void Awake()
     {
-        base.Awake();
-        
         ActivateEventBindings();
         
         gameObject.SetActive(true);
@@ -110,9 +108,8 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         UpdateFinisherIcon();
     }
 
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
-        base.OnDestroy();
         DeactivateEventBindings();
     }
 
@@ -199,7 +196,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
      */
     private void UpdateFinisherIcon()
     {
-        ElementData elementData = GameManager.GetElementData(ElementEffect.Aether);
+        ElementData elementData = Services.ElementSystem.GetElementData(ElementEffect.Aether);
         
         if (pc.ps.CanUseFinisher())
         {
@@ -226,7 +223,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
             ElementEffect element = pc.pcc.elementEffects[i];
             
             // Set icon sprite later
-            elementIcons[i].color = GameManager.GetElementData(element).elementInactiveColor;
+            elementIcons[i].color = Services.ElementSystem.GetElementData(element).elementInactiveColor;
         }
         
         radialMenuDefaultScale = elementIconRects[0].localScale;
@@ -290,7 +287,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         
         if (selectedElementIcon == null) return;
 
-        selectedElementIcon.color = GameManager.GetElementData(element).elementColor;
+        selectedElementIcon.color = Services.ElementSystem.GetElementData(element).elementColor;
         
         UpdateElementalAttackIcons();
     }
@@ -318,7 +315,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         {
             if (i == index)
             {
-                elementIcons[i].color = GameManager.GetElementData(element).elementColor;
+                elementIcons[i].color = Services.ElementSystem.GetElementData(element).elementColor;
                 Tween.Scale(elementIconRects[i], radialMenuDefaultScale * radialMenuSelectScaleFactor, 0.1f, useUnscaledTime: true);
                 
                 if (elementSelectBorder != null)
@@ -333,7 +330,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
             }
             else
             {
-                elementIcons[i].color = GameManager.GetElementData(pc.pcc.elementEffects[i]).elementInactiveColor;
+                elementIcons[i].color = Services.ElementSystem.GetElementData(pc.pcc.elementEffects[i]).elementInactiveColor;
                 if (i == selectedElementIndex)
                     Tween.Scale(elementIconRects[i], radialMenuDefaultScale, 0.1f, useUnscaledTime: true);
             }
@@ -452,7 +449,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         attackIcon.icon.gameObject.SetActive(true);
         attackIcon.chargeFillImage.gameObject.SetActive(true);
 
-        Color c = GameManager.GetElementData(Element).elementColor;
+        Color c = Services.ElementSystem.GetElementData(Element).elementColor;
         attackIcon.icon.color = c;
     }
     
@@ -463,7 +460,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         attackIcon.icon.gameObject.SetActive(true);
         attackIcon.chargeFillImage.gameObject.SetActive(true);
 
-        Color c = GameManager.GetElementData(Element).elementInactiveColor;
+        Color c = Services.ElementSystem.GetElementData(Element).elementInactiveColor;
         attackIcon.icon.color = c;
     }
 

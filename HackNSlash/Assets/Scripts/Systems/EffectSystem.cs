@@ -1,18 +1,11 @@
 using Extensions.Patterns;
 using UnityEngine;
 
-public class EffectManager : Singleton<EffectManager>
+public class EffectSystem : MonoBehaviour, IEffectSystem
 {
-    public StatusEffect[] statusEffects;
+    [SerializeField] private StatusEffect[] statusEffects;
     
-    #region MonoBehaviour Callbacks
-    
-    protected override void Awake()
-    {
-        base.Awake();
-    }
-    
-    #endregion
+    public StatusEffect[] StatusEffects => statusEffects;
     
     
     #region Status Effect Methods
@@ -32,4 +25,10 @@ public class EffectManager : Singleton<EffectManager>
     }
     
     #endregion
+}
+
+public interface IEffectSystem
+{
+    StatusEffect[] StatusEffects { get; }
+    StatusEffect GetStatusEffect(StatusEffect statusEffect);
 }

@@ -7,7 +7,7 @@ using MEC;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class CombatManager : Singleton<CombatManager>
+public class CombatSystem : MonoBehaviour, ICombatSystem
 {
     
     #region Time Parameters
@@ -20,7 +20,8 @@ public class CombatManager : Singleton<CombatManager>
     
     private float preHitStopTimescale = 1f;
 
-    [FormerlySerializedAs("playerStopped")] [FormerlySerializedAs("isPaused")] public bool entitiesStopped;
+    private bool entitiesStopped = false;
+    public bool EntitiesStopped => entitiesStopped;
 
     private CountdownTimer HitStopTimer;
     
@@ -28,9 +29,8 @@ public class CombatManager : Singleton<CombatManager>
 
     #region Monobehaviour Callbacks
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         HitStopTimer = new CountdownTimer(0f, true);
         HitStopTimer.OnTimerStop += ResetHitStop;
         ResetHitStop();
@@ -55,21 +55,21 @@ public class CombatManager : Singleton<CombatManager>
         Time.timeScale = timescale;
     }
     
-    public void ApplyPausedTimescale(PlayerController pc, bool pause)
+    public void ApplyPausedTimescale(bool pause)
     {
         SetTimeScale(pause ? pausedTimescale : unPausedTimescale);
-        pc.cam.EnableCameraInputDetection(!pause);
+        Services.PlayerController.cam.EnableCameraInputDetection(!pause);
         entitiesStopped = pause;
     }
     
-    public void ApplySlowedTimeScale(PlayerController pc, bool slowed, float timescale = 0.1f)
+    public void ApplySlowedTimescale(bool slowed, float timescale = 0.1f)
     {
         SetTimeScale(slowed ? timescale : unPausedTimescale);
-        pc.cam.EnableCameraInputDetection(!slowed);
+        Services.PlayerController.cam.EnableCameraInputDetection(!slowed);
         entitiesStopped = slowed;
     }
     
-    public void HitStop(PlayerController pc, Attack a, bool playImmediately, int index = 0)
+    private void HitStop(PlayerController pc, Attack a, bool playImmediately, int index = 0)
     {
         if (a == null || a.hitStopProfiles == null || index >= a.hitStopProfiles.Length) return;
         if (hitStopped) return; // Prevent hit stop if already paused
@@ -134,7 +134,7 @@ public class CombatManager : Singleton<CombatManager>
         
         foreach (Vector3 spawnPosition in spawnPositions)
         {
-            OnVFXEvents.Instance.SpawnHitStopVFX(attackElement, pc, a, index,
+            Services.VFXSystem.SpawnHitStopVFX(attackElement, pc, a, index,
                 new TransformInfo(spawnPosition, Quaternion.identity, Vector3.one));
         }
         
@@ -158,7 +158,7 @@ public class CombatManager : Singleton<CombatManager>
         
         foreach (Vector3 spawnPosition in spawnPositions)
         {
-            OnVFXEvents.Instance.SpawnHitStopVFX(attackElement, pc, a, index,
+            Services.VFXSystem.SpawnHitStopVFX(attackElement, pc, a, index,
                 new TransformInfo(spawnPosition, Quaternion.identity, Vector3.one));
         }
         
@@ -166,4 +166,18 @@ public class CombatManager : Singleton<CombatManager>
     }
     
     #endregion
+}
+
+public interface ICombatSystem
+{
+    bool EntitiesStopped { get; }
+    float CalculateDamage();
+    void ApplyPausedTimescale(bool pause);
+    void ApplySlowedTimescale(bool slowed, float timescale = 0.1f);
+
+    void PlayHitEffects(ElementEffect attackElement, PlayerController pc, Attack a,
+        IContactDetector contact, bool playImmediately, int index = 0);
+
+    void PlayParryEffects(Collider[] hitboxes, ElementEffect attackElement, PlayerController pc, Attack a,
+        IContactDetector contact, bool playImmediately, int index = 0);
 }

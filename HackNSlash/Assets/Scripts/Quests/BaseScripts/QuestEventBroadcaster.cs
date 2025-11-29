@@ -49,7 +49,6 @@ public class QuestEventBroadcaster : MonoBehaviour
 
     public void Broadcast()
     {
-        Debug.Log($"[Broadcaster] Broadcasting event: {objectiveKey.name}");
         bool condition = conditionStrategy?.Evaluate() ?? false;
         
         conditionTriggered = condition;

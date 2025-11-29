@@ -125,7 +125,7 @@ public class VFXController : KinematicBehaviour, IContactDetector
             va.SetAllVFXEvents(va.vfxEventEnd);
         }
         
-        OnVFXEvents.Instance.OnVFXDisabled(this);
+        Services.VFXSystem.OnVFXDisabled(this);
     }
     
     // Destroy the actual GameObject and end all visual effects
@@ -163,7 +163,7 @@ public class VFXController : KinematicBehaviour, IContactDetector
 
         UpdateVFXColorByElement();
         
-        OnVFXEvents.Instance.OnVFXInitialize(this);
+        Services.VFXSystem.OnVFXInitialize(this);
     }
     
     public void AddHitDetector(VFXHitDetector hitDetector)
@@ -209,10 +209,10 @@ public class VFXController : KinematicBehaviour, IContactDetector
     
     public void UpdateVFXColorByElement()
     {
-        Color brightColor = GameManager.ElementMap[elementType]().vfxBrightColor;
-        Color darkColor = GameManager.ElementMap[elementType]().vfxDarkColor;
-        Color pureColor = GameManager.ElementMap[elementType]().vfxPureColor;
-        Gradient gradient = GameManager.ElementMap[elementType]().vfxGradient;
+        Color brightColor = Services.ElementSystem.ElementMap[elementType]().vfxBrightColor;
+        Color darkColor = Services.ElementSystem.ElementMap[elementType]().vfxDarkColor;
+        Color pureColor = Services.ElementSystem.ElementMap[elementType]().vfxPureColor;
+        Gradient gradient = Services.ElementSystem.ElementMap[elementType]().vfxGradient;
 
         foreach (VFXActivator va in vas)
         {

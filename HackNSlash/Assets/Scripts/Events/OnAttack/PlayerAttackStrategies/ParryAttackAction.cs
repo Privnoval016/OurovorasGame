@@ -41,7 +41,7 @@ public class ParryAttackAction : IAttackAction
         
         Collider[] hitboxes = parriedEnemies.Select(e => e.col).ToArray();
         
-        CombatManager.Instance.PlayParryEffects(hitboxes, a.element, pc, a, pc.wc.activeWeapons[0], true, 0);
+        Services.CombatSystem.PlayParryEffects(hitboxes, a.element, pc, a, pc.wc.activeWeapons[0], true, 0);
         
         yield return Timing.WaitForSeconds(a.attackClips[0].length);
         

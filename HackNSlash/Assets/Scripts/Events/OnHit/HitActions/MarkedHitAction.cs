@@ -24,7 +24,7 @@ public class MarkedHitAction : IHitAction
     
     private void Marked()
     {
-        var vfx = OnVFXEvents.Instance.SpawnPlayerVFX(pc, a, 1, 
+        var vfx = Services.VFXSystem.SpawnPlayerVFX(pc, a, 1, 
             new TransformInfo(ec.TargetedPosition(), Quaternion.identity, Vector3.one));
         
         

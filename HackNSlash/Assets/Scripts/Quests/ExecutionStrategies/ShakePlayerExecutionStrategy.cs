@@ -6,7 +6,7 @@ public class ShakePlayerExecutionStrategy : IQuestExecutionStrategy
     protected override void OnInitialize()
     {
         base.OnInitialize();
-        GameManager.Instance.pc.rb.AddForce(shakeForce * Vector3.up, ForceMode.VelocityChange);
+        Services.PlayerController.rb.AddForce(shakeForce * Vector3.up, ForceMode.VelocityChange);
     }
     
     public override string ToString()
