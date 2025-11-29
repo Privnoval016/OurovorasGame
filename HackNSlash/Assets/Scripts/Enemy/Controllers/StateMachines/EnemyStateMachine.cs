@@ -192,7 +192,7 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
 
     public void MoveInDirection(Vector3 direction, float lerpAmount = 1)
     {
-        if (CombatManager.Instance.entitiesStopped) return;
+        if (Services.CombatSystem.EntitiesStopped) return;
     
         if (!CanMove) return;
     

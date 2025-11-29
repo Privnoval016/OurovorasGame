@@ -24,10 +24,10 @@ public class EquipmentMenuUI : TabSelection
     
     private void Start()
     {
-        eventSystem = OverworldMenuUI.Instance.eventSystem;
+        eventSystem = Services.OverworldMenuUI.eventSystem;
         
-        inventoryInfo = OverworldMenuUI.Instance.playerInventory.inventoryInfo;
-        equipmentLoadout = OverworldMenuUI.Instance.playerInventory.CurrentLoadout;
+        inventoryInfo = Services.OverworldMenuUI.playerInventory.inventoryInfo;
+        equipmentLoadout = Services.OverworldMenuUI.playerInventory.CurrentLoadout;
     }
 
     private void Update()
@@ -43,9 +43,9 @@ public class EquipmentMenuUI : TabSelection
     {
         gameObject.SetActive(true);
         
-        eventSystem = OverworldMenuUI.Instance.eventSystem;
-        inventoryInfo = OverworldMenuUI.Instance.playerInventory.inventoryInfo;
-        equipmentLoadout = OverworldMenuUI.Instance.playerInventory.CurrentLoadout;
+        eventSystem = Services.OverworldMenuUI.eventSystem;
+        inventoryInfo = Services.OverworldMenuUI.playerInventory.inventoryInfo;
+        equipmentLoadout = Services.OverworldMenuUI.playerInventory.CurrentLoadout;
         
         if (defaultButton != null)
             eventSystem.SetSelectedGameObject(defaultButton.gameObject);

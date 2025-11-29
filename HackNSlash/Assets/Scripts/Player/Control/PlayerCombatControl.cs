@@ -72,7 +72,7 @@ public class PlayerCombatControl : MonoBehaviour
     {
         if (context.performed)
         {
-            CombatManager.Instance.ApplySlowedTimeScale(pc, true);
+            Services.CombatSystem.ApplySlowedTimescale(true);
             
             ElementRadialMenu.OnElementMenuOpen(CurrentElementOption);
             EventBus<ElementMenuEvent>.Raise(new ElementMenuEvent
@@ -85,7 +85,7 @@ public class PlayerCombatControl : MonoBehaviour
         }
         else if (context.canceled)
         {
-            CombatManager.Instance.ApplySlowedTimeScale(pc, false);
+            Services.CombatSystem.ApplySlowedTimescale(false);
             
             var option = ElementRadialMenu.OnElementMenuClose();
             EventBus<ElementMenuEvent>.Raise(new ElementMenuEvent

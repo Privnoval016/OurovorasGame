@@ -25,7 +25,7 @@ public class QuestObjectiveInstance
     public QuestObjectiveInstance(QuestObjective objective)
     {
         this.objective = objective;
-        this.maxCompletions = objective is QuestOutcome q ? q.maxCompletions : 1;
+        this.maxCompletions = objective.maxCompletions;
     }
 
     /**
@@ -41,12 +41,10 @@ public class QuestObjectiveInstance
     {
         if (conditionsMetCount >= maxCompletions && maxCompletions > 0)
         {
-            Debug.LogWarning($"[QuestOutcomeInstance] Cannot mark conditions met for {objective.name}: already at max completions ({maxCompletions}).");
             return false;
         }
         
         conditionsMetCount = Mathf.Clamp(conditionsMetCount + 1, 0, maxCompletions > 0 ? maxCompletions : int.MaxValue);
-        Debug.Log($"[QuestOutcomeInstance] Conditions met: {objective.name} (Count: {conditionsMetCount}/{maxCompletions})");
         return true;
     }
     
@@ -61,17 +59,13 @@ public class QuestObjectiveInstance
     {
         lock (lockObject)
         {
-            if (conditionsMetCount < 1 || totalCompletions >= maxCompletions)
+            if (conditionsMetCount < 1 || (totalCompletions >= maxCompletions && maxCompletions > 0))
             {
-                Debug.LogWarning(
-                    $"[QuestOutcomeInstance] Cannot complete by receiver for {objective.name}: no pending executions.");
                 return false;
             }
 
             totalCompletions++;
             conditionsMetCount = Mathf.Clamp(conditionsMetCount - 1, 0, maxCompletions > 0 ? maxCompletions : int.MaxValue);
-            Debug.Log(
-                $"[QuestOutcomeInstance] Completed by receiver: {objective.name} (Count: {totalCompletions}/{maxCompletions})");
             return true;
         }
     }
@@ -84,6 +78,5 @@ public class QuestObjectiveInstance
     public void ResetCompletions()
     {
         conditionsMetCount = 0;
-        Debug.Log($"[QuestOutcomeInstance] Uncompleted: {objective.name}");
     }
 }

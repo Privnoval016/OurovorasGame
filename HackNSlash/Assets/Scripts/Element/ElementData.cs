@@ -44,7 +44,7 @@ public class ElementData : SerializedScriptableObject
 
     public StatusEffect GetStatusEffect()
     {
-        return EffectManager.Instance?.GetStatusEffect(statusEffect);
+        return Services.EffectSystem?.GetStatusEffect(statusEffect);
     }
 
     public static ElementEffect GetElementFromAttack(ElementEffect attackElement, PlayerController pc)

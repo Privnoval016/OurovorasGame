@@ -39,7 +39,7 @@ public class RangedSpiritAction : ISpiritAction
             {
                 CreateVFX(0);
                 enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
-                CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
+                Services.CombatSystem.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
             }
         }
         else
@@ -48,7 +48,7 @@ public class RangedSpiritAction : ISpiritAction
             {
                 CreateVFX(0);
                 enemy.OnHit(element, spirit.pc, a, spirit.transform, 1);
-                CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 1);
+                Services.CombatSystem.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 1);
             }
         }
         

@@ -1,6 +1,7 @@
 using System;
 using Extensions.EventBus;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /**
  * Attach to a GameObject to receive quest events and execute corresponding strategies. Should exist in the
@@ -8,18 +9,29 @@ using UnityEngine;
  */
 public class QuestEventReceiver : MonoBehaviour
 {
+    public enum ReceiverType
+    {
+        TriggerOnceAlways, // cannot be reset once triggered after a positive broadcast
+        CanBeDeactivatedToRetrigger, // can be reset when negatively broadcasted
+                                     // and retriggered when positively broadcasted again
+        AlwaysTriggers, // always triggers when the event is positively broadcasted
+    }
+    
+    public ReceiverType receiverType = ReceiverType.TriggerOnceAlways;
+    
     public QuestOutcome questOutcome;
     [SerializeReference] public IQuestExecutionStrategy executionStrategy;
     
-    public bool canBeDeactivated = true;
+    private bool CanBeDeactivated => receiverType != ReceiverType.TriggerOnceAlways;
 
     private EventBinding<QuestBroadcastEvent> eventBinding;
+    
+    private bool AlwaysActive => receiverType == ReceiverType.AlwaysTriggers;
     
     private bool isTriggered;
 
     private void Start()
     {
-        Debug.Log($"[QuestEventReceiver] Scene load check: Triggering quest outcome {questOutcome.name} as conditions are already met.");
         TryTrigger();
         
     }
@@ -40,12 +52,10 @@ public class QuestEventReceiver : MonoBehaviour
     {
         if (e.objective != questOutcome)
         {
-            Debug.LogWarning($"[QuestEventReceiver] Received event for different outcome: {e.objective.name}");
             return;
         }
 
         bool result = e.Evaluator();
-        Debug.Log($"[QuestEventReceiver] Received event for outcome: {questOutcome.name} with result: {result}");
 
         if (result)
         {
@@ -59,27 +69,44 @@ public class QuestEventReceiver : MonoBehaviour
 
     private void TryTrigger()
     {
-        if (!isTriggered)
+        if (!isTriggered || AlwaysActive)
         {
             var instance = QuestManager.Instance.GetOrCreateInstance(questOutcome);
             
             
             if (instance.TryCompleteByReceiver()) // if able to be executed, do so
             {
-                Debug.Log($"[QuestEventReceiver] Triggering quest outcome: {questOutcome.name}");
                 isTriggered = true;
                 executionStrategy?.Initialize(this);
             }
             else
             {
-                Debug.LogWarning($"[QuestEventReceiver] Quest outcome {questOutcome.name} does not need to be executed.");
             }
         }
     }
     
+    /**
+     * <summary>
+     * Forcefully stops the execution strategy regardless of receiver type.
+     * </summary>
+     *
+     * <returns>True if the strategy was active and is now stopped, false if it was not active.</returns>
+     */
+    public bool ForceStop()
+    {
+        if (isTriggered)
+        {
+            isTriggered = false;
+            executionStrategy?.Deactivate();
+            return true;
+        }
+        
+        return false; // was not active
+    }
+    
     private void Deactivate()
     {
-        if (isTriggered && canBeDeactivated)
+        if (isTriggered && CanBeDeactivated)
         {
             isTriggered = false;
             executionStrategy?.Deactivate();

@@ -10,7 +10,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Quest Outcome", menuName = "Quests/Quest Outcome")]
 public class QuestOutcome : QuestObjective
 {
-    public int maxCompletions = 1;
     
     [Header("Quest Condition")]
     [SerializeReference] public ICondition<QuestOutcome> questCondition;
@@ -28,7 +27,6 @@ public class QuestOutcome : QuestObjective
         
         // evaluate condition on enable to catch any pre-existing states
         
-        Debug.Log($"[QuestOutcome] {name} enabled, checking for execution.");
         CheckForExecution();
     }
 
@@ -49,7 +47,6 @@ public class QuestOutcome : QuestObjective
         if (questCondition == null) return;
 
         bool result = questCondition.Evaluate(this);
-        Debug.Log($"[QuestOutcome] {name} evaluated: {result}");
         
         // mark the quest as complete if the condition is met
         var instance = QuestManager.Instance.GetOrCreateInstance(this);

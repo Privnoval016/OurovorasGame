@@ -4,10 +4,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-public class OverworldMenuUI : Singleton<OverworldMenuUI>
+public class OverworldMenuUI : MonoBehaviour
 {
     public EventSystem eventSystem;
-    public PlayerController playerController;
     public PlayerInventory playerInventory;
 
     [Header("Tabs")]
@@ -15,10 +14,9 @@ public class OverworldMenuUI : Singleton<OverworldMenuUI>
 
     #region MonoBehaviour Callbacks
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-        if (playerController != null) playerInventory = playerController.pi;
+        playerInventory = Services.PlayerController.pi;
     }
 
     private void Start()

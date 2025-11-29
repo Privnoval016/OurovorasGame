@@ -35,20 +35,12 @@ public class GameManager : Singleton<GameManager>
     public static GameState CurrentGameState;
     private GameState previousGameState;
     
-    public static readonly Dictionary<ElementEffect, Func<ElementData>> ElementMap = new();
-    
-    
-    [Header("In Game Instances")]
-    public PlayerController pc;
-    
     
     [Header("Global Parameters")]
     public float globalGravity = -9.81f;
     
     public LayerMask groundLayer;
     public LayerMask enemyLayer;
-    
-    public ElementData[] elementData;
 
     #region MonoBehavior Callbacks
     
@@ -56,19 +48,14 @@ public class GameManager : Singleton<GameManager>
     {
         base.Awake();
         
-        if (pc == null)
-            GameObject.FindWithTag("Player").TryGetComponent(out pc);
-        
         CurrentGameState = GameState.PlayerControl;
-        
-        SetElementMap();
         
         InputManager.Instance.onPause += OnPauseAction;
     }
 
     private void Start()
     {
-        OverworldMenuUI.Instance.gameObject.SetActive(true);
+        Services.OverworldMenuUI.gameObject.SetActive(true);
         SetGameState(GameState.Menu);
         SetGameState(GameState.PlayerControl);
     }
@@ -124,50 +111,24 @@ public class GameManager : Singleton<GameManager>
 
     private void SetPlayerControlState()
     {
-        OverworldMenuUI.Instance.CloseMenu();
+        Services.OverworldMenuUI.CloseMenu();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        CombatManager.Instance.ApplyPausedTimescale(pc, false);
+        Services.CombatSystem.ApplyPausedTimescale(false);
     }
     
     private void SetCutsceneState()
     {
-        OverworldMenuUI.Instance.CloseMenu();
-        CombatManager.Instance.ApplyPausedTimescale(pc, true);
+        Services.OverworldMenuUI.CloseMenu();
+        Services.CombatSystem.ApplyPausedTimescale(true);
     }
     
     private void SetMenuState()
     {
-        OverworldMenuUI.Instance.OpenMenu();
+        Services.OverworldMenuUI.OpenMenu();
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        CombatManager.Instance.ApplyPausedTimescale(pc, true);
-    }
-    
-    #endregion
-    
-    #region Element Methods
-    
-    private void SetElementMap()
-    {
-        if (elementData == null) return;
-        
-        foreach (ElementData element in elementData)
-        {
-            ElementMap.Add(element.element, () => element);
-        }
-        
-        ElementMap.Add(ElementEffect.MatchCurrent, () => GetElementData(pc?.pcc?.currentElementEffect ?? ElementEffect.None));
-    }
-    
-    public static ElementData GetElementData(ElementEffect elementEffect)
-    {
-        if (ElementMap.TryGetValue(elementEffect, out var elementFunc))
-        {
-            return elementFunc();
-        }
-        
-        return null;
+        Services.CombatSystem.ApplyPausedTimescale(true);
     }
     
     #endregion

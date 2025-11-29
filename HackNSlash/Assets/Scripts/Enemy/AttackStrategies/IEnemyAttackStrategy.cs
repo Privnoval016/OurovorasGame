@@ -65,6 +65,6 @@ public abstract class IEnemyAttackStrategy
 
     protected VFXController CreateVFX(int index, TransformInfo start = default)
     {
-        return OnVFXEvents.Instance.SpawnEnemyVFX(ts, a, index, start);
+        return Services.VFXSystem.SpawnEnemyVFX(ts, a, index, start);
     }
 }
