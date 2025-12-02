@@ -31,6 +31,7 @@ public class PlayerHit : PlayerState
         pc.psm.CalculateGravity();
         
         pc.ps.TakeDamage(hit.element, hit.damage);
+        Services.StyleSystem.RaiseHitEvent(hit);
 
         AddKnockbackForce();
         

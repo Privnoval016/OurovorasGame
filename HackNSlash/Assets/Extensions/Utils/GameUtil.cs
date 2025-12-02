@@ -322,6 +322,65 @@ namespace Extensions.Utils
             list.Clear();
             list.AddRange(items);
         }
+        
+        #region Collection Utilities
+        
+        /**
+         * <summary>
+         * Returns the first key in the dictionary that maps to the specified value.
+         * </summary>
+         *
+         * <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+         * <typeparam name="TValue">The type of the values in the dictionary.</typeparam
+         * <param name="dict">The dictionary to search.</param>
+         * <param name="value">The value to look for.</param>
+         *
+         * <returns>The first key that maps to the specified value.</returns>
+         * <exception cref="KeyNotFoundException">Thrown if the value is not found in the dictionary.</exception>
+         */
+        public static TKey InverseLookup<TKey, TValue>(this Dictionary<TKey, TValue> dict, TValue value)
+        {
+            foreach (var kvp in dict)
+            {
+                if (EqualityComparer<TValue>.Default.Equals(kvp.Value, value))
+                {
+                    return kvp.Key;
+                }
+            }
+
+            throw new KeyNotFoundException("The specified value was not found in the dictionary.");
+        }
+        
+        /**
+         * <summary>
+         * Tries to get the first key in the dictionary that maps to the specified value.
+         * </summary>
+         *
+         * <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+         * <typeparam name="TValue">The type of the values in the dictionary.</typeparam
+         * <param name="dict">The dictionary to search.</param>
+         * <param name="value">The value to look for.</param>
+         * <param name="key">When this method returns, contains the first key that maps to the specified value,
+         * if found; otherwise, the default value for the type of the key parameter.</param>
+         *
+         * <returns>true if the value was found; otherwise, false.</returns>
+         */
+        public static bool TryInverseLookup<TKey, TValue>(this Dictionary<TKey, TValue> dict, TValue value, out TKey key)
+        {
+            foreach (var kvp in dict)
+            {
+                if (EqualityComparer<TValue>.Default.Equals(kvp.Value, value))
+                {
+                    key = kvp.Key;
+                    return true;
+                }
+            }
+
+            key = default;
+            return false;
+        }
+        
+        #endregion
     }
 
     [Serializable]

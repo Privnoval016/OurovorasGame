@@ -11,6 +11,9 @@ public static class Services
     public static IElementSystem ElementSystem { get; private set; }
     
     public static VFXSystem VFXSystem { get; private set; }
+    
+    public static StyleSystem StyleSystem { get; private set; }
+    
     #endregion
     
     #region UI Services
@@ -37,6 +40,9 @@ public static class Services
     
     public static void RegisterVFXSystem(VFXSystem vfxSystem) =>
         VFXSystem = vfxSystem;
+    
+    public static void RegisterStyleSystem(StyleSystem styleSystem) =>
+        StyleSystem = styleSystem;
     
     #endregion
     

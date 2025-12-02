@@ -206,7 +206,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (context.performed || context.canceled)
             EventBus<ElementAttackUpdateEvent>.Raise(new ElementAttackUpdateEvent
             {
-                isActive = isElementAttacking
+                IsActive = isElementAttacking
             });
     }
     
