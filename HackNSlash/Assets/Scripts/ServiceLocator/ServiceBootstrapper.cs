@@ -11,6 +11,7 @@ public class ServiceBootstrapper : MonoBehaviour
     [SerializeField] private CombatSystem combatSystem;
     [SerializeField] private EffectSystem effectSystem;
     [SerializeField] private ElementSystem elementSystem;
+    [SerializeField] private StyleSystem styleSystem;
     
     [Header("UI References")]
     [SerializeField] private OverworldMenuUI overworldMenuUI;
@@ -23,6 +24,7 @@ public class ServiceBootstrapper : MonoBehaviour
         Services.RegisterCombatSystem(combatSystem);
         Services.RegisterEffectSystem(effectSystem);
         Services.RegisterElementSystem(elementSystem);
+        Services.RegisterStyleSystem(styleSystem);
         Services.RegisterOverworldMenuUI(overworldMenuUI);
         Services.RegisterHUDMenuUI(hudMenuUI);
     }

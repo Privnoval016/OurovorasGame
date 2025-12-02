@@ -77,10 +77,10 @@ public class PlayerCombatControl : MonoBehaviour
             ElementRadialMenu.OnElementMenuOpen(CurrentElementOption);
             EventBus<ElementMenuEvent>.Raise(new ElementMenuEvent
             {
-                elementEffect = currentElementEffect,
-                elementIndex = CurrentElementIndex,
-                isActive = true,
-                direction = Vector2.zero,
+                ElementEffect = currentElementEffect,
+                ElementIndex = CurrentElementIndex,
+                IsActive = true,
+                Direction = Vector2.zero,
             });
         }
         else if (context.canceled)
@@ -90,10 +90,10 @@ public class PlayerCombatControl : MonoBehaviour
             var option = ElementRadialMenu.OnElementMenuClose();
             EventBus<ElementMenuEvent>.Raise(new ElementMenuEvent
             {
-                elementEffect = option?.data,
-                elementIndex = option?.index ?? -1,
-                isActive = false,
-                direction = Vector2.zero,
+                ElementEffect = option?.data,
+                ElementIndex = option?.index ?? -1,
+                IsActive = false,
+                Direction = Vector2.zero,
             });
             
             if (option == null || option.data == currentElementEffect) return;
@@ -166,7 +166,7 @@ public class PlayerCombatControl : MonoBehaviour
         currentElementEffect = next;
         EventBus<ElementUpdateEvent>.Raise(new ElementUpdateEvent
         {
-            elementEffect = currentElementEffect,
+            ElementEffect = currentElementEffect,
         });
     }
 
@@ -181,10 +181,10 @@ public class PlayerCombatControl : MonoBehaviour
 
         EventBus<ElementMenuEvent>.Raise(new ElementMenuEvent
         {
-            elementEffect = selected?.data,
-            elementIndex = selected?.index ?? -1,
-            isActive = ElementRadialMenu.isMenuOpen,
-            direction = inputDirection,
+            ElementEffect = selected?.data,
+            ElementIndex = selected?.index ?? -1,
+            IsActive = ElementRadialMenu.isMenuOpen,
+            Direction = inputDirection,
         });
     }
     

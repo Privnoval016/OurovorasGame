@@ -138,58 +138,6 @@ public enum HitDetections
     None
 }
 
-[Serializable]
-public class HitInfo
-{
-    public HitActionInfo[] hitActionInfos;
-    
-    [Header ("Hit Detection")]
-    public HitDetections hitDetection;
-    public float lateralRadius = 3;
-    public float verticalRadius = 3;
-    public float hitRegisterAngle = 120;
-    public int numTargets = 1;
-    
-    [Header("Stats")]
-    public float attackCoolDown;
-
-    public float hitCoolDown;
-}
-
-[Serializable]
-public struct HitActionInfo
-{
-    [SerializeReference] public IHitAction hitAction;
-}
-
-
-[Serializable]
-public class AttackStats
-{
-    public bool restoreCharge = true;
-    [FormerlySerializedAs("chargeRequired")] public float charge = 0f;
-    public float ultimateCharge = 8f;
-    
-    public float damage = 0f;
-
-    public int statusEffectStacks = 1;
-    
-    public float statusEffectDuration = 5f;
-
-
-    public AttackStats()
-    {
-    }
-
-    public AttackStats(AttackStats a)
-    {
-        restoreCharge = a.restoreCharge;
-        charge = a.charge;
-        damage = a.damage;
-    }
-}
-
-
 
 public enum PlayerTarget
 {

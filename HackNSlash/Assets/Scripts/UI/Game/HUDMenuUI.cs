@@ -1,11 +1,7 @@
 using System;
 using Extensions.EventBus;
-using Extensions.Patterns;
-using Extensions.UI;
-using Extensions.Utils;
 using PrimeTween;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class HUDMenuUI : MonoBehaviour
@@ -68,6 +64,12 @@ public class HUDMenuUI : MonoBehaviour
     public ElementalAttackIcon southElementalAttack;
     public ElementalAttackIcon westElementalAttack;
     
+    [Header("Style Meter")]
+    public Slider styleMeterSlider;
+    public Image styleMeterBackground;
+    public Image styleMeterOutline;
+    public Image styleMeterFill;
+    
     #endregion
     
     [HideInInspector] public EquippedElementAttack CurrentElementalAttacks => pc.pcc.GetCurrentElementAttack();
@@ -82,6 +84,7 @@ public class HUDMenuUI : MonoBehaviour
     private EventBinding<ElementMenuEvent> elementMenuEventBinding;
     private EventBinding<ElementUpdateEvent> elementUpdateEventBinding;
     private EventBinding<ElementAttackUpdateEvent> elementAttackUpdateEventBinding;
+    private EventBinding<StyleUpdateEvent> styleUpdateEventBinding;
     
     #endregion
 
@@ -135,6 +138,9 @@ public class HUDMenuUI : MonoBehaviour
         
         elementAttackUpdateEventBinding = new EventBinding<ElementAttackUpdateEvent>(OnElementalAttackActivate);
         EventBus<ElementAttackUpdateEvent>.Register(elementAttackUpdateEventBinding);
+        
+        styleUpdateEventBinding = new EventBinding<StyleUpdateEvent>(OnStyleUpdate);
+        EventBus<StyleUpdateEvent>.Register(styleUpdateEventBinding);
     }
 
     private void DeactivateEventBindings()
@@ -146,6 +152,7 @@ public class HUDMenuUI : MonoBehaviour
         EventBus<ElementMenuEvent>.Deregister(elementMenuEventBinding);
         EventBus<ElementUpdateEvent>.Deregister(elementUpdateEventBinding);
         EventBus<ElementAttackUpdateEvent>.Deregister(elementAttackUpdateEventBinding);
+        EventBus<StyleUpdateEvent>.Deregister(styleUpdateEventBinding);
     }
 
     #endregion
@@ -154,7 +161,7 @@ public class HUDMenuUI : MonoBehaviour
     
     private void OnUltimateUpdate(UltimateUpdateEvent e)
     {
-        float ultimatePercentage = e.ultimatePercentage;
+        float ultimatePercentage = e.UltimatePercentage;
         
         float currentUltimate = ultimateValueBar.value;
         
@@ -253,11 +260,11 @@ public class HUDMenuUI : MonoBehaviour
 
     private void OnElementMenuUpdate(ElementMenuEvent e)
     {
-        if (e.isActive) ActivateElementSwapMenu();
+        if (e.IsActive) ActivateElementSwapMenu();
         else DeactivateElementSwapMenu();
 
-        SetRadialMenuLine(e.direction);
-        if (e.elementEffect != null) SetRadialMenuIcon((ElementEffect) e.elementEffect, e.elementIndex);
+        SetRadialMenuLine(e.Direction);
+        if (e.ElementEffect != null) SetRadialMenuIcon((ElementEffect) e.ElementEffect, e.ElementIndex);
     }
     
     private void ActivateElementSwapMenu()
@@ -283,7 +290,7 @@ public class HUDMenuUI : MonoBehaviour
     
     private void OnElementSelect(ElementUpdateEvent e)
     {
-        ElementEffect element = e.elementEffect;
+        ElementEffect element = e.ElementEffect;
         
         if (selectedElementIcon == null) return;
 
@@ -468,13 +475,32 @@ public class HUDMenuUI : MonoBehaviour
     {
         if (elementalAttackContainer == null) return;
         
-        bool activate = e.isActive;
+        bool activate = e.IsActive;
         if (!activate)
             Tween.Scale(elementalAttackContainer, elementalAttackContainerScale, 0.2f);
         else
             Tween.Scale(elementalAttackContainer,
                 elementalAttackContainerScale * elementalAttackContainerScaleFactor,
                 0.2f);
+    }
+    
+    #endregion
+    
+    #region Style Methods
+    
+    private void OnStyleUpdate(StyleUpdateEvent e)
+    {
+        var setting = Services.StyleSystem.GetStyleSettings(e.StyleLevel);
+        if (setting == null) return;
+        
+        if (styleMeterBackground == null || styleMeterOutline == null || styleMeterFill == null || styleMeterSlider == null)
+            return;
+        
+        styleMeterBackground.sprite = setting.meterBackground != null ? setting.meterBackground : styleMeterBackground.sprite;
+        styleMeterOutline.sprite = setting.meterOutline != null ? setting.meterOutline : styleMeterOutline.sprite;
+        styleMeterFill.sprite = setting.meterFill != null ? setting.meterFill : styleMeterFill.sprite;
+        
+        Tween.UISliderValue(styleMeterSlider, Services.StyleSystem.GetStylePercentage(e.StyleLevel, e.StyleValue), 0.2f);
     }
     
     #endregion
@@ -506,27 +532,39 @@ public struct FinisherUpdateEvent : IEvent
 
 public struct UltimateUpdateEvent : IEvent
 {
-    public float ultimatePercentage;
+    public float UltimatePercentage;
 }
 
 public struct ElementUpdateEvent : IEvent
 {
-    public ElementEffect elementEffect;
+    public ElementEffect ElementEffect;
 }
 
 public struct ElementAttackUpdateEvent : IEvent
 {
-    public AttacksByWeapon northAttack;
-    public AttacksByWeapon southAttack;
-    public AttacksByWeapon westAttack;
+    public AttacksByWeapon NorthAttack;
+    public AttacksByWeapon SouthAttack;
+    public AttacksByWeapon WestAttack;
 
-    public bool isActive;
+    public bool IsActive;
 }
 
 public struct ElementMenuEvent : IEvent
 {
-    public ElementEffect? elementEffect;
-    public int elementIndex;
-    public Vector2 direction;
-    public bool isActive;
+    public ElementEffect? ElementEffect;
+    public int ElementIndex;
+    public Vector2 Direction;
+    public bool IsActive;
+}
+
+public struct StyleUpdateEvent : IEvent
+{
+    public StyleLevel StyleLevel;
+    public float StyleValue;
+    
+    public StyleUpdateEvent(StyleLevel level, float value)
+    {
+        StyleLevel = level;
+        StyleValue = value;
+    }
 }

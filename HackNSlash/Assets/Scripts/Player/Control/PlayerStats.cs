@@ -138,7 +138,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         
         EventBus<UltimateUpdateEvent>.Raise(new UltimateUpdateEvent
         {
-            ultimatePercentage = GetUltimatePercentage(CurrentUltimateCharge)
+            UltimatePercentage = GetUltimatePercentage(CurrentUltimateCharge)
         });
     }
 
@@ -179,7 +179,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         battleParameters.maxFinisherCharge > 0 ? value / battleParameters.maxFinisherCharge : 0f;
 
 
-    public void ResetFinisherCharge(Attack a)
+    public void TryResetFinisherCharge(Attack a)
     {
         if (a != null && !pc.pcc.CurrentElementLoadout.AttackIsFinisher(a)) return;
         ResetFinisherCharge();
