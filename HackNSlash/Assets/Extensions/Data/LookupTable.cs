@@ -104,10 +104,57 @@ namespace Extensions.Data
          * <returns>The value associated with the specified key.</returns>
          * <exception cref="KeyNotFoundException">Thrown if the key is not found in the LookupTable.</exception>
          */
-        public TValue Get(TKey key)
+        public TValue GetValue(TKey key)
         {
             EnsureCache();
             return _dict[key];
+        }
+        
+        /**
+         * <summary>
+         * Gets the key associated with the specified value.
+         * </summary>
+         *
+         * <param name="value">The value to look up.</param>
+         * <returns>The key associated with the specified value.</returns>
+         * <exception cref="KeyNotFoundException">Thrown if the value is not found in the LookupTable.</exception>
+         */
+        public TKey GetKey(TValue value) 
+        {
+            EnsureCache();
+            foreach (var kvp in _dict)
+            {
+                if (EqualityComparer<TValue>.Default.Equals(kvp.Value, value))
+                {
+                    return kvp.Key;
+                }
+            }
+
+            throw new KeyNotFoundException("The specified value was not found in the LookupTable.");
+        }
+        
+        /**
+         * <summary>
+         * Gets the default (first in list) value for the value type.
+         * </summary>
+         *
+         * <returns>The first value in the list for the value type.</returns>
+         */
+        public TValue GetDefaultValue()
+        {
+            return entries.Count > 0 ? entries[0].value : default;
+        }
+        
+        /**
+         * <summary>
+         * Gets the default (first in list) key for the key type.
+         * </summary>
+         *
+         * <returns>The first key in the list for the key type.</returns>
+         */
+        public TKey GetDefaultKey()
+        {
+            return entries.Count > 0 ? entries[0].key : default;
         }
     }
 

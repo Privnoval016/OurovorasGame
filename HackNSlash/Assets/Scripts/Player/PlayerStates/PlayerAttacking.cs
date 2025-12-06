@@ -132,11 +132,11 @@ public class PlayerAttacking : PlayerState
             pc.psm.canAttack = true;
         }
         
-        if (attackCoolDownTimer?.ElapsedTime > pc.psm.attackData.moveInterruptBuffer && pc.psm.StandardizedMoveDir.magnitude > 0.1f)
-        {
-            pc.psm.canAttack = true;
-            sc.ResumePrevious();
-        }
+        // if (attackCoolDownTimer?.ElapsedTime > pc.psm.attackData.moveInterruptBuffer && pc.psm.StandardizedMoveDir.magnitude > 0.1f)
+        // {
+        //     pc.psm.canAttack = true;
+        //     sc.ResumePrevious();
+        // }
     }
     
 
