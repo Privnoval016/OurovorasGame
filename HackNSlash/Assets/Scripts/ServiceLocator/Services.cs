@@ -14,6 +14,8 @@ public static class Services
     
     public static StyleSystem StyleSystem { get; private set; }
     
+    public static AudioSystem AudioSystem { get; private set; }
+    
     #endregion
     
     #region UI Services
@@ -43,6 +45,9 @@ public static class Services
     
     public static void RegisterStyleSystem(StyleSystem styleSystem) =>
         StyleSystem = styleSystem;
+    
+    public static void RegisterAudioSystem(AudioSystem audioSystem) =>
+        AudioSystem = audioSystem;
     
     #endregion
     

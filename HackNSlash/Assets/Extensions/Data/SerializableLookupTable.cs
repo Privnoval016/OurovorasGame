@@ -104,10 +104,57 @@ namespace Extensions.Data
          * <returns>The value associated with the specified key.</returns>
          * <exception cref="KeyNotFoundException">Thrown if the key is not found in the LookupTable.</exception>
          */
-        public TValue Get(TKey key)
+        public TValue GetValue(TKey key)
         {
             EnsureCache();
             return _dict[key];
+        }
+        
+        /**
+         * <summary>
+         * Gets the key associated with the specified value.
+         * </summary>
+         *
+         * <param name="value">The value to look up.</param>
+         * <returns>The key associated with the specified value.</returns>
+         * <exception cref="KeyNotFoundException">Thrown if the value is not found in the LookupTable.</exception>
+         */
+        public TKey GetKey(TValue value)
+        {
+            EnsureCache();
+            foreach (var kvp in _dict)
+            {
+                if (EqualityComparer<TValue>.Default.Equals(kvp.Value, value))
+                {
+                    return kvp.Key;
+                }
+            }
+
+            throw new KeyNotFoundException("The specified value was not found in the LookupTable.");
+        }
+
+        /**
+         * <summary>
+         * Gets the default value (the value of the first entry) in the LookupTable.
+         * </summary>
+         *
+         * <returns>The default value if the table has entries; otherwise, the default value of TValue.</returns>
+         */
+        public TValue GetDefaultValue()
+        {
+            return entries.Count > 0 ? entries[0].value : default;
+        }
+        
+        /**
+         * <summary>
+         * Gets the default key (the key of the first entry) in the LookupTable.
+         * </summary>
+         *
+         * <returns>The default key if the table has entries; otherwise, the default value of TKey.</returns>
+         */
+        public TKey GetDefaultKey(TValue value) 
+        {
+            return entries.Count > 0 ? entries[0].key : default;
         }
     }
 }
