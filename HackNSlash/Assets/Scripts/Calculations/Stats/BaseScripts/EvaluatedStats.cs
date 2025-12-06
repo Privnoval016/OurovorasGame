@@ -1,24 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Extensions.Modifiers;
 using UnityEngine;
 using UnityEngine.Serialization;
-
-public enum InnateStat : int // value based stats
-{
-    MaxHealth,
-    MaxCharge,
-    Strength,
-    Defense,
-}
-
-public enum StatusEffectTargets
-{
-    None,
-    Speed,          // affects move speed
-    DamageDealt,    // affects damage dealt to others
-    DamageTaken,    // affects damage taken from others
-    DynamicDamage   // affects damage taken during updates/not necessarily just when hit (shared damage, DOT, etc)
-}
 
 public class EvaluatedStats
 {
@@ -143,4 +127,11 @@ public class EvaluatedStats
         
         return $"Stats: {string.Join(", ", statStrings)} | Status Effects: {string.Join(", ", statusEffectStrings)}";
     }
+}
+
+public enum ChangeType
+{
+    Flat,
+    AdditivePercent,
+    MultiplicativePercent,
 }

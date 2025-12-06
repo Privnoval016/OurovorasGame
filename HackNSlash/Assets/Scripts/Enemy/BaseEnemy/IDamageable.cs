@@ -1,4 +1,6 @@
-﻿public interface IDamageable
+﻿using Extensions.Modifiers;
+
+public interface IDamageable
 {
     
     public void ApplyStatusEffect(Modifier<StatusEffectQueryKey> statusEffectModifier);
