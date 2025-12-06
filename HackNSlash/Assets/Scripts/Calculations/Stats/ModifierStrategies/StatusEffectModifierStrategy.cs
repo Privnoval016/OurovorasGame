@@ -1,3 +1,4 @@
+using Extensions.Modifiers;
 using UnityEngine;
 
 public class StatusEffectModifierStrategy : IModifierStrategy
