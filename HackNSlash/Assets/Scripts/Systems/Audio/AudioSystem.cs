@@ -5,16 +5,55 @@ using FMOD.Studio;
 
 public class AudioSystem : MonoBehaviour
 {
-    [Header("Pooling Settings")]
-    [SerializeField] private int poolSize = 20;
+    #region Fields and Properties
+    
+    [Header("Pooling Settings")] 
+    [SerializeField] private int defaultPoolSize = 10;
 
-    private Dictionary<AudioEvent, Queue<EventInstance>> _pool = new();
+    private readonly Dictionary<AudioEvent, Queue<PooledEvent>> _pool = new();
+    private readonly List<ActiveSnapshot> _activeSnapshots = new();
 
     private EventInstance _currentSnapshot;
     private EventInstance _currentMusic;
+    private EventInstance _currentAmbient;
+    
+    private AudioEvent _currentMusicEvent;
+    private AudioEvent _currentAmbientEvent;
     
     [Header("Audio Lookup Tables")]
     [SerializeField] private SurfaceLookupTable surfaceLookupTable;
+    
+    #endregion
+    
+    #region Wrapper Classes
+    
+    private class PooledEvent
+    {
+        public EventInstance Instance { get; }
+        public AudioEvent Owner { get; }
+
+        public PooledEvent(EventInstance instance, AudioEvent owner)
+        {
+            Instance = instance;
+            Owner = owner;
+        }
+    }
+    
+    private class ActiveSnapshot
+    {
+        public AudioSnapshot snapshot;
+        public EventInstance instance;
+
+        public ActiveSnapshot(AudioSnapshot snapshot, EventInstance instance)
+        {
+            this.snapshot = snapshot;
+            this.instance = instance;
+        }
+    }
+    
+    #endregion
+    
+    #region Audio Event Methods
     
     /**
      * <summary>
@@ -74,47 +113,93 @@ public class AudioSystem : MonoBehaviour
      * </summary>
      *
      * <param name="instance">The EventInstance to stop.</param>
+     * <param name="owner">The AudioEvent that owns the instance.</param>
      * <param name="allowFadeout">Whether to allow fadeout when stopping the event (instance).</param>
      */
-    public void StopEvent(EventInstance instance, bool allowFadeout = true)
+    public void StopEvent(EventInstance instance, AudioEvent owner, bool allowFadeout = true)
     {
         if (!instance.isValid()) return;
 
         instance.stop(allowFadeout ? FMOD.Studio.STOP_MODE.ALLOWFADEOUT : FMOD.Studio.STOP_MODE.IMMEDIATE);
-        ReturnToPool(instance);
+        ReturnToPool(instance, owner);
     }
     
+    #endregion
+
+    #region Snapshot Methods
     /**
      * <summary>
      * Triggers an audio snapshot, stopping any currently active snapshot.
      * </summary>
      *
      * <param name="snapshot">The AudioSnapshot to trigger.</param>
+     * <param name="priority">The priority of the snapshot (higher priority snapshots can override lower ones).</param>
      */
-    public void TriggerSnapshot(AudioSnapshot snapshot)
+    public void TriggerSnapshot(AudioSnapshot snapshot, int priority = 0)
     {
-        StopSnapshot();
+        if (snapshot == null) return;
 
-        if (snapshot != null)
+        // Stop lower-priority snapshots if needed
+        for (int i = _activeSnapshots.Count - 1; i >= 0; i--)
         {
-            snapshot.snapshotDesc.createInstance(out _currentSnapshot);
-            if (_currentSnapshot.isValid())
-                _currentSnapshot.start();
+            var active = _activeSnapshots[i];
+            if (active.snapshot.priority < priority)
+            {
+                StopSnapshot(active.snapshot); // fade out
+            }
+        }
+
+        // Already active? Ignore
+        if (_activeSnapshots.Exists(a => a.snapshot == snapshot)) return;
+
+        // Create and start instance
+        snapshot.snapshotDesc.createInstance(out EventInstance instance);
+        if (instance.isValid())
+        {
+            instance.start();
+            _activeSnapshots.Add(new ActiveSnapshot(snapshot, instance));
         }
     }
 
     /**
      * <summary>
-     * Stops the currently active audio snapshot, if any.
+     * Stops the specified audio snapshot.
+     * </summary>
+     *
+     * <param name="snapshot">The AudioSnapshot to stop.</param>
+     */
+    public void StopSnapshot(AudioSnapshot snapshot)
+    {
+        if (snapshot == null) return;
+
+        var active = _activeSnapshots.Find(a => a.snapshot == snapshot);
+        if (active == null) return;
+
+        active.instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        active.instance.release();
+        _activeSnapshots.Remove(active);
+    }
+    
+    /**
+     * <summary>
+     * Stops all currently active audio snapshots.
      * </summary>
      */
-    public void StopSnapshot()
+    public void StopAllSnapshots()
     {
-        if (_currentSnapshot.isValid())
-            _currentSnapshot.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        for (int i = _activeSnapshots.Count - 1; i >= 0; i--)
+        {
+            var active = _activeSnapshots[i];
+            active.instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            active.instance.release();
+        }
 
-        _currentSnapshot = default;
+        _activeSnapshots.Clear();
     }
+    
+    #endregion
+    
+    #region Music Methods
     
     /**
      * <summary>
@@ -127,7 +212,9 @@ public class AudioSystem : MonoBehaviour
     {
         StopMusic();
 
+        _currentMusicEvent = musicEvent;
         _currentMusic = RuntimeManager.CreateInstance(musicEvent.eventReference);
+
         if (_currentMusic.isValid())
             _currentMusic.start();
     }
@@ -150,18 +237,51 @@ public class AudioSystem : MonoBehaviour
      * <summary>
      * Stops the currently playing music, if any.
      * </summary>
+     *
+     * <param name="allowFadeout">Whether to allow fadeout when stopping the music.</param>
      */
-    public void StopMusic()
+    public void StopMusic(bool allowFadeout = true)
     {
         if (_currentMusic.isValid())
         {
-            _currentMusic.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            _currentMusic.stop(allowFadeout ? FMOD.Studio.STOP_MODE.ALLOWFADEOUT : FMOD.Studio.STOP_MODE.IMMEDIATE);
             _currentMusic.release();
         }
 
         _currentMusic = default;
+        _currentMusicEvent = null;
     }
     
+    /**
+     * <summary>
+     * Transitions to new background music with optional crossfade.
+     * </summary>
+     *
+     * <param name="newMusicEvent">The AudioEvent representing the new music to play.</param>
+     * <param name="crossfadeTime">The duration of the crossfade transition in seconds.</param>
+     */
+    public void TransitionToMusic(AudioEvent newMusicEvent, float crossfadeTime = 1f)
+    {
+        if (_currentMusic.isValid())
+        {
+            var newInstance = RuntimeManager.CreateInstance(newMusicEvent.eventReference);
+            newInstance.start();
+
+            _currentMusic.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            _currentMusic.release();
+
+            _currentMusic = newInstance;
+            _currentMusicEvent = newMusicEvent;
+        }
+        else
+        {
+            StartMusic(newMusicEvent);
+        }
+    }
+    
+    #endregion
+    
+    #region Surface Based Audio Methods
     
     /**
      * <summary>
@@ -175,6 +295,8 @@ public class AudioSystem : MonoBehaviour
     public void PlaySurfaceSound(AudioEvent footstepEvent, Transform target, AudioParamValue[] additionalParams = null)
     {
         var surfaceParam = GetSurfaceParam(target);
+        
+        additionalParams ??= new AudioParamValue[] { };
         
         if (surfaceParam.parameter != null)
             AudioParamValue.ReplaceParameter(additionalParams, surfaceParam);
@@ -198,53 +320,107 @@ public class AudioSystem : MonoBehaviour
 
         return default;
     }
+    
+    #endregion
 
-    /** <summary>
-     * Plays an ambient sound at a specified location with optional parameters.
+    #region Ambient Sound Methods
+
+    /**
+     * <summary>
+     * Starts playing ambient sound using the specified audio event.
      * </summary>
      *
-     * <param name="ambientEvent">The AudioEvent representing the ambient sound.</param>
-     * <param name="location">The Transform location to attach the sound to.</param>
-     * <param name="parameters">Optional array of audio parameters to set on the ambient sound.</param>
+     * <param name="ambientEvent">The AudioEvent representing the ambient sound to play.</param>
+     * <param name="location">Optional transform to attach the ambient sound to for 3D audio.</param>
      */
-    public void PlayAmbient(AudioEvent ambientEvent, Transform location, AudioParamValue[] parameters = null)
+    public void StartAmbient(AudioEvent ambientEvent, Transform location = null)
     {
-        PlayEvent(ambientEvent, location, true, parameters);
+        StopAmbient();
+
+        _currentAmbientEvent = ambientEvent;
+        _currentAmbient = RuntimeManager.CreateInstance(ambientEvent.eventReference);
+
+        if (_currentAmbient.isValid())
+        {
+            if (location != null)
+                RuntimeManager.AttachInstanceToGameObject(_currentAmbient, location, location.GetComponent<Rigidbody>());
+            _currentAmbient.start();
+        }
     }
     
-    private EventInstance GetPooledInstance(AudioEvent evt)
+    /**
+     * <summary>
+     * Stops the currently playing ambient sound, if any.
+     * </summary>
+     *
+     * <param name="allowFadeout">Whether to allow fadeout when stopping the ambient sound.</param>
+     */
+    public void StopAmbient(bool allowFadeout = true)
     {
-        if (!_pool.TryGetValue(evt, out var queue))
-            _pool[evt] = queue = new Queue<EventInstance>();
-
-        while (queue.Count > 0)
+        if (_currentAmbient.isValid())
         {
-            var instance = queue.Dequeue();
-            if (instance.isValid())
-                return instance;
+            _currentAmbient.stop(allowFadeout ? FMOD.Studio.STOP_MODE.ALLOWFADEOUT : FMOD.Studio.STOP_MODE.IMMEDIATE);
+            _currentAmbient.release();
         }
 
-        var newInstance = RuntimeManager.CreateInstance(evt.eventReference);
-        if (!newInstance.isValid())
-            Debug.LogWarning($"Failed to create new EventInstance for {evt.name}");
-        return newInstance;
+        _currentAmbient = default;
+        _currentAmbientEvent = null;
+    }
+    
+    #endregion
+    
+    #region Pooling Methods
+    
+    private void InitializePool(AudioEvent evt)
+    {
+        if (_pool.ContainsKey(evt)) return;
+
+        var queue = new Queue<PooledEvent>();
+        int size = evt.poolSize > 0 ? evt.poolSize : defaultPoolSize;
+
+        for (int i = 0; i < size; i++)
+        {
+            var instance = RuntimeManager.CreateInstance(evt.eventReference);
+            queue.Enqueue(new PooledEvent(instance, evt));
+        }
+
+        _pool[evt] = queue;
     }
 
-    private void ReturnToPool(EventInstance instance)
+    private EventInstance GetPooledInstance(AudioEvent evt)
+    {
+        InitializePool(evt);
+
+        var queue = _pool[evt];
+        while (queue.Count > 0)
+        {
+            var pooled = queue.Dequeue();
+            if (pooled.Instance.isValid())
+                return pooled.Instance;
+        }
+
+        // Pool exhausted, create new instance
+        return RuntimeManager.CreateInstance(evt.eventReference);
+    }
+
+    private void ReturnToPool(EventInstance instance, AudioEvent owner)
     {
         if (!instance.isValid()) return;
 
-        RuntimeManager.AttachInstanceToGameObject(instance, transform, (Rigidbody) null);
-
-        foreach (var kvp in _pool)
+        if (_pool.TryGetValue(owner, out var queue))
         {
-            if (kvp.Value.Count < poolSize)
-            {
-                kvp.Value.Enqueue(instance);
-                return;
-            }
+            if (queue.Count < owner.poolSize)
+                queue.Enqueue(new PooledEvent(instance, owner));
+            else
+                instance.release(); // Pool full, release
+        }
+        else
+        {
+            instance.release(); // Fallback
         }
 
-        instance.release();
+        RuntimeManager.AttachInstanceToGameObject(instance, transform, (Rigidbody) null);
     }
+    
+    #endregion
 }

@@ -12,6 +12,8 @@ public class AudioEvent : ScriptableObject
     [TextArea]
     public string description;
 
+    public int poolSize = 10;
+
     [Header("Randomization Metadata")]
     
     [MinMaxSlider(0f, 2f)]
