@@ -46,7 +46,7 @@ namespace Systems.Element
 
         public StatusEffect GetStatusEffect()
         {
-            return Services.EffectSystem?.GetStatusEffect(statusEffect);
+            return Services.Get<EffectSystem>()?.GetStatusEffect(statusEffect);
         }
 
         public static ElementEffect GetElementFromAttack(ElementEffect attackElement, PlayerController pc)

@@ -5,7 +5,7 @@ using Systems.Element;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HUDMenuUI : MonoBehaviour
+public class HUDMenuUI : MonoBehaviour, IService
 {
     public PlayerController pc;
     
@@ -204,7 +204,7 @@ public class HUDMenuUI : MonoBehaviour
      */
     private void UpdateFinisherIcon()
     {
-        ElementData elementData = Services.ElementSystem.GetElementData(ElementEffect.Aether);
+        ElementData elementData = Services.Get<ElementSystem>().GetElementData(ElementEffect.Aether);
         
         if (pc.ps.CanUseFinisher())
         {
@@ -231,7 +231,7 @@ public class HUDMenuUI : MonoBehaviour
             ElementEffect element = pc.pcc.elementEffects[i];
             
             // Set icon sprite later
-            elementIcons[i].color = Services.ElementSystem.GetElementData(element).elementInactiveColor;
+            elementIcons[i].color = Services.Get<ElementSystem>().GetElementData(element).elementInactiveColor;
         }
         
         radialMenuDefaultScale = elementIconRects[0].localScale;
@@ -295,7 +295,7 @@ public class HUDMenuUI : MonoBehaviour
         
         if (selectedElementIcon == null) return;
 
-        selectedElementIcon.color = Services.ElementSystem.GetElementData(element).elementColor;
+        selectedElementIcon.color = Services.Get<ElementSystem>().GetElementData(element).elementColor;
         
         UpdateElementalAttackIcons();
     }
@@ -323,7 +323,7 @@ public class HUDMenuUI : MonoBehaviour
         {
             if (i == index)
             {
-                elementIcons[i].color = Services.ElementSystem.GetElementData(element).elementColor;
+                elementIcons[i].color = Services.Get<ElementSystem>().GetElementData(element).elementColor;
                 Tween.Scale(elementIconRects[i], radialMenuDefaultScale * radialMenuSelectScaleFactor, 0.1f, useUnscaledTime: true);
                 
                 if (elementSelectBorder != null)
@@ -338,7 +338,7 @@ public class HUDMenuUI : MonoBehaviour
             }
             else
             {
-                elementIcons[i].color = Services.ElementSystem.GetElementData(pc.pcc.elementEffects[i]).elementInactiveColor;
+                elementIcons[i].color = Services.Get<ElementSystem>().GetElementData(pc.pcc.elementEffects[i]).elementInactiveColor;
                 if (i == selectedElementIndex)
                     Tween.Scale(elementIconRects[i], radialMenuDefaultScale, 0.1f, useUnscaledTime: true);
             }
@@ -457,7 +457,7 @@ public class HUDMenuUI : MonoBehaviour
         attackIcon.icon.gameObject.SetActive(true);
         attackIcon.chargeFillImage.gameObject.SetActive(true);
 
-        Color c = Services.ElementSystem.GetElementData(Element).elementColor;
+        Color c = Services.Get<ElementSystem>().GetElementData(Element).elementColor;
         attackIcon.icon.color = c;
     }
     
@@ -468,7 +468,7 @@ public class HUDMenuUI : MonoBehaviour
         attackIcon.icon.gameObject.SetActive(true);
         attackIcon.chargeFillImage.gameObject.SetActive(true);
 
-        Color c = Services.ElementSystem.GetElementData(Element).elementInactiveColor;
+        Color c = Services.Get<ElementSystem>().GetElementData(Element).elementInactiveColor;
         attackIcon.icon.color = c;
     }
 
@@ -491,7 +491,7 @@ public class HUDMenuUI : MonoBehaviour
     
     private void OnStyleUpdate(StyleUpdateEvent e)
     {
-        var setting = Services.StyleSystem.GetStyleSettings(e.StyleLevel);
+        var setting = Services.Get<StyleSystem>().GetStyleSettings(e.StyleLevel);
         if (setting == null) return;
         
         if (styleMeterBackground == null || styleMeterOutline == null || styleMeterFill == null || styleMeterSlider == null)
@@ -501,7 +501,7 @@ public class HUDMenuUI : MonoBehaviour
         styleMeterOutline.sprite = setting.meterOutline != null ? setting.meterOutline : styleMeterOutline.sprite;
         styleMeterFill.sprite = setting.meterFill != null ? setting.meterFill : styleMeterFill.sprite;
         
-        Tween.UISliderValue(styleMeterSlider, Services.StyleSystem.GetStylePercentage(e.StyleLevel, e.StyleValue), 0.2f);
+        Tween.UISliderValue(styleMeterSlider, Services.Get<StyleSystem>().GetStylePercentage(e.StyleLevel, e.StyleValue), 0.2f);
     }
     
     #endregion

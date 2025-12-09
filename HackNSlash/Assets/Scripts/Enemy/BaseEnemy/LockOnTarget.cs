@@ -100,7 +100,7 @@ public abstract class LockOnTarget : KinematicBehaviour
         
         StatusEffectChange effect = new StatusEffectChange
         {
-            StatusEffect = Services.ElementSystem.GetElementData(element).GetStatusEffect(),
+            StatusEffect = Services.Get<ElementSystem>().GetElementData(element).GetStatusEffect(),
             stacks = a.stats.statusEffectStacks,
             duration = a.stats.statusEffectDuration
         };

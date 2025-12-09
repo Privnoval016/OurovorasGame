@@ -95,7 +95,7 @@ public class WeaponBody : KinematicBehaviour, IContactDetector
     {
         if (vfxTrail != null)
         {
-            vfxTrail.TrailMaterial = Services.ElementSystem.GetElementData(elementEffect).weaponTrailMaterial;
+            vfxTrail.TrailMaterial = Services.Get<ElementSystem>().GetElementData(elementEffect).weaponTrailMaterial;
         }
         
     }

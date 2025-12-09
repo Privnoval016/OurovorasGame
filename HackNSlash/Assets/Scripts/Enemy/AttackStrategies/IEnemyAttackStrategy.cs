@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Extensions.Utils;
 using MEC;
+using Systems;
 using UnityEngine;
 
 
@@ -65,6 +66,6 @@ public abstract class IEnemyAttackStrategy
 
     protected VFXController CreateVFX(int index, TransformInfo start = default)
     {
-        return Services.VFXSystem.SpawnEnemyVFX(ts, a, index, start);
+        return Services.Get<VFXSystem>().SpawnEnemyVFX(ts, a, index, start);
     }
 }

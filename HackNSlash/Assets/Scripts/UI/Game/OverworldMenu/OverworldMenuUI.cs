@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-public class OverworldMenuUI : MonoBehaviour
+public class OverworldMenuUI : MonoBehaviour, IService
 {
     public EventSystem eventSystem;
     public PlayerInventory playerInventory;
@@ -16,7 +16,7 @@ public class OverworldMenuUI : MonoBehaviour
 
     private void Awake()
     {
-        playerInventory = Services.PlayerController.pi;
+        playerInventory = Services.Get<PlayerController>().pi;
     }
 
     private void Start()

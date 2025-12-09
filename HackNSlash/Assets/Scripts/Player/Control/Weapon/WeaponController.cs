@@ -140,6 +140,8 @@ public class WeaponController : MonoBehaviour
             .GetAllEnemiesInCapsule(pc.psm.playerData.largeRadius, pc.psm.playerData.largeRadius, 360)
             .Select(e => e.GetComponent<Collider>()).ToHashSet();
         
+        if (cols.Count == 0) return enemies;
+        
         cols = cols.Where(e => pc.wc.IsIntersecting(e)).ToHashSet();
         
         var enemiesFromTrail = cols.Select(e => e.GetComponent<LockOnTarget>()).ToHashSet();
