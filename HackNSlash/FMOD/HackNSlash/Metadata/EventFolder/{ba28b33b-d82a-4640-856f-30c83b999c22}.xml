@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="EventFolder" id="{ba28b33b-d82a-4640-856f-30c83b999c22}">
+		<property name="name">
+			<value>LowPass</value>
+		</property>
+		<relationship name="folder">
+			<destination>{a6a30595-8e8f-4e01-a370-b5576fe2b926}</destination>
+		</relationship>
+	</object>
+</objects>

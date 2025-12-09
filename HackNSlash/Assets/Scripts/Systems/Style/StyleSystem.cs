@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 using Extensions.EventBus;
 using Extensions.Patterns;
-using Extensions.Utils;
 using UnityEngine;
 
-public class StyleSystem : MonoBehaviour
+public class StyleSystem : MonoBehaviour, IStyleSystem
 {
     [Header("Style Settings")]
     [SerializeField] private List<StyleSetting> styleSettings;
@@ -160,4 +158,12 @@ public class StyleSystem : MonoBehaviour
     {
         SortStylesByName();
     }
+}
+
+public interface IStyleSystem : IService
+{
+    float CurrentStyleValue { get; }
+    StyleLevel CurrentStyleLevel { get; }
+    void RaiseAttackEvent(Attack attack, int enemiesHit);
+    void RaiseHitEvent(HitInstance hitInstance);
 }

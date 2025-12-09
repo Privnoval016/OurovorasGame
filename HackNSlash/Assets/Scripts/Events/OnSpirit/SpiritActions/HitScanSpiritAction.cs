@@ -44,7 +44,7 @@ public class HitScanSpiritAction : ISpiritAction
         {
             CreateVFX(vfxToUse[i], new TransformInfo(enemiesToHit[i].transform, false));
             enemiesToHit[i].OnHit(element, spirit.pc, a, spirit.transform, 0);
-            Services.CombatSystem.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
+            Services.Get<CombatSystem>().PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
             
             yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
         }

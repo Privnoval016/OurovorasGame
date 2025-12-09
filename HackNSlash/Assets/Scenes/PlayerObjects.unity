@@ -11387,6 +11387,7 @@ MonoBehaviour:
   ps: {fileID: 0}
   oae: {fileID: 0}
   ohe: {fileID: 0}
+  saveBinding: {fileID: 0}
   spirit: {fileID: 2096512438}
   cameraFollowTarget: {fileID: 164924545}
   model: {fileID: 1668608101}
@@ -14460,7 +14461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c14cbc2e0ea54f009458d623b81b4290, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poolSize: 20
+  defaultPoolSize: 10
   surfaceLookupTable: {fileID: 11400000, guid: 7027cab2011974c819f64b329f27826d, type: 2}
 --- !u!1 &1935180619
 GameObject:

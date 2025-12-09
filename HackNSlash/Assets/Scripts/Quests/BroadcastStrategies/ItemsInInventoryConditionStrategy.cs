@@ -19,7 +19,7 @@ public class ItemsInInventoryConditionStrategy : IQuestConditionStrategy
     protected override void OnInitialize()
     {
         base.OnInitialize();
-        player = Services.PlayerController;
+        player = Services.Get<PlayerController>();
         inventoryUpdateBinding = new EventBinding<OnInventoryUpdatedEvent>(OnInventoryUpdate);
         EventBus<OnInventoryUpdatedEvent>.Register(inventoryUpdateBinding);
         

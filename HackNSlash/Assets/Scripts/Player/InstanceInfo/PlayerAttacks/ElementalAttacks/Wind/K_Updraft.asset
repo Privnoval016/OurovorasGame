@@ -22,6 +22,9 @@ MonoBehaviour:
     charge: 40
     ultimateCharge: 8
     damage: 0
+    statusEffectStacks: 1
+    statusEffectDuration: 5
+    baseStyleGain: 10
   isLockedOn: 0
   requireElementTrigger: 1
   triggerCoolDown: 0
@@ -32,7 +35,6 @@ MonoBehaviour:
   isMidair: 2
   maxUses: 0
   hitInfo:
-    onHitActions: 01000000
     hitActionInfos:
     - hitAction:
         rid: 2944900481171587346
@@ -42,11 +44,7 @@ MonoBehaviour:
     hitRegisterAngle: 0
     numTargets: 1
     attackCoolDown: 1.5
-    hitCoolDown: 0
-    hitForce: 0
-    hitDelay: 0.1
-    hitDirection: {x: 0, y: 0, z: 0}
-    elasticCollision: 0
+    hitCoolDown: 1.5
   vfxInstantSpawns: 00000000
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: df19065a9f3abf44e84e635c5a1e1329, type: 2}

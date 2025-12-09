@@ -27,7 +27,7 @@ public class EffectSystem : MonoBehaviour, IEffectSystem
     #endregion
 }
 
-public interface IEffectSystem
+public interface IEffectSystem : IService
 {
     StatusEffect[] StatusEffects { get; }
     StatusEffect GetStatusEffect(StatusEffect statusEffect);

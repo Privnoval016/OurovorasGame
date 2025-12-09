@@ -3,7 +3,7 @@ using UnityEngine;
 using FMODUnity;
 using FMOD.Studio;
 
-public class AudioSystem : MonoBehaviour
+public class AudioSystem : MonoBehaviour, IAudioSystem
 {
     #region Fields and Properties
     
@@ -423,4 +423,20 @@ public class AudioSystem : MonoBehaviour
     }
     
     #endregion
+}
+
+public interface IAudioSystem : IService
+{
+    EventInstance PlayEvent(AudioEvent evt, Transform attachTo = null, bool start = true, AudioParamValue[] parameters = null);
+    void StopEvent(EventInstance instance, AudioEvent owner, bool allowFadeout = true);
+    void TriggerSnapshot(AudioSnapshot snapshot, int priority = 0);
+    void StopSnapshot(AudioSnapshot snapshot);
+    void StopAllSnapshots();
+    void StartMusic(AudioEvent musicEvent);
+    void SetMusicParameter(AudioParameter param, float value);
+    void StopMusic(bool allowFadeout = true);
+    void TransitionToMusic(AudioEvent newMusicEvent, float crossfadeTime = 1f);
+    void PlaySurfaceSound(AudioEvent footstepEvent, Transform target, AudioParamValue[] additionalParams = null);
+    void StartAmbient(AudioEvent ambientEvent, Transform location = null);
+    void StopAmbient(bool allowFadeout = true);
 }

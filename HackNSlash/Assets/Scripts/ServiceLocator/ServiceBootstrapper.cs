@@ -20,16 +20,26 @@ public class ServiceBootstrapper : MonoBehaviour
     
     private void Awake()
     {
-        Services.RegisterPlayerController(playerController);
+        // Services.RegisterPlayerController(playerController);
+        //
+        // Services.RegisterVFXSystem(vfxSystem);
+        // Services.RegisterCombatSystem(combatSystem);
+        // Services.RegisterEffectSystem(effectSystem);
+        // Services.RegisterElementSystem(elementSystem);
+        // Services.RegisterStyleSystem(styleSystem);
+        // Services.RegisterAudioSystem(audioSystem);
+        //
+        // Services.RegisterOverworldMenuUI(overworldMenuUI);
+        // Services.RegisterHUDMenuUI(hudMenuUI);
         
-        Services.RegisterVFXSystem(vfxSystem);
-        Services.RegisterCombatSystem(combatSystem);
-        Services.RegisterEffectSystem(effectSystem);
-        Services.RegisterElementSystem(elementSystem);
-        Services.RegisterStyleSystem(styleSystem);
-        Services.RegisterAudioSystem(audioSystem);
-        
-        Services.RegisterOverworldMenuUI(overworldMenuUI);
-        Services.RegisterHUDMenuUI(hudMenuUI);
+        Services.Register(playerController);
+        Services.Register(vfxSystem);
+        Services.Register(combatSystem);
+        Services.Register(effectSystem);
+        Services.Register(elementSystem);
+        Services.Register(styleSystem);
+        Services.Register(audioSystem);
+        Services.Register(overworldMenuUI);
+        Services.Register(hudMenuUI);
     }
 }

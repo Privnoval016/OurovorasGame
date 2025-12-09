@@ -21,7 +21,7 @@ public class PlayerVFXHitDetector : VFXHitDetector
         if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.TookDamageThisAction(attack))
         {
             enemy.OnHit(vfx.elementType, player, attack, vfx.transform, vfx.vfxSpawnInfo.vfxPlayerActionIndex);
-            Services.CombatSystem.PlayHitEffects(vfx.elementType, player, attack, vfx, true);
+            Services.Get<CombatSystem>().PlayHitEffects(vfx.elementType, player, attack, vfx, true);
         }
     }
 
@@ -34,7 +34,7 @@ public class PlayerVFXHitDetector : VFXHitDetector
         if (other.TryGetComponent(out LockOnTarget enemy) && !enemy.TookDamageThisAction(attack))
         {
             enemy.OnHit(vfx.elementType, player, attack, vfx.transform, vfx.vfxSpawnInfo.vfxPlayerActionIndex);
-            Services.CombatSystem.PlayHitEffects(vfx.elementType, player, attack, vfx, true);
+            Services.Get<CombatSystem>().PlayHitEffects(vfx.elementType, player, attack, vfx, true);
         }
     }
 }

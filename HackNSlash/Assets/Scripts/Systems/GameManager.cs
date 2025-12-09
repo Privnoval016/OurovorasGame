@@ -55,7 +55,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        Services.OverworldMenuUI.gameObject.SetActive(true);
+        Services.Get<OverworldMenuUI>().gameObject.SetActive(true);
         SetGameState(GameState.Menu);
         SetGameState(GameState.PlayerControl);
     }
@@ -111,24 +111,24 @@ public class GameManager : Singleton<GameManager>
 
     private void SetPlayerControlState()
     {
-        Services.OverworldMenuUI.CloseMenu();
+        Services.Get<OverworldMenuUI>().CloseMenu();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        Services.CombatSystem.ApplyPausedTimescale(false);
+        Services.Get<CombatSystem>().ApplyPausedTimescale(false);
     }
     
     private void SetCutsceneState()
     {
-        Services.OverworldMenuUI.CloseMenu();
-        Services.CombatSystem.ApplyPausedTimescale(true);
+        Services.Get<OverworldMenuUI>().CloseMenu();
+        Services.Get<CombatSystem>().ApplyPausedTimescale(true);
     }
     
     private void SetMenuState()
     {
-        Services.OverworldMenuUI.OpenMenu();
+        Services.Get<OverworldMenuUI>().OpenMenu();
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        Services.CombatSystem.ApplyPausedTimescale(true);
+        Services.Get<CombatSystem>().ApplyPausedTimescale(true);
     }
     
     #endregion

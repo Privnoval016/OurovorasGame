@@ -24,7 +24,7 @@ public class BaseStats : SerializedScriptableObject
     {
         statusEffects = new Dictionary<StatusEffect, int>();
         statusEffects.Clear();
-        foreach (var statusEffect in Services.EffectSystem.StatusEffects)
+        foreach (var statusEffect in Services.Get<EffectSystem>().StatusEffects)
         {
             statusEffects[statusEffect] = 0;
         }

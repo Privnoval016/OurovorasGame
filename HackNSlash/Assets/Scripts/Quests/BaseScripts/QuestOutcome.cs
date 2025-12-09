@@ -10,12 +10,21 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Quest Outcome", menuName = "Quests/Quest Outcome")]
 public class QuestOutcome : QuestObjective
 {
-    
+    [Tooltip("Determines how the outcome evaluates its completion based on the condition. " +
+             "Toggleable: outcome can be marked complete/incomplete based on condition state (max completions should be 1). " +
+             "Instantial: outcome is marked complete once condition is met and cannot be decremented.")]
+    public OutcomeEvaluationMode evaluationMode = OutcomeEvaluationMode.Instantial;
     [Header("Quest Condition")]
     [SerializeReference] public ICondition<QuestOutcome> questCondition;
 
     private Dictionary<QuestObjective, ObjectiveCondition> questTriggerConditions;
     private EventBinding<QuestBroadcastEvent> questBroadcastBinding;
+
+    public enum OutcomeEvaluationMode
+    {
+        Toggleable, // if the condition is met, the outcome is marked complete; if not met, it is marked incomplete
+        Instantial // once the condition is met, the outcome is marked complete and cannot be decremented
+    }
 
     private void OnEnable()
     {
@@ -26,8 +35,8 @@ public class QuestOutcome : QuestObjective
         Collect(questCondition);
         
         // evaluate condition on enable to catch any pre-existing states
-        
-        CheckForExecution();
+
+        CheckForExecution(false);
     }
 
     private void OnDisable()
@@ -42,7 +51,7 @@ public class QuestOutcome : QuestObjective
         CheckForExecution();
     }
 
-    private void CheckForExecution()
+    private void CheckForExecution(bool checkForDeactivate = true)
     {
         if (questCondition == null) return;
 
@@ -55,13 +64,17 @@ public class QuestOutcome : QuestObjective
         if (result)
         {
             instance.MarkConditionsMet(); // mark this objective as complete
+            Debug.Log($"[QuestOutcome] Broadcasting outcome '{name}' evaluation result: {true}");
+        
+            EventBus<QuestBroadcastEvent>.Raise(new QuestBroadcastEvent(this, () => true));
         }
-        else
+        else if (evaluationMode == OutcomeEvaluationMode.Toggleable && checkForDeactivate)
         {
             instance.ResetCompletions(); // one or more conditions are not met, reset completions
-        }
+            Debug.Log($"[QuestOutcome] Broadcasting outcome '{name}' evaluation result: {true}");
         
-        EventBus<QuestBroadcastEvent>.Raise(new QuestBroadcastEvent(this, () => result));
+            EventBus<QuestBroadcastEvent>.Raise(new QuestBroadcastEvent(this, () => true));
+        }
     }
 
     private void Collect<TContext>(ICondition<TContext> condition)
@@ -86,6 +99,13 @@ public class QuestOutcome : QuestObjective
                 Collect(notC.child);
                 break;
         }
+    }
+
+    protected override void OnValidate()
+    {
+        base.OnValidate();
+        if (evaluationMode == OutcomeEvaluationMode.Toggleable)
+            maxCompletions = 1; // Toggleable outcomes should only have 1 max completion, because triggering them again wouldn't make sense
     }
 }
 

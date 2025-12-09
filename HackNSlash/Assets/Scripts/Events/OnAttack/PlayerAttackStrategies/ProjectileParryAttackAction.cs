@@ -47,7 +47,7 @@ public class ProjectileParryAttackAction : IAttackAction
             hitboxes.Add(h.col);
         }
 
-        Services.CombatSystem.PlayParryEffects(hitboxes.ToArray(), a.element, pc, a, pc.wc.activeWeapons[0], true, 1);
+        Services.Get<CombatSystem>().PlayParryEffects(hitboxes.ToArray(), a.element, pc, a, pc.wc.activeWeapons[0], true, 1);
 
         foreach (var h in pc.psm.ParriedProjectiles)
         {

@@ -216,7 +216,7 @@ public class PlayerStateMachine : MonoBehaviour
     
     private void SetMoveValues()
     {
-        if (!Services.CombatSystem.EntitiesStopped) moveInput = InputManager.Instance.Movement;
+        if (!Services.Get<CombatSystem>().EntitiesStopped) moveInput = InputManager.Instance.Movement;
 
         inputDirQueue.Enqueue(StandardizedMoveDir);
         inputTimeQueue.Enqueue(Time.time);
@@ -454,7 +454,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         SetActionTimers();
         
-        if (Services.CombatSystem.EntitiesStopped) return;
+        if (Services.Get<CombatSystem>().EntitiesStopped) return;
         
         if (CheckMobilityAction()) return;
         

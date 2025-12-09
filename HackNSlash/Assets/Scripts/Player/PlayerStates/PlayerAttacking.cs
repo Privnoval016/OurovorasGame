@@ -99,7 +99,7 @@ public class PlayerAttacking : PlayerState
         
         pc.ps.TryResetFinisherCharge(_playerAttack);
 
-        Services.StyleSystem.RaiseAttackEvent(_playerAttack, pc.psm.EnemiesHitThisAction.Count);
+        Services.Get<StyleSystem>().RaiseAttackEvent(_playerAttack, pc.psm.EnemiesHitThisAction.Count);
         
         pc.psm.pauseComboReset = false;
         pc.pac.RootMotionEnabled(false);

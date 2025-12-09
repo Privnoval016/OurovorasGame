@@ -28,7 +28,7 @@ public class ElementSystem : MonoBehaviour, IElementSystem
         }
         
         elementMap.Add(ElementEffect.MatchCurrent, () => 
-            GetElementData(Services.PlayerController?.pcc?.currentElementEffect ?? ElementEffect.None));
+            GetElementData(Services.Get<PlayerController>()?.pcc?.currentElementEffect ?? ElementEffect.None));
     }
     
     public ElementData GetElementData(ElementEffect elementEffect)
@@ -44,7 +44,7 @@ public class ElementSystem : MonoBehaviour, IElementSystem
     #endregion
 }
 
-public interface IElementSystem
+public interface IElementSystem : IService
 {
     Dictionary<ElementEffect, Func<ElementData>> ElementMap { get; }
     ElementData GetElementData(ElementEffect elementEffect);

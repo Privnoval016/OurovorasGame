@@ -58,14 +58,14 @@ public class CombatSystem : MonoBehaviour, ICombatSystem
     public void ApplyPausedTimescale(bool pause)
     {
         SetTimeScale(pause ? pausedTimescale : unPausedTimescale);
-        Services.PlayerController.cam.EnableCameraInputDetection(!pause);
+        Services.Get<PlayerController>().cam.EnableCameraInputDetection(!pause);
         entitiesStopped = pause;
     }
     
     public void ApplySlowedTimescale(bool slowed, float timescale = 0.1f)
     {
         SetTimeScale(slowed ? timescale : unPausedTimescale);
-        Services.PlayerController.cam.EnableCameraInputDetection(!slowed);
+        Services.Get<PlayerController>().cam.EnableCameraInputDetection(!slowed);
         entitiesStopped = slowed;
     }
     
@@ -134,7 +134,7 @@ public class CombatSystem : MonoBehaviour, ICombatSystem
         
         foreach (Vector3 spawnPosition in spawnPositions)
         {
-            Services.VFXSystem.SpawnHitStopVFX(attackElement, pc, a, index,
+            Services.Get<VFXSystem>().SpawnHitStopVFX(attackElement, pc, a, index,
                 new TransformInfo(spawnPosition, Quaternion.identity, Vector3.one));
         }
         
@@ -158,7 +158,7 @@ public class CombatSystem : MonoBehaviour, ICombatSystem
         
         foreach (Vector3 spawnPosition in spawnPositions)
         {
-            Services.VFXSystem.SpawnHitStopVFX(attackElement, pc, a, index,
+            Services.Get<VFXSystem>().SpawnHitStopVFX(attackElement, pc, a, index,
                 new TransformInfo(spawnPosition, Quaternion.identity, Vector3.one));
         }
         
@@ -168,7 +168,7 @@ public class CombatSystem : MonoBehaviour, ICombatSystem
     #endregion
 }
 
-public interface ICombatSystem
+public interface ICombatSystem : IService
 {
     bool EntitiesStopped { get; }
     float CalculateDamage();

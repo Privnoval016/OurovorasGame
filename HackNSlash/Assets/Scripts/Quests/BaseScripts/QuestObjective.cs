@@ -13,4 +13,10 @@ public class QuestObjective : ScriptableObject
     [TextArea] public string description;
 
     public int maxCompletions = 1;
+    public int maxExecutionQueueLength = 1;
+    
+    protected virtual void OnValidate()
+    {
+        maxExecutionQueueLength = Mathf.Min(maxExecutionQueueLength, maxCompletions);
+    }
 }
