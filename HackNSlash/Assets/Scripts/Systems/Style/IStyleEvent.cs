@@ -20,7 +20,7 @@ public readonly struct AttackStyleEvent : IStyleEvent
 public readonly struct HitStyleEvent : IStyleEvent
 {
     public readonly HitInstance HitInstance;
-    public float DamageTaken => HitInstance.damage;
+    public float DamageTaken => HitInstance.Damage;
     
     public HitStyleEvent(HitInstance hitInstance)
     {

@@ -28,7 +28,7 @@ public abstract class Attack : ScriptableObject
     public ElementEffect element;
 
     [Header("Stats")] 
-    public AttackStats stats = new AttackStats();
+    public PlayerAttackStats stats = new PlayerAttackStats();
     
     [Space(5)] 
     
