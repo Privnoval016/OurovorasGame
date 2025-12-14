@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Extensions.EventBus;
 using Extensions.Modifiers;
+using Extensions.Patterns;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -240,6 +243,11 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         ChangeHealth(healAmount);
     }
-    
+
+    public EvaluatedStats Stats => EvaluatedStats;
+
+    public IEnumerable<IRule<IDamageEvent, DamageContext, DamageResult>> DamageEvalRules
+        => pc.pi.CurrentLoadout.equippedAccessories.SelectMany(acc => acc.ContributeRules());
+
     #endregion
 }

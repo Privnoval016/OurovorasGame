@@ -1,35 +1,17 @@
-using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-[Serializable]
+[System.Serializable]
 public class AttackStats
 {
-    [Header("Charge Stats")]
-    public bool restoreCharge = true;
-    [FormerlySerializedAs("chargeRequired")] public float charge = 0f;
-    public float ultimateCharge = 8f;
-    
-    [Header("Damage Stats")]
-    public float damage = 0f;
+    [Header("Damage Properties")] 
+    public float damage;
+    public int statusEffectStacks;
+    public float statusEffectDuration;
 
-    public int statusEffectStacks = 1;
-    
-    public float statusEffectDuration = 5f;
-    
-    [Header("Style Stats")]
-    
-    public float baseStyleGain = 10f;
-
-
-    public AttackStats()
+    public AttackStats(float damage, int statusEffectStacks = 0, float statusEffectDuration = 0)
     {
-    }
-
-    public AttackStats(AttackStats a)
-    {
-        restoreCharge = a.restoreCharge;
-        charge = a.charge;
-        damage = a.damage;
+        this.damage = damage;
+        this.statusEffectStacks = statusEffectStacks;
+        this.statusEffectDuration = statusEffectDuration;
     }
 }

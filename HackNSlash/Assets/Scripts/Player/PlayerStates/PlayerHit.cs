@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Extensions.Modifiers;
 using Extensions.Utils;
 using MEC;
 using UnityEngine;
@@ -29,8 +30,20 @@ public class PlayerHit : PlayerState
 
         
         pc.psm.CalculateGravity();
+
+        pc.ps.TakeDamage(hit.element, hit.Damage);
         
-        pc.ps.TakeDamage(hit.element, hit.damage);
+        StatusEffectChange effect = new StatusEffectChange
+        {
+            StatusEffect = Services.Get<ElementSystem>().GetElementData(hit.element).GetStatusEffect(),
+            stacks = hit.enemyAttack.statusEffectStacks,
+            duration = hit.enemyAttack.statusEffectDuration
+        };
+
+        var statusEffectModifier = new StatusEffectModifierFactory().Create(effect);
+        pc.ps.ApplyStatusEffect(statusEffectModifier);
+        
+        
         Services.Get<StyleSystem>().RaiseHitEvent(hit);
 
         AddKnockbackForce();
@@ -108,6 +121,9 @@ public struct HitInstance
 {
     public Vector2 horizontalDirection;   // direction of the hit in the xz plane
     public Vector2 force;       // x: horizontal force, y: vertical force
-    public float damage;
     public ElementEffect element;
+    public AttackStats enemyAttack;
+    public EnemyAttackDamageInfo damageInfo;
+
+    public float Damage => enemyAttack.damage * (damageInfo?.damageMultiplier ?? 1f);
 }

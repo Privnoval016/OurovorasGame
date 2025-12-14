@@ -186,8 +186,9 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 force = new Vector3(15, 0),
                 horizontalDirection = -TruePlayerForward.ToVector2(),
-                damage = 20,
-                element = ElementEffect.None
+                element = ElementEffect.None,
+                enemyAttack = new AttackStats(10),
+                damageInfo = new EnemyAttackDamageInfo()
             });
         }
     }
@@ -909,8 +910,9 @@ public class PlayerStateMachine : MonoBehaviour
                     {
                         force = attackAction.attack.attackKnockback,
                         horizontalDirection = (transform.position - eh.ts.transform.position).ToVector2().normalized,
-                        damage = attackAction.attack.damage * attackAction.damageInfo.damageMultiplier,
-                        element = attackAction.attack.element
+                        element = attackAction.attack.element,
+                        enemyAttack = attackAction.stats,
+                        damageInfo = attackAction.damageInfo
                     });
     }
 
@@ -924,8 +926,9 @@ public class PlayerStateMachine : MonoBehaviour
         {
             force = evhd.attackInfo.attack.attackKnockback,
             horizontalDirection = (transform.position - evhd.vfx.transform.position).ToVector2().normalized,
-            damage = evhd.attackInfo.attack.damage * evhd.attackInfo.damageInfo.damageMultiplier,
-            element = evhd.attackInfo.attack.element
+            element = evhd.attackInfo.attack.element,
+            enemyAttack = evhd.attackInfo.stats,
+            damageInfo = evhd.attackInfo.damageInfo
         });
     }
     
