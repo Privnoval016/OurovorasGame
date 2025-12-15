@@ -81,8 +81,8 @@ public class EnemyStats : MonoBehaviour, IDamageable
     
     public EvaluatedStats Stats => EvaluatedStats;
 
-    public IEnumerable<IRule<IDamageEvent, DamageContext, DamageResult>> DamageEvalRules
-    => new List<IRule<IDamageEvent, DamageContext, DamageResult>>();
+    public IEnumerable<IDamageRule> DamageEvalRules
+    => new List<IDamageRule>();
 
     #endregion
 }

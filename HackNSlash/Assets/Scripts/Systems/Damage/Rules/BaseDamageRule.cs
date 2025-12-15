@@ -6,9 +6,9 @@ using Extensions.Patterns;
  * Ran before any other damage rules.
  * </summary>
  */
-public class BaseDamageRule : IRule<IDamageEvent, DamageContext, DamageResult>
+public class BaseDamageRule : IDamageRule
 {
-    public DamageResult Apply(IDamageEvent evt, DamageContext ctx)
+    public override DamageResult Apply(IDamageEvent evt, DamageContext ctx)
     {
         float baseDamage =
             (2f * ctx.AttackerStatSnapshot[InnateStat.Strength] / 5f + 2f)
@@ -20,5 +20,5 @@ public class BaseDamageRule : IRule<IDamageEvent, DamageContext, DamageResult>
         return default;
     }
     
-    public bool IsMatch(IDamageEvent eventData, DamageContext context) => true;
+    public override bool IsMatch(IDamageEvent eventData, DamageContext context) => true;
 }
