@@ -10,5 +10,5 @@ public interface IDamageAgent
 {
     EvaluatedStats Stats { get; }
     
-    IEnumerable<IRule<IDamageEvent, DamageContext, DamageResult>> DamageEvalRules { get; }
+    IEnumerable<IDamageRule> DamageEvalRules { get; }
 }

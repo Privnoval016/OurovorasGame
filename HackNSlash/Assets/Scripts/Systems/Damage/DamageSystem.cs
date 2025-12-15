@@ -8,7 +8,7 @@ public class DamageSystem : MonoBehaviour, IService
     [Header("Damage Settings")]
     
     private readonly RuleSystem<DamageContext, DamageResult> _baseRuleSystem = new RuleSystem<DamageContext, DamageResult>();
-    private IRule<IDamageEvent, DamageContext, DamageResult> _finalizeDamageRule = new FinalizeDamageRule();
+    private IDamageRule _finalizeDamageRule = new FinalizeDamageRule();
     
     private static DamageResult Combine(DamageResult a, DamageResult b) => a + b;
 
@@ -20,7 +20,10 @@ public class DamageSystem : MonoBehaviour, IService
     private void InitializeBaseRules()
     {
         // Add other base rules as needed
+        _baseRuleSystem.AddRule(new StatusEffectDamageDealtRule());
+        _baseRuleSystem.AddRule(new StatusEffectDamageTakenRule());
         
+        // Finalize damage rule should be the last rule applied
         _finalizeDamageRule = new FinalizeDamageRule();
     }
     

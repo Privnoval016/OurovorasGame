@@ -246,7 +246,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public EvaluatedStats Stats => EvaluatedStats;
 
-    public IEnumerable<IRule<IDamageEvent, DamageContext, DamageResult>> DamageEvalRules
+    public IEnumerable<IDamageRule> DamageEvalRules
         => pc.pi.CurrentLoadout.equippedAccessories.SelectMany(acc => acc.ContributeRules());
 
     #endregion

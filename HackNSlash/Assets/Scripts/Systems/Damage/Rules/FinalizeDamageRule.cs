@@ -8,11 +8,11 @@ using UnityEngine;
  * to set the damage result.
  * </summary>
  */
-public class FinalizeDamageRule : IRule<IDamageEvent, DamageContext, DamageResult>
+public class FinalizeDamageRule : IDamageRule
 {
-    public bool IsMatch(IDamageEvent evt, DamageContext ctx) => true;
+    public override bool IsMatch(IDamageEvent evt, DamageContext ctx) => true;
 
-    public DamageResult Apply(IDamageEvent evt, DamageContext ctx)
+    public override DamageResult Apply(IDamageEvent evt, DamageContext ctx)
     {
         float final =
             (ctx.BaseDamage + ctx.FlatBonus)

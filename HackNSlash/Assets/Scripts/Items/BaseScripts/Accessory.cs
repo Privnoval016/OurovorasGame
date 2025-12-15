@@ -11,7 +11,7 @@ public class Accessory : InventoryItem
     
     [SerializeReference] public IEquipmentEffect[] equipmentEffects; // Array of effects this accessory provides
 
-    public IEnumerable<IRule<IDamageEvent, DamageContext, DamageResult>> ContributeRules()
+    public IEnumerable<IDamageRule> ContributeRules()
     {
         foreach (var effect in equipmentEffects)
         {
@@ -22,5 +22,5 @@ public class Accessory : InventoryItem
 
 public interface IEquipmentEffect
 {
-    IRule<IDamageEvent, DamageContext, DamageResult> GetRule();
+    IDamageRule GetRule();
 }
