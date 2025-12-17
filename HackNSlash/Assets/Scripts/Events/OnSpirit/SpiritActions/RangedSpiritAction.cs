@@ -23,7 +23,7 @@ public class RangedSpiritAction : ISpiritAction
     
     private IEnumerator<float> BeginRangedAttack()
     {
-        ElementEffect element = spirit.pc.pi.currentElementEffect;
+        ElementEffect element = spirit.pc.pcc.currentElementEffect;
         
         HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
         
@@ -39,7 +39,7 @@ public class RangedSpiritAction : ISpiritAction
             {
                 CreateVFX(0);
                 enemy.OnHit(element, spirit.pc, a, spirit.transform, 0);
-                CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
+                Services.Get<CombatSystem>().PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
             }
         }
         else
@@ -48,7 +48,7 @@ public class RangedSpiritAction : ISpiritAction
             {
                 CreateVFX(0);
                 enemy.OnHit(element, spirit.pc, a, spirit.transform, 1);
-                CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 1);
+                Services.Get<CombatSystem>().PlayHitEffects(a.element, spirit.pc, a, spirit, true, 1);
             }
         }
         

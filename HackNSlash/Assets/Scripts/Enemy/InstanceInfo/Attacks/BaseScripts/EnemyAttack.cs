@@ -9,9 +9,8 @@ public class EnemyAttack
     [Header("General")] 
     public bool isEnabled;
     public ElementEffect element;
-
-    [Header("Attack Properties")] 
-    public float damage;
+    
+    [Header("Attack Properties")]
     public Vector2 attackKnockback;
     public float attackCooldown;
     public bool isParryable;
@@ -32,7 +31,6 @@ public class EnemyAttack
     [Header("VFX")] 
     
     public VFXSpawnInfo[] vfxInfos;
-
 }
 
 

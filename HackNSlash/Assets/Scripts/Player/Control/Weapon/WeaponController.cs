@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Systems.Element;
 using UnityEngine;
 
 public enum WeaponType
@@ -139,6 +140,8 @@ public class WeaponController : MonoBehaviour
             .GetAllEnemiesInCapsule(pc.psm.playerData.largeRadius, pc.psm.playerData.largeRadius, 360)
             .Select(e => e.GetComponent<Collider>()).ToHashSet();
         
+        if (cols.Count == 0) return enemies;
+        
         cols = cols.Where(e => pc.wc.IsIntersecting(e)).ToHashSet();
         
         var enemiesFromTrail = cols.Select(e => e.GetComponent<LockOnTarget>()).ToHashSet();
@@ -197,18 +200,18 @@ public class WeaponController : MonoBehaviour
     
     public void ActivateImbuedWeaponVFX()
     {
-        if (pc.pi.imbuedElementEffect != ElementEffect.None)
+        if (pc.pcc.imbuedElementEffect != ElementEffect.None)
         {
             foreach (var weaponBody in activeWeapons)
             {
-                weaponBody.ActivateVFX(pc.pi.imbuedElementEffect);
+                weaponBody.ActivateVFX(pc.pcc.imbuedElementEffect);
             }
 
             if (pc.psm.movingState != MovingStates.Katana) return;
 
             foreach (var weapon in followWeapons)
             {
-                weapon.ActivateVFX(pc.pi.imbuedElementEffect);
+                weapon.ActivateVFX(pc.pcc.imbuedElementEffect);
             }
         }
         else

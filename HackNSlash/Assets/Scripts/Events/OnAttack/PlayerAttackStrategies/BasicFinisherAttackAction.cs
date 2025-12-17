@@ -72,7 +72,7 @@ public class BasicFinisherAttackAction : IAttackAction
         
         float timeScale = finisherTimeScale != 0 ? finisherTimeScale : 1;
         
-        CombatManager.Instance.ApplySlowedTimeScale(pc, true, timeScale);
+        Services.Get<CombatSystem>().ApplySlowedTimescale(true, timeScale);
         
         ((PlayerAttacking) pc.sc.GetCurrentState()).readyToHit = true;
         
@@ -80,7 +80,7 @@ public class BasicFinisherAttackAction : IAttackAction
 
         yield return Timing.WaitForSeconds(a.attackClips[0].length / timeScale);
         
-        CombatManager.Instance.ApplySlowedTimeScale(pc, false);
+        Services.Get<CombatSystem>().ApplySlowedTimescale(false);
         
         #endregion
         

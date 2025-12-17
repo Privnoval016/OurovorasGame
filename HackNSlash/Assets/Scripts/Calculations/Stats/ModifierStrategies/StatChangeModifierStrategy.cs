@@ -1,3 +1,5 @@
+using Extensions.Modifiers;
+
 public class StatChangeModifierStrategy : IModifierStrategy
 {
     private readonly ChangeType changeType;

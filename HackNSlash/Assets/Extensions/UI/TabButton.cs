@@ -8,7 +8,7 @@ namespace Extensions.UI
         public TabGroup tabGroup;
         public bool isSelected;
 
-        public GameObject contentPanel;
+        public TabSelection contentPanel;
 
 
         #region MonoBehaviour Callbacks
@@ -40,12 +40,12 @@ namespace Extensions.UI
         
         protected virtual void OnTabSelect()
         {
-            contentPanel?.SetActive(true);
+            contentPanel?.OnTabSelect();
         }
         
         protected virtual void OnTabDeselect()
         {
-            contentPanel?.SetActive(false);
+            contentPanel?.OnTabDeselect();
         }
         
         

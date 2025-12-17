@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Extensions.EventBus;
+using Extensions.Modifiers;
+using Extensions.Patterns;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -138,7 +142,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         
         EventBus<UltimateUpdateEvent>.Raise(new UltimateUpdateEvent
         {
-            ultimatePercentage = GetUltimatePercentage(CurrentUltimateCharge)
+            UltimatePercentage = GetUltimatePercentage(CurrentUltimateCharge)
         });
     }
 
@@ -179,9 +183,9 @@ public class PlayerStats : MonoBehaviour, IDamageable
         battleParameters.maxFinisherCharge > 0 ? value / battleParameters.maxFinisherCharge : 0f;
 
 
-    public void ResetFinisherCharge(Attack a)
+    public void TryResetFinisherCharge(Attack a)
     {
-        if (a != null && !pc.pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return;
+        if (a != null && !pc.pcc.CurrentElementLoadout.AttackIsFinisher(a)) return;
         ResetFinisherCharge();
     }
     
@@ -208,7 +212,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public bool CanUseFinisher(Attack a = null)
     {
-        if (a != null && !pc.pi.CurrentLoadout.elementLoadout.AttackIsFinisher(a)) return true;
+        if (a != null && !pc.pcc.CurrentElementLoadout.AttackIsFinisher(a)) return true;
 
         LockOnTarget target = pc.pi.pc.psm.NearestHEnemy;
 
@@ -239,6 +243,11 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         ChangeHealth(healAmount);
     }
-    
+
+    public EvaluatedStats Stats => EvaluatedStats;
+
+    public IEnumerable<IDamageRule> DamageEvalRules
+        => pc.pi.CurrentLoadout.equippedAccessories.SelectMany(acc => acc.ContributeRules());
+
     #endregion
 }

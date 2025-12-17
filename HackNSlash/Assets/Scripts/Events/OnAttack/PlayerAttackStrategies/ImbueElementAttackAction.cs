@@ -23,21 +23,21 @@ public class ImbueElementAttackAction : IAttackAction
     {
         yield return Timing.WaitForSeconds(a.animDelay);
         
-        if (pc.pi.currentElementEffect == ElementEffect.None) yield break;
+        if (pc.pcc.currentElementEffect == ElementEffect.None) yield break;
         
         pc.KillObjectCoroutines(nameof(ResetImbuedElement));
 
         float delay = a.hitInfo.attackCoolDown;
 
-        if (pc.pi.imbuedElementEffect != pc.pi.currentElementEffect)
+        if (pc.pcc.imbuedElementEffect != pc.pcc.currentElementEffect)
         {
             pc.pac.PlayAnimation(a.attackClips[pc.psm.IsMidair ? 1 : 0], a.animFade);
-            pc.pi.imbuedElementEffect = pc.pi.currentElementEffect;
+            pc.pcc.imbuedElementEffect = pc.pcc.currentElementEffect;
         }
         else
         {
             delay = 0;
-            pc.pi.imbuedElementEffect = ElementEffect.None;
+            pc.pcc.imbuedElementEffect = ElementEffect.None;
         }
         
         pc.RunSegmentCoroutine(ResetImbuedElement(imbueElementDuration), nameof(ResetImbuedElement));
@@ -48,7 +48,7 @@ public class ImbueElementAttackAction : IAttackAction
     private IEnumerator<float> ResetImbuedElement(float time)
     {
         yield return Timing.WaitForSeconds(time);
-        pc.pi.imbuedElementEffect = ElementEffect.None;
+        pc.pcc.imbuedElementEffect = ElementEffect.None;
         pc.wc.DeactivateAllWeaponVFX();
     }
 }

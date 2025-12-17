@@ -135,7 +135,7 @@ public class PlayerStateMachine : MonoBehaviour
         KeyMap = InputManager.KeyMap;
         
         attackDataDict = new Dictionary<MovingStates, AttackConfig>();
-        foreach (AttackConfig attackConfig in pc.pi.attackDatas)
+        foreach (AttackConfig attackConfig in pc.pcc.attackDatas)
         {
             attackDataDict.TryAdd(attackConfig.movingState, attackConfig);
         }
@@ -186,8 +186,9 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 force = new Vector3(15, 0),
                 horizontalDirection = -TruePlayerForward.ToVector2(),
-                damage = 20,
-                element = ElementEffect.None
+                element = ElementEffect.None,
+                enemyAttack = new AttackStats(10),
+                damageInfo = new EnemyAttackDamageInfo()
             });
         }
     }
@@ -206,7 +207,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (context.performed || context.canceled)
             EventBus<ElementAttackUpdateEvent>.Raise(new ElementAttackUpdateEvent
             {
-                isActive = isElementAttacking
+                IsActive = isElementAttacking
             });
     }
     
@@ -216,7 +217,7 @@ public class PlayerStateMachine : MonoBehaviour
     
     private void SetMoveValues()
     {
-        if (!CombatManager.Instance.entitiesStopped) moveInput = InputManager.Instance.Movement;
+        if (!Services.Get<CombatSystem>().EntitiesStopped) moveInput = InputManager.Instance.Movement;
 
         inputDirQueue.Enqueue(StandardizedMoveDir);
         inputTimeQueue.Enqueue(Time.time);
@@ -454,7 +455,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         SetActionTimers();
         
-        if (CombatManager.Instance.entitiesStopped) return;
+        if (Services.Get<CombatSystem>().EntitiesStopped) return;
         
         if (CheckMobilityAction()) return;
         
@@ -516,7 +517,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         #region Elemental Attack
 
-        Attack[] elementAttacks = pc.pi.CurrentLoadout.elementLoadout?.GetElementAttacks(pc.pi.currentElementEffect, movingState);
+        Attack[] elementAttacks = pc.pcc.CurrentElementLoadout?.GetElementAttacks(pc.pcc.currentElementEffect, movingState);
 
         SpiritAttack s = null;
         foreach (var e in elementAttacks)
@@ -729,7 +730,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         if (!attack.HasEnoughCharge(pc)) return false;
         
-        if (!pc.pi.FinishedElementCooldown(attack)) return false;
+        if (!pc.pcc.FinishedElementCooldown(attack)) return false;
         
         if (!pc.ps.CanUseFinisher(attack)) return false;
 
@@ -909,8 +910,9 @@ public class PlayerStateMachine : MonoBehaviour
                     {
                         force = attackAction.attack.attackKnockback,
                         horizontalDirection = (transform.position - eh.ts.transform.position).ToVector2().normalized,
-                        damage = attackAction.attack.damage * attackAction.damageInfo.damageMultiplier,
-                        element = attackAction.attack.element
+                        element = attackAction.attack.element,
+                        enemyAttack = attackAction.stats,
+                        damageInfo = attackAction.damageInfo
                     });
     }
 
@@ -924,8 +926,9 @@ public class PlayerStateMachine : MonoBehaviour
         {
             force = evhd.attackInfo.attack.attackKnockback,
             horizontalDirection = (transform.position - evhd.vfx.transform.position).ToVector2().normalized,
-            damage = evhd.attackInfo.attack.damage * evhd.attackInfo.damageInfo.damageMultiplier,
-            element = evhd.attackInfo.attack.element
+            element = evhd.attackInfo.attack.element,
+            enemyAttack = evhd.attackInfo.stats,
+            damageInfo = evhd.attackInfo.damageInfo
         });
     }
     
