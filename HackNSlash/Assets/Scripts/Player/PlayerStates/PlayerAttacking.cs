@@ -5,6 +5,7 @@ using Animancer;
 using Extensions.Timers;
 using Extensions.Utils;
 using MEC;
+using Systems.Element;
 using Unity.VisualScripting.FullSerializer;
 
 public class PlayerAttacking : PlayerState
@@ -96,7 +97,9 @@ public class PlayerAttacking : PlayerState
         
         pc.rb.linearVelocity = Vector3.zero;
         
-        pc.ps.ResetFinisherCharge(_playerAttack);
+        pc.ps.TryResetFinisherCharge(_playerAttack);
+
+        Services.Get<StyleSystem>().RaiseAttackEvent(_playerAttack, pc.psm.EnemiesHitThisAction.Count);
         
         pc.psm.pauseComboReset = false;
         pc.pac.RootMotionEnabled(false);
@@ -129,11 +132,11 @@ public class PlayerAttacking : PlayerState
             pc.psm.canAttack = true;
         }
         
-        if (attackCoolDownTimer?.ElapsedTime > pc.psm.attackData.moveInterruptBuffer && pc.psm.StandardizedMoveDir.magnitude > 0.1f)
-        {
-            pc.psm.canAttack = true;
-            sc.ResumePrevious();
-        }
+        // if (attackCoolDownTimer?.ElapsedTime > pc.psm.attackData.moveInterruptBuffer && pc.psm.StandardizedMoveDir.magnitude > 0.1f)
+        // {
+        //     pc.psm.canAttack = true;
+        //     sc.ResumePrevious();
+        // }
     }
     
 

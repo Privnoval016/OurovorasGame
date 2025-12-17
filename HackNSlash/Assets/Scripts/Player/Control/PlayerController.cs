@@ -8,7 +8,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(StateController<PlayerState>))]
-public class PlayerController : KinematicBehaviour
+public class PlayerController : KinematicBehaviour, IService
 {
     #region State Machine
     [HideInInspector] public StateController<PlayerState> sc;
@@ -26,9 +26,12 @@ public class PlayerController : KinematicBehaviour
     [HideInInspector] public PlayerAnimator pac;
     [HideInInspector] public PlayerStateMachine psm;
     [HideInInspector] public PlayerInventory pi;
+    [HideInInspector] public PlayerCombatControl pcc;
     [HideInInspector] public PlayerStats ps;
     [HideInInspector] public OnAttackEvents oae;
     [HideInInspector] public OnHitEvents ohe;
+    
+    public PlayerSaveBinding saveBinding;
     
     public ElementalSpirit spirit;
     
@@ -48,10 +51,13 @@ public class PlayerController : KinematicBehaviour
         pac = GetComponent<PlayerAnimator>();
         psm = GetComponent<PlayerStateMachine>();
         pi = GetComponent<PlayerInventory>();
+        pcc = GetComponent<PlayerCombatControl>();
         cl = GetComponentInChildren<CollisionListener>();
         oae = GetComponent<OnAttackEvents>();
         ohe = GetComponent<OnHitEvents>();
         ps = GetComponent<PlayerStats>();
+        
+        saveBinding = GetComponent<PlayerSaveBinding>();
 
         allCols = GetComponents<CapsuleCollider>();
         

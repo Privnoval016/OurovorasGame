@@ -11,6 +11,8 @@ public class EnemyAttackAIAction : EnemyAIActionBase
     
     public EnemyAttackDamageInfo damageInfo;
 
+    public PlayerAttackStats stats;
+    
     private Vector3 targetPosition;
     
     protected override void OnEnemyEnter(Context<EnemyAIContextKey> enemyContext, EnemyStateMachine esm)

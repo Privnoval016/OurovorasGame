@@ -1,14 +1,11 @@
 using System;
 using Extensions.EventBus;
-using Extensions.Patterns;
-using Extensions.UI;
-using Extensions.Utils;
 using PrimeTween;
+using Systems.Element;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class HUDMenuUI : Singleton<HUDMenuUI>
+public class HUDMenuUI : MonoBehaviour, IService
 {
     public PlayerController pc;
     
@@ -68,10 +65,16 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     public ElementalAttackIcon southElementalAttack;
     public ElementalAttackIcon westElementalAttack;
     
+    [Header("Style Meter")]
+    public Slider styleMeterSlider;
+    public Image styleMeterBackground;
+    public Image styleMeterOutline;
+    public Image styleMeterFill;
+    
     #endregion
     
-    [HideInInspector] public EquippedElementAttack CurrentElementalAttacks => pc.pi.GetCurrentElementAttack();
-    [HideInInspector] public ElementEffect Element => pc.pi.currentElementEffect;
+    [HideInInspector] public EquippedElementAttack CurrentElementalAttacks => pc.pcc.GetCurrentElementAttack();
+    [HideInInspector] public ElementEffect Element => pc.pcc.currentElementEffect;
     
     #region Events
     
@@ -82,16 +85,15 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     private EventBinding<ElementMenuEvent> elementMenuEventBinding;
     private EventBinding<ElementUpdateEvent> elementUpdateEventBinding;
     private EventBinding<ElementAttackUpdateEvent> elementAttackUpdateEventBinding;
+    private EventBinding<StyleUpdateEvent> styleUpdateEventBinding;
     
     #endregion
 
 
     #region MonoBehaviour Callbacks
 
-    protected override void Awake()
+    public void Awake()
     {
-        base.Awake();
-        
         ActivateEventBindings();
         
         gameObject.SetActive(true);
@@ -110,9 +112,8 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         UpdateFinisherIcon();
     }
 
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
-        base.OnDestroy();
         DeactivateEventBindings();
     }
 
@@ -138,6 +139,9 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         
         elementAttackUpdateEventBinding = new EventBinding<ElementAttackUpdateEvent>(OnElementalAttackActivate);
         EventBus<ElementAttackUpdateEvent>.Register(elementAttackUpdateEventBinding);
+        
+        styleUpdateEventBinding = new EventBinding<StyleUpdateEvent>(OnStyleUpdate);
+        EventBus<StyleUpdateEvent>.Register(styleUpdateEventBinding);
     }
 
     private void DeactivateEventBindings()
@@ -149,6 +153,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         EventBus<ElementMenuEvent>.Deregister(elementMenuEventBinding);
         EventBus<ElementUpdateEvent>.Deregister(elementUpdateEventBinding);
         EventBus<ElementAttackUpdateEvent>.Deregister(elementAttackUpdateEventBinding);
+        EventBus<StyleUpdateEvent>.Deregister(styleUpdateEventBinding);
     }
 
     #endregion
@@ -157,7 +162,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     
     private void OnUltimateUpdate(UltimateUpdateEvent e)
     {
-        float ultimatePercentage = e.ultimatePercentage;
+        float ultimatePercentage = e.UltimatePercentage;
         
         float currentUltimate = ultimateValueBar.value;
         
@@ -199,7 +204,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
      */
     private void UpdateFinisherIcon()
     {
-        ElementData elementData = GameManager.GetElementData(ElementEffect.Aether);
+        ElementData elementData = Services.Get<ElementSystem>().GetElementData(ElementEffect.Aether);
         
         if (pc.ps.CanUseFinisher())
         {
@@ -223,10 +228,10 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         for (int i = 0; i < elementIcons.Length; i++)
         {
             elementIconRects[i] = elementIcons[i].GetComponent<RectTransform>();
-            ElementEffect element = pc.pi.elementEffects[i];
+            ElementEffect element = pc.pcc.elementEffects[i];
             
             // Set icon sprite later
-            elementIcons[i].color = GameManager.GetElementData(element).elementInactiveColor;
+            elementIcons[i].color = Services.Get<ElementSystem>().GetElementData(element).elementInactiveColor;
         }
         
         radialMenuDefaultScale = elementIconRects[0].localScale;
@@ -256,11 +261,11 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
 
     private void OnElementMenuUpdate(ElementMenuEvent e)
     {
-        if (e.isActive) ActivateElementSwapMenu();
+        if (e.IsActive) ActivateElementSwapMenu();
         else DeactivateElementSwapMenu();
 
-        SetRadialMenuLine(e.direction);
-        if (e.elementEffect != null) SetRadialMenuIcon((ElementEffect) e.elementEffect, e.elementIndex);
+        SetRadialMenuLine(e.Direction);
+        if (e.ElementEffect != null) SetRadialMenuIcon((ElementEffect) e.ElementEffect, e.ElementIndex);
     }
     
     private void ActivateElementSwapMenu()
@@ -281,16 +286,16 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         elementSelectBorder?.gameObject.SetActive(false);
         elementSelectLine?.gameObject.SetActive(false);
 
-        selectedElementIndex = pc.pi.CurrentElementIndex;
+        selectedElementIndex = pc.pcc.CurrentElementIndex;
     }
     
     private void OnElementSelect(ElementUpdateEvent e)
     {
-        ElementEffect element = e.elementEffect;
+        ElementEffect element = e.ElementEffect;
         
         if (selectedElementIcon == null) return;
 
-        selectedElementIcon.color = GameManager.GetElementData(element).elementColor;
+        selectedElementIcon.color = Services.Get<ElementSystem>().GetElementData(element).elementColor;
         
         UpdateElementalAttackIcons();
     }
@@ -318,7 +323,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         {
             if (i == index)
             {
-                elementIcons[i].color = GameManager.GetElementData(element).elementColor;
+                elementIcons[i].color = Services.Get<ElementSystem>().GetElementData(element).elementColor;
                 Tween.Scale(elementIconRects[i], radialMenuDefaultScale * radialMenuSelectScaleFactor, 0.1f, useUnscaledTime: true);
                 
                 if (elementSelectBorder != null)
@@ -333,7 +338,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
             }
             else
             {
-                elementIcons[i].color = GameManager.GetElementData(pc.pi.elementEffects[i]).elementInactiveColor;
+                elementIcons[i].color = Services.Get<ElementSystem>().GetElementData(pc.pcc.elementEffects[i]).elementInactiveColor;
                 if (i == selectedElementIndex)
                     Tween.Scale(elementIconRects[i], radialMenuDefaultScale, 0.1f, useUnscaledTime: true);
             }
@@ -436,10 +441,10 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
             return;
         }
         
-        if (!Mathf.Approximately(pc.pi.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
-            Tween.UISliderValue(attackIcon.chargeSlider, pc.pi.GetCooldownPercentage(k), 0.03f);
+        if (!Mathf.Approximately(pc.pcc.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
+            Tween.UISliderValue(attackIcon.chargeSlider, pc.pcc.GetCooldownPercentage(k), 0.03f);
         
-        if (pc.pi.FinishedElementCooldown(attack))
+        if (pc.pcc.FinishedElementCooldown(attack))
             EnableAttackIcon(attackIcon, attack);
         else
             DisableAttackIcon(attackIcon, attack);
@@ -452,7 +457,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         attackIcon.icon.gameObject.SetActive(true);
         attackIcon.chargeFillImage.gameObject.SetActive(true);
 
-        Color c = GameManager.GetElementData(Element).elementColor;
+        Color c = Services.Get<ElementSystem>().GetElementData(Element).elementColor;
         attackIcon.icon.color = c;
     }
     
@@ -463,7 +468,7 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
         attackIcon.icon.gameObject.SetActive(true);
         attackIcon.chargeFillImage.gameObject.SetActive(true);
 
-        Color c = GameManager.GetElementData(Element).elementInactiveColor;
+        Color c = Services.Get<ElementSystem>().GetElementData(Element).elementInactiveColor;
         attackIcon.icon.color = c;
     }
 
@@ -471,13 +476,32 @@ public class HUDMenuUI : Singleton<HUDMenuUI>
     {
         if (elementalAttackContainer == null) return;
         
-        bool activate = e.isActive;
+        bool activate = e.IsActive;
         if (!activate)
             Tween.Scale(elementalAttackContainer, elementalAttackContainerScale, 0.2f);
         else
             Tween.Scale(elementalAttackContainer,
                 elementalAttackContainerScale * elementalAttackContainerScaleFactor,
                 0.2f);
+    }
+    
+    #endregion
+    
+    #region Style Methods
+    
+    private void OnStyleUpdate(StyleUpdateEvent e)
+    {
+        var setting = Services.Get<StyleSystem>().GetStyleSettings(e.StyleLevel);
+        if (setting == null) return;
+        
+        if (styleMeterBackground == null || styleMeterOutline == null || styleMeterFill == null || styleMeterSlider == null)
+            return;
+        
+        styleMeterBackground.sprite = setting.meterBackground != null ? setting.meterBackground : styleMeterBackground.sprite;
+        styleMeterOutline.sprite = setting.meterOutline != null ? setting.meterOutline : styleMeterOutline.sprite;
+        styleMeterFill.sprite = setting.meterFill != null ? setting.meterFill : styleMeterFill.sprite;
+        
+        Tween.UISliderValue(styleMeterSlider, Services.Get<StyleSystem>().GetStylePercentage(e.StyleLevel, e.StyleValue), 0.2f);
     }
     
     #endregion
@@ -509,27 +533,39 @@ public struct FinisherUpdateEvent : IEvent
 
 public struct UltimateUpdateEvent : IEvent
 {
-    public float ultimatePercentage;
+    public float UltimatePercentage;
 }
 
 public struct ElementUpdateEvent : IEvent
 {
-    public ElementEffect elementEffect;
+    public ElementEffect ElementEffect;
 }
 
 public struct ElementAttackUpdateEvent : IEvent
 {
-    public AttacksByWeapon northAttack;
-    public AttacksByWeapon southAttack;
-    public AttacksByWeapon westAttack;
+    public AttacksByWeapon NorthAttack;
+    public AttacksByWeapon SouthAttack;
+    public AttacksByWeapon WestAttack;
 
-    public bool isActive;
+    public bool IsActive;
 }
 
 public struct ElementMenuEvent : IEvent
 {
-    public ElementEffect? elementEffect;
-    public int elementIndex;
-    public Vector2 direction;
-    public bool isActive;
+    public ElementEffect? ElementEffect;
+    public int ElementIndex;
+    public Vector2 Direction;
+    public bool IsActive;
+}
+
+public struct StyleUpdateEvent : IEvent
+{
+    public StyleLevel StyleLevel;
+    public float StyleValue;
+    
+    public StyleUpdateEvent(StyleLevel level, float value)
+    {
+        StyleLevel = level;
+        StyleValue = value;
+    }
 }

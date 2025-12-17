@@ -24,6 +24,12 @@ namespace Extensions.Timers
             UseUnscaledTime = unscaled;
         }
 
+        /**
+         * <summary>
+         * Starts the timer from the initial time value, firing the OnTimerStart event.
+         * If the timer is already running, this method will just reset the initial time without firing the event again.
+         * </summary>
+         */
         public void Start()
         {
             CurrentTime = initialTime;
@@ -35,6 +41,28 @@ namespace Extensions.Timers
             }
         }
 
+        /**
+         * <summary>
+         * Restarts the timer from the initial time value, even if it is already running, firing the OnTimerStart event again.
+         * </summary>
+         */
+        public void Restart()
+        {
+            CurrentTime = initialTime;
+            if (!IsRunning)
+            {
+                IsRunning = true;
+                TimerManager.RegisterTimer(this);
+            }
+            OnTimerStart.Invoke();
+        }
+
+        
+        /**
+         * <summary>
+         * Stops the timer and resets the current time to zero, firing the OnTimerStop event.
+         * </summary>
+         */
         public void Stop()
         {
             CurrentTime = 0;
@@ -47,12 +75,36 @@ namespace Extensions.Timers
             }
         }
 
+        /**
+         * <summary>
+         * Updates the timer's current time based on the elapsed time since the last frame.
+         * This method should be called every frame by the TimerManager when the timer is running.
+         * Don't call this method directly.
+         * </summary>
+         */
         public abstract void Tick();
         public abstract bool IsFinished { get; }
 
+        
+        /**
+         * <summary>
+         * Resumes the timer.
+         * </summary>
+         */
         public void Resume() => IsRunning = true;
+        
+        /**
+         * <summary>
+         * Pauses the timer.
+         * </summary>
+         */
         public void Pause() => IsRunning = false;
 
+        /**
+         * <summary>
+         * Resets the timer's current time to the initial time value.
+         * </summary>
+         */
         public virtual void Reset() => CurrentTime = initialTime;
 
         public virtual void Reset(float newTime)

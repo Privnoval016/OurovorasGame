@@ -3,7 +3,11 @@ using MEC;
 using UnityEngine;
 using Extensions.Utils;
 
-// Things with health that can take damage
+/**
+ * <summary>
+ * Base class for enemies that can be locked onto by the player.
+ * </summary>
+ */
 public abstract class LockOnTarget : KinematicBehaviour
 {
     [Header("Lock On Target Parameters")]
@@ -100,14 +104,14 @@ public abstract class LockOnTarget : KinematicBehaviour
         
         StatusEffectChange effect = new StatusEffectChange
         {
-            StatusEffect = GameManager.GetElementData(element).GetStatusEffect(),
+            StatusEffect = Services.Get<ElementSystem>().GetElementData(element).GetStatusEffect(),
             stacks = a.stats.statusEffectStacks,
             duration = a.stats.statusEffectDuration
         };
 
         var statusEffectModifier = statusEffectModifierFactory.Create(effect);
-        damageable.ApplyStatusEffect(statusEffectModifier);
-        damageable.TakeDamage(element, a.stats.damage);
+        damageable?.ApplyStatusEffect(statusEffectModifier);
+        damageable?.TakeDamage(element, a.stats.damage);
     }
     
     public virtual void OnStagger(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)

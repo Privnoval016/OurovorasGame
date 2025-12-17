@@ -1,4 +1,5 @@
 using Extensions.Utils;
+using Systems.Element;
 using UnityEngine;
 
 public class PlayerAnimListener : MonoBehaviour
@@ -12,26 +13,26 @@ public class PlayerAnimListener : MonoBehaviour
     public void PlaySwordLeftVFX(int vfxIndex = 0)
     {
         lastWeaponType = WeaponType.SwordLeft;
-        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
+        Services.Get<VFXSystem>().SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
     }
     
     public void PlaySwordRightVFX(int vfxIndex = 0)
     {
         lastWeaponType = WeaponType.SwordRight;
-        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
+        Services.Get<VFXSystem>().SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
     }
     
     public void PlayBothSwordsVFX(int vfxIndex = 0)
     {
         lastWeaponType = WeaponType.SwordLeft;
-        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
-        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
+        Services.Get<VFXSystem>().SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordLeft);
+        Services.Get<VFXSystem>().SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.SwordRight);
     }
     
     public void PlayKatanaVFX(int vfxIndex = 0)
     {
         lastWeaponType = WeaponType.Katana;
-        OnVFXEvents.Instance.SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.Katana);
+        Services.Get<VFXSystem>().SpawnPlayerVFX(pc, pc.psm.currentPlayerAttack, vfxIndex, new TransformInfo(), WeaponType.Katana);
     }
     
     public void PlayHitStop(int index = 0)
@@ -41,6 +42,6 @@ public class PlayerAnimListener : MonoBehaviour
         WeaponBody lastWeapon = pc.wc.GetWeapon(lastWeaponType);
         ElementEffect element = pc.psm.currentPlayerAttack != null ? 
             ElementData.GetElementFromAttack(pc.psm.currentPlayerAttack.element, pc) : ElementEffect.None;
-        CombatManager.Instance.PlayHitEffects(element, pc, pc.psm.currentPlayerAttack, lastWeapon, true, index);
+        Services.Get<CombatSystem>().PlayHitEffects(element, pc, pc.psm.currentPlayerAttack, lastWeapon, true, index);
     }
 }

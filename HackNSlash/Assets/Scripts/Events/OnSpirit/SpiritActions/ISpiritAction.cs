@@ -26,6 +26,6 @@ public abstract class ISpiritAction
     
     public VFXController CreateVFX(int i, TransformInfo overrideTransform = default)
     {
-        return OnVFXEvents.Instance.SpawnPlayerVFX(spirit.pc, a, i, overrideTransform);
+        return Services.Get<VFXSystem>().SpawnPlayerVFX(spirit.pc, a, i, overrideTransform);
     }
 }

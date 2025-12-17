@@ -1,6 +1,9 @@
 using UnityEngine;
 
-public interface ICommand<T>
+namespace Extensions.Patterns
 {
-    void Execute();
+    public interface ICommand<T>
+    {
+        void Execute();
+    }
 }

@@ -25,7 +25,7 @@ public class HitScanSpiritAction : ISpiritAction
     
     private IEnumerator<float> BeginHitScanVFX()
     {
-        ElementEffect element = spirit.pc.pi.currentElementEffect;
+        ElementEffect element = spirit.pc.pcc.currentElementEffect;
         
         HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
 
@@ -44,7 +44,7 @@ public class HitScanSpiritAction : ISpiritAction
         {
             CreateVFX(vfxToUse[i], new TransformInfo(enemiesToHit[i].transform, false));
             enemiesToHit[i].OnHit(element, spirit.pc, a, spirit.transform, 0);
-            CombatManager.Instance.PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
+            Services.Get<CombatSystem>().PlayHitEffects(a.element, spirit.pc, a, spirit, true, 0);
             
             yield return Timing.WaitForSeconds(a.hitInfo.attackCoolDown);
         }

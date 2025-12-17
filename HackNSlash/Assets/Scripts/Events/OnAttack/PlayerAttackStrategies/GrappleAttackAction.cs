@@ -38,8 +38,8 @@ public class GrappleAttackAction : IAttackAction
 
             if (pc.cam.IsLockedOn)
             {
-                pc.cam.TargetedEnemy.OnHit(pc.pi.currentElementEffect, pc, a, pc.transform, 0);
-                CombatManager.Instance.PlayHitEffects(a.element, pc, a, vfx, true, 0);
+                pc.cam.TargetedEnemy.OnHit(pc.pcc.currentElementEffect, pc, a, pc.transform, 0);
+                Services.Get<CombatSystem>().PlayHitEffects(a.element, pc, a, vfx, true, 0);
             }
             
             oae.RunSegmentCoroutine(ResumeMoving(a.hitInfo.attackCoolDown, () => pc.psm.pauseComboReset = false));

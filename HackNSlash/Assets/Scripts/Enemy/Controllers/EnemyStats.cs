@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using Extensions.Modifiers;
+using Extensions.Patterns;
 using UnityEngine;
 
 public class EnemyStats : MonoBehaviour, IDamageable
@@ -75,6 +78,11 @@ public class EnemyStats : MonoBehaviour, IDamageable
     
         // Override this method to implement healing logic
     }
+    
+    public EvaluatedStats Stats => EvaluatedStats;
+
+    public IEnumerable<IDamageRule> DamageEvalRules
+    => new List<IDamageRule>();
 
     #endregion
 }

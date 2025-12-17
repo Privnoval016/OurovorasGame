@@ -29,11 +29,11 @@ public abstract class IAttackAction
     
     protected VFXController CreateVFX(int index, TransformInfo start = default)
     {
-        return OnVFXEvents.Instance.SpawnPlayerVFX(pc, a, index, start);
+        return Services.Get<VFXSystem>().SpawnPlayerVFX(pc, a, index, start);
     }
     
     protected VFXController CreateVFX(VFXSpawnInfo vfxInfo, TransformInfo start = default)
     {
-        return OnVFXEvents.Instance.SpawnParriedProjectileVFX(pc, a, vfxInfo, start);
+        return Services.Get<VFXSystem>().SpawnParriedProjectileVFX(pc, a, vfxInfo, start);
     }
 }
