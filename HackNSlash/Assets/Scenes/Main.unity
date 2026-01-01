@@ -431,7 +431,7 @@ Light:
   serializedVersion: 11
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1223,10 +1223,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56f95ac11603413f81dd0374fa57c154, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  receiverType: 0
   questOutcome: {fileID: 11400000, guid: a790979d1b6fc45ae9475746f12394a1, type: 2}
   executionStrategy:
     rid: 6772710401733820580
-  canBeDeactivated: 1
   references:
     version: 2
     RefIds:
@@ -1257,6 +1257,7 @@ MonoBehaviour:
       data:
         triggerListener: {fileID: 1928645387}
         deactivateOnExit: 1
+        inverse: 0
 --- !u!114 &885097633
 MonoBehaviour:
   m_ObjectHideFlags: 0
