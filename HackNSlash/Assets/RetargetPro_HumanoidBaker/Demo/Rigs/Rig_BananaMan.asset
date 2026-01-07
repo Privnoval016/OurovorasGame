@@ -1,0 +1,562 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c9c04639ae548bdb0a8e927492d029d, type: 3}
+  m_Name: Rig_BananaMan
+  m_EditorClassIdentifier: 
+  targetAnimator: {fileID: 0}
+  rigHierarchy:
+  - name: Armature
+    index: 0
+    depth: 0
+  - name: Hips
+    index: 1
+    depth: 1
+  - name: Left Thigh
+    index: 2
+    depth: 2
+  - name: Left Leg
+    index: 3
+    depth: 3
+  - name: Left Foot
+    index: 4
+    depth: 4
+  - name: Left Toes
+    index: 5
+    depth: 5
+  - name: Left Toes_end
+    index: 6
+    depth: 6
+  - name: Right Thigh
+    index: 7
+    depth: 2
+  - name: Right Leg
+    index: 8
+    depth: 3
+  - name: Right Foot
+    index: 9
+    depth: 4
+  - name: Right Toes
+    index: 10
+    depth: 5
+  - name: Right Toes_end
+    index: 11
+    depth: 6
+  - name: Spine 1
+    index: 12
+    depth: 2
+  - name: Spine 2
+    index: 13
+    depth: 3
+  - name: Spine 3
+    index: 14
+    depth: 4
+  - name: Left Shoulder
+    index: 15
+    depth: 5
+  - name: Left Arm
+    index: 16
+    depth: 6
+  - name: Left Forearm
+    index: 17
+    depth: 7
+  - name: Left Hand
+    index: 18
+    depth: 8
+  - name: Left Hand Index 1
+    index: 19
+    depth: 9
+  - name: Left Hand Index 2
+    index: 20
+    depth: 10
+  - name: Left Hand Index 3
+    index: 21
+    depth: 11
+  - name: Left Hand Index 3_end
+    index: 22
+    depth: 12
+  - name: Left Hand Middle 1
+    index: 23
+    depth: 9
+  - name: Left Hand Middle 2
+    index: 24
+    depth: 10
+  - name: Left Hand Middle 3
+    index: 25
+    depth: 11
+  - name: Left Hand Middle 3_end
+    index: 26
+    depth: 12
+  - name: Left Hand Pinky 1
+    index: 27
+    depth: 9
+  - name: Left Hand Pinky 2
+    index: 28
+    depth: 10
+  - name: Left Hand Pinky 3
+    index: 29
+    depth: 11
+  - name: Left Hand Pinky 3_end
+    index: 30
+    depth: 12
+  - name: Left Hand Ring 1
+    index: 31
+    depth: 9
+  - name: Left Hand Ring 2
+    index: 32
+    depth: 10
+  - name: Left Hand Ring 3
+    index: 33
+    depth: 11
+  - name: Left Hand Ring 3_end
+    index: 34
+    depth: 12
+  - name: Left Hand Thumb 1
+    index: 35
+    depth: 9
+  - name: Left Hand Thumb 2
+    index: 36
+    depth: 10
+  - name: Left Hand Thumb 3
+    index: 37
+    depth: 11
+  - name: Left Hand Thumb 3_end
+    index: 38
+    depth: 12
+  - name: Neck
+    index: 39
+    depth: 5
+  - name: Head
+    index: 40
+    depth: 6
+  - name: Head_end
+    index: 41
+    depth: 7
+  - name: Right Shoulder
+    index: 42
+    depth: 5
+  - name: Right Arm
+    index: 43
+    depth: 6
+  - name: Right Forearm
+    index: 44
+    depth: 7
+  - name: Right Hand
+    index: 45
+    depth: 8
+  - name: Right Hand Index 1
+    index: 46
+    depth: 9
+  - name: Right Hand Index 2
+    index: 47
+    depth: 10
+  - name: Right Hand Index 3
+    index: 48
+    depth: 11
+  - name: Right Hand Index 3_end
+    index: 49
+    depth: 12
+  - name: Right Hand Middle 1
+    index: 50
+    depth: 9
+  - name: Right Hand Middle 2
+    index: 51
+    depth: 10
+  - name: Right Hand Middle 3
+    index: 52
+    depth: 11
+  - name: Right Hand Middle 3_end
+    index: 53
+    depth: 12
+  - name: Right Hand Pinky 1
+    index: 54
+    depth: 9
+  - name: Right Hand Pinky 2
+    index: 55
+    depth: 10
+  - name: Right Hand Pinky 3
+    index: 56
+    depth: 11
+  - name: Right Hand Pinky 3_end
+    index: 57
+    depth: 12
+  - name: Right Hand Ring 1
+    index: 58
+    depth: 9
+  - name: Right Hand Ring 2
+    index: 59
+    depth: 10
+  - name: Right Hand Ring 3
+    index: 60
+    depth: 11
+  - name: Right Hand Ring 3_end
+    index: 61
+    depth: 12
+  - name: Right Hand Thumb 1
+    index: 62
+    depth: 9
+  - name: Right Hand Thumb 2
+    index: 63
+    depth: 10
+  - name: Right Hand Thumb 3
+    index: 64
+    depth: 11
+  - name: Right Hand Thumb 3_end
+    index: 65
+    depth: 12
+  rigElementChains:
+  - chainName: pelvis
+    elementChain:
+    - name: Hips
+      index: 1
+      depth: 0
+  - chainName: rightLeg
+    elementChain:
+    - name: Right Thigh
+      index: 7
+      depth: 0
+    - name: Right Leg
+      index: 8
+      depth: 0
+    - name: Right Foot
+      index: 9
+      depth: 0
+  - chainName: leftLeg
+    elementChain:
+    - name: Left Thigh
+      index: 2
+      depth: 0
+    - name: Left Leg
+      index: 3
+      depth: 0
+    - name: Left Foot
+      index: 4
+      depth: 0
+  - chainName: spine
+    elementChain:
+    - name: Spine 1
+      index: 12
+      depth: 0
+    - name: Spine 2
+      index: 13
+      depth: 0
+    - name: Spine 3
+      index: 14
+      depth: 0
+  - chainName: neck
+    elementChain:
+    - name: Neck
+      index: 39
+      depth: 0
+    - name: Head
+      index: 40
+      depth: 0
+  - chainName: rightArm
+    elementChain:
+    - name: Right Shoulder
+      index: 42
+      depth: 0
+    - name: Right Arm
+      index: 43
+      depth: 0
+    - name: Right Forearm
+      index: 44
+      depth: 0
+    - name: Right Hand
+      index: 45
+      depth: 0
+  - chainName: leftArm
+    elementChain:
+    - name: Left Shoulder
+      index: 15
+      depth: 0
+    - name: Left Arm
+      index: 16
+      depth: 0
+    - name: Left Forearm
+      index: 17
+      depth: 0
+    - name: Left Hand
+      index: 18
+      depth: 0
+  - chainName: toes
+    elementChain:
+    - name: Left Toes
+      index: 5
+      depth: 0
+    - name: Right Toes
+      index: 10
+      depth: 0
+  - chainName: handFingers
+    elementChain:
+    - name: Left Hand Index 1
+      index: 19
+      depth: 0
+    - name: Left Hand Index 2
+      index: 20
+      depth: 0
+    - name: Left Hand Index 3
+      index: 21
+      depth: 0
+    - name: Left Hand Index 3_end
+      index: 22
+      depth: 0
+    - name: Left Hand Middle 1
+      index: 23
+      depth: 0
+    - name: Left Hand Middle 2
+      index: 24
+      depth: 0
+    - name: Left Hand Middle 3
+      index: 25
+      depth: 0
+    - name: Left Hand Middle 3_end
+      index: 26
+      depth: 0
+    - name: Left Hand Pinky 1
+      index: 27
+      depth: 0
+    - name: Left Hand Pinky 2
+      index: 28
+      depth: 0
+    - name: Left Hand Pinky 3
+      index: 29
+      depth: 0
+    - name: Left Hand Pinky 3_end
+      index: 30
+      depth: 0
+    - name: Left Hand Ring 1
+      index: 31
+      depth: 0
+    - name: Left Hand Ring 2
+      index: 32
+      depth: 0
+    - name: Left Hand Ring 3
+      index: 33
+      depth: 0
+    - name: Left Hand Ring 3_end
+      index: 34
+      depth: 0
+    - name: Left Hand Thumb 1
+      index: 35
+      depth: 0
+    - name: Left Hand Thumb 2
+      index: 36
+      depth: 0
+    - name: Left Hand Thumb 3
+      index: 37
+      depth: 0
+    - name: Left Hand Thumb 3_end
+      index: 38
+      depth: 0
+    - name: Right Hand Index 1
+      index: 46
+      depth: 0
+    - name: Right Hand Index 2
+      index: 47
+      depth: 0
+    - name: Right Hand Index 3
+      index: 48
+      depth: 0
+    - name: Right Hand Index 3_end
+      index: 49
+      depth: 0
+    - name: Right Hand Middle 1
+      index: 50
+      depth: 0
+    - name: Right Hand Middle 2
+      index: 51
+      depth: 0
+    - name: Right Hand Middle 3
+      index: 52
+      depth: 0
+    - name: Right Hand Middle 3_end
+      index: 53
+      depth: 0
+    - name: Right Hand Pinky 1
+      index: 54
+      depth: 0
+    - name: Right Hand Pinky 2
+      index: 55
+      depth: 0
+    - name: Right Hand Pinky 3
+      index: 56
+      depth: 0
+    - name: Right Hand Pinky 3_end
+      index: 57
+      depth: 0
+    - name: Right Hand Ring 1
+      index: 58
+      depth: 0
+    - name: Right Hand Ring 2
+      index: 59
+      depth: 0
+    - name: Right Hand Ring 3
+      index: 60
+      depth: 0
+    - name: Right Hand Ring 3_end
+      index: 61
+      depth: 0
+    - name: Right Hand Thumb 1
+      index: 62
+      depth: 0
+    - name: Right Hand Thumb 2
+      index: 63
+      depth: 0
+    - name: Right Hand Thumb 3
+      index: 64
+      depth: 0
+    - name: Right Hand Thumb 3_end
+      index: 65
+      depth: 0
+  - chainName: Left_Index
+    elementChain:
+    - name: Left Hand Index 1
+      index: 19
+      depth: 0
+    - name: Left Hand Index 2
+      index: 20
+      depth: 0
+    - name: Left Hand Index 3
+      index: 21
+      depth: 0
+    - name: Left Hand Index 3_end
+      index: 22
+      depth: 0
+  - chainName: Left_Midde
+    elementChain:
+    - name: Left Hand Middle 1
+      index: 23
+      depth: 0
+    - name: Left Hand Middle 2
+      index: 24
+      depth: 0
+    - name: Left Hand Middle 3
+      index: 25
+      depth: 0
+    - name: Left Hand Middle 3_end
+      index: 26
+      depth: 0
+  - chainName: Left_Pinky
+    elementChain:
+    - name: Left Hand Pinky 1
+      index: 27
+      depth: 0
+    - name: Left Hand Pinky 2
+      index: 28
+      depth: 0
+    - name: Left Hand Pinky 3
+      index: 29
+      depth: 0
+    - name: Left Hand Pinky 3_end
+      index: 30
+      depth: 0
+  - chainName: Left_Ring
+    elementChain:
+    - name: Left Hand Ring 1
+      index: 31
+      depth: 0
+    - name: Left Hand Ring 2
+      index: 32
+      depth: 0
+    - name: Left Hand Ring 3
+      index: 33
+      depth: 0
+    - name: Left Hand Ring 3_end
+      index: 34
+      depth: 0
+  - chainName: Left_Thumb
+    elementChain:
+    - name: Left Hand Thumb 1
+      index: 35
+      depth: 0
+    - name: Left Hand Thumb 2
+      index: 36
+      depth: 0
+    - name: Left Hand Thumb 3
+      index: 37
+      depth: 0
+    - name: Left Hand Thumb 3_end
+      index: 38
+      depth: 0
+  - chainName: Right_Index
+    elementChain:
+    - name: Right Hand Index 1
+      index: 46
+      depth: 0
+    - name: Right Hand Index 2
+      index: 47
+      depth: 0
+    - name: Right Hand Index 3
+      index: 48
+      depth: 0
+    - name: Right Hand Index 3_end
+      index: 49
+      depth: 0
+  - chainName: Right_Middle
+    elementChain:
+    - name: Right Hand Middle 1
+      index: 50
+      depth: 0
+    - name: Right Hand Middle 2
+      index: 51
+      depth: 0
+    - name: Right Hand Middle 3
+      index: 52
+      depth: 0
+    - name: Right Hand Middle 3_end
+      index: 53
+      depth: 0
+  - chainName: Right_Pinky
+    elementChain:
+    - name: Right Hand Pinky 1
+      index: 54
+      depth: 0
+    - name: Right Hand Pinky 2
+      index: 55
+      depth: 0
+    - name: Right Hand Pinky 3
+      index: 56
+      depth: 0
+    - name: Right Hand Pinky 3_end
+      index: 57
+      depth: 0
+  - chainName: Right_Ring
+    elementChain:
+    - name: Right Hand Ring 1
+      index: 58
+      depth: 0
+    - name: Right Hand Ring 2
+      index: 59
+      depth: 0
+    - name: Right Hand Ring 3
+      index: 60
+      depth: 0
+    - name: Right Hand Ring 3_end
+      index: 61
+      depth: 0
+  - chainName: Right_Thumb
+    elementChain:
+    - name: Right Hand Thumb 1
+      index: 62
+      depth: 0
+    - name: Right Hand Thumb 2
+      index: 63
+      depth: 0
+    - name: Right Hand Thumb 3
+      index: 64
+      depth: 0
+    - name: Right Hand Thumb 3_end
+      index: 65
+      depth: 0
+  inputConfig: {fileID: 0}
+  rigCurves: []
+  rigDepths: 00000000010000000200000003000000040000000500000006000000020000000300000004000000050000000600000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c00000005000000060000000700000005000000060000000700000008000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000090000000a0000000b0000000c000000
