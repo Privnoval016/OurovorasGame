@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce240189e2046b1861f0ecc77cab1aa, type: 3}
   m_Name: SpeedDebuff
   m_EditorClassIdentifier: 
+  icon: {fileID: 0}
+  backgroundColor: {r: 0.66091126, g: 0.8867924, b: 0.8832457, a: 1}
   maxStacks: 10
   speedDebuffMultiplierPerStack: 0.1

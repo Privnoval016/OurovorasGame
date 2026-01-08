@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09537c0c2c874929a5d87987c1900963, type: 3}
   m_Name: DamageOverTime
   m_EditorClassIdentifier: 
+  icon: {fileID: 0}
+  backgroundColor: {r: 0.6037736, g: 0.12516536, b: 0.07404763, a: 1}
   maxStacks: 99
   dotDamageMultiplier: 0.01

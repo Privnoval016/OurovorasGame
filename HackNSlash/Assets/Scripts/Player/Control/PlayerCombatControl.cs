@@ -49,6 +49,8 @@ public class PlayerCombatControl : MonoBehaviour
         InitializeElementMenu();
         
         InputManager.Instance.onElementMenuOpen += OnElementMenuAction;
+        InputManager.Instance.onElementSwapLeft += OnElementSwapLeftAction;
+        InputManager.Instance.onElementSwapRight += OnElementSwapRightAction;
         
         CurrentElementLoadout?.ValidateElementAttacks();
 
@@ -100,6 +102,22 @@ public class PlayerCombatControl : MonoBehaviour
             
             SwapElement(option.data);
         }
+    }
+    
+    private void OnElementSwapLeftAction(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        int nextIndex = (CurrentElementIndex - 1 + elementEffects.Length) % elementEffects.Length;
+        SwapElement(elementEffects[nextIndex]);
+    }
+    
+    private void OnElementSwapRightAction(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        int nextIndex = (CurrentElementIndex + 1) % elementEffects.Length;
+        SwapElement(elementEffects[nextIndex]);
     }
 
     #endregion

@@ -29,6 +29,9 @@ public class InputManager : Singleton<InputManager>, IPlayerActions, IMenuAction
     public event Action<InputAction.CallbackContext> onSwapMode = delegate { };
     public event Action<InputAction.CallbackContext> onUltimateMode = delegate { };
     public event Action<InputAction.CallbackContext> onElementMenuOpen = delegate { };
+    
+    public event Action<InputAction.CallbackContext> onElementSwapLeft = delegate { };
+    public event Action<InputAction.CallbackContext> onElementSwapRight = delegate { };
 
     
     private InputAction westButtonPressed;
@@ -293,6 +296,16 @@ public class InputManager : Singleton<InputManager>, IPlayerActions, IMenuAction
     public void OnElementMenu(InputAction.CallbackContext context)
     {
         onElementMenuOpen?.Invoke(context);
+    }
+
+    public void OnElementSwapLeft(InputAction.CallbackContext context)
+    {
+        onElementSwapLeft?.Invoke(context);
+    }
+    
+    public void OnElementSwapRight(InputAction.CallbackContext context)
+    {
+        onElementSwapRight?.Invoke(context);
     }
     
     #endregion

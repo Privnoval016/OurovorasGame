@@ -199,6 +199,24 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ElementSwapLeft"",
+                    ""type"": ""Button"",
+                    ""id"": ""b3210e3d-2cfd-40ed-bd95-8b11a35b9c5a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ElementSwapRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""a29d6dec-dd34-4e14-a072-47339258c531"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -529,6 +547,50 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ElementAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a3f56c31-5015-4dbf-9cd7-d69340e95292"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ElementSwapLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""57a5a223-0a01-4138-a905-475ca22a365a"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ElementSwapLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""47703431-6101-40cb-8933-af8088a34e26"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ElementSwapRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1c25080b-0539-4ca3-bdad-cb3041a7ddc3"",
+                    ""path"": ""<Gamepad>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ElementSwapRight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -995,6 +1057,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_EnterCombat = m_Player.FindAction("EnterCombat", throwIfNotFound: true);
         m_Player_ActivateUltimate = m_Player.FindAction("ActivateUltimate", throwIfNotFound: true);
         m_Player_ElementMenu = m_Player.FindAction("ElementMenu", throwIfNotFound: true);
+        m_Player_ElementSwapLeft = m_Player.FindAction("ElementSwapLeft", throwIfNotFound: true);
+        m_Player_ElementSwapRight = m_Player.FindAction("ElementSwapRight", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_Navigate = m_Menu.FindAction("Navigate", throwIfNotFound: true);
@@ -1102,6 +1166,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_EnterCombat;
     private readonly InputAction m_Player_ActivateUltimate;
     private readonly InputAction m_Player_ElementMenu;
+    private readonly InputAction m_Player_ElementSwapLeft;
+    private readonly InputAction m_Player_ElementSwapRight;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1161,6 +1227,14 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ElementMenu".
         /// </summary>
         public InputAction @ElementMenu => m_Wrapper.m_Player_ElementMenu;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ElementSwapLeft".
+        /// </summary>
+        public InputAction @ElementSwapLeft => m_Wrapper.m_Player_ElementSwapLeft;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ElementSwapRight".
+        /// </summary>
+        public InputAction @ElementSwapRight => m_Wrapper.m_Player_ElementSwapRight;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1223,6 +1297,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ElementMenu.started += instance.OnElementMenu;
             @ElementMenu.performed += instance.OnElementMenu;
             @ElementMenu.canceled += instance.OnElementMenu;
+            @ElementSwapLeft.started += instance.OnElementSwapLeft;
+            @ElementSwapLeft.performed += instance.OnElementSwapLeft;
+            @ElementSwapLeft.canceled += instance.OnElementSwapLeft;
+            @ElementSwapRight.started += instance.OnElementSwapRight;
+            @ElementSwapRight.performed += instance.OnElementSwapRight;
+            @ElementSwapRight.canceled += instance.OnElementSwapRight;
         }
 
         /// <summary>
@@ -1270,6 +1350,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ElementMenu.started -= instance.OnElementMenu;
             @ElementMenu.performed -= instance.OnElementMenu;
             @ElementMenu.canceled -= instance.OnElementMenu;
+            @ElementSwapLeft.started -= instance.OnElementSwapLeft;
+            @ElementSwapLeft.performed -= instance.OnElementSwapLeft;
+            @ElementSwapLeft.canceled -= instance.OnElementSwapLeft;
+            @ElementSwapRight.started -= instance.OnElementSwapRight;
+            @ElementSwapRight.performed -= instance.OnElementSwapRight;
+            @ElementSwapRight.canceled -= instance.OnElementSwapRight;
         }
 
         /// <summary>
@@ -1676,6 +1762,20 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnElementMenu(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ElementSwapLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnElementSwapLeft(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ElementSwapRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnElementSwapRight(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Menu" which allows adding and removing callbacks.
