@@ -1,15 +1,21 @@
 using System.Collections.Generic;
 using Extensions.Modifiers;
 using Extensions.Patterns;
+using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class EnemyStats : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
+    
+    [field: SerializeField] public int Level { get; private set; } = 5;
+    [field: SerializeField] public int NumHealthBars { get; private set; } = 1;
+    
     public BaseStats baseStats;
 
     public EvaluatedStats EvaluatedStats;
-    public float currentHealth;
+    [ReadOnly] public float CurrentHealth { get; private set; }
 
     public ElementEffect currentElementEffect = ElementEffect.None;
 
@@ -17,8 +23,8 @@ public class EnemyStats : MonoBehaviour, IDamageable
 
     private void Awake()
     {
-        EvaluatedStats = new EvaluatedStats(baseStats);
-        currentHealth = EvaluatedStats.GetInnateStat(InnateStat.MaxHealth);
+        EvaluatedStats = new EvaluatedStats(baseStats, () => Level);
+        CurrentHealth = EvaluatedStats.GetInnateStat(InnateStat.MaxHealth);
     }
 
     private void Update()
@@ -64,12 +70,11 @@ public class EnemyStats : MonoBehaviour, IDamageable
         Debug.Log($"{gameObject.name} applied status effect {statusEffectModifier.Key.Key}");
     }
 
-    public virtual void TakeDamage(ElementEffect element, float damageAmount)
+    public virtual void TakeDamage(ElementEffect element, IDamageable attacker, IDamageEvent damageEvent)
     {
-    
+        float damageAmount = Services.Get<DamageSystem>().ResolveDamage(attacker, this, damageEvent).FinalDamage;
+        
         Debug.Log($"{gameObject.name} took {damageAmount} damage of element {element}");
-    
-        // Override this method to implement damage logic
     }
 
     public virtual void Heal(float healAmount)
@@ -78,7 +83,7 @@ public class EnemyStats : MonoBehaviour, IDamageable
     
         // Override this method to implement healing logic
     }
-    
+
     public EvaluatedStats Stats => EvaluatedStats;
 
     public IEnumerable<IDamageRule> DamageEvalRules

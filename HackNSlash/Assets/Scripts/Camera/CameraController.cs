@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Extensions.EventBus;
 using Extensions.Utils;
 using PrimeTween;
 using Unity.Cinemachine;
@@ -71,7 +72,7 @@ public class CameraController : MonoBehaviour
         
         playerTargetTransform.position = pc.cameraFollowTarget.position;
         
-        TargetedEnemy = null;
+        SetLockOnTarget(null);
 
         
     }
@@ -187,7 +188,7 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            TargetedEnemy = null;
+            SetLockOnTarget(null);
             lockOnTriggered = false;
         }
     }
@@ -203,6 +204,16 @@ public class CameraController : MonoBehaviour
     #endregion
     
     #region Camera Methods
+    
+    private void SetLockOnTarget(LockOnTarget target)
+    {
+        TargetedEnemy = target;
+        EventBus<CameraLockOnEvent>.Raise(new CameraLockOnEvent
+        {
+            IsLockedOn = IsLockedOn,
+            Target = TargetedEnemy
+        });
+    }
     
     private void UpdateLockOnTargets()
     {
@@ -247,7 +258,7 @@ public class CameraController : MonoBehaviour
 
         if (t != null)
         {
-            TargetedEnemy = t;
+            SetLockOnTarget(t);
         }
     }
     
@@ -260,13 +271,13 @@ public class CameraController : MonoBehaviour
 
         if (!lockOnTriggered)
         {
-            TargetedEnemy = null;
+            SetLockOnTarget(null);
         }
         
         if (Vector3.Distance(playerTargetTransform.position, TargetPosition) >
             pc.psm.playerData.lockOnRange)
         {
-            TargetedEnemy = null;
+            SetLockOnTarget(null);
         }
     }
     

@@ -9,7 +9,25 @@ public struct DamageResult
     public float BaseDamage;
     public float FinalDamage;
     public bool IsCritical;
+
+    public DamageResult(float damage)
+    {
+        BaseDamage = damage;
+        FinalDamage = damage;
+        IsCritical = false;
+    }
     
+    public DamageResult(float baseDamage, float finalDamage, bool isCritical)
+    {
+        BaseDamage = baseDamage;
+        FinalDamage = finalDamage;
+        IsCritical = isCritical;
+    }
+    
+    public override string ToString()
+    {
+        return $"DamageResult(BaseDamage: {BaseDamage}, FinalDamage: {FinalDamage}, IsCritical: {IsCritical})";
+    }
     
     public static DamageResult operator +(DamageResult a, DamageResult b)
     {
@@ -22,4 +40,11 @@ public struct DamageResult
         
         return a;
     }
+    
+    public static DamageResult Empty => new DamageResult
+    {
+        BaseDamage = 0f,
+        FinalDamage = 0f,
+        IsCritical = false
+    };
 }

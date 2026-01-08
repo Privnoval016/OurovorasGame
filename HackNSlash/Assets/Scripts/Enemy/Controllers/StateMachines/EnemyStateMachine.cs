@@ -100,7 +100,7 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
     {
         ContextPayload<EnemyAIContextKey>[] payloads =
         {
-            (EnemyAIContextKey.SelfHealth, ts.stats.currentHealth / ts.stats.GetStat(InnateStat.MaxHealth)),
+            (EnemyAIContextKey.SelfHealth, ts.stats.CurrentHealth / ts.stats.GetStat(InnateStat.MaxHealth)),
         };
     
         return payloads;

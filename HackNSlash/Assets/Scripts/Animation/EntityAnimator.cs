@@ -116,11 +116,16 @@ public class EntityAnimator : MonoBehaviour
 
     #endregion
     
-    #region Root Motion Methods
+    #region Animancer Methods
 
     public void RootMotionEnabled(bool isEnabled)
     {
         rootMotion.enabled = isEnabled;
+    }
+    
+    public void ActivateFootIK(bool isActive)
+    {
+        animancer.Graph.ApplyFootIK = isActive;
     }
     
     #endregion

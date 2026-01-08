@@ -11,6 +11,10 @@ using UnityEngine;
 */
 public abstract class StatusEffect : ScriptableObject
 {
+    [Header("UI Parameters")]
+    public Sprite icon;
+    public Color backgroundColor = Color.white;
+    
     [ReadOnly] public abstract StatusEffectTargets Target { get; }
     public abstract int MaxStacks { get; }
 

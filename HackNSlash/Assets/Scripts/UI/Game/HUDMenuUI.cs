@@ -2,6 +2,7 @@ using System;
 using Extensions.EventBus;
 using PrimeTween;
 using Systems.Element;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,65 +12,77 @@ public class HUDMenuUI : MonoBehaviour, IService
     
     #region Inspector Fields
     [Header("Health Sliders")]
-    public Slider healthValueBar;
-    public Slider healthDepleteBar;
-    public Slider healthRestoreBar;
+    [SerializeField] private Slider healthValueBar;
+    [SerializeField] private Slider healthDepleteBar;
+    [SerializeField] private Slider healthRestoreBar;
     
     
     [Header("Charge Sliders")]
     
-    public Slider chargeValueBar;
-    public Slider chargeDepleteBar;
+    [SerializeField] private Slider chargeValueBar;
+    [SerializeField] private Slider chargeDepleteBar;
     
-    public RectTransform[] minChargeIndicators;
+    [SerializeField] private RectTransform[] minChargeIndicators;
     
     [Header("Ultimate Sliders")]
-    public Slider ultimateValueBar;
-    public RawImage ultimateIcon;
+    [SerializeField] private Slider ultimateValueBar;
+    [SerializeField] private RawImage ultimateIcon;
     
     [Header("Finisher Sliders")]
     
-    public Slider finisherValueBar;
-    public RawImage finisherIcon;
+    [SerializeField] private Slider finisherValueBar;
+    [SerializeField] private RawImage finisherIcon;
     
     [Header("Elemental Swap")]
     
-    public RectTransform elementSwapContainer;
+    [SerializeField] private RectTransform elementSwapContainer;
     
-    public RectTransform radialMenuContainer;
+    [SerializeField] private RectTransform radialMenuContainer;
     
-    public RawImage elementSwapBackground;
+    [SerializeField] private RawImage elementSwapBackground;
     
-    public RawImage selectedElementIcon;
-    public RawImage[] elementIcons;
+    [SerializeField] private RawImage selectedElementIcon;
+    [SerializeField] private RawImage[] elementIcons;
     private RectTransform[] elementIconRects;
 
-    public RectTransform elementSelectBorder;
-    public RectTransform elementSelectLine;
+    [SerializeField] private RectTransform elementSelectBorder;
+    [SerializeField] private RectTransform elementSelectLine;
     
     [Space(20)]
-    public float[] elementSwapScales = new float[] { 0.01f, 1.0f };
-    public Vector3[] elementalSwapPositions;
-    public float radialMenuSelectScaleFactor = 1.2f;
+    [SerializeField] private float[] elementSwapScales = new float[] { 0.01f, 1.0f };
+    [SerializeField] private Vector3[] elementalSwapPositions;
+    [SerializeField] private float radialMenuSelectScaleFactor = 1.2f;
     private Vector3 radialMenuDefaultScale;
     private int selectedElementIndex;
-    public float elementSwapBackgroundAlpha = 0.3f;
+    [SerializeField] private float elementSwapBackgroundAlpha = 0.3f;
     
     
     [Header("Elemental Attacks")]
-    public RectTransform elementalAttackContainer;
+    [SerializeField] private RectTransform elementalAttackContainer;
     private Vector3 elementalAttackContainerScale;
-    public float elementalAttackContainerScaleFactor = 1.3f;
+    [SerializeField] private float elementalAttackContainerScaleFactor = 1.3f;
     
-    public ElementalAttackIcon northElementalAttack;
-    public ElementalAttackIcon southElementalAttack;
-    public ElementalAttackIcon westElementalAttack;
+    [SerializeField] private ElementalAttackIcon northElementalAttack;
+    [SerializeField] private ElementalAttackIcon southElementalAttack;
+    [SerializeField] private ElementalAttackIcon westElementalAttack;
     
     [Header("Style Meter")]
-    public Slider styleMeterSlider;
-    public Image styleMeterBackground;
-    public Image styleMeterOutline;
-    public Image styleMeterFill;
+    [SerializeField] private Slider styleMeterSlider;
+    [SerializeField] private Image styleMeterBackground;
+    [SerializeField] private Image styleMeterOutline;
+    [SerializeField] private Image styleMeterFill;
+    
+    [Header("Enemy UI")]
+    [SerializeField] private CanvasGroup enemyUIGroup;
+    [SerializeField] private TMP_Text enemyNameText;
+    [SerializeField] private TMP_Text enemyLevelText;
+    [SerializeField] private Slider enemyHealthValueBar;
+    [SerializeField] private Slider enemyHealthDepleteBar;
+    [SerializeField] private Slider enemyHealthRestoreBar;
+    [SerializeField] private TMP_Text enemyHealthBarCountText;
+    [SerializeField] private EffectTileUI enemyEffectTileUI;
+    
+    private LockOnTarget currentLockOnTarget;
     
     #endregion
     
@@ -86,6 +99,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     private EventBinding<ElementUpdateEvent> elementUpdateEventBinding;
     private EventBinding<ElementAttackUpdateEvent> elementAttackUpdateEventBinding;
     private EventBinding<StyleUpdateEvent> styleUpdateEventBinding;
+    private EventBinding<CameraLockOnEvent> cameraLockOnEventBinding;
     
     #endregion
 
@@ -142,6 +156,9 @@ public class HUDMenuUI : MonoBehaviour, IService
         
         styleUpdateEventBinding = new EventBinding<StyleUpdateEvent>(OnStyleUpdate);
         EventBus<StyleUpdateEvent>.Register(styleUpdateEventBinding);
+        
+        cameraLockOnEventBinding = new EventBinding<CameraLockOnEvent>(OnCameraLockOnEvent);
+        EventBus<CameraLockOnEvent>.Register(cameraLockOnEventBinding);
     }
 
     private void DeactivateEventBindings()
@@ -154,6 +171,7 @@ public class HUDMenuUI : MonoBehaviour, IService
         EventBus<ElementUpdateEvent>.Deregister(elementUpdateEventBinding);
         EventBus<ElementAttackUpdateEvent>.Deregister(elementAttackUpdateEventBinding);
         EventBus<StyleUpdateEvent>.Deregister(styleUpdateEventBinding);
+        EventBus<CameraLockOnEvent>.Deregister(cameraLockOnEventBinding);
     }
 
     #endregion
@@ -501,7 +519,71 @@ public class HUDMenuUI : MonoBehaviour, IService
         styleMeterOutline.sprite = setting.meterOutline != null ? setting.meterOutline : styleMeterOutline.sprite;
         styleMeterFill.sprite = setting.meterFill != null ? setting.meterFill : styleMeterFill.sprite;
         
-        Tween.UISliderValue(styleMeterSlider, Services.Get<StyleSystem>().GetStylePercentage(e.StyleLevel, e.StyleValue), 0.2f);
+        float stylePercentage = Services.Get<StyleSystem>().GetStylePercentage(e.StyleLevel, e.StyleValue);
+        if (Mathf.Approximately(styleMeterSlider.value, stylePercentage)) return;
+        
+        Tween.UISliderValue(styleMeterSlider, stylePercentage, 0.2f);
+    }
+    
+    #endregion
+    
+    #region Lock On Methods
+    
+    private void OnCameraLockOnEvent(CameraLockOnEvent e)
+    {
+        currentLockOnTarget = e.Target;
+
+        enemyEffectTileUI.SetTarget(currentLockOnTarget);
+
+        if (currentLockOnTarget == null)
+        {
+            if (Mathf.Approximately(enemyUIGroup.alpha, 0f)) return;
+            Tween.Alpha(enemyUIGroup, 0f, 0.2f).OnComplete(() =>
+            {
+                enemyNameText.text = "";
+                enemyLevelText.text = "";
+                enemyHealthBarCountText.text = "";
+            });
+        }
+        else
+        {
+            if (Mathf.Approximately(enemyUIGroup.alpha, 1f)) return;
+            Tween.Alpha(enemyUIGroup, 1f, 0.2f);
+            enemyNameText.text = currentLockOnTarget.enemyName;
+            enemyLevelText.text = $"Lv. {currentLockOnTarget.damageable.Level}";
+            enemyHealthBarCountText.text = $"x{currentLockOnTarget.damageable.NumHealthBars}";
+        }
+    }
+    
+    private void UpdateEnemyHealthUI()
+    {
+        if (currentLockOnTarget == null) return;
+        
+        float healthPercentage = currentLockOnTarget.damageable.Stats.GetInnateStat(InnateStat.MaxHealth) > 0 ? 
+                                currentLockOnTarget.damageable.CurrentHealth / 
+                                currentLockOnTarget.damageable.Stats.GetInnateStat(InnateStat.MaxHealth) : 0f;
+        
+        float currentHealth = enemyHealthValueBar.value;
+        
+        if (Mathf.Approximately(currentHealth, healthPercentage)) return;
+        
+        enemyHealthValueBar.value = currentHealth;
+        enemyHealthDepleteBar.value = currentHealth;
+        enemyHealthRestoreBar.value = currentHealth;
+        
+        if (currentHealth > healthPercentage)
+        {
+            // Decrease health
+            enemyHealthRestoreBar.value = healthPercentage;
+            Tween.UISliderValue(enemyHealthValueBar, healthPercentage, 0.02f);
+            Tween.UISliderValue(enemyHealthDepleteBar, healthPercentage, 1f);
+        }
+        else if (currentHealth < healthPercentage)
+        {
+            // Increase health
+            Tween.UISliderValue(enemyHealthRestoreBar, healthPercentage, 0.02f);
+            Tween.UISliderValue(enemyHealthValueBar, healthPercentage, 0.3f);
+        }
     }
     
     #endregion
@@ -567,5 +649,17 @@ public struct StyleUpdateEvent : IEvent
     {
         StyleLevel = level;
         StyleValue = value;
+    }
+}
+
+public struct CameraLockOnEvent : IEvent
+{
+    public bool IsLockedOn;
+    public LockOnTarget Target;
+    
+    public CameraLockOnEvent(bool isLockedOn, LockOnTarget target)
+    {
+        IsLockedOn = isLockedOn;
+        Target = target;
     }
 }

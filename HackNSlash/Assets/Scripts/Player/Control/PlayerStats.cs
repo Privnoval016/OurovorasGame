@@ -4,6 +4,7 @@ using System.Linq;
 using Extensions.EventBus;
 using Extensions.Modifiers;
 using Extensions.Patterns;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -22,11 +23,12 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     #region Stat Info
 
-    [Header("Stat Info")]
+    [Header("Stat Info")] 
+    [ReadOnly] public int Level { get; private set; } = 10;
     
-    public float CurrentHealth { get; private set; }
-    public float CurrentElementCharge { get; private set; }
-    public float CurrentUltimateCharge { get; private set; }
+    [ReadOnly] public float CurrentHealth { get; private set; }
+    [ReadOnly] public float CurrentElementCharge { get; private set; }
+    [ReadOnly] public float CurrentUltimateCharge { get; private set; }
 
     public float CurrentFinisherCharge { get; private set; }
 
@@ -69,7 +71,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     private void InitializeStats()
     {
-        EvaluatedStats = new EvaluatedStats(baseStats);
+        EvaluatedStats = new EvaluatedStats(baseStats, () => Level);
 
         CurrentHealth = 0f;
         CurrentElementCharge = 0f;
@@ -234,8 +236,10 @@ public class PlayerStats : MonoBehaviour, IDamageable
         Debug.Log($"{gameObject.name} applied status effect {statusEffectModifier.Key.Key}");
     }
 
-    public void TakeDamage(ElementEffect element, float damageAmount)
+    public void TakeDamage(ElementEffect element, IDamageable attacker, IDamageEvent damageEvent)
     {
+        float damageAmount = Services.Get<DamageSystem>().ResolveDamage(attacker, this, damageEvent).FinalDamage;
+        
         ChangeHealth(-damageAmount);
     }
     
@@ -244,10 +248,13 @@ public class PlayerStats : MonoBehaviour, IDamageable
         ChangeHealth(healAmount);
     }
 
+    public int NumHealthBars => 1; // Player has a single health bar
+
     public EvaluatedStats Stats => EvaluatedStats;
 
     public IEnumerable<IDamageRule> DamageEvalRules
-        => pc.pi.CurrentLoadout.equippedAccessories.SelectMany(acc => acc.ContributeRules());
+        => pc.pi.CurrentLoadout?.equippedAccessories?.SelectMany(acc => acc?.ContributeRules() ?? Enumerable.Empty<IDamageRule>()) 
+           ?? Enumerable.Empty<IDamageRule>();
 
     #endregion
 }

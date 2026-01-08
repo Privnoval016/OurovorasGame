@@ -10,6 +10,9 @@ using Extensions.Utils;
  */
 public abstract class LockOnTarget : KinematicBehaviour
 {
+    [Header("General Parameters")]
+    public string enemyName = "Enemy";
+    
     [Header("Lock On Target Parameters")]
     
     public IDamageable damageable;
@@ -111,7 +114,7 @@ public abstract class LockOnTarget : KinematicBehaviour
 
         var statusEffectModifier = statusEffectModifierFactory.Create(effect);
         damageable?.ApplyStatusEffect(statusEffectModifier);
-        damageable?.TakeDamage(element, a.stats.damage);
+        damageable?.TakeDamage(element, pc.ps, new PlayerDamageEvent(a));
     }
     
     public virtual void OnStagger(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)

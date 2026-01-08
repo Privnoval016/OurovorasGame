@@ -48,6 +48,8 @@ public class PlayerAnimator : EntityAnimator
 		{
 			animDataDict.TryAdd(animContainer.movingState, animContainer);
 		}
+        
+        //ActivateFootIK(true);
     }
 
     private void Update()
