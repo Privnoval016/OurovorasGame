@@ -182,7 +182,8 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (context.performed)
         {
-            PlayerIsHit(new HitInstance()
+            PlayerIsHit(null,
+                new HitInstance()
             {
                 force = new Vector3(15, 0),
                 horizontalDirection = -TruePlayerForward.ToVector2(),
@@ -766,16 +767,16 @@ public class PlayerStateMachine : MonoBehaviour
     
     #region Hit Methods
 
-    public void PlayerIsHit(HitInstance hit)
+    public void PlayerIsHit(EnemyStats enemy, HitInstance hit)
     {
         if (pc.sc.GetCurrentState() is PlayerMoving)
         {
-            pc.sc.Interrupt(new PlayerHit(hit));
+            pc.sc.Interrupt(new PlayerHit(enemy, hit));
         }
         else
         {
             pc.oae.KillObjectCoroutines();
-            pc.sc.ChangeState(new PlayerHit(hit));
+            pc.sc.ChangeState(new PlayerHit(enemy, hit));
         }
     }
     
@@ -906,7 +907,8 @@ public class PlayerStateMachine : MonoBehaviour
         if (attackAction == null) return;
         
         
-        PlayerIsHit(new HitInstance()
+        PlayerIsHit(eh.ts.stats,
+            new HitInstance()
                     {
                         force = attackAction.attack.attackKnockback,
                         horizontalDirection = (transform.position - eh.ts.transform.position).ToVector2().normalized,
@@ -922,7 +924,8 @@ public class PlayerStateMachine : MonoBehaviour
         if (pc.sc.IsState<PlayerHit>()) return;
         if (!evhd.vfx.activeHitbox || !evhd.vfx.vfxEnabled) return;
         
-        PlayerIsHit(new HitInstance()
+        PlayerIsHit(evhd.ts.stats,
+            new HitInstance()
         {
             force = evhd.attackInfo.attack.attackKnockback,
             horizontalDirection = (transform.position - evhd.vfx.transform.position).ToVector2().normalized,

@@ -13,6 +13,7 @@ public class ServiceBootstrapper : MonoBehaviour
     [SerializeField] private EffectSystem effectSystem;
     [SerializeField] private ElementSystem elementSystem;
     [SerializeField] private StyleSystem styleSystem;
+    [SerializeField] private DamageSystem damageSystem;
     
     [Header("UI References")]
     [SerializeField] private OverworldMenuUI overworldMenuUI;
@@ -20,17 +21,6 @@ public class ServiceBootstrapper : MonoBehaviour
     
     private void Awake()
     {
-        // Services.RegisterPlayerController(playerController);
-        //
-        // Services.RegisterVFXSystem(vfxSystem);
-        // Services.RegisterCombatSystem(combatSystem);
-        // Services.RegisterEffectSystem(effectSystem);
-        // Services.RegisterElementSystem(elementSystem);
-        // Services.RegisterStyleSystem(styleSystem);
-        // Services.RegisterAudioSystem(audioSystem);
-        //
-        // Services.RegisterOverworldMenuUI(overworldMenuUI);
-        // Services.RegisterHUDMenuUI(hudMenuUI);
         
         Services.Register(playerController);
         Services.Register(vfxSystem);
@@ -39,6 +29,7 @@ public class ServiceBootstrapper : MonoBehaviour
         Services.Register(elementSystem);
         Services.Register(styleSystem);
         Services.Register(audioSystem);
+        Services.Register(damageSystem);
         Services.Register(overworldMenuUI);
         Services.Register(hudMenuUI);
     }

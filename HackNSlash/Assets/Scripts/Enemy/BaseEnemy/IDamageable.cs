@@ -1,4 +1,5 @@
-﻿using Extensions.Modifiers;
+﻿using System.Collections.Generic;
+using Extensions.Modifiers;
 
 /**
  * <summary>
@@ -6,12 +7,19 @@
  * Inherits from IDamageAgent to include damage-calculation functionalities.
  * </summary>
  */
-public interface IDamageable : IDamageAgent
+public interface IDamageable
 {
+    public float CurrentHealth { get; }
+    public int Level { get; }
+    public int NumHealthBars { get; }
     
     public void ApplyStatusEffect(Modifier<StatusEffectQueryKey> statusEffectModifier);
     
-    public void TakeDamage(ElementEffect element, float damageAmount);
+    public void TakeDamage(ElementEffect element, IDamageable attacker, IDamageEvent damageEvent);
     
     public void Heal(float healAmount);
+    
+    EvaluatedStats Stats { get; }
+    
+    IEnumerable<IDamageRule> DamageEvalRules { get; }
 }

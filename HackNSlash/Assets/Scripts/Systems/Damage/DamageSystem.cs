@@ -27,8 +27,20 @@ public class DamageSystem : MonoBehaviour, IService
         _finalizeDamageRule = new FinalizeDamageRule();
     }
     
-    public DamageResult ResolveDamage(IDamageAgent attacker, IDamageAgent defender, IDamageEvent damageEvent)
+    public DamageResult ResolveDamage(IDamageable attacker, IDamageable defender, IDamageEvent damageEvent)
     {
+        if (damageEvent == null)
+        {
+            Debug.LogWarning("DamageEvent is null. Cannot process damage.");
+            return DamageResult.Empty;
+        }
+        
+        if (attacker == null || defender == null)
+        {
+            Debug.LogWarning("Attacker or Defender is null. Cannot process damage.");
+            return new DamageResult(damageEvent.BasePower);
+        }
+        
         var context = new DamageContext(attacker, defender, damageEvent.BasePower);
         var additionalRules = attacker.DamageEvalRules.Concat(defender.DamageEvalRules);
         

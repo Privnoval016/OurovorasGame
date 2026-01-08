@@ -14,10 +14,12 @@ public class DamageContext
     
     // Immutable Properties
     public readonly float BasePower;
-    public readonly IDamageAgent Attacker;
-    public readonly IDamageAgent Defender;
+    public readonly IDamageable Attacker;
+    public readonly IDamageable Defender;
     public readonly Dictionary<InnateStat, int> AttackerStatSnapshot;
+    public readonly int AttackerLevel;
     public readonly Dictionary<InnateStat, int> DefenderStatSnapshot;
+    public readonly int DefenderLevel;
     
     // Damage Accumulation
     public float FlatBonus;
@@ -33,7 +35,7 @@ public class DamageContext
     
 
 
-    public DamageContext(IDamageAgent attacker, IDamageAgent defender, float basePower)
+    public DamageContext(IDamageable attacker, IDamageable defender, float basePower)
     {
         Attacker = attacker;
         Defender = defender;
@@ -42,5 +44,8 @@ public class DamageContext
         // Snapshot relevant stats at the time of damage calculation
         AttackerStatSnapshot = new Dictionary<InnateStat, int>(attacker.Stats.Stats());
         DefenderStatSnapshot = new Dictionary<InnateStat, int>(defender.Stats.Stats());
+        
+        AttackerLevel = attacker is IDamageable damageableAttacker ? damageableAttacker.Level : 1;
+        DefenderLevel = defender is IDamageable damageableDefender ? damageableDefender.Level : 1;
     }
 }

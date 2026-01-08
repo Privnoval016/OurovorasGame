@@ -13,7 +13,7 @@ public class BaseDamageRule : IDamageRule
         float baseDamage =
             (2f * ctx.AttackerStatSnapshot[InnateStat.Strength] / 5f + 2f)
                 * ctx.BasePower
-                * ctx.AttackerStatSnapshot[InnateStat.Level] / 
+                * ctx.AttackerLevel / 
                 ctx.DefenderStatSnapshot[InnateStat.Defense] / 50f + 2f;
 
         ctx.BaseDamage = baseDamage;

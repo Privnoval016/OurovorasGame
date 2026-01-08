@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class PlayerHit : PlayerState
 {
-    public HitInstance hit { get; private set; }
+    public HitInstance Hit { get; private set; }
+    public EnemyStats Attacker { get; private set; }
 
     private bool midairKnockback;
 
@@ -14,9 +15,10 @@ public class PlayerHit : PlayerState
     
     #region State Methods
     
-    public PlayerHit(HitInstance hit)
+    public PlayerHit(EnemyStats attacker, HitInstance hit)
     {
-        this.hit = hit;
+        this.Hit = hit;
+        this.Attacker = attacker;
     }
 
     public override void OnEnter()
@@ -31,20 +33,20 @@ public class PlayerHit : PlayerState
         
         pc.psm.CalculateGravity();
 
-        pc.ps.TakeDamage(hit.element, hit.Damage);
+        pc.ps.TakeDamage(Hit.element, Attacker, new EnemyDamageEvent(Hit));
         
         StatusEffectChange effect = new StatusEffectChange
         {
-            StatusEffect = Services.Get<ElementSystem>().GetElementData(hit.element).GetStatusEffect(),
-            stacks = hit.enemyAttack.statusEffectStacks,
-            duration = hit.enemyAttack.statusEffectDuration
+            StatusEffect = Services.Get<ElementSystem>().GetElementData(Hit.element).GetStatusEffect(),
+            stacks = Hit.enemyAttack.statusEffectStacks,
+            duration = Hit.enemyAttack.statusEffectDuration
         };
 
         var statusEffectModifier = new StatusEffectModifierFactory().Create(effect);
         pc.ps.ApplyStatusEffect(statusEffectModifier);
         
         
-        Services.Get<StyleSystem>().RaiseHitEvent(hit);
+        Services.Get<StyleSystem>().RaiseHitEvent(Hit);
 
         AddKnockbackForce();
         
@@ -73,8 +75,8 @@ public class PlayerHit : PlayerState
 
     public void AddKnockbackForce()
     {
-        Vector3 vertical = hit.force.y * Vector3.up;
-        Vector3 horizontal = hit.force.x * hit.horizontalDirection.ToVector3();
+        Vector3 vertical = Hit.force.y * Vector3.up;
+        Vector3 horizontal = Hit.force.x * Hit.horizontalDirection.ToVector3();
 
         pc.rb.AddForce(vertical + horizontal, ForceMode.VelocityChange);
     }
@@ -88,7 +90,7 @@ public class PlayerHit : PlayerState
         midairKnockback = true;
         pc.pac.RootMotionEnabled(false);
         
-        pc.gameObject.LookInDirection(-hit.horizontalDirection.ToVector3());
+        pc.gameObject.LookInDirection(-Hit.horizontalDirection.ToVector3());
         pc.pac.ExitTimeAnimation(pc.pac.HitAnims.airHit.StartClip, pc.pac.HitAnims.airHit.LoopClip);
     }
 
@@ -97,8 +99,8 @@ public class PlayerHit : PlayerState
         midairKnockback = false;
         pc.pac.RootMotionEnabled(false);
         
-        pc.pac.SetAnimancerParam("HitX", hit.horizontalDirection.x, false);
-        pc.pac.SetAnimancerParam("HitZ", hit.horizontalDirection.y, false);
+        pc.pac.SetAnimancerParam("HitX", Hit.horizontalDirection.x, false);
+        pc.pac.SetAnimancerParam("HitZ", Hit.horizontalDirection.y, false);
 
         pc.pac.PlayAnimation(pc.pac.HitAnims.groundHit);
         

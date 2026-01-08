@@ -19,5 +19,4 @@ public enum InnateStat : int // value based stats
     MaxCharge,
     Strength,
     Defense,
-    Level,
 }
