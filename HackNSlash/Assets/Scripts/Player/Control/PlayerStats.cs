@@ -26,9 +26,9 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [Header("Stat Info")] 
     [ReadOnly] public int Level { get; private set; } = 10;
     
-    [ReadOnly] public float CurrentHealth { get; private set; }
-    [ReadOnly] public float CurrentElementCharge { get; private set; }
-    [ReadOnly] public float CurrentUltimateCharge { get; private set; }
+    [field: SerializeField] public float CurrentHealth { get; private set; }
+    [field: SerializeField] public float CurrentElementCharge { get; private set; }
+    [field: SerializeField] public float CurrentUltimateCharge { get; private set; }
 
     public float CurrentFinisherCharge { get; private set; }
 

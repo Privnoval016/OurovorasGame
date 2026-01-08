@@ -15,7 +15,7 @@ public class EnemyStats : MonoBehaviour, IDamageable
     public BaseStats baseStats;
 
     public EvaluatedStats EvaluatedStats;
-    [ReadOnly] public float CurrentHealth { get; private set; }
+    [field: SerializeField] public float CurrentHealth { get; private set; }
 
     public ElementEffect currentElementEffect = ElementEffect.None;
 
@@ -56,6 +56,12 @@ public class EnemyStats : MonoBehaviour, IDamageable
     {
         return EvaluatedStats.GetInnateStat(stat);
     }
+    
+    public void ChangeHealth(float amount)
+    {
+        CurrentHealth += amount;
+        CurrentHealth = Mathf.Clamp(CurrentHealth, 0, EvaluatedStats.GetInnateStat(InnateStat.MaxHealth));
+    }
 
     #endregion
 
@@ -75,13 +81,15 @@ public class EnemyStats : MonoBehaviour, IDamageable
         float damageAmount = Services.Get<DamageSystem>().ResolveDamage(attacker, this, damageEvent).FinalDamage;
         
         Debug.Log($"{gameObject.name} took {damageAmount} damage of element {element}");
+        
+        ChangeHealth(-damageAmount);
     }
 
     public virtual void Heal(float healAmount)
     {
         Debug.Log($"{gameObject.name} healed {healAmount} health");
     
-        // Override this method to implement healing logic
+        ChangeHealth(healAmount);
     }
 
     public EvaluatedStats Stats => EvaluatedStats;

@@ -123,6 +123,7 @@ public class HUDMenuUI : MonoBehaviour, IService
 
     private void Update()
     {
+        UpdateEnemyHealthUI();
         UpdateFinisherIcon();
     }
 
@@ -547,11 +548,20 @@ public class HUDMenuUI : MonoBehaviour, IService
         }
         else
         {
-            if (Mathf.Approximately(enemyUIGroup.alpha, 1f)) return;
-            Tween.Alpha(enemyUIGroup, 1f, 0.2f);
             enemyNameText.text = currentLockOnTarget.enemyName;
             enemyLevelText.text = $"Lv. {currentLockOnTarget.damageable.Level}";
             enemyHealthBarCountText.text = $"x{currentLockOnTarget.damageable.NumHealthBars}";
+            
+            float healthPercentage = currentLockOnTarget.damageable.Stats.GetInnateStat(InnateStat.MaxHealth) > 0 ? 
+                currentLockOnTarget.damageable.CurrentHealth / 
+                currentLockOnTarget.damageable.Stats.GetInnateStat(InnateStat.MaxHealth) : 0f;
+            
+            enemyHealthValueBar.value = healthPercentage;
+            enemyHealthDepleteBar.value = healthPercentage;
+            enemyHealthRestoreBar.value = healthPercentage;
+            
+            if (Mathf.Approximately(enemyUIGroup.alpha, 1f)) return;
+            Tween.Alpha(enemyUIGroup, 1f, 0.2f);
         }
     }
     
@@ -566,10 +576,6 @@ public class HUDMenuUI : MonoBehaviour, IService
         float currentHealth = enemyHealthValueBar.value;
         
         if (Mathf.Approximately(currentHealth, healthPercentage)) return;
-        
-        enemyHealthValueBar.value = currentHealth;
-        enemyHealthDepleteBar.value = currentHealth;
-        enemyHealthRestoreBar.value = currentHealth;
         
         if (currentHealth > healthPercentage)
         {
