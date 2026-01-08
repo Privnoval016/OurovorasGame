@@ -30,7 +30,10 @@ public class PhysicsEnemy : LockOnTarget
 
     #region CHECK PARAMETERS
 
-    [Header("Checks")] [SerializeField] public Transform groundCheckPoint;
+    [Header("Checks")] 
+    [SerializeField] private Transform lockOnAimPoint;
+    [SerializeField] private Vector3 lockOnAimOffset = new Vector3(0, 0, 0);
+    [SerializeField] public Transform groundCheckPoint;
     [SerializeField] public Vector3 groundCheckSize = new Vector3(0.49f, 0.3f, 0.49f);
 
     #endregion
@@ -38,6 +41,16 @@ public class PhysicsEnemy : LockOnTarget
     public override Vector3 TargetedPosition(float deltaTime = 0)
     {
         return base.TargetedPosition(deltaTime) + DeltaPosition(deltaTime);
+    }
+    
+    public override Vector3 LockOnAimPosition(float deltaTime = 0)
+    {
+        if (lockOnAimPoint != null)
+        {
+            return lockOnAimPoint.position + lockOnAimOffset;
+        }
+
+        return base.LockOnAimPosition(deltaTime);
     }
 
     public override void OnStart()

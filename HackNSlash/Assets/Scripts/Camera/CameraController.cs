@@ -10,8 +10,6 @@ using UnityEngine.Serialization;
 
 public class CameraController : MonoBehaviour
 {
-    public CameraController Instance { get; private set; }
-    
     #region Inspector Settings
     
     [Header("Target Settings")]
@@ -29,7 +27,7 @@ public class CameraController : MonoBehaviour
     private Dictionary<PlayerCamStates, CinemachineCamera> cineCams;
     private List<CinemachineInputAxisController> inputAxisControllers;
     [SerializeField] private CinemachineImpulseSource impulseSource;
-    private CinemachineBrain camBrain;
+    public CinemachineBrain camBrain;
     
     private PlayerController pc;
     
@@ -53,15 +51,6 @@ public class CameraController : MonoBehaviour
     #region MonoBehaviour Callbacks
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-        
         player.TryGetComponent(out pc);
         TryGetComponent(out camBrain);
 
@@ -71,10 +60,8 @@ public class CameraController : MonoBehaviour
         InitializeCamData();
         
         playerTargetTransform.position = pc.cameraFollowTarget.position;
-        
-        SetLockOnTarget(null);
 
-        
+        SetLockOnTarget(null);
     }
 
     void Update()

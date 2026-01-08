@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f38a177a2434423c987a7a7f779f0cd9, type: 3}
   m_Name: SharedDamage
   m_EditorClassIdentifier: 
+  icon: {fileID: 0}
+  backgroundColor: {r: 0.30153066, g: 0.7924528, b: 0.3368979, a: 1}
   maxStacks: 99
   sharedDamagePercentagePerStack: 0.01

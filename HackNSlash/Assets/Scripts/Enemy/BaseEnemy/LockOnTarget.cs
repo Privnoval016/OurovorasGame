@@ -30,6 +30,11 @@ public abstract class LockOnTarget : KinematicBehaviour
     {
         return transform.position;
     }
+    
+    public virtual Vector3 LockOnAimPosition(float deltaTime = 0)
+    {
+        return transform.position;
+    }
 
     private void Start()
     {
