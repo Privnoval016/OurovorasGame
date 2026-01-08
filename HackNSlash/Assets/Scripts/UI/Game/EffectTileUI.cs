@@ -66,30 +66,28 @@ public class EffectTileUI : MonoBehaviour
     {
         if (target == null) return;
 
-        var statusEffects = target.damageable.Stats.StatusEffects().ToList();
-        int totalEffects = statusEffects.Count;
-        
+        var activeEffects = target.damageable.Stats
+            .StatusEffects()
+            .Where(kvp => kvp.Value > 0)
+            .ToList();
+
+        int start = currentStartIndex;
+        int count = activeEffects.Count;
+
         for (int i = 0; i < IconsLength; i++)
         {
-            // Calculate the index of the effect to display in this icon, if 0 stacks move to next
-            
-            int effectIndex = currentStartIndex + i;
-            
-            while (effectIndex < totalEffects && statusEffects[effectIndex].Value <= 0)
+            int effectIdx = start + i;
+
+            if (effectIdx < count)
             {
-                effectIndex++;
-            }
-            
-            if (effectIndex < totalEffects)
-            {
-                var effectKvp = statusEffects[effectIndex];
-                effectIcons[i].SetEffect(effectKvp.Key, effectKvp.Value);
+                var effect = activeEffects[effectIdx];
+                effectIcons[i].SetEffect(effect.Key, effect.Value);
             }
             else
             {
                 effectIcons[i].ClearEffect();
             }
         }
-        
     }
+
 }
