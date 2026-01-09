@@ -1,0 +1,155 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0edd4d6dec9974f11ba4b078ca3a0e1e, type: 3}
+  m_Name: PaletteStore
+  m_EditorClassIdentifier: 
+  _colorPalette:
+    _entries:
+      _keys: []
+      _values: []
+    _themes:
+      _keys:
+      - f68e4dc8-f2b2-487a-964e-cc8ee2e3f274
+      _values:
+      - _id: f68e4dc8-f2b2-487a-964e-cc8ee2e3f274
+        _name:
+          _value: Default
+    _entryOrders:
+      _ids: []
+    _themeOrders:
+      _ids:
+      - f68e4dc8-f2b2-487a-964e-cc8ee2e3f274
+    _activeThemeId: f68e4dc8-f2b2-487a-964e-cc8ee2e3f274
+  _gradientPalette:
+    _entries:
+      _keys: []
+      _values: []
+    _themes:
+      _keys:
+      - 75552527-dfb0-47a2-a68a-1b92e16a3ff2
+      _values:
+      - _id: 75552527-dfb0-47a2-a68a-1b92e16a3ff2
+        _name:
+          _value: Default
+    _entryOrders:
+      _ids: []
+    _themeOrders:
+      _ids:
+      - 75552527-dfb0-47a2-a68a-1b92e16a3ff2
+    _activeThemeId: 75552527-dfb0-47a2-a68a-1b92e16a3ff2
+  _characterStylePalette:
+    _entries:
+      _keys: []
+      _values: []
+    _themes:
+      _keys:
+      - 7b8b7a99-53de-4bce-8070-604b9e4535ae
+      _values:
+      - _id: 7b8b7a99-53de-4bce-8070-604b9e4535ae
+        _name:
+          _value: Default
+    _entryOrders:
+      _ids: []
+    _themeOrders:
+      _ids:
+      - 7b8b7a99-53de-4bce-8070-604b9e4535ae
+    _activeThemeId: 7b8b7a99-53de-4bce-8070-604b9e4535ae
+  _characterStyleTMPPalette:
+    _entries:
+      _keys:
+      - ee1ad6d9-b8f8-44a4-ab6e-cb14c4b64435
+      - 005d45de-d4a2-4031-b708-6fb6ea9b5b48
+      - 054584f4-7650-401c-9e10-d7fa3fef9d57
+      _values:
+      - _id: ee1ad6d9-b8f8-44a4-ab6e-cb14c4b64435
+        _name:
+          _value: UILarge
+        _values:
+          _keys:
+          - 59d1abd4-c2a8-4eb3-abd8-b4b42b1f7e19
+          _values:
+          - _value:
+              font: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+              fontStyle: 0
+              fontSize: 42
+              enableAutoSizing: 0
+              enableAutoSizeOptions: 1
+              fontSizeMin: 18
+              fontSizeMax: 72
+              characterWidthAdjustment: 0
+              lineSpacingAdjustment: 0
+              characterSpacing: 0
+              wordSpacing: 0
+              lineSpacing: 0
+              paragraphSpacing: 0
+              fontSharedMaterial: {fileID: 0}
+      - _id: 005d45de-d4a2-4031-b708-6fb6ea9b5b48
+        _name:
+          _value: UIMedium
+        _values:
+          _keys:
+          - 59d1abd4-c2a8-4eb3-abd8-b4b42b1f7e19
+          _values:
+          - _value:
+              font: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+              fontStyle: 0
+              fontSize: 36
+              enableAutoSizing: 0
+              enableAutoSizeOptions: 1
+              fontSizeMin: 18
+              fontSizeMax: 72
+              characterWidthAdjustment: 0
+              lineSpacingAdjustment: 0
+              characterSpacing: 0
+              wordSpacing: 0
+              lineSpacing: 0
+              paragraphSpacing: 0
+              fontSharedMaterial: {fileID: 0}
+      - _id: 054584f4-7650-401c-9e10-d7fa3fef9d57
+        _name:
+          _value: UISmall
+        _values:
+          _keys:
+          - 59d1abd4-c2a8-4eb3-abd8-b4b42b1f7e19
+          _values:
+          - _value:
+              font: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+              fontStyle: 0
+              fontSize: 30
+              enableAutoSizing: 0
+              enableAutoSizeOptions: 1
+              fontSizeMin: 18
+              fontSizeMax: 72
+              characterWidthAdjustment: 0
+              lineSpacingAdjustment: 0
+              characterSpacing: 0
+              wordSpacing: 0
+              lineSpacing: 0
+              paragraphSpacing: 0
+              fontSharedMaterial: {fileID: 0}
+    _themes:
+      _keys:
+      - 59d1abd4-c2a8-4eb3-abd8-b4b42b1f7e19
+      _values:
+      - _id: 59d1abd4-c2a8-4eb3-abd8-b4b42b1f7e19
+        _name:
+          _value: Default
+    _entryOrders:
+      _ids:
+      - ee1ad6d9-b8f8-44a4-ab6e-cb14c4b64435
+      - 005d45de-d4a2-4031-b708-6fb6ea9b5b48
+      - 054584f4-7650-401c-9e10-d7fa3fef9d57
+    _themeOrders:
+      _ids:
+      - 59d1abd4-c2a8-4eb3-abd8-b4b42b1f7e19
+    _activeThemeId: 59d1abd4-c2a8-4eb3-abd8-b4b42b1f7e19
+  _missingEntryErrorLevel: 1

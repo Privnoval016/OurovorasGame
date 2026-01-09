@@ -11,12 +11,13 @@ public class EnemyStats : MonoBehaviour, IDamageable
     
     [field: SerializeField] public int Level { get; private set; } = 5;
     [field: SerializeField] public int NumHealthBars { get; private set; } = 1;
+    [field: SerializeField] public int MaxHealthBars { get; private set; } = 3;
     
     public BaseStats baseStats;
 
     public EvaluatedStats EvaluatedStats;
     [field: SerializeField] public float CurrentHealth { get; private set; }
-
+    
     public ElementEffect currentElementEffect = ElementEffect.None;
 
     #region MonoBehaviour Callbacks
@@ -25,6 +26,8 @@ public class EnemyStats : MonoBehaviour, IDamageable
     {
         EvaluatedStats = new EvaluatedStats(baseStats, () => Level);
         CurrentHealth = EvaluatedStats.GetInnateStat(InnateStat.MaxHealth);
+
+        NumHealthBars = MaxHealthBars;
     }
 
     private void Update()
@@ -59,8 +62,26 @@ public class EnemyStats : MonoBehaviour, IDamageable
     
     public void ChangeHealth(float amount)
     {
-        CurrentHealth += amount;
-        CurrentHealth = Mathf.Clamp(CurrentHealth, 0, EvaluatedStats.GetInnateStat(InnateStat.MaxHealth));
+        if (CurrentHealth + amount <= 0 && NumHealthBars >= 1)
+        {
+            NumHealthBars--;
+            if (NumHealthBars > 0)
+            {
+                CurrentHealth = EvaluatedStats.GetInnateStat(InnateStat.MaxHealth);
+                Debug.Log($"{gameObject.name} lost a health bar! Remaining health bars: {NumHealthBars}");
+            }
+            else
+            {
+                CurrentHealth = 0;
+                Debug.Log($"{gameObject.name} has been defeated!");
+                // Handle enemy defeat logic here (e.g., destroy the game object, play animation, etc.)
+            }
+        }
+        else
+        {
+            CurrentHealth += amount;
+            CurrentHealth = Mathf.Clamp(CurrentHealth, 0, EvaluatedStats.GetInnateStat(InnateStat.MaxHealth));
+        }
     }
 
     #endregion

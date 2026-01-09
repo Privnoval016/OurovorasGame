@@ -1,5 +1,6 @@
 using System;
 using Extensions.EventBus;
+using Extensions.UI;
 using PrimeTween;
 using Systems.Element;
 using TMPro;
@@ -12,21 +13,16 @@ public class HUDMenuUI : MonoBehaviour, IService
     
     #region Inspector Fields
     [Header("Health Sliders")]
-    [SerializeField] private Slider healthValueBar;
-    [SerializeField] private Slider healthDepleteBar;
-    [SerializeField] private Slider healthRestoreBar;
+    [SerializeField] private SliderBar healthSliderBar;
     
     
     [Header("Charge Sliders")]
-    
-    [SerializeField] private Slider chargeValueBar;
-    [SerializeField] private Slider chargeDepleteBar;
+    [SerializeField] private SliderBar chargeSliderBar;
     
     [SerializeField] private RectTransform[] minChargeIndicators;
     
     [Header("Ultimate Sliders")]
-    [SerializeField] private Slider ultimateValueBar;
-    [SerializeField] private RawImage ultimateIcon;
+    [SerializeField] private UltimateSlider ultimateValueBar;
     
     [Header("Finisher Sliders")]
     
@@ -76,9 +72,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     [SerializeField] private CanvasGroup enemyUIGroup;
     [SerializeField] private TMP_Text enemyNameText;
     [SerializeField] private TMP_Text enemyLevelText;
-    [SerializeField] private Slider enemyHealthValueBar;
-    [SerializeField] private Slider enemyHealthDepleteBar;
-    [SerializeField] private Slider enemyHealthRestoreBar;
+    [SerializeField] private SliderBar enemyHealthSliderBar;
     [SerializeField] private TMP_Text enemyHealthBarCountText;
     [SerializeField] private EffectTileUI enemyEffectTileUI;
     
@@ -183,20 +177,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     {
         float ultimatePercentage = e.UltimatePercentage;
         
-        float currentUltimate = ultimateValueBar.value;
-        
-        ultimateValueBar.value = currentUltimate;
-        
-        if (currentUltimate > ultimatePercentage)
-        {
-            // Decrease ultimate
-            ultimateValueBar.value = ultimatePercentage;
-        }
-        else if (currentUltimate < ultimatePercentage)
-        {
-            // Increase ultimate
-            Tween.UISliderValue(ultimateValueBar, ultimatePercentage, 0.3f);
-        }
+        ultimateValueBar.SetSliderValueAnimated(ultimatePercentage, 0.3f);
     }
     
     private void OnFinisherUpdate(FinisherUpdateEvent e)
@@ -373,48 +354,15 @@ public class HUDMenuUI : MonoBehaviour, IService
     private void OnHealthUpdate(HealthUpdateEvent e)
     {
         float healthPercentage = e.healthPercentage;
-        
-        float currentHealth = healthValueBar.value;
-        
-        healthValueBar.value = currentHealth;
-        healthDepleteBar.value = currentHealth;
-        healthRestoreBar.value = currentHealth;
-        
-        if (currentHealth > healthPercentage)
-        {
-            // Decrease health
-            healthRestoreBar.value = healthPercentage;
-            Tween.UISliderValue(healthValueBar, healthPercentage, 0.02f);
-            Tween.UISliderValue(healthDepleteBar, healthPercentage, 1f);
-        }
-        else if (currentHealth < healthPercentage)
-        {
-            // Increase health
-            Tween.UISliderValue(healthRestoreBar, healthPercentage, 0.02f);
-            Tween.UISliderValue(healthValueBar, healthPercentage, 0.3f);
-        }
+
+        healthSliderBar.TweenSliderValue(healthPercentage, 0.2f, 1f, 0.02f);
     }
     
     private void OnChargeUpdate(ChargeUpdateEvent e)
     {
         float chargePercentage = e.chargePercentage;
         
-        float currentCharge = chargeValueBar.value;
-        
-        chargeValueBar.value = currentCharge;
-        chargeDepleteBar.value = currentCharge;
-        
-        if (currentCharge > chargePercentage)
-        {
-            // Decrease charge
-            Tween.UISliderValue(chargeValueBar, chargePercentage, 0.02f);
-            Tween.UISliderValue(chargeDepleteBar, chargePercentage, 1f);
-        }
-        else if (currentCharge < chargePercentage)
-        {
-            // Increase charge
-            Tween.UISliderValue(chargeValueBar, chargePercentage, 0.3f);
-        }
+        chargeSliderBar.TweenSliderValue(chargePercentage, 0.02f, 1f);
         
         RefreshElementalAttackIconStatus();
     }
@@ -556,9 +504,7 @@ public class HUDMenuUI : MonoBehaviour, IService
                 currentLockOnTarget.damageable.CurrentHealth / 
                 currentLockOnTarget.damageable.Stats.GetInnateStat(InnateStat.MaxHealth) : 0f;
             
-            enemyHealthValueBar.value = healthPercentage;
-            enemyHealthDepleteBar.value = healthPercentage;
-            enemyHealthRestoreBar.value = healthPercentage;
+            enemyHealthSliderBar.SetSliderValueInstant(healthPercentage);
             
             if (Mathf.Approximately(enemyUIGroup.alpha, 1f)) return;
             Tween.Alpha(enemyUIGroup, 1f, 0.2f);
@@ -569,27 +515,13 @@ public class HUDMenuUI : MonoBehaviour, IService
     {
         if (currentLockOnTarget == null) return;
         
+        enemyHealthBarCountText.text = $"x{currentLockOnTarget.damageable.NumHealthBars}";
+        
         float healthPercentage = currentLockOnTarget.damageable.Stats.GetInnateStat(InnateStat.MaxHealth) > 0 ? 
                                 currentLockOnTarget.damageable.CurrentHealth / 
                                 currentLockOnTarget.damageable.Stats.GetInnateStat(InnateStat.MaxHealth) : 0f;
         
-        float currentHealth = enemyHealthValueBar.value;
-        
-        if (Mathf.Approximately(currentHealth, healthPercentage)) return;
-        
-        if (currentHealth > healthPercentage)
-        {
-            // Decrease health
-            enemyHealthRestoreBar.value = healthPercentage;
-            Tween.UISliderValue(enemyHealthValueBar, healthPercentage, 0.02f);
-            Tween.UISliderValue(enemyHealthDepleteBar, healthPercentage, 1f);
-        }
-        else if (currentHealth < healthPercentage)
-        {
-            // Increase health
-            Tween.UISliderValue(enemyHealthRestoreBar, healthPercentage, 0.02f);
-            Tween.UISliderValue(enemyHealthValueBar, healthPercentage, 0.3f);
-        }
+        enemyHealthSliderBar.TweenSliderValue(healthPercentage, 0.2f, 1f, 0.02f);
     }
     
     #endregion

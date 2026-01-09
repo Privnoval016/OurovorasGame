@@ -24,7 +24,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     #region Stat Info
 
     [Header("Stat Info")] 
-    [ReadOnly] public int Level { get; private set; } = 10;
+    [field: SerializeField] public int Level { get; private set; } = 10;
     
     [field: SerializeField] public float CurrentHealth { get; private set; }
     [field: SerializeField] public float CurrentElementCharge { get; private set; }
