@@ -750,11 +750,13 @@ public class PlayerStateMachine : MonoBehaviour
         if (pc.pac.MovingAnims.swapClip != null)
         {
             pc.psm.pauseMovement = true;
+            pc.ps.isInvincible = true;
 
             pc.pac.SwitchAnimState(WalkingAnimStates.Swapping, () =>
             {
                 pc.pac.SwitchAnimState(WalkingAnimStates.Idle);
                 pc.psm.pauseMovement = false;
+                pc.ps.isInvincible = false;
             });
         }
         

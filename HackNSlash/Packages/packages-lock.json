@@ -23,6 +23,13 @@
         "com.unity.ugui": "1.0.0"
       }
     },
+    "com.harumak.upalette": {
+      "version": "https://github.com/Haruma-K/uPalette.git?path=/Assets/uPalette",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "391e17693fd29e8da423add53471a3e57bb5506c"
+    },
     "com.kybernetik.animancer": {
       "version": "file:com.kybernetik.animancer",
       "depth": 0,
