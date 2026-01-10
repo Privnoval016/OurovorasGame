@@ -1,4 +1,5 @@
-﻿using Extensions.UI;
+﻿using System;
+using Extensions.UI;
 using PrimeTween;
 using Systems.Element;
 using UnityEngine;
@@ -8,6 +9,7 @@ public class ElementAttackSlider : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private KeyBind attackKeybind;
+    [SerializeField] private ElementEffect currentElement = ElementEffect.None;
     [SerializeField] private Slider elementSlider;
     [SerializeField] private Vector2 minMaxFillAmounts = new Vector2(0.125f, 0.875f);
     
@@ -19,13 +21,13 @@ public class ElementAttackSlider : MonoBehaviour
     [SerializeField] private Color inactiveColor = Color.gray;
     
     public float CurrentValue { get; private set; }
-
-    private ElementEffect currentElement = ElementEffect.None;
     private Color centerColor;
     private Color iconColor;
     private Color fillColor;
     
     private Sequence colorSequence;
+    
+    public Func<bool> AdditionalActivationCondition = () => true;
 
     /**
      * <summary>
@@ -61,12 +63,18 @@ public class ElementAttackSlider : MonoBehaviour
         Tween.UISliderValue(elementSlider, targetFill, duration);
     }
     
-    private void CheckForActivation()
+    public void CheckForActivation()
     {
-        if (CurrentValue >= 1f && currentElement != ElementEffect.None)
+        if (CurrentValue >= 1f && currentElement != ElementEffect.None && AdditionalActivationCondition())
         {
             centerColor = Services.Get<ElementSystem>().GetElementData(currentElement).elementColor;
             iconColor = Services.Get<ElementSystem>().GetElementData(currentElement).elementInactiveColor;
+            fillColor = Services.Get<ElementSystem>().GetElementData(currentElement).elementColor;
+        }
+        else if (CurrentValue >= 1f && currentElement != ElementEffect.None)
+        {
+            centerColor = Services.Get<ElementSystem>().GetElementData(currentElement).elementInactiveColor;
+            iconColor = Services.Get<ElementSystem>().GetElementData(currentElement).elementColor;
             fillColor = Services.Get<ElementSystem>().GetElementData(currentElement).elementColor;
         }
         else
@@ -87,7 +95,11 @@ public class ElementAttackSlider : MonoBehaviour
             .Group(Tween.Color(centerImage, centerColor, 0.2f))
             .Group(Tween.Color(attackIconImage, iconColor, 0.2f))
             .Group(Tween.Color(fillImage, fillColor, 0.2f))
-            .ChainCallback(() => attackIconImage.gameObject.PulseAfterimage(1.7f, 0.5f, 0.9f));
+            .ChainCallback(() =>
+            {
+                if (!AdditionalActivationCondition()) return;
+                attackIconImage.gameObject.PulseAfterimage(1.7f, 0.5f, 0.9f);
+            });
     }
     
     public void SwapCurrentElement(ElementEffect element, AttacksByWeapon attacksByWeapon, MovingStates movingState)

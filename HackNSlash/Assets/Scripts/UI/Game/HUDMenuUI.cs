@@ -23,11 +23,9 @@ public class HUDMenuUI : MonoBehaviour, IService
     
     [Header("Ultimate Sliders")]
     [SerializeField] private UltimateSlider ultimateValueBar;
-    
-    [Header("Finisher Sliders")]
-    
-    [SerializeField] private Slider finisherValueBar;
-    [SerializeField] private RawImage finisherIcon;
+
+    [Header("Finisher Sliders")] [SerializeField]
+    private ElementAttackSlider finisherAttackSlider;
     
     [Header("Elemental Swap")]
     
@@ -108,6 +106,11 @@ public class HUDMenuUI : MonoBehaviour, IService
         gameObject.SetActive(true);
         
         elementalAttackContainerScale = elementalAttackContainer.localScale;
+        finisherAttackSlider.AdditionalActivationCondition = () =>
+        {
+            if (pc == null) return false;
+            return pc.ps.CanUseFinisher();
+        };
     }
 
     private void Start()
@@ -189,19 +192,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     {
         float finisherPercentage = e.finisherPercentage;
         
-        float currentFinisher = finisherValueBar.value;
-        finisherValueBar.value = currentFinisher;
-        
-        if (currentFinisher > finisherPercentage)
-        {
-            // Decrease finisher
-            Tween.UISliderValue(finisherValueBar, finisherPercentage, 0.5f);
-        }
-        else if (currentFinisher < finisherPercentage)
-        {
-            // Increase finisher
-            Tween.UISliderValue(finisherValueBar, finisherPercentage, 0.3f);
-        }
+        finisherAttackSlider.SetSliderValueAnimated(finisherPercentage, 0.2f);
     }
     
     /**
@@ -209,18 +200,7 @@ public class HUDMenuUI : MonoBehaviour, IService
      */
     private void UpdateFinisherIcon()
     {
-        ElementData elementData = Services.Get<ElementSystem>().GetElementData(ElementEffect.Aether);
-        
-        if (pc.ps.CanUseFinisher())
-        {
-            // Enable finisher icon
-            finisherIcon.color = elementData.elementColor;
-        }
-        else
-        {
-            // Disable finisher icon
-            finisherIcon.color = elementData.elementInactiveColor;
-        }
+        finisherAttackSlider.CheckForActivation();
     }
     
     #endregion
