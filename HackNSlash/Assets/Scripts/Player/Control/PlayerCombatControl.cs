@@ -166,6 +166,13 @@ public class PlayerCombatControl : MonoBehaviour
         return CurrentElementLoadout?.GetElementAttack(currentElementEffect);
     }
 
+    public float GetElementAttackChargePercentage(KeyBind k)
+    {
+        float keybindCooldown = CurrentElementLoadout?.GetMinCharge(k) ?? 0f;
+        
+        return keybindCooldown > 0 ? Mathf.Clamp01(pc.ps.CurrentElementCharge / keybindCooldown) : 1f;
+    }
+
     private void InitializeElementMenu()
     {
         RadialMenuOption<ElementEffect>[] elementOptions = new RadialMenuOption<ElementEffect>[elementEffects.Length];

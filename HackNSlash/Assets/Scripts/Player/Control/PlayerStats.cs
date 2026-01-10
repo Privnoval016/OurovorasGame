@@ -240,6 +240,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         float damageAmount = Services.Get<DamageSystem>().ResolveDamage(attacker, this, damageEvent).FinalDamage;
         
+        Debug.Log($"{gameObject.name} took {damageAmount} damage of element {element}");
+        
         ChangeHealth(-damageAmount);
     }
     

@@ -18,10 +18,13 @@ MonoBehaviour:
   attackType: 0
   element: 0
   stats:
+    damage: 10
+    statusEffectStacks: 0
+    statusEffectDuration: 0
     restoreCharge: 1
     charge: 10
     ultimateCharge: 8
-    damage: 0
+    baseStyleGain: 10
   isLockedOn: 0
   requireElementTrigger: 0
   triggerCoolDown: 0

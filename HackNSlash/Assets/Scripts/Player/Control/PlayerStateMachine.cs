@@ -740,6 +740,8 @@ public class PlayerStateMachine : MonoBehaviour
     
     public void SwapToUltimate()
     {
+        EventBus<StateSwapEvent>.Raise(new StateSwapEvent(pc.pac.MovingAnims.ultNextState));
+        
         pc.wc.SwitchWeapon(pc.pac.MovingAnims.ultWeapons, pc.pac.MovingAnims.ultNextState);
 		
         movingState = pc.pac.MovingAnims.ultNextState;

@@ -28,6 +28,12 @@ public class HitScanSpiritAction : ISpiritAction
         ElementEffect element = spirit.pc.pcc.currentElementEffect;
         
         HashSet<LockOnTarget> enemies = spirit.pc.HitScanEnemies(numTargets, a.hitInfo.lateralRadius, a.hitInfo.verticalRadius, a.hitInfo.hitRegisterAngle, a);
+        
+        if (enemies.Count == 0)
+        {
+            ose.RunSegmentCoroutine(ResumeMoving(0));
+            yield break;
+        }
 
         int maxVFX = vfxInstantSpawns.Length;
         

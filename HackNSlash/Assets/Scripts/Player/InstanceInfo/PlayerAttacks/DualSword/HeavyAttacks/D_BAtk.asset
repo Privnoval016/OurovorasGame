@@ -18,10 +18,13 @@ MonoBehaviour:
   attackType: 6
   element: 1
   stats:
+    damage: 5
+    statusEffectStacks: 3
+    statusEffectDuration: 6
     restoreCharge: 1
     charge: 0
     ultimateCharge: 8
-    damage: 0
+    baseStyleGain: 10
   isLockedOn: 0
   requireElementTrigger: 0
   triggerCoolDown: 0
@@ -32,7 +35,6 @@ MonoBehaviour:
   isMidair: 2
   maxUses: 0
   hitInfo:
-    onHitActions: 0000000001000000
     hitActionInfos:
     - hitAction:
         rid: 2944900481171587299
@@ -45,10 +47,6 @@ MonoBehaviour:
     numTargets: 1
     attackCoolDown: 0.2
     hitCoolDown: 0.2
-    hitForce: 10
-    hitDelay: 0
-    hitDirection: {x: 0, y: 0, z: 0}
-    elasticCollision: 0
   vfxInstantSpawns: 
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: 0f5b5211f7934a346b6047478885849b, type: 2}
@@ -87,5 +85,6 @@ MonoBehaviour:
     - rid: 2944900481171587300
       type: {class: LaunchUpHitAction, ns: , asm: Assembly-CSharp}
       data:
+        hitDelay: 0
         launchUpHeight: 15
         launchUpTime: 0.3

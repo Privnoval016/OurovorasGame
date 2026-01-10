@@ -57,6 +57,8 @@ public class StyleSystem : MonoBehaviour, IStyleSystem
     
     private void RaiseEvent<TEvent>(TEvent eventData) where TEvent : IStyleEvent
     {
+        var currentLevel = Context.GetLevel();
+        
         var result = ruleSystem.ApplyRules(eventData, Context, Combine);
         
         if (!EqualityComparer<StyleResult>.Default.Equals(result, null))
@@ -69,7 +71,14 @@ public class StyleSystem : MonoBehaviour, IStyleSystem
             }
         }
         
-        EventBus<StyleUpdateEvent>.Raise(new StyleUpdateEvent(CurrentStyleLevel, CurrentStyleValue));
+        StyleUpdateEvent.SwapDirection swapDirection = Context.GetLevel() switch
+        {
+            var newLevel when newLevel > currentLevel => StyleUpdateEvent.SwapDirection.Increased,
+            var newLevel when newLevel < currentLevel => StyleUpdateEvent.SwapDirection.Decreased,
+            _ => StyleUpdateEvent.SwapDirection.None
+        };
+        
+        EventBus<StyleUpdateEvent>.Raise(new StyleUpdateEvent(CurrentStyleLevel, CurrentStyleValue, swapDirection));
     }
     
     public void RaiseAttackEvent(Attack attack, int enemiesHit)

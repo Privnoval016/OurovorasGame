@@ -18,10 +18,13 @@ MonoBehaviour:
   attackType: 4
   element: 1
   stats:
+    damage: 30
+    statusEffectStacks: 2
+    statusEffectDuration: 6
     restoreCharge: 1
     charge: 15
     ultimateCharge: 8
-    damage: 0
+    baseStyleGain: 10
   isLockedOn: 0
   requireElementTrigger: 0
   triggerCoolDown: 0
@@ -32,7 +35,6 @@ MonoBehaviour:
   isMidair: 2
   maxUses: 0
   hitInfo:
-    onHitActions: 0900000005000000
     hitActionInfos:
     - hitAction:
         rid: 2944900481171587369
@@ -45,10 +47,6 @@ MonoBehaviour:
     numTargets: 3
     attackCoolDown: 0.1
     hitCoolDown: 0.1
-    hitForce: 12
-    hitDelay: 0
-    hitDirection: {x: 0, y: 0, z: 1}
-    elasticCollision: 0
   vfxInstantSpawns: 
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}

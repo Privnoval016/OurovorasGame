@@ -58,9 +58,9 @@ public class HUDMenuUI : MonoBehaviour, IService
     private Vector3 elementalAttackContainerScale;
     [SerializeField] private float elementalAttackContainerScaleFactor = 1.3f;
     
-    [SerializeField] private ElementalAttackIcon northElementalAttack;
-    [SerializeField] private ElementalAttackIcon southElementalAttack;
-    [SerializeField] private ElementalAttackIcon westElementalAttack;
+    [SerializeField] private ElementAttackSlider northElementalAttack;
+    [SerializeField] private ElementAttackSlider southElementalAttack;
+    [SerializeField] private ElementAttackSlider westElementalAttack;
     
     [Header("Style Meter")]
     [SerializeField] private Slider styleMeterSlider;
@@ -94,6 +94,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     private EventBinding<ElementAttackUpdateEvent> elementAttackUpdateEventBinding;
     private EventBinding<StyleUpdateEvent> styleUpdateEventBinding;
     private EventBinding<CameraLockOnEvent> cameraLockOnEventBinding;
+    private EventBinding<StateSwapEvent> stateSwapEventBinding;
     
     #endregion
 
@@ -154,6 +155,9 @@ public class HUDMenuUI : MonoBehaviour, IService
         
         cameraLockOnEventBinding = new EventBinding<CameraLockOnEvent>(OnCameraLockOnEvent);
         EventBus<CameraLockOnEvent>.Register(cameraLockOnEventBinding);
+        
+        stateSwapEventBinding = new EventBinding<StateSwapEvent>(OnStateSwapEvent);
+        EventBus<StateSwapEvent>.Register(stateSwapEventBinding);
     }
 
     private void DeactivateEventBindings()
@@ -167,6 +171,7 @@ public class HUDMenuUI : MonoBehaviour, IService
         EventBus<ElementAttackUpdateEvent>.Deregister(elementAttackUpdateEventBinding);
         EventBus<StyleUpdateEvent>.Deregister(styleUpdateEventBinding);
         EventBus<CameraLockOnEvent>.Deregister(cameraLockOnEventBinding);
+        EventBus<StateSwapEvent>.Deregister(stateSwapEventBinding);
     }
 
     #endregion
@@ -297,6 +302,8 @@ public class HUDMenuUI : MonoBehaviour, IService
 
         selectedElementIcon.color = Services.Get<ElementSystem>().GetElementData(element).elementColor;
         
+        selectedElementIcon.gameObject.PulseAfterimage(1.5f, 0.5f, 0.6f);
+        
         UpdateElementalAttackIcons();
     }
 
@@ -362,20 +369,40 @@ public class HUDMenuUI : MonoBehaviour, IService
     {
         float chargePercentage = e.chargePercentage;
         
-        chargeSliderBar.TweenSliderValue(chargePercentage, 0.02f, 1f);
+        chargeSliderBar.TweenSliderValue(chargePercentage, 0.2f, 1f);
         
-        RefreshElementalAttackIconStatus();
+        SetElementalAttackCharge();
     }
 
     #endregion
     
     #region Elemental Attack Methods
 
+    private void SetElementalAttackCharge()
+    {
+        northElementalAttack.SetSliderValueAnimated(pc.pcc.GetElementAttackChargePercentage(KeyBind.North), 0.1f);
+        southElementalAttack.SetSliderValueAnimated(pc.pcc.GetElementAttackChargePercentage(KeyBind.South), 0.1f);
+        westElementalAttack.SetSliderValueAnimated(pc.pcc.GetElementAttackChargePercentage(KeyBind.West), 0.1f);
+    }
+
     private void RefreshElementalAttackIconStatus()
     {
-        ValidateAttackIcon(northElementalAttack, CurrentElementalAttacks.northAttack, KeyBind.North);
-        ValidateAttackIcon(southElementalAttack, CurrentElementalAttacks.southAttack, KeyBind.South);
-        ValidateAttackIcon(westElementalAttack, CurrentElementalAttacks.westAttack, KeyBind.West);
+        northElementalAttack.SwapCurrentElement(
+            pc.pcc.currentElementEffect,
+            CurrentElementalAttacks?.northAttack,
+            pc.psm.movingState);
+        
+        southElementalAttack.SwapCurrentElement(
+            pc.pcc.currentElementEffect,
+            CurrentElementalAttacks?.southAttack,
+            pc.psm.movingState);
+        
+        westElementalAttack.SwapCurrentElement(
+            pc.pcc.currentElementEffect,
+            CurrentElementalAttacks?.westAttack,
+            pc.psm.movingState);
+        
+        SetElementalAttackCharge();
     }
     
     
@@ -384,59 +411,9 @@ public class HUDMenuUI : MonoBehaviour, IService
         if (elementalAttackContainer == null) return;
         
         elementalAttackContainer.gameObject.SetActive(true);
+        elementalAttackContainer.gameObject.PulseOutIn(elementalAttackContainerScaleFactor, 0.2f, 0, 0.1f);
         
         RefreshElementalAttackIconStatus();
-    }
-    
-    private void ValidateAttackIcon(ElementalAttackIcon attackIcon, AttacksByWeapon a, KeyBind k)
-    {
-        if (attackIcon == null) return;
-        
-        if (a == null)
-        {
-            attackIcon.icon.gameObject.SetActive(false);
-            attackIcon.chargeFillImage.gameObject.SetActive(false);
-            return;
-        }
-
-        Attack attack = a.GetAttackByState(pc.psm.movingState);
-        
-        if (attack == null)
-        {
-            attackIcon.icon.gameObject.SetActive(false);
-            attackIcon.chargeFillImage.gameObject.SetActive(false);
-            return;
-        }
-        
-        if (!Mathf.Approximately(pc.pcc.GetCooldownPercentage(k), attackIcon.chargeSlider.value))
-            Tween.UISliderValue(attackIcon.chargeSlider, pc.pcc.GetCooldownPercentage(k), 0.03f);
-        
-        if (pc.pcc.FinishedElementCooldown(attack))
-            EnableAttackIcon(attackIcon, attack);
-        else
-            DisableAttackIcon(attackIcon, attack);
-    }
-    
-    private void EnableAttackIcon(ElementalAttackIcon attackIcon, Attack a)
-    {
-        // add icon to attack icon later
-        
-        attackIcon.icon.gameObject.SetActive(true);
-        attackIcon.chargeFillImage.gameObject.SetActive(true);
-
-        Color c = Services.Get<ElementSystem>().GetElementData(Element).elementColor;
-        attackIcon.icon.color = c;
-    }
-    
-    private void DisableAttackIcon(ElementalAttackIcon attackIcon, Attack a)
-    {
-        // add icon to attack icon later
-        
-        attackIcon.icon.gameObject.SetActive(true);
-        attackIcon.chargeFillImage.gameObject.SetActive(true);
-
-        Color c = Services.Get<ElementSystem>().GetElementData(Element).elementInactiveColor;
-        attackIcon.icon.color = c;
     }
 
     private void OnElementalAttackActivate(ElementAttackUpdateEvent e)
@@ -464,14 +441,26 @@ public class HUDMenuUI : MonoBehaviour, IService
         if (styleMeterBackground == null || styleMeterOutline == null || styleMeterFill == null || styleMeterSlider == null)
             return;
         
-        styleMeterBackground.sprite = setting.meterBackground != null ? setting.meterBackground : styleMeterBackground.sprite;
-        styleMeterOutline.sprite = setting.meterOutline != null ? setting.meterOutline : styleMeterOutline.sprite;
-        styleMeterFill.sprite = setting.meterFill != null ? setting.meterFill : styleMeterFill.sprite;
+        styleMeterBackground.sprite = setting.meterBackground ?? styleMeterBackground.sprite;
+        styleMeterOutline.sprite = setting.meterOutline ?? styleMeterOutline.sprite;
+        styleMeterFill.sprite = setting.meterFill ?? styleMeterFill.sprite;
         
         float stylePercentage = Services.Get<StyleSystem>().GetStylePercentage(e.StyleLevel, e.StyleValue);
         if (Mathf.Approximately(styleMeterSlider.value, stylePercentage)) return;
         
         Tween.UISliderValue(styleMeterSlider, stylePercentage, 0.2f);
+
+        if (e.Swapped == StyleUpdateEvent.SwapDirection.Increased)
+        {
+            styleMeterSlider.gameObject.AlphaFade(0, 1, 1f); // Reset alpha to start
+            styleMeterSlider.gameObject.PulseOutIn(1.7f, 0.2f, 0.05f, 0.1f);
+        }
+        else if (e.Swapped == StyleUpdateEvent.SwapDirection.Decreased)
+        {
+            Sequence.Create()
+                .Group(styleMeterSlider.gameObject.AlphaFade(0.3f, 1, 0))
+                .Chain(styleMeterSlider.gameObject.AlphaFade(0.3f, 0, 1));
+        }
     }
     
     #endregion
@@ -525,14 +514,26 @@ public class HUDMenuUI : MonoBehaviour, IService
     }
     
     #endregion
-
-    [Serializable]
-    public class ElementalAttackIcon
+    
+    #region State Swap Methods
+    
+    private void OnStateSwapEvent(StateSwapEvent e)
     {
-        public RawImage icon;
-        public Slider chargeSlider;
-        public Image chargeFillImage;
+        switch (e.NewMovingState)
+        {
+            case MovingStates.Katana:
+                ultimateValueBar.SetActiveColor(true);
+                break;
+            case MovingStates.DualSword:
+                ultimateValueBar.SetActiveColor(false);
+                break;
+            case MovingStates.NonCombat:
+                // TODO: exited combat -> get rid of the battle ui
+                break;
+        }
     }
+    
+    #endregion
 
 }
 
@@ -580,13 +581,22 @@ public struct ElementMenuEvent : IEvent
 
 public struct StyleUpdateEvent : IEvent
 {
+    public enum SwapDirection
+    {
+        None,
+        Increased,
+        Decreased
+    }
+    
     public StyleLevel StyleLevel;
     public float StyleValue;
+    public SwapDirection Swapped;
     
-    public StyleUpdateEvent(StyleLevel level, float value)
+    public StyleUpdateEvent(StyleLevel level, float value, SwapDirection swapped)
     {
         StyleLevel = level;
         StyleValue = value;
+        Swapped = swapped;
     }
 }
 
@@ -599,5 +609,15 @@ public struct CameraLockOnEvent : IEvent
     {
         IsLockedOn = isLockedOn;
         Target = target;
+    }
+}
+
+public struct StateSwapEvent : IEvent
+{
+    public MovingStates NewMovingState;
+    
+    public StateSwapEvent(MovingStates newMovingState)
+    {
+        NewMovingState = newMovingState;
     }
 }
