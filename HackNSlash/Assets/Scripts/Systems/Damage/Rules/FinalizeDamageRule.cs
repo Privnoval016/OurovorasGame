@@ -21,7 +21,7 @@ public class FinalizeDamageRule : IDamageRule
             * ctx.Multiplicative;
 
         final = Mathf.Max(1f, final);
-
+        
         return new DamageResult
         {
             BaseDamage = ctx.BaseDamage,

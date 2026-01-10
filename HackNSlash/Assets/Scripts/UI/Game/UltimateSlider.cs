@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Extensions.UI;
+using UnityEngine;
 using UnityEngine.UI;
 using PrimeTween;
 
@@ -14,6 +15,16 @@ public class UltimateSlider : MonoBehaviour
     [Header("Settings")]
     [SerializeField, Range(0, 1)] private float swapThreshold = 0.5f;
     [SerializeField] private float swapBuffer = 0.05f;
+    
+    [Header("Pulse Settings")]
+    [SerializeField] private float pulseScale = 1.5f;
+    [SerializeField] private float duration = 0.5f;
+    [SerializeField] private float startAlpha = 0.6f;
+    
+    [Header("Activation Settings")]
+    [SerializeField] private Color inactiveColor = Color.white;
+    [SerializeField] private Color activeColor = Color.black;
+    
     public float CurrentValue { get; private set; }
     
     [Header("Left Slider")]
@@ -28,6 +39,7 @@ public class UltimateSlider : MonoBehaviour
     private Material rightSlider;
     [SerializeField] private Vector2 minMaxRight;
     
+
     private void Awake()
     {
         InitializeSliders();
@@ -53,6 +65,7 @@ public class UltimateSlider : MonoBehaviour
     public void SetSliderValueInstant(float value)
     {
         value = Mathf.Clamp01(value);
+        CheckForPulse(value);
         CurrentValue = value;
         
         if (value <= swapThreshold)
@@ -77,6 +90,7 @@ public class UltimateSlider : MonoBehaviour
     public void SetSliderValueAnimated(float value, float duration)
     {
         value = Mathf.Clamp01(value); 
+        CheckForPulse(value);
         CurrentValue = value;
         
         float leftSliderTarget;
@@ -91,10 +105,42 @@ public class UltimateSlider : MonoBehaviour
             leftSliderTarget = minMaxLeft.y;
             rightSliderTarget = Mathf.Lerp(minMaxRight.x + swapBuffer, minMaxRight.y, Mathf.InverseLerp(swapThreshold, 1f, value));
         }
-        
+
         if (!Mathf.Approximately(leftSlider.GetFloat(valuePropID), leftSliderTarget))
+        {
+            Tween.CompleteAll(leftSlider);
             Tween.MaterialProperty(leftSlider, valuePropID, leftSliderTarget, duration);
+        }
+
         if (!Mathf.Approximately(rightSlider.GetFloat(valuePropID), rightSliderTarget))
+        {
+            Tween.CompleteAll(rightSlider);
             Tween.MaterialProperty(rightSlider, valuePropID, rightSliderTarget, duration);
+        }
+    }
+    
+    private void CheckForPulse(float newValue)
+    {
+        // pulse if crossed the swap threshold or if at maximum
+        
+        if (CurrentValue < swapThreshold && newValue >= swapThreshold)
+        {
+            // pulse left side
+            leftSliderSprite.gameObject.PulseAfterimage(pulseScale, duration, startAlpha, Ease.OutCubic);
+        }
+        else if (Mathf.Approximately(newValue, 1f) && !Mathf.Approximately(CurrentValue, 1f))
+        {
+            // pulse both sides
+            leftSliderSprite.gameObject.PulseAfterimage(pulseScale, duration, startAlpha, Ease.OutCubic);
+            rightSliderSprite.gameObject.PulseAfterimage(pulseScale, duration, startAlpha, Ease.OutCubic);
+        }
+    }
+    
+    public void SetActiveColor(bool active)
+    {
+        Color targetColor = active ? activeColor : inactiveColor;
+        targetColor = new Color(targetColor.r, targetColor.g, targetColor.b, leftSliderSprite.color.a);
+        Tween.Color(leftSliderSprite, targetColor, 0.3f);
+        Tween.Color(rightSliderSprite, targetColor, 0.3f);
     }
 }

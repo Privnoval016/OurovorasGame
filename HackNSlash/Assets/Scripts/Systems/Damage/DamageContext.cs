@@ -45,7 +45,7 @@ public class DamageContext
         AttackerStatSnapshot = new Dictionary<InnateStat, int>(attacker.Stats.Stats());
         DefenderStatSnapshot = new Dictionary<InnateStat, int>(defender.Stats.Stats());
         
-        AttackerLevel = attacker is IDamageable damageableAttacker ? damageableAttacker.Level : 1;
-        DefenderLevel = defender is IDamageable damageableDefender ? damageableDefender.Level : 1;
+        AttackerLevel = attacker.Level;
+        DefenderLevel = defender.Level;
     }
 }

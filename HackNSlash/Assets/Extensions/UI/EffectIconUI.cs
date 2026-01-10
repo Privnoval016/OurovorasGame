@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using Extensions.Utils;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,6 +18,12 @@ namespace Extensions.UI
         {
             NumStacks = 0;
             EffectType = null;
+            gameObject.SetActive(true);
+            iconImage.enabled = true;
+            backgroundImage.enabled = true;
+            CanvasGroup cg = gameObject.GetOrAddComponent<CanvasGroup>();
+            
+            
             UpdateUI();
         }
     
@@ -41,14 +48,11 @@ namespace Extensions.UI
                 iconImage.sprite = EffectType.icon;
                 backgroundImage.color = EffectType.backgroundColor;
                 stackText.text = NumStacks > 1 ? NumStacks.ToString() : "";
-                iconImage.enabled = true;
-                backgroundImage.enabled = true;
+                gameObject.AlphaFadeToValue(0.1f, 1f);
             }
             else
             {
-                iconImage.enabled = false;
-                backgroundImage.enabled = false;
-                stackText.text = "";
+                gameObject.AlphaFadeToValue(0.1f, 0f);
             }
         }
     }

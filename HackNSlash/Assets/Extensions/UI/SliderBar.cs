@@ -23,6 +23,8 @@ namespace Extensions.UI
         [SerializeField] private float initialValue = 1f;
         [SerializeField] private Slider.Direction sliderDirection = Slider.Direction.LeftToRight;
 
+        public float CurrentValue => mainSlider.value;
+        
         private void Awake()
         {
             SetDirection();

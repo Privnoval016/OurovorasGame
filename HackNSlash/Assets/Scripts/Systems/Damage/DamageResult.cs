@@ -33,7 +33,7 @@ public struct DamageResult
     {
         // return b if b is not default, otherwise a
         
-        if (b.FinalDamage != 0f || b.IsCritical)
+        if (b.FinalDamage > 0f || b.IsCritical)
         {
             return b;
         }
