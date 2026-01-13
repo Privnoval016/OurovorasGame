@@ -11,6 +11,9 @@ GameObject:
   - component: {fileID: 8950590864057269136}
   - component: {fileID: 4478004180564691074}
   - component: {fileID: 7939748870367502377}
+  - component: {fileID: 6467914908227712570}
+  - component: {fileID: 7865707255881469162}
+  - component: {fileID: 4601147821126002210}
   m_Layer: 5
   m_Name: Border
   m_TagString: Untagged
@@ -75,6 +78,53 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6467914908227712570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498139631881069936}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.39215687}
+  m_EffectDistance: {x: 4, y: -6}
+  m_UseGraphicAlpha: 1
+--- !u!114 &7865707255881469162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498139631881069936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50b7e6277a598a44dadf1f80b4a803eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shadowColor: {r: 0.16862746, g: 0.14117648, b: 0.09019608, a: 0.5}
+  shadowDistance: {x: -9.72, y: -4}
+  m_UseGraphicAlpha: 1
+  iterations: 5
+  shadowSpread: {x: 2.67, y: 2.67}
+--- !u!114 &4601147821126002210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498139631881069936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0.16981131, g: 0.14044778, b: 0.09024562, a: 0.32941177}
+  m_EffectDistance: {x: 1.84, y: -1.84}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1540844692013752060
 GameObject:
   m_ObjectHideFlags: 0
