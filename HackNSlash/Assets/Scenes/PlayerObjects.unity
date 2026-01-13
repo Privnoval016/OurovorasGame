@@ -1819,7 +1819,7 @@ MonoBehaviour:
   shadowDistance: {x: 3.23, y: -2.77}
   m_UseGraphicAlpha: 1
   iterations: 5
-  shadowSpread: {x: 0.59, y: 0.59}
+  shadowSpread: {x: -1.7, y: -1.7}
 --- !u!114 &192205902
 MonoBehaviour:
   m_ObjectHideFlags: 0
