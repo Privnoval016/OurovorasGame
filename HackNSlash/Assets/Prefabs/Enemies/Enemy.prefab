@@ -243,6 +243,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Level>k__BackingField: 5
   <NumHealthBars>k__BackingField: 1
+  <MaxHealthBars>k__BackingField: 3
   baseStats: {fileID: 11400000, guid: bd4885e4017024a16980a234e23d4cf8, type: 2}
   <CurrentHealth>k__BackingField: 0
   currentElementEffect: 0

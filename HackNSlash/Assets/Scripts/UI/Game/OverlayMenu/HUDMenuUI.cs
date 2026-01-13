@@ -1,8 +1,7 @@
-using System;
+using System.Linq;
 using Extensions.EventBus;
 using Extensions.UI;
 using PrimeTween;
-using Systems.Element;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,7 +26,10 @@ public class HUDMenuUI : MonoBehaviour, IService
     [Header("Finisher Sliders")] [SerializeField]
     private ElementAttackSlider finisherAttackSlider;
     
-    [Header("Elemental Swap")]
+    [Header("Element Swap")]
+    [SerializeField] private ElementSwapDial elementSwapDial;
+    
+    [Header("Elemental Swap (Old)")]
     
     [SerializeField] private RectTransform elementSwapContainer;
     
@@ -79,7 +81,6 @@ public class HUDMenuUI : MonoBehaviour, IService
     #endregion
     
     [HideInInspector] public EquippedElementAttack CurrentElementalAttacks => pc.pcc.GetCurrentElementAttack();
-    [HideInInspector] public ElementEffect Element => pc.pcc.currentElementEffect;
     
     #region Events
     
@@ -116,6 +117,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     private void Start()
     {
         UpdateElementalAttackIcons();
+        elementSwapDial.SetDial(pc.pcc.elementEffects.ToList(), pc.pcc.currentElementEffect);
         InitializeElementSwapMenu();
     }
 
@@ -276,13 +278,9 @@ public class HUDMenuUI : MonoBehaviour, IService
     
     private void OnElementSelect(ElementUpdateEvent e)
     {
-        ElementEffect element = e.ElementEffect;
+        if (elementSwapDial == null) return;
         
-        if (selectedElementIcon == null) return;
-
-        selectedElementIcon.color = Services.Get<ElementSystem>().GetElementData(element).elementColor;
-        
-        selectedElementIcon.gameObject.PulseAfterimage(1.5f, 0.5f, 0.6f);
+        elementSwapDial.RotateInDirection(e.Direction, e.ElementEffect);
         
         UpdateElementalAttackIcons();
     }
@@ -539,6 +537,7 @@ public struct UltimateUpdateEvent : IEvent
 
 public struct ElementUpdateEvent : IEvent
 {
+    public int Direction;
     public ElementEffect ElementEffect;
 }
 
