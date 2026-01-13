@@ -395,12 +395,27 @@ namespace Extensions.Utils
         }
 
 
-        // Returns the element at the index shifted by the shift value
+        /**
+         * <summary>
+         * Returns the item at the index shifted by the specified amount, wrapping around the list if necessary.
+         * </summary>
+         * <param name="current">The current index.</param>
+         * <param name="shift">The amount to shift the index by (can be negative).</param>
+         * <returns>The item at the shifted index.</returns>
+         */
         public T ItemAtShiftedIndex(int current, int shift)
         {
             return this[ShiftedIndex(current, shift)];
         }
 
+        /**
+         * <summary>
+         * Returns the index shifted by the specified amount, wrapping around the list if necessary.
+         * </summary>
+         * <param name="current">The current index.</param>
+         * <param name="shift">The amount to shift the index by (can be negative).</param>
+         * <returns>The shifted index.</returns>
+         */
         public int ShiftedIndex(int current, int shift)
         {
             int index = (current + shift) % Count;

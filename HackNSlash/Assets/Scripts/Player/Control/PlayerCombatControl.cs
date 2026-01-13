@@ -48,7 +48,7 @@ public class PlayerCombatControl : MonoBehaviour
         
         InitializeElementMenu();
         
-        InputManager.Instance.onElementMenuOpen += OnElementMenuAction;
+        //InputManager.Instance.onElementMenuOpen += OnElementMenuAction;
         InputManager.Instance.onElementSwapLeft += OnElementSwapLeftAction;
         InputManager.Instance.onElementSwapRight += OnElementSwapRightAction;
         
@@ -70,6 +70,7 @@ public class PlayerCombatControl : MonoBehaviour
     
     #region Input Callbacks
     
+    // old
     private void OnElementMenuAction(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -100,7 +101,7 @@ public class PlayerCombatControl : MonoBehaviour
             
             if (option == null || option.data == currentElementEffect) return;
             
-            SwapElement(option.data);
+            SwapElement(0, option.data);
         }
     }
     
@@ -109,7 +110,7 @@ public class PlayerCombatControl : MonoBehaviour
         if (!context.performed) return;
 
         int nextIndex = (CurrentElementIndex - 1 + elementEffects.Length) % elementEffects.Length;
-        SwapElement(elementEffects[nextIndex]);
+        SwapElement(-1, elementEffects[nextIndex]);
     }
     
     private void OnElementSwapRightAction(InputAction.CallbackContext context)
@@ -117,7 +118,7 @@ public class PlayerCombatControl : MonoBehaviour
         if (!context.performed) return;
 
         int nextIndex = (CurrentElementIndex + 1) % elementEffects.Length;
-        SwapElement(elementEffects[nextIndex]);
+        SwapElement(1, elementEffects[nextIndex]);
     }
 
     #endregion
@@ -183,14 +184,15 @@ public class PlayerCombatControl : MonoBehaviour
         
         ElementRadialMenu = new RadialMenu<ElementEffect>(elementOptions, Vector2.up);
         
-        SwapElement(elementEffects.Length > 0 ? elementEffects[0] : ElementEffect.Wind);
+        SwapElement(0, elementEffects.Length > 0 ? elementEffects[0] : ElementEffect.Wind);
     }
 
-    public void SwapElement(ElementEffect next)
+    public void SwapElement(int direction, ElementEffect next)
     {
         currentElementEffect = next;
         EventBus<ElementUpdateEvent>.Raise(new ElementUpdateEvent
         {
+            Direction = direction,
             ElementEffect = currentElementEffect,
         });
     }
