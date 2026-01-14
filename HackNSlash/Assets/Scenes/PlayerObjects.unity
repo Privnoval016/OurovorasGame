@@ -14467,6 +14467,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2138079448}
   - component: {fileID: 2138079449}
+  - component: {fileID: 2138079450}
   m_Layer: 5
   m_Name: ElementGear
   m_TagString: Untagged
@@ -14522,6 +14523,18 @@ MonoBehaviour:
   overshootAngle: 5
   rotateDuration: 0.25
   clickDuration: 0.1
+--- !u!225 &2138079450
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2138079447}
+  m_Enabled: 1
+  m_Alpha: 0.75
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!114 &157897833836943537
 MonoBehaviour:
   m_ObjectHideFlags: 0
