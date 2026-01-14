@@ -63,10 +63,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     [SerializeField] private ElementAttackSlider westElementalAttack;
     
     [Header("Style Meter")]
-    [SerializeField] private Slider styleMeterSlider;
-    [SerializeField] private Image styleMeterBackground;
-    [SerializeField] private Image styleMeterOutline;
-    [SerializeField] private Image styleMeterFill;
+    [SerializeField] private StyleMeterUI styleMeterUI;
     
     [Header("Enemy UI")]
     [SerializeField] private CanvasGroup enemyUIGroup;
@@ -413,32 +410,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     
     private void OnStyleUpdate(StyleUpdateEvent e)
     {
-        var setting = Services.Get<StyleSystem>().GetStyleSettings(e.StyleLevel);
-        if (setting == null) return;
-        
-        if (styleMeterBackground == null || styleMeterOutline == null || styleMeterFill == null || styleMeterSlider == null)
-            return;
-        
-        styleMeterBackground.sprite = setting.meterBackground ?? styleMeterBackground.sprite;
-        styleMeterOutline.sprite = setting.meterOutline ?? styleMeterOutline.sprite;
-        styleMeterFill.sprite = setting.meterFill ?? styleMeterFill.sprite;
-        
-        float stylePercentage = Services.Get<StyleSystem>().GetStylePercentage(e.StyleLevel, e.StyleValue);
-        if (Mathf.Approximately(styleMeterSlider.value, stylePercentage)) return;
-        
-        Tween.UISliderValue(styleMeterSlider, stylePercentage, 0.2f);
-
-        if (e.Swapped == StyleUpdateEvent.SwapDirection.Increased)
-        {
-            styleMeterSlider.gameObject.AlphaFade(0, 1, 1f); // Reset alpha to start
-            styleMeterSlider.gameObject.PulseOutIn(1.7f, 0.2f, 0.05f, 0.1f);
-        }
-        else if (e.Swapped == StyleUpdateEvent.SwapDirection.Decreased)
-        {
-            Sequence.Create()
-                .Group(styleMeterSlider.gameObject.AlphaFade(0.3f, 1, 0))
-                .Chain(styleMeterSlider.gameObject.AlphaFade(0.3f, 0, 1));
-        }
+        styleMeterUI.UpdateStyleValue(e);
     }
     
     #endregion
