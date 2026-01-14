@@ -17,7 +17,6 @@ MonoBehaviour:
   attack:
     isEnabled: 1
     element: 0
-    damage: 10
     attackKnockback: {x: 15, y: 0}
     attackCooldown: 0.5
     isParryable: 1
@@ -38,6 +37,14 @@ MonoBehaviour:
     vfxInfos: []
   damageInfo:
     damageMultiplier: 1
+  stats:
+    damage: 20
+    statusEffectStacks: 0
+    statusEffectDuration: 0
+    restoreCharge: 1
+    charge: 0
+    ultimateCharge: 8
+    baseStyleGain: 10
   references:
     version: 2
     RefIds:

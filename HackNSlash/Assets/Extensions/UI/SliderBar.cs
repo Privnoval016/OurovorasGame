@@ -10,18 +10,25 @@ namespace Extensions.UI
     {
         [Header("Main Slider")]
         [SerializeField] private Slider mainSlider;
+        [SerializeField] private Image mainSliderFillImage;
         
         [Header("Refill Slider")]
         [SerializeField] private bool useRefillSlider = true;
         [SerializeField] private Slider refillSlider;
+        [SerializeField] private Image refillSliderFillImage;
         
         [Header("Drain Slider")]
         [SerializeField] private bool useDrainSlider = true;
         [SerializeField] private Slider drainSlider;
+        [SerializeField] private Image drainSliderFillImage;
         
         [Header("Initialization Settings")]
         [SerializeField] private float initialValue = 1f;
         [SerializeField] private Slider.Direction sliderDirection = Slider.Direction.LeftToRight;
+        
+        [Header("Other")]
+        [SerializeField] private Image backgroundImage;
+        [SerializeField] private Image borderImage;
 
         public float CurrentValue => mainSlider.value;
         
@@ -88,6 +95,69 @@ namespace Extensions.UI
                     Tween.UISliderValue(refillSlider, targetValue, refillDuration);
                 
                 Tween.UISliderValue(mainSlider, targetValue, mainDuration);
+            }
+        }
+
+        public void SetMaterialForAll(Material material)
+        {
+            if (mainSliderFillImage != null)
+            {
+                mainSliderFillImage.material = material;
+            }
+            
+            if (useRefillSlider && refillSliderFillImage != null)
+            {
+                refillSliderFillImage.material = material;
+            }
+            
+            if (useDrainSlider && drainSliderFillImage != null)
+            {
+                drainSliderFillImage.material = material;
+            }
+            
+            // Apply to background and border as well for fade effect
+            if (backgroundImage != null)
+            {
+                backgroundImage.material = material;
+            }
+            
+            if (borderImage != null)
+            {
+                borderImage.material = material;
+            }
+        }
+        
+        public void SetSpriteForAll(Sprite sprite)
+        {
+            if (mainSliderFillImage != null)
+            {
+                mainSliderFillImage.sprite = sprite;
+            }
+            
+            if (useRefillSlider && refillSliderFillImage != null)
+            {
+                refillSliderFillImage.sprite = sprite;
+            }
+            
+            if (useDrainSlider && drainSliderFillImage != null)
+            {
+                drainSliderFillImage.sprite = sprite;
+            }
+        }
+        
+        public void SetBackgroundSprite(Sprite sprite)
+        {
+            if (backgroundImage != null)
+            {
+                backgroundImage.sprite = sprite;
+            }
+        }
+
+        public void SetBorderSprite(Sprite sprite)
+        {
+            if (borderImage != null)
+            {
+                borderImage.sprite = sprite;
             }
         }
     }
