@@ -97,10 +97,19 @@ namespace Extensions.UI
             Vector3 baseScale = rt.localScale;
             Vector3 targetScale = baseScale * pulseScale;
 
-            return Sequence.Create()
+            if (durationStay > 0f)
+            {
+                return Sequence.Create()
                 .Group(Tween.Scale(rt, targetScale, durationOut, easeOut))
                 .ChainDelay(durationStay)
                 .Chain(Tween.Scale(rt, baseScale, durationIn, easeIn));
+            }
+            else
+            {
+                return Sequence.Create()
+                .Group(Tween.Scale(rt, targetScale, durationOut, easeOut))
+                .Chain(Tween.Scale(rt, baseScale, durationIn, easeIn));
+            }
         }
         
         /**

@@ -16,6 +16,8 @@ MonoBehaviour:
   threshold: 2800
   decayRate: 75
   penaltyRate: 2
-  meterBackground: {fileID: 0}
-  meterOutline: {fileID: 0}
-  meterFill: {fileID: 0}
+  meterBackground: {fileID: 21300000, guid: 38cba15463b6daa4eb6f00edf982ae75, type: 3}
+  meterOutline: {fileID: 21300000, guid: 525d6fd3100e0144a9b9e27c703cc31d, type: 3}
+  meterFill: {fileID: 21300000, guid: 38cba15463b6daa4eb6f00edf982ae75, type: 3}
+  meterScale: {x: 1, y: 1, z: 1}
+  meterUsageIndex: 00000000
