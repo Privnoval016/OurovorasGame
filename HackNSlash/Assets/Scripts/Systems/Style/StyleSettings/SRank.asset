@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SRank
   m_EditorClassIdentifier: 
   level: 4
-  threshold: 400
-  decayRate: 16
+  threshold: 1000
+  decayRate: 25
   penaltyRate: 1.5
   meterBackground: {fileID: 21300000, guid: a12bd64748c89c14d9cab159d3742760, type: 3}
   meterOutline: {fileID: 21300000, guid: 59fd275b195b61e4ea0567d5a76d181f, type: 3}
