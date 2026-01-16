@@ -14,6 +14,8 @@ namespace ProceduralGrammarGeneration.Editor
     public class SerializedSymbol
     {
         public string name = "Symbol";
+        [TextArea(2, 4)]
+        public string description = ""; // User-facing comment/documentation
         public List<SerializedParameter> parameters = new List<SerializedParameter>();
         
         public SerializedSymbol() { }
@@ -30,6 +32,7 @@ namespace ProceduralGrammarGeneration.Editor
         public string name = "param";
         public ParameterType type = ParameterType.Float;
         public string defaultValue = "0";
+        public string description = ""; // Optional comment for this parameter
         
         // For spatial parameters
         public UnityEngine.Object spatialDataReference; // Spline, Terrain, GameObject, etc.
@@ -48,6 +51,8 @@ namespace ProceduralGrammarGeneration.Editor
     public class SerializedRule
     {
         public string name = "Rule";
+        [TextArea(2, 4)]
+        public string description = ""; // User-facing comment/documentation
         public SerializedSymbol predecessor = new SerializedSymbol();
         public List<SerializedProduction> productions = new List<SerializedProduction>();
         

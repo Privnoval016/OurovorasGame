@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ComplexBuilding
   m_EditorClassIdentifier: 
   grammarName: ComplexBuilding
-  axiom: Start
+  axiom: Facade
   maxIterations: 100
   symbols:
   - name: Facade
@@ -75,7 +75,7 @@ MonoBehaviour:
       defaultValue: 
       spatialDataReference: {fileID: 0}
   rules:
-  - name: Rule_Facade
+  - name: FacadeToFloors
     predecessor:
       name: Facade
       parameters:
@@ -100,8 +100,20 @@ MonoBehaviour:
         operationTarget: 
         operationValue: 
         operationType: 0
+      - type: 0
+        symbolName: Floor
+        parameterAssignments:
+        - parameterName: width
+          valueExpression: width
+        - parameterName: height
+          valueExpression: height / floors
+        - parameterName: floorNum
+          valueExpression: 1
+        operationTarget: 
+        operationValue: 
+        operationType: 0
       conditions: []
-  - name: Rule_Floor
+  - name: GroundFloorToDoors
     predecessor:
       name: Floor
       parameters:
@@ -126,8 +138,21 @@ MonoBehaviour:
         operationTarget: 
         operationValue: 
         operationType: 0
-      conditions: []
-  - name: Rule_Floor
+      - type: 0
+        symbolName: Door
+        parameterAssignments:
+        - parameterName: width
+          valueExpression: width / 3
+        - parameterName: height
+          valueExpression: height
+        operationTarget: 
+        operationValue: 
+        operationType: 0
+      conditions:
+      - leftOperand: floorNum
+        op: 0
+        rightOperand: 0
+  - name: UpperFloorToWindows
     predecessor:
       name: Floor
       parameters:
@@ -152,8 +177,21 @@ MonoBehaviour:
         operationTarget: 
         operationValue: 
         operationType: 0
-      conditions: []
-  - name: Rule_Window
+      - type: 0
+        symbolName: Window
+        parameterAssignments:
+        - parameterName: width
+          valueExpression: width / 5
+        - parameterName: height
+          valueExpression: height
+        operationTarget: 
+        operationValue: 
+        operationType: 0
+      conditions:
+      - leftOperand: floorNum
+        op: 2
+        rightOperand: 0
+  - name: WindowToWall
     predecessor:
       name: Window
       parameters:
@@ -174,8 +212,18 @@ MonoBehaviour:
         operationTarget: 
         operationValue: 
         operationType: 0
+      - type: 0
+        symbolName: Wall
+        parameterAssignments:
+        - parameterName: width
+          valueExpression: width
+        - parameterName: height
+          valueExpression: height
+        operationTarget: 
+        operationValue: 
+        operationType: 0
       conditions: []
-  - name: Rule_Door
+  - name: DoorToWall
     predecessor:
       name: Door
       parameters:
@@ -193,6 +241,16 @@ MonoBehaviour:
       - type: 0
         symbolName: 
         parameterAssignments: []
+        operationTarget: 
+        operationValue: 
+        operationType: 0
+      - type: 0
+        symbolName: Wall
+        parameterAssignments:
+        - parameterName: width
+          valueExpression: width
+        - parameterName: height
+          valueExpression: height
         operationTarget: 
         operationValue: 
         operationType: 0

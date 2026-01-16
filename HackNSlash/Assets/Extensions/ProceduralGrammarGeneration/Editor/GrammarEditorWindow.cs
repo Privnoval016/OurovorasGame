@@ -261,10 +261,17 @@ namespace ProceduralGrammarGeneration.Editor
             
             EditorGUI.BeginChangeCheck();
             
-            symbol.name = EditorGUILayout.TextField("Name", symbol.name);
+            symbol.name = EditorGUILayout.TextField(
+                new GUIContent("Name", "The unique identifier for this symbol (e.g., Building, Wall, Window)"),
+                symbol.name);
+            
+            symbol.description = EditorGUILayout.TextField(
+                new GUIContent("Description", "Optional documentation comment explaining what this symbol represents. Exported as a comment in .pgr files."),
+                symbol.description,
+                GUILayout.Height(40));
             
             EditorGUILayout.Space(10);
-            GUILayout.Label("Parameters", EditorStyles.boldLabel);
+            GUILayout.Label(new GUIContent("Parameters", "Data values that control how this symbol behaves (e.g., width, height, color)"), EditorStyles.boldLabel);
             
             // Parameters list
             for (int i = 0; i < symbol.parameters.Count; i++)
@@ -273,7 +280,7 @@ namespace ProceduralGrammarGeneration.Editor
                 
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label($"Parameter {i + 1}", EditorStyles.boldLabel);
-                if (GUILayout.Button("Remove", GUILayout.Width(60)))
+                if (GUILayout.Button(new GUIContent("Remove", "Delete this parameter"), GUILayout.Width(60)))
                 {
                     symbol.parameters.RemoveAt(i);
                     break;
@@ -281,19 +288,30 @@ namespace ProceduralGrammarGeneration.Editor
                 EditorGUILayout.EndHorizontal();
                 
                 var param = symbol.parameters[i];
-                param.name = EditorGUILayout.TextField("Name", param.name);
-                param.type = (ParameterType)EditorGUILayout.EnumPopup("Type", param.type);
+                param.name = EditorGUILayout.TextField(
+                    new GUIContent("Name", "Parameter identifier used in expressions (e.g., width, height)"),
+                    param.name);
+                param.type = (ParameterType)EditorGUILayout.EnumPopup(
+                    new GUIContent("Type", "Data type: Float (decimal), Int (whole number), String (text), Vector3 (3D position), or Spatial types for procedural paths"),
+                    param.type);
                 
                 // Show spatial reference for spatial types
                 if (IsSpatialType(param.type))
                 {
                     param.spatialDataReference = EditorGUILayout.ObjectField(
-                        "Spatial Data", param.spatialDataReference, typeof(UnityEngine.Object), true);
+                        new GUIContent("Spatial Data", "Unity object containing spatial data (Spline, Terrain, GameObject array, etc.)"),
+                        param.spatialDataReference, typeof(UnityEngine.Object), true);
                 }
                 else
                 {
-                    param.defaultValue = EditorGUILayout.TextField("Default Value", param.defaultValue);
+                    param.defaultValue = EditorGUILayout.TextField(
+                        new GUIContent("Default Value", "Initial value if not specified. Supports expressions like '10', '5.5', or 'width * 2' (follows PEMDAS order of operations)"),
+                        param.defaultValue);
                 }
+                
+                param.description = EditorGUILayout.TextField(
+                    new GUIContent("Comment", "Optional note about this parameter's purpose"),
+                    param.description);
                 
                 EditorGUILayout.EndVertical();
             }
@@ -384,13 +402,21 @@ namespace ProceduralGrammarGeneration.Editor
             
             EditorGUI.BeginChangeCheck();
             
-            rule.name = EditorGUILayout.TextField("Rule Name", rule.name);
+            rule.name = EditorGUILayout.TextField(
+                new GUIContent("Rule Name", "Unique identifier for this production rule (e.g., ExpandBuilding, SubdivideWall)"),
+                rule.name);
+            
+            rule.description = EditorGUILayout.TextField(
+                new GUIContent("Description", "Optional documentation explaining what this rule does. Exported as a comment in .pgr files."),
+                rule.description);
             
             EditorGUILayout.Space(10);
             
             // Predecessor
             EditorGUILayout.BeginVertical(boxStyle);
-            GUILayout.Label("Predecessor (Left Side)", EditorStyles.boldLabel);
+            GUILayout.Label(
+                new GUIContent("Predecessor (Left Side)", "The symbol this rule matches and replaces"),
+                EditorStyles.boldLabel);
             
             if (targetAsset.symbols.Count > 0)
             {
@@ -404,7 +430,10 @@ namespace ProceduralGrammarGeneration.Editor
                         currentIndex = i;
                 }
                 
-                int newIndex = EditorGUILayout.Popup("Symbol", currentIndex, symbolNames.ToArray());
+                int newIndex = EditorGUILayout.Popup(
+                    new GUIContent("Symbol", "The input symbol that triggers this rule. When the grammar encounters this symbol during derivation, it will apply one of the productions below."),
+                    currentIndex,
+                    symbolNames.ToArray());
                 if (newIndex != currentIndex)
                 {
                     rule.predecessor = new SerializedSymbol(targetAsset.symbols[newIndex].name);
@@ -425,14 +454,18 @@ namespace ProceduralGrammarGeneration.Editor
             EditorGUILayout.Space(10);
             
             // Productions
-            GUILayout.Label("Productions (Right Side)", EditorStyles.boldLabel);
+            GUILayout.Label(
+                new GUIContent("Productions (Right Side)", "One or more possible replacements for the predecessor. If multiple productions exist, one is chosen randomly based on weights. Each production is a sequence of symbols."),
+                EditorStyles.boldLabel);
             
             for (int p = 0; p < rule.productions.Count; p++)
             {
                 DrawProductionDetails(rule, rule.productions[p], p);
             }
             
-            if (GUILayout.Button("+ Add Production", GUILayout.Height(25)))
+            if (GUILayout.Button(
+                new GUIContent("+ Add Production", "Add an alternative expansion for this rule. Multiple productions enable stochastic (random) grammar behavior."),
+                GUILayout.Height(25)))
             {
                 rule.productions.Add(new SerializedProduction());
             }
@@ -474,11 +507,15 @@ namespace ProceduralGrammarGeneration.Editor
             
             if (rule.productions.Count > 1)
             {
-                production.weight = EditorGUILayout.FloatField("Weight", production.weight);
+                production.weight = EditorGUILayout.FloatField(
+                    new GUIContent("Weight", "Probability weight for this production (higher = more likely). Weights are normalized (e.g., weights of 1, 2, 3 become 16%, 33%, 50% chances)."),
+                    production.weight);
             }
             
             // Conditions
-            if (production.conditions.Count > 0 || GUILayout.Button("+ Add Condition", GUILayout.Height(20)))
+            if (production.conditions.Count > 0 || GUILayout.Button(
+                new GUIContent("+ Add Condition", "Add a constraint that must be true for this production to apply (e.g., 'width > 5'). Multiple conditions are AND-ed together."),
+                GUILayout.Height(20)))
             {
                 if (production.conditions.Count == 0)
                     production.conditions.Add(new SerializedCondition());
@@ -487,9 +524,18 @@ namespace ProceduralGrammarGeneration.Editor
                 {
                     EditorGUILayout.BeginHorizontal();
                     var cond = production.conditions[c];
-                    cond.leftOperand = EditorGUILayout.TextField(cond.leftOperand, GUILayout.Width(80));
-                    cond.op = (ConditionOperator)EditorGUILayout.EnumPopup(cond.op, GUILayout.Width(60));
-                    cond.rightOperand = EditorGUILayout.TextField(cond.rightOperand, GUILayout.Width(80));
+                    cond.leftOperand = EditorGUILayout.TextField(
+                        new GUIContent("", "Left side of condition (parameter name or expression)"),
+                        cond.leftOperand,
+                        GUILayout.Width(80));
+                    cond.op = (ConditionOperator)EditorGUILayout.EnumPopup(
+                        new GUIContent("", "Comparison operator (==, !=, <, <=, >, >=)"),
+                        cond.op,
+                        GUILayout.Width(60));
+                    cond.rightOperand = EditorGUILayout.TextField(
+                        new GUIContent("", "Right side of condition (value or expression)"),
+                        cond.rightOperand,
+                        GUILayout.Width(80));
                     if (GUILayout.Button("×", GUILayout.Width(20)))
                     {
                         production.conditions.RemoveAt(c);
@@ -499,7 +545,9 @@ namespace ProceduralGrammarGeneration.Editor
             }
             
             EditorGUILayout.Space(5);
-            GUILayout.Label("Steps:", EditorStyles.boldLabel);
+            GUILayout.Label(
+                new GUIContent("Steps:", "Sequence of symbols that replace the predecessor. Each step produces one symbol in the output."),
+                EditorStyles.boldLabel);
             
             // Production steps
             for (int s = 0; s < production.steps.Count; s++)
@@ -507,7 +555,9 @@ namespace ProceduralGrammarGeneration.Editor
                 DrawProductionStep(production.steps[s], s, production);
             }
             
-            if (GUILayout.Button("+ Add Step", GUILayout.Height(20)))
+            if (GUILayout.Button(
+                new GUIContent("+ Add Step", "Add another symbol to the production sequence (e.g., Building → Wall Window Wall creates 3 steps)"),
+                GUILayout.Height(20)))
             {
                 production.steps.Add(new SerializedProductionStep());
             }
@@ -521,7 +571,9 @@ namespace ProceduralGrammarGeneration.Editor
             
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label($"Step {index + 1}", GUILayout.Width(50));
-            step.type = (ProductionStepType)EditorGUILayout.EnumPopup(step.type);
+            step.type = (ProductionStepType)EditorGUILayout.EnumPopup(
+                new GUIContent("", "Symbol: Reference a defined symbol | Terminal: End symbol (no further expansion)"),
+                step.type);
             if (GUILayout.Button("×", GUILayout.Width(20)))
             {
                 production.steps.RemoveAt(index);
@@ -545,7 +597,10 @@ namespace ProceduralGrammarGeneration.Editor
                                 currentIndex = i + 1;
                         }
                         
-                        int newIndex = EditorGUILayout.Popup("Symbol", currentIndex, symbolNames.ToArray());
+                        int newIndex = EditorGUILayout.Popup(
+                            new GUIContent("Symbol", "The symbol to produce at this step. Can be expanded further in subsequent derivations."),
+                            currentIndex,
+                            symbolNames.ToArray());
                         if (newIndex > 0)
                         {
                             step.symbolName = targetAsset.symbols[newIndex - 1].name;
@@ -563,7 +618,9 @@ namespace ProceduralGrammarGeneration.Editor
                                     step.parameterAssignments.Add(assignment);
                                 }
                                 
-                                assignment.valueExpression = EditorGUILayout.TextField(param.name, assignment.valueExpression);
+                                assignment.valueExpression = EditorGUILayout.TextField(
+                                    new GUIContent(param.name, $"Value for parameter '{param.name}'. Can use expressions with PEMDAS (e.g., 'width * 2', 'height / 3 + 1'). Leave empty to use default value."),
+                                    assignment.valueExpression);
                             }
                             EditorGUI.indentLevel--;
                         }
@@ -571,14 +628,24 @@ namespace ProceduralGrammarGeneration.Editor
                     break;
                     
                 case ProductionStepType.SetParameter:
-                    step.operationTarget = EditorGUILayout.TextField("Parameter", step.operationTarget);
-                    step.operationValue = EditorGUILayout.TextField("Value", step.operationValue);
+                    step.operationTarget = EditorGUILayout.TextField(
+                        new GUIContent("Parameter", "Name of the parameter to set"),
+                        step.operationTarget);
+                    step.operationValue = EditorGUILayout.TextField(
+                        new GUIContent("Value", "Expression to assign (supports PEMDAS)"),
+                        step.operationValue);
                     break;
                     
                 case ProductionStepType.ModifyParameter:
-                    step.operationTarget = EditorGUILayout.TextField("Parameter", step.operationTarget);
-                    step.operationType = (OperationType)EditorGUILayout.EnumPopup("Operation", step.operationType);
-                    step.operationValue = EditorGUILayout.TextField("Value", step.operationValue);
+                    step.operationTarget = EditorGUILayout.TextField(
+                        new GUIContent("Parameter", "Name of the parameter to modify"),
+                        step.operationTarget);
+                    step.operationType = (OperationType)EditorGUILayout.EnumPopup(
+                        new GUIContent("Operation", "Mathematical operation: Add, Subtract, Multiply, Divide"),
+                        step.operationType);
+                    step.operationValue = EditorGUILayout.TextField(
+                        new GUIContent("Value", "Expression for the operation (supports PEMDAS)"),
+                        step.operationValue);
                     break;
             }
             
@@ -593,14 +660,22 @@ namespace ProceduralGrammarGeneration.Editor
             
             EditorGUI.BeginChangeCheck();
             
-            targetAsset.grammarName = EditorGUILayout.TextField("Grammar Name", targetAsset.grammarName);
-            targetAsset.axiom = EditorGUILayout.TextField("Axiom (Start Symbol)", targetAsset.axiom);
-            targetAsset.maxIterations = EditorGUILayout.IntField("Max Iterations", targetAsset.maxIterations);
+            targetAsset.grammarName = EditorGUILayout.TextField(
+                new GUIContent("Grammar Name", "Identifier for this grammar (used in logs and composition)"),
+                targetAsset.grammarName);
+            targetAsset.axiom = EditorGUILayout.TextField(
+                new GUIContent("Axiom (Start Symbol)", "The initial symbol where derivation begins. Must match a defined symbol name (e.g., 'Building')."),
+                targetAsset.axiom);
+            targetAsset.maxIterations = EditorGUILayout.IntField(
+                new GUIContent("Max Iterations", "Maximum derivation steps before stopping (prevents infinite loops). Typical values: 5-20."),
+                targetAsset.maxIterations);
             
             EditorGUILayout.Space(20);
             
             GUILayout.Label("File Settings", EditorStyles.boldLabel);
-            targetAsset.filePath = EditorGUILayout.TextField("Export Path", targetAsset.filePath);
+            targetAsset.filePath = EditorGUILayout.TextField(
+                new GUIContent("Export Path", "File path for .pgr export (relative to Assets folder). Example: 'Grammars/MyGrammar.pgr'"),
+                targetAsset.filePath);
             
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Browse", GUILayout.Width(80)))
@@ -629,21 +704,29 @@ namespace ProceduralGrammarGeneration.Editor
             
             EditorGUILayout.Space(10);
             
-            if (GUILayout.Button("Export to .PGR File", buttonStyle, GUILayout.Height(40)))
+            if (GUILayout.Button(
+                new GUIContent("Export to .PGR File", "Save this grammar to a .pgr text file. Includes all symbols, rules, conditions, and comments."),
+                buttonStyle,
+                GUILayout.Height(40)))
             {
                 ExportToPGR();
             }
             
             EditorGUILayout.Space(5);
             
-            if (GUILayout.Button("Import from .PGR File", buttonStyle, GUILayout.Height(40)))
+            if (GUILayout.Button(
+                new GUIContent("Import from .PGR File", "Load a grammar from a .pgr text file. Will overwrite current asset contents. Comments in the file will be preserved."),
+                buttonStyle,
+                GUILayout.Height(40)))
             {
                 ImportFromPGR();
             }
             
             EditorGUILayout.Space(20);
             
-            GUILayout.Label("Preview", EditorStyles.boldLabel);
+            GUILayout.Label(
+                new GUIContent("Preview", "Live preview of the .pgr file that would be exported"),
+                EditorStyles.boldLabel);
             
             EditorGUILayout.BeginVertical(GUI.skin.box);
             var pgrContent = GrammarAssetIO.ExportToPGR(targetAsset);

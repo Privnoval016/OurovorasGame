@@ -37,6 +37,47 @@ namespace ProceduralGrammarGeneration.Editor
             GrammarEditorWindow.OpenAsset(asset);
         }
         
+        [MenuItem("Assets/Create/Procedural Grammar/Composed Grammar", false, 2)]
+        public static void CreateComposedGrammar()
+        {
+            // Get selected grammar assets
+            var selectedGrammars = Selection.GetFiltered<GrammarAsset>(SelectionMode.Assets);
+            
+            if (selectedGrammars.Length < 2)
+            {
+                EditorUtility.DisplayDialog("Compose Grammars", 
+                    "Please select 2 or more Grammar Assets to compose.\n\nSelect multiple assets in the Project window, then use this menu item.", 
+                    "OK");
+                return;
+            }
+            
+            // Create composed grammar
+            var composed = GrammarComposer.MergeGrammars("ComposedGrammar", selectedGrammars);
+            
+            // Save it
+            string path = AssetDatabase.GetAssetPath(selectedGrammars[0]);
+            path = System.IO.Path.GetDirectoryName(path);
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath($"{path}/ComposedGrammar.asset");
+            
+            AssetDatabase.CreateAsset(composed, assetPathAndName);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            
+            Selection.activeObject = composed;
+            EditorGUIUtility.PingObject(composed);
+            
+            EditorUtility.DisplayDialog("Compose Grammars", 
+                $"Created composed grammar with:\n• {composed.symbols.Count} symbols\n• {composed.rules.Count} rules", 
+                "OK");
+        }
+        
+        [MenuItem("Assets/Create/Procedural Grammar/Composed Grammar", true)]
+        public static bool ValidateCreateComposedGrammar()
+        {
+            // Only enable if 2+ grammar assets are selected
+            return Selection.GetFiltered<GrammarAsset>(SelectionMode.Assets).Length >= 2;
+        }
+        
         [MenuItem("Window/Procedural Grammar/Grammar Editor %#G")]
         public static void OpenGrammarEditor()
         {
