@@ -20,6 +20,10 @@ public class StyleMeterUI : MonoBehaviour
     [SerializeField] private float styleGainBufferTime = 0.5f;
     [Tooltip("The range of the shader fade effect (x = min fade, y = max fade). E.g., (0, 0.95) means fade from 0 to 0.95 as style goes from threshold to 0.")]
     [SerializeField] private Vector2 fadeRange = new Vector2(0f, 0.95f);
+    
+    [Header("Rank Change Buffer")]
+    [Tooltip("Minimum percentage (0-1) of the new rank's bar that must be filled before committing to a rank up. E.g., 0.1 = must be at least 10% into the new rank.")]
+    [SerializeField] private float rankUpCommitThreshold = 0.15f;
 
     [Header("Below Threshold Display")]
     [Tooltip("Minimum visible fill when below threshold (e.g., 0.05 = 5% always visible)")]
@@ -42,6 +46,10 @@ public class StyleMeterUI : MonoBehaviour
 
     private bool isFadingOut = false;
     private CountdownTimer styleGainBufferTimer;
+    
+    private bool isPlayingRankChangeAnimation = false;
+    private StyleLevel currentDisplayedRank = StyleLevel.D;
+    private StyleUpdateEvent? pendingUpdate = null;
 
     private void Start()
     {
@@ -65,13 +73,39 @@ public class StyleMeterUI : MonoBehaviour
         styleGainBufferTimer = new CountdownTimer(styleGainBufferTime);
         
         // Initialize with starting rank (D)
+        currentDisplayedRank = StyleLevel.D;
+        TrueStylePercentage = 0f;
+        
         var styleSystem = Services.Get<StyleSystem>();
         if (styleSystem != null)
         {
             var initialSetting = styleSystem.GetStyleSettings(StyleLevel.D);
             if (initialSetting != null)
             {
-                ApplyNewRankVisuals(initialSetting, 0f);
+                // Forcefully apply D rank visuals
+                activeSliderBarIndices.Clear();
+                activeSliderBarIndices.AddRange(initialSetting.meterUsageIndex);
+
+                foreach (var t in sliderBarContainers)
+                {
+                    t.gameObject.SetActive(false);
+                }
+
+                foreach (var index in activeSliderBarIndices)
+                {
+                    sliderBarContainers[index].gameObject.SetActive(true);
+                }
+
+                foreach (var sliderBar in ActiveSliderBars)
+                {
+                    sliderBar.SetSpriteForAll(initialSetting.meterFill);
+                    sliderBar.SetBorderSprite(initialSetting.meterOutline);
+                    sliderBar.SetBackgroundSprite(initialSetting.meterBackground);
+                    sliderBar.SetMaterialForAll(instancedMaterial);
+                    sliderBar.SetSliderValueInstant(0f);
+                }
+
+                transform.localScale = initialSetting.meterScale.ScaledBy(initialScale);
             }
         }
     }
@@ -94,10 +128,43 @@ public class StyleMeterUI : MonoBehaviour
         float stylePercentage = Services.Get<StyleSystem>().GetStylePercentage(e.StyleLevel, e.StyleValue);
         bool wasGaining = stylePercentage > TrueStylePercentage;
 
-        // Handle rank changes FIRST with animations on OLD rank
-        switch (e.Swapped)
+        // If we're currently playing a rank change animation, queue this update for later
+        if (isPlayingRankChangeAnimation)
         {
-            case StyleUpdateEvent.SwapDirection.Increased:
+            // Only queue if it's a different rank change
+            if (e.StyleLevel != currentDisplayedRank)
+            {
+                pendingUpdate = e;
+            }
+            return;
+        }
+
+        // Determine if we should commit to showing a new rank
+        bool shouldShowNewRank = false;
+        
+        if (e.StyleLevel != currentDisplayedRank)
+        {
+            // The actual rank differs from what we're displaying
+            if (e.StyleLevel > currentDisplayedRank)
+            {
+                // Ranking up - only commit if above threshold OR if we explicitly got a rank increase event
+                shouldShowNewRank = stylePercentage >= rankUpCommitThreshold || e.Swapped == StyleUpdateEvent.SwapDirection.Increased;
+            }
+            else
+            {
+                // Ranking down - always commit immediately
+                shouldShowNewRank = true;
+            }
+        }
+
+        // Handle rank changes
+        if (shouldShowNewRank)
+        {
+            if (e.StyleLevel > currentDisplayedRank)
+            {
+                // RANK UP - Switch to new rank FIRST, then pulse
+                isPlayingRankChangeAnimation = true;
+                
                 // Reset fade immediately and start buffer timer
                 isFadingOut = false;
                 styleGainBufferTimer.Reset();
@@ -110,31 +177,68 @@ public class StyleMeterUI : MonoBehaviour
                 }
                 instancedMaterial.SetFloat(fadeParamID, fadeRange.x);
                 
-                // Fill the old rank bar to 100% before pulsing
+                // Update to new rank FIRST
+                currentDisplayedRank = e.StyleLevel;
+                ApplyNewRankVisuals(setting, stylePercentage);
+                
+                // Fill the NEW rank bar to 100%
                 foreach (var sliderBar in ActiveSliderBars)
                 {
                     sliderBar.SetSliderValueInstant(1f);
                 }
-                UpgradeRank(() => ApplyNewRankVisuals(setting, stylePercentage));
-                return;
-            case StyleUpdateEvent.SwapDirection.Decreased:
-                // Rank down already happened - fadeout already occurred, just switch visuals
+                
+                // THEN pulse the new rank
+                UpgradeRank(() => 
+                {
+                    // After pulse, update the bar to the actual percentage
+                    UpdateBarDisplay(stylePercentage);
+                    isPlayingRankChangeAnimation = false;
+                    ProcessPendingUpdate();
+                });
+            }
+            else
+            {
+                // RANK DOWN
+                isPlayingRankChangeAnimation = true;
+                
+                // Rank down - just switch visuals
                 isFadingOut = false;
+                currentDisplayedRank = e.StyleLevel;
                 ApplyNewRankVisuals(setting, stylePercentage);
                 ResetMaterialFade();
-                return;
-            case StyleUpdateEvent.SwapDirection.None:
-                // No rank change - handle fade-out logic and display updates
-                HandleFadeOutLogic(stylePercentage, wasGaining);
-                TrueStylePercentage = stylePercentage;
-                UpdateBarDisplay(stylePercentage);
                 
-                // Only pulse if we're gaining style and not in fade-out
-                if (wasGaining && !isFadingOut)
-                {
-                    StyleChangePulse();
-                }
-                break;
+                isPlayingRankChangeAnimation = false;
+                ProcessPendingUpdate();
+            }
+        }
+        else
+        {
+            // No rank change visual update - just update the bar
+            HandleNoRankChange(stylePercentage, wasGaining);
+        }
+    }
+    
+    private void HandleNoRankChange(float stylePercentage, bool wasGaining)
+    {
+        // No rank change - handle fade-out logic and display updates
+        HandleFadeOutLogic(stylePercentage, wasGaining);
+        TrueStylePercentage = stylePercentage;
+        UpdateBarDisplay(stylePercentage);
+        
+        // Only pulse if we're gaining style and not in fade-out
+        if (wasGaining && !isFadingOut)
+        {
+            StyleChangePulse();
+        }
+    }
+    
+    private void ProcessPendingUpdate()
+    {
+        if (pendingUpdate.HasValue)
+        {
+            StyleUpdateEvent update = pendingUpdate.Value;
+            pendingUpdate = null;
+            UpdateStyleValue(update);
         }
     }
 
