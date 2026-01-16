@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BRank
   m_EditorClassIdentifier: 
   level: 2
-  threshold: 200
+  threshold: 300
   decayRate: 8
   penaltyRate: 1.5
   meterBackground: {fileID: 21300000, guid: 587a2fbcd4f12394390a7510af288d2b, type: 3}
