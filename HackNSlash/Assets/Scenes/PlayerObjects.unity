@@ -4655,6 +4655,7 @@ MonoBehaviour:
   fadeDuration: 0.5
   styleGainBufferTime: 0.5
   fadeRange: {x: 0, y: 0.95}
+  rankUpCommitThreshold: 0.15
   minimumVisibleFill: 0.05
   dangerZoneFillRange: 0.25
 --- !u!1001 &647708798

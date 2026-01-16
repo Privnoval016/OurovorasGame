@@ -1,0 +1,200 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cebfc4250b5df49979650a3f4d956fa1, type: 3}
+  m_Name: ComplexBuilding
+  m_EditorClassIdentifier: 
+  grammarName: ComplexBuilding
+  axiom: Start
+  maxIterations: 100
+  symbols:
+  - name: Facade
+    parameters:
+    - name: width
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+    - name: height
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+    - name: floors
+      type: 1
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+  - name: Floor
+    parameters:
+    - name: width
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+    - name: height
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+    - name: floorNum
+      type: 1
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+  - name: Window
+    parameters:
+    - name: width
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+    - name: height
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+  - name: Door
+    parameters:
+    - name: width
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+    - name: height
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+  - name: Wall
+    parameters:
+    - name: width
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+    - name: height
+      type: 0
+      defaultValue: 
+      spatialDataReference: {fileID: 0}
+  rules:
+  - name: Rule_Facade
+    predecessor:
+      name: Facade
+      parameters:
+      - name: width
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+      - name: height
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+      - name: floors
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+    productions:
+    - weight: 1
+      steps:
+      - type: 0
+        symbolName: 
+        parameterAssignments: []
+        operationTarget: 
+        operationValue: 
+        operationType: 0
+      conditions: []
+  - name: Rule_Floor
+    predecessor:
+      name: Floor
+      parameters:
+      - name: width
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+      - name: height
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+      - name: floorNum
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+    productions:
+    - weight: 1
+      steps:
+      - type: 0
+        symbolName: 
+        parameterAssignments: []
+        operationTarget: 
+        operationValue: 
+        operationType: 0
+      conditions: []
+  - name: Rule_Floor
+    predecessor:
+      name: Floor
+      parameters:
+      - name: width
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+      - name: height
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+      - name: floorNum
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+    productions:
+    - weight: 1
+      steps:
+      - type: 0
+        symbolName: 
+        parameterAssignments: []
+        operationTarget: 
+        operationValue: 
+        operationType: 0
+      conditions: []
+  - name: Rule_Window
+    predecessor:
+      name: Window
+      parameters:
+      - name: width
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+      - name: height
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+    productions:
+    - weight: 1
+      steps:
+      - type: 0
+        symbolName: 
+        parameterAssignments: []
+        operationTarget: 
+        operationValue: 
+        operationType: 0
+      conditions: []
+  - name: Rule_Door
+    predecessor:
+      name: Door
+      parameters:
+      - name: width
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+      - name: height
+        type: 0
+        defaultValue: 
+        spatialDataReference: {fileID: 0}
+    productions:
+    - weight: 1
+      steps:
+      - type: 0
+        symbolName: 
+        parameterAssignments: []
+        operationTarget: 
+        operationValue: 
+        operationType: 0
+      conditions: []
+  filePath: /Users/pranavsukesh/Desktop/Github/HackNSlashGame/HackNSlash/Assets/Extensions/ProceduralGrammarGeneration/GrammarParsing/ComplexBuilding.pgr

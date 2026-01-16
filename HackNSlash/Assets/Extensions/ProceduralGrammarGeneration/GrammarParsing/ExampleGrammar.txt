@@ -1,0 +1,72 @@
+//================================================================
+// Example Building Grammar
+// Demonstrates the procedural grammar system syntax
+//================================================================
+
+// Define symbols with their parameters
+symbol Facade(width: float, height: float, floorCount: int);
+symbol Floor(width: float, height: float, floorIndex: int);
+symbol Bay(width: float, height: float, floorIndex: int);
+symbol Window(width: float, height: float);
+symbol Door(width: float, height: float);
+symbol Wall(width: float, height: float);
+
+// Terminal symbols (don't expand further)
+symbol terminal WindowMesh(width: float, height: float);
+symbol terminal DoorMesh(width: float, height: float);
+symbol terminal WallMesh(width: float, height: float);
+
+//================================================================
+// Rules
+//================================================================
+
+// Main facade rule - splits vertically into floors
+rule MainFacade
+    when Facade(width, height, floorCount)
+    =>
+    split(Y) {
+        height / floorCount: repeat(Y, floorCount) {
+            Floor(width = width, height = height / floorCount, floorIndex = 0)
+        }
+    };
+
+// Floor rule - splits horizontally into bays
+rule FloorToBays
+    when Floor(width, height, floorIndex)
+    =>
+    split(X) {
+        3.0: Bay(width = 3.0, height = height, floorIndex = floorIndex),
+        width - 6.0: repeat(X, (width - 6.0) / 3.0) {
+            Bay(width = 3.0, height = height, floorIndex = floorIndex)
+        },
+        3.0: Bay(width = 3.0, height = height, floorIndex = floorIndex)
+    };
+
+// Ground floor bay rule - choose between door and window
+rule GroundBay
+    when Bay(width, height, floorIndex)
+    if floorIndex == 0
+    =>
+    choose {
+        default: Window(width = width * 0.8, height = height * 0.6),
+        weight 0.3: Door(width = width * 0.9, height = height * 0.9)
+    };
+
+// Upper floor bay rule - always window
+rule UpperBay
+    when Bay(width, height, floorIndex)
+    if floorIndex > 0
+    =>
+    Window(width = width * 0.7, height = height * 0.5);
+
+// Window to mesh
+rule WindowToMesh
+    when Window(width, height)
+    =>
+    WindowMesh(width = width, height = height);
+
+// Door to mesh
+rule DoorToMesh
+    when Door(width, height)
+    =>
+    DoorMesh(width = width, height = height);

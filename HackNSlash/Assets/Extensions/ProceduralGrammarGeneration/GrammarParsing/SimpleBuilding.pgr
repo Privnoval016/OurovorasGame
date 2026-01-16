@@ -1,0 +1,30 @@
+// Simple Building Grammar
+// Demonstrates basic procedural building generation with floors, walls, and bricks
+
+// Symbol Declarations
+symbol Building(width: float, height: float);
+symbol Floor(width: float, height: float);
+symbol Wall(width: float, height: float);
+symbol Brick();
+
+// Building Rule: Split vertically into 2 floors
+rule BuildingToFloors
+    when Building(width, height)
+    =>
+    repeat(Y, 2) {
+        Floor(width = width, height = height / 2)
+    };
+
+// Floor Rule: Split horizontally into 3 walls
+rule FloorToWalls
+    when Floor(width, height)
+    =>
+    repeat(X, 3) {
+        Wall(width = width / 3, height = height)
+    };
+
+// Wall Rule: Produce a brick (terminal symbol)
+rule WallToBrick
+    when Wall(width, height)
+    =>
+    Brick();
