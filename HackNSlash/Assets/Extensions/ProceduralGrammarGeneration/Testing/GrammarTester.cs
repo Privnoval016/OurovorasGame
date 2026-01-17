@@ -183,15 +183,6 @@ namespace ProceduralGrammarGeneration.Testing
                 }
                 
                 Debug.Log($"✓ Grammar compiled successfully. {grammarDef.Symbols.Count} symbols, {grammarDef.Rules.Count} rules.");
-                Debug.Log($"Symbols in definition: {string.Join(", ", grammarDef.Symbols.Select(s => $"{s.Type.Name}(id:{s.Type.Id},terminal:{s.IsTerminal})"))}");
-                Debug.Log($"Rules in definition:");
-                foreach (var rule in grammarDef.Rules)
-                {
-                    var condStr = rule.Condition != null ? " [HAS CONDITION]" : " [NO CONDITION]";
-                    Debug.Log($"  - {rule.Name} for {rule.InputSymbol.Name}(id:{rule.InputSymbol.Id}){condStr} with params: {string.Join(", ", rule.Parameters.Select(p => p.Name))}");
-                }
-                Debug.Log($"Entry symbol: {grammarDef.EntrySymbol.Name}");
-                Debug.Log($"Trying to generate from: '{grammarAsset.axiom}'");
                 
                 // Step 3: Build parameter dictionary
                 var parameters = new Dictionary<string, object>();

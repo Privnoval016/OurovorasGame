@@ -1,0 +1,153 @@
+=== Spatial Interpretation Result ===
+Grammar: ImportedGrammar
+Axiom: Facade
+Total Nodes: 30
+Bounds: Center: (140.00, 37.50, 0.00), Extents: (140.50, 38.00, 0.50)
+
+Terminal nodes (leaves): 22
+Max depth: 5
+
+=== Symbol Distribution ===
+Window [NON-TERMINAL]: 15
+Facade [NON-TERMINAL]: 4
+Floor [NON-TERMINAL]: 4
+FloorMarker [NON-TERMINAL]: 4
+Door [NON-TERMINAL]: 3
+
+=== Terminal Symbol Positions (22 nodes) ===
+
+--- Door (3 instances) ---
+1. Door
+   Position: (200.00, 25.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=33.33333, height=100
+
+2. Door
+   Position: (233.33, 25.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=33.33333, height=100
+
+3. Door
+   Position: (266.67, 25.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=33.33333, height=100
+
+--- FloorMarker (4 instances) ---
+1. FloorMarker
+   Position: (0.00, 75.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (0.10, 0.10, 0.10)
+   Parameters: floorNum=3
+
+2. FloorMarker
+   Position: (0.00, 50.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (0.10, 0.10, 0.10)
+   Parameters: floorNum=2
+
+3. FloorMarker
+   Position: (0.00, 25.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (0.10, 0.10, 0.10)
+   Parameters: floorNum=1
+
+4. FloorMarker
+   Position: (0.00, 0.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (0.10, 0.10, 0.10)
+   Parameters: floorNum=0
+
+--- Window (15 instances) ---
+1. Window
+   Position: (200.00, 0.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=25
+
+2. Window
+   Position: (220.00, 0.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=25
+
+3. Window
+   Position: (240.00, 0.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=25
+
+4. Window
+   Position: (260.00, 0.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=25
+
+5. Window
+   Position: (280.00, 0.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=25
+
+6. Window
+   Position: (200.00, 75.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=33.33333
+
+7. Window
+   Position: (220.00, 75.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=33.33333
+
+8. Window
+   Position: (240.00, 75.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=33.33333
+
+9. Window
+   Position: (260.00, 75.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=33.33333
+
+10. Window
+   Position: (280.00, 75.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=33.33333
+
+11. Window
+   Position: (200.00, 50.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=50
+
+12. Window
+   Position: (220.00, 50.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=50
+
+13. Window
+   Position: (240.00, 50.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=50
+
+14. Window
+   Position: (260.00, 50.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=50
+
+15. Window
+   Position: (280.00, 50.00, 0.00)
+   Rotation: (0.000, 0.000, 0.000, 1.000) [Euler: (0.00, 0.00, 0.00)]
+   Scale: (1.00, 1.00, 1.00)
+   Parameters: width=20, height=50
+

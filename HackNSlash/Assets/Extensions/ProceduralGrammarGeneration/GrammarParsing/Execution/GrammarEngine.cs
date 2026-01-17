@@ -314,16 +314,6 @@ namespace ProceduralGrammarGeneration.GrammarParsing
             if (_compiledGrammar == null)
                 throw new InvalidOperationException("No grammar compiled. Call CompileFromSource first.");
             
-            // Debug: Log all available symbols
-            var availableSymbols = new System.Text.StringBuilder();
-            availableSymbols.AppendLine($"Looking for symbol: '{symbolName}'");
-            availableSymbols.AppendLine($"Available symbols in compiled grammar ({_compiledGrammar.Symbols.Count}):");
-            foreach (var kvp in _compiledGrammar.Symbols)
-            {
-                availableSymbols.AppendLine($"  - ID {kvp.Key}: '{kvp.Value.Type.Name}'");
-            }
-            UnityEngine.Debug.Log(availableSymbols.ToString());
-            
             // Find the symbol in the IR by iterating through symbol definitions
             SymbolType? symbolType = null;
             foreach (var kvp in _compiledGrammar.Symbols)
