@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ProceduralGrammarGeneration.GrammarParsing;
 
-namespace ProceduralGrammarGeneration.Editor
+namespace ProceduralGrammarGeneration.Runtime
 {
     /// <summary>
     /// Unity asset that stores a procedural grammar definition.

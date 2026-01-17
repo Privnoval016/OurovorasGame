@@ -234,17 +234,23 @@ namespace ProceduralGrammarGeneration.GrammarParsing
             var rules = _grammar.GetApplicableRules(node.Symbol.Type);
             if (rules == null || rules.Count == 0)
             {
+                UnityEngine.Debug.Log($"[DerivationTree] No rules found for symbol '{node.Symbol.Type.Name}' (ID: {node.Symbol.Type.Id})");
                 node.Status = DerivationStatus.Terminal;
                 return;
             }
+            
+            UnityEngine.Debug.Log($"[DerivationTree] Found {rules.Count} rules for symbol '{node.Symbol.Type.Name}': {string.Join(", ", rules.Select(r => r.Name))}");
 
             // Select rule (with condition evaluation and override support)
             var selectedRule = SelectRule(rules, node);
             if (selectedRule == null)
             {
+                UnityEngine.Debug.LogWarning($"[DerivationTree] No applicable rule after condition check for '{node.Symbol.Type.Name}' with parameters: {string.Join(", ", node.Symbol.Parameters.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
                 node.Status = DerivationStatus.Terminal;
                 return;
             }
+            
+            UnityEngine.Debug.Log($"[DerivationTree] Selected rule '{selectedRule.Name}' for '{node.Symbol.Type.Name}'");
 
             node.RuleId = selectedRule.Id;
 
@@ -270,14 +276,24 @@ namespace ProceduralGrammarGeneration.GrammarParsing
         private RuleIR SelectRule(List<RuleIR> rules, DerivationNode node)
         {
             var context = BuildParameterContext(node.Symbol);
+            
+            UnityEngine.Debug.Log($"[DerivationTree] SelectRule for '{node.Symbol.Type.Name}' with context: {string.Join(", ", context.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
 
             // Filter rules by condition
             var applicableRules = rules.Where(r =>
-                r.Condition == null || r.Condition.Evaluate(context)
-            ).ToList();
+            {
+                bool applies = r.Condition == null || r.Condition.Evaluate(context);
+                UnityEngine.Debug.Log($"[DerivationTree]   Rule '{r.Name}': condition={(r.Condition != null ? "exists" : "none")}, applies={applies}");
+                return applies;
+            }).ToList();
 
             if (applicableRules.Count == 0)
+            {
+                UnityEngine.Debug.LogWarning($"[DerivationTree] No rules passed condition check out of {rules.Count} rules");
                 return null;
+            }
+            
+            UnityEngine.Debug.Log($"[DerivationTree] {applicableRules.Count} rules passed condition check");
 
             // Check for override
             var overrideRuleId = _overrides.GetRuleOverride(node.Scope);
@@ -421,16 +437,28 @@ namespace ProceduralGrammarGeneration.GrammarParsing
         private Symbol InstantiateSymbol(SymbolInstanceIR instance, Dictionary<string, object> context)
         {
             var symbol = new Symbol(instance.Type);
+            
+            UnityEngine.Debug.Log($"[DerivationTree] InstantiateSymbol '{instance.Type.Name}': ParameterExpressions has {instance.ParameterExpressions.Count} entries");
 
             foreach (var kvp in instance.ParameterExpressions)
             {
-                var paramDef = _grammar.Symbols[instance.Type.Id].Parameters.FirstOrDefault(p => p.Id == kvp.Key);
-                if (paramDef != null)
+                // Get the parameter name from the instance
+                if (!instance.ParameterNames.TryGetValue(kvp.Key, out string paramName))
                 {
-                    var value = kvp.Value.Evaluate(context);
-                    symbol.Parameters[paramDef.Name] = value;
+                    UnityEngine.Debug.LogError($"[DerivationTree]   Param ID {kvp.Key} has no name mapping!");
+                    continue;
                 }
+                
+                UnityEngine.Debug.Log($"[DerivationTree]   Param ID {kvp.Key} -> '{paramName}': evaluating expression...");
+                
+                // Evaluate the expression to get the value
+                var value = kvp.Value.Evaluate(context);
+                symbol.Parameters[paramName] = value;
+                
+                UnityEngine.Debug.Log($"[DerivationTree]   Set '{paramName}' = {value} ({value?.GetType().Name})");
             }
+            
+            UnityEngine.Debug.Log($"[DerivationTree] Instantiated '{symbol.Type.Name}' with parameters: {string.Join(", ", symbol.Parameters.Select(kvp => $"{kvp.Key}={kvp.Value} ({kvp.Value?.GetType().Name})"))}");
 
             return symbol;
         }

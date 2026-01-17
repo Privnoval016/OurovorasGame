@@ -17,79 +17,101 @@ MonoBehaviour:
   maxIterations: 100
   symbols:
   - name: Facade
+    description: 
     parameters:
     - name: width
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
     - name: height
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
     - name: floors
       type: 1
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
   - name: Floor
+    description: 
     parameters:
     - name: width
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
     - name: height
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
     - name: floorNum
       type: 1
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
   - name: Window
+    description: 
     parameters:
     - name: width
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
     - name: height
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
   - name: Door
+    description: 
     parameters:
     - name: width
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
     - name: height
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
   - name: Wall
+    description: 
     parameters:
     - name: width
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
     - name: height
       type: 0
       defaultValue: 
+      description: 
       spatialDataReference: {fileID: 0}
   rules:
   - name: FacadeToFloors
+    description: 
     predecessor:
       name: Facade
+      description: 
       parameters:
       - name: width
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
       - name: height
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
       - name: floors
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
     productions:
     - weight: 1
@@ -114,20 +136,25 @@ MonoBehaviour:
         operationType: 0
       conditions: []
   - name: GroundFloorToDoors
+    description: 
     predecessor:
       name: Floor
+      description: 
       parameters:
       - name: width
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
       - name: height
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
       - name: floorNum
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
     productions:
     - weight: 1
@@ -153,20 +180,25 @@ MonoBehaviour:
         op: 0
         rightOperand: 0
   - name: UpperFloorToWindows
+    description: 
     predecessor:
       name: Floor
+      description: 
       parameters:
       - name: width
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
       - name: height
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
       - name: floorNum
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
     productions:
     - weight: 1
@@ -192,16 +224,20 @@ MonoBehaviour:
         op: 2
         rightOperand: 0
   - name: WindowToWall
+    description: 
     predecessor:
       name: Window
+      description: 
       parameters:
       - name: width
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
       - name: height
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
     productions:
     - weight: 1
@@ -224,16 +260,20 @@ MonoBehaviour:
         operationType: 0
       conditions: []
   - name: DoorToWall
+    description: 
     predecessor:
       name: Door
+      description: 
       parameters:
       - name: width
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
       - name: height
         type: 0
         defaultValue: 
+        description: 
         spatialDataReference: {fileID: 0}
     productions:
     - weight: 1

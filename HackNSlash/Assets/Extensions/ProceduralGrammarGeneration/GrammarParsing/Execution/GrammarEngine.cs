@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 
 namespace ProceduralGrammarGeneration.GrammarParsing
@@ -275,6 +276,73 @@ namespace ProceduralGrammarGeneration.GrammarParsing
         public void SetFileReader(IGrammarFileReader fileReader)
         {
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
+        }
+        
+        /// <summary>
+        /// Simplified API: Compile grammar from source string.
+        /// Returns true if successful, false if errors occurred.
+        /// </summary>
+        public GrammarDefinition CompileFromSource(string source, out string error)
+        {
+            var pipeline = new GrammarCompilerPipeline(source);
+            var result = pipeline.Compile();
+            
+            if (result.Success)
+            {
+                _compiledGrammar = result.GrammarIR;
+                error = null;
+                
+                // Return the grammar definition for inspection
+                var lexer = new GrammarLexer(source);
+                var tokens = lexer.Tokenize();
+                var parser = new GrammarParser(tokens);
+                return parser.Parse();
+            }
+            
+            var sb = new StringBuilder();
+            foreach (var err in result.Errors)
+                sb.AppendLine(err.ToString());
+            error = sb.ToString();
+            return null;
+        }
+        
+        /// <summary>
+        /// Simplified API: Generate derivation starting from a symbol name with parameters.
+        /// </summary>
+        public DerivationTree GenerateFromSymbol(string symbolName, System.Collections.Generic.Dictionary<string, object> parameters = null, int maxIterations = 100, int? seed = null)
+        {
+            if (_compiledGrammar == null)
+                throw new InvalidOperationException("No grammar compiled. Call CompileFromSource first.");
+            
+            // Debug: Log all available symbols
+            var availableSymbols = new System.Text.StringBuilder();
+            availableSymbols.AppendLine($"Looking for symbol: '{symbolName}'");
+            availableSymbols.AppendLine($"Available symbols in compiled grammar ({_compiledGrammar.Symbols.Count}):");
+            foreach (var kvp in _compiledGrammar.Symbols)
+            {
+                availableSymbols.AppendLine($"  - ID {kvp.Key}: '{kvp.Value.Type.Name}'");
+            }
+            UnityEngine.Debug.Log(availableSymbols.ToString());
+            
+            // Find the symbol in the IR by iterating through symbol definitions
+            SymbolType? symbolType = null;
+            foreach (var kvp in _compiledGrammar.Symbols)
+            {
+                if (kvp.Value.Type.Name == symbolName)
+                {
+                    symbolType = kvp.Value.Type;
+                    break;
+                }
+            }
+            
+            if (!symbolType.HasValue)
+                throw new ArgumentException($"Symbol '{symbolName}' not found in compiled grammar. Available symbols: {string.Join(", ", _compiledGrammar.Symbols.Values.Select(s => s.Type.Name))}");
+            
+            // Create symbol with parameters
+            var startSymbol = new Symbol(symbolType.Value, parameters);
+            
+            // Generate using existing method
+            return Generate(startSymbol, seed);
         }
 
         /// <summary>

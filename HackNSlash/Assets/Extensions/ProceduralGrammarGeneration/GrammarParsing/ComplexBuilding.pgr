@@ -1,57 +1,38 @@
-// Complex Building Grammar
-// Demonstrates conditional rules and probabilistic choices
+// Grammar: ComplexBuilding
+// Axiom: Facade
+// Max Iterations: 100
 
-/* 
- * Symbol Declarations
- * This grammar creates a facade with multiple floors,
- * where ground floors have doors and upper floors have windows
- */
-symbol Facade(width: float, height: float, floors: int);
-symbol Floor(width: float, height: float, floorNum: int);
-symbol Window(width: float, height: float);
-symbol Door(width: float, height: float);
-symbol Wall(width: float, height: float);
+// === SYMBOLS ===
+symbol Facade(width:float, height:float, floors:int);
+symbol Floor(width:float, height:float, floorNum:int, totalFloors:int);
+symbol terminal Window(width:float, height:float);
+symbol terminal Door(width:float, height:float);
+symbol terminal Wall(width:float, height:float);
+symbol terminal FloorMarker(floorNum:int);
 
-// Main Rule: Split facade into multiple floors
-// Note: All floors get same floorNum=1 to trigger upper floor rule
+// === RULES ===
+// Rule: FacadeToFloors - Generate all floors recursively
 rule FacadeToFloors
     when Facade(width, height, floors)
-    =>
-    repeat(Y, floors) {
-        Floor(width = width, height = height / floors, floorNum = 1)
-    };
+    if (floors > 1)
+    => Floor(width = width, height = height / floors, floorNum = floors - 1, totalFloors = floors) FloorMarker(floorNum = floors - 1) Facade(width = width, height = height, floors = floors - 1);
 
-// Conditional Rule 1: Ground floor (index 0) gets doors
+// Rule: FacadeToSingleFloor - Base case (last floor)
+rule FacadeToSingleFloor
+    when Facade(width, height, floors)
+    if (floors == 1)
+    => Floor(width = width, height = height, floorNum = 0, totalFloors = floors) FloorMarker(floorNum = 0);
+
+// Rule: GroundFloorToDoors - Ground floor has 3 doors
 rule GroundFloorToDoors
-    when Floor(width, height, floorNum)
-    if floorNum == 0
-    =>
-    repeat(X, 3) {
-        Door(width = width / 3, height = height)
-    };
+    when Floor(width, height, floorNum, totalFloors)
+    if (floorNum == 0)
+    => Door(width = width / 3, height = height) Door(width = width / 3, height = height) Door(width = width / 3, height = height);
 
-// Conditional Rule 2: Upper floors (index > 0) get windows
-// Uses probabilistic choice between 5 or 3 windows
+// Rule: UpperFloorToWindows - Upper floors have 5 windows
 rule UpperFloorToWindows
-    when Floor(width, height, floorNum)
-    if floorNum > 0
-    =>
-    choose {
-        weight 0.7: repeat(X, 5) {
-            Window(width = width / 5, height = height)
-        }
-        weight 0.3: repeat(X, 3) {
-            Window(width = width / 3, height = height)
-        }
-    };
+    when Floor(width, height, floorNum, totalFloors)
+    if (floorNum > 0)
+    => Window(width = width / 5, height = height) Window(width = width / 5, height = height) Window(width = width / 5, height = height) Window(width = width / 5, height = height) Window(width = width / 5, height = height);
 
-// Terminal Rules: Convert windows and doors to walls
-rule WindowToWall
-    when Window(width, height)
-    =>
-    Wall(width = width, height = height);
 
-rule DoorToWall
-    when Door(width, height)
-    =>
-    Wall(width = width, height = height);

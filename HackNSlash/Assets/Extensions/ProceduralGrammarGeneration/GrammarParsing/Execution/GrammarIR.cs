@@ -189,10 +189,12 @@ namespace ProceduralGrammarGeneration.GrammarParsing
     {
         public SymbolType Type { get; set; }
         public Dictionary<int, ExpressionIR> ParameterExpressions { get; set; } // ParamId -> Expression
+        public Dictionary<int, string> ParameterNames { get; set; } // ParamId -> Name (for lookup)
 
         public SymbolInstanceIR()
         {
             ParameterExpressions = new Dictionary<int, ExpressionIR>();
+            ParameterNames = new Dictionary<int, string>();
         }
     }
 
@@ -501,6 +503,7 @@ namespace ProceduralGrammarGeneration.GrammarParsing
             {
                 var paramId = GetOrCreateParameterId(kvp.Key);
                 ir.ParameterExpressions[paramId] = CompileExpression(kvp.Value);
+                ir.ParameterNames[paramId] = kvp.Key; // Store the parameter name
             }
 
             return ir;

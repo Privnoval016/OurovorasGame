@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 using ProceduralGrammarGeneration.GrammarParsing;
+using ProceduralGrammarGeneration.Runtime;
 
 namespace ProceduralGrammarGeneration.Editor
 {
@@ -84,8 +85,11 @@ namespace ProceduralGrammarGeneration.Editor
                 
                 sb.AppendLine($"// Rule: {rule.name}");
                 
-                // Predecessor
-                sb.Append(rule.predecessor.name);
+                // Rule declaration: rule RuleName
+                sb.AppendLine($"rule {rule.name}");
+                
+                // Predecessor: when Symbol(params)
+                sb.Append($"    when {rule.predecessor.name}");
                 if (rule.predecessor.parameters.Count > 0)
                 {
                     sb.Append("(");
@@ -97,28 +101,17 @@ namespace ProceduralGrammarGeneration.Editor
                     }
                     sb.Append(")");
                 }
-                
-                sb.AppendLine(" -> ");
+                sb.AppendLine();
                 
                 // Productions
                 for (int p = 0; p < rule.productions.Count; p++)
                 {
                     var production = rule.productions[p];
                     
-                    // Weight
-                    if (rule.productions.Count > 1)
-                    {
-                        sb.Append($"    [{production.weight}] ");
-                    }
-                    else
-                    {
-                        sb.Append("    ");
-                    }
-                    
-                    // Conditions
+                    // Conditions: if (condition)
                     if (production.conditions.Count > 0)
                     {
-                        sb.Append("if (");
+                        sb.Append("    if (");
                         for (int c = 0; c < production.conditions.Count; c++)
                         {
                             var cond = production.conditions[c];
@@ -126,10 +119,20 @@ namespace ProceduralGrammarGeneration.Editor
                             if (c < production.conditions.Count - 1)
                                 sb.Append(" && ");
                         }
-                        sb.Append(") ");
+                        sb.AppendLine(")");
+                    }
+                    
+                    // Arrow: =>
+                    sb.Append("    =>");
+                    
+                    // Weight (if multiple productions)
+                    if (rule.productions.Count > 1)
+                    {
+                        sb.Append($" [{production.weight}]");
                     }
                     
                     // Steps
+                    sb.Append(" ");
                     for (int s = 0; s < production.steps.Count; s++)
                     {
                         var step = production.steps[s];
@@ -144,7 +147,7 @@ namespace ProceduralGrammarGeneration.Editor
                                     for (int a = 0; a < step.parameterAssignments.Count; a++)
                                     {
                                         var assign = step.parameterAssignments[a];
-                                        sb.Append($"{assign.parameterName}={assign.valueExpression}");
+                                        sb.Append($"{assign.parameterName} = {assign.valueExpression}");
                                         if (a < step.parameterAssignments.Count - 1)
                                             sb.Append(", ");
                                     }
@@ -165,11 +168,12 @@ namespace ProceduralGrammarGeneration.Editor
                             sb.Append(" ");
                     }
                     
+                    sb.AppendLine(";");
+                    
                     if (p < rule.productions.Count - 1)
                         sb.AppendLine();
                 }
                 
-                sb.AppendLine(";");
                 sb.AppendLine();
             }
             

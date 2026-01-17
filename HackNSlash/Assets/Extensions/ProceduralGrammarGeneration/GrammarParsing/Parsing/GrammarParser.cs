@@ -321,12 +321,18 @@ namespace ProceduralGrammarGeneration.GrammarParsing
         {
             var expansion = new ProductionExpansion();
 
-            do
+            while (!Check(TokenType.Semicolon) && !Check(TokenType.RightBrace) && !IsAtEnd())
             {
                 var symbolInstance = ParseSymbolInstance(symbolRegistry);
                 expansion.Symbols.Add(symbolInstance);
+                
+                // Accept optional comma separator (whitespace agnostic)
+                Match(TokenType.Comma);
+                
+                // Stop if we hit a terminator or there's no identifier following
+                if (Check(TokenType.Semicolon) || Check(TokenType.RightBrace) || !Check(TokenType.Identifier))
+                    break;
             }
-            while (Match(TokenType.Comma) && !Check(TokenType.RightBrace) && !Check(TokenType.Semicolon) && !IsAtEnd());
 
             return expansion;
         }

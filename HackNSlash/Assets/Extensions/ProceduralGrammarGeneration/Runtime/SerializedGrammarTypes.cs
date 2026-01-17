@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ProceduralGrammarGeneration.GrammarParsing;
 using UnityEngine;
 
-namespace ProceduralGrammarGeneration.Editor
+namespace ProceduralGrammarGeneration.Runtime
 {
     /// <summary>
     /// Serializable wrapper for grammar data that can be saved in Unity assets.
