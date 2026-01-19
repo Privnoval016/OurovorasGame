@@ -34,6 +34,12 @@ This directory contains the complete grammar parsing backend for the procedural 
 
 ## 🗺️ Navigation Guide
 
+**Ready to generate procedural content?**
+1. Start with [Frontend/README.md](../Frontend/README.md) - Production-ready generator with custom editor
+2. Add ProceduralGenerator component to a GameObject
+3. Configure grammar, strategy, and parameters in the Inspector
+4. Click GENERATE!
+
 **New to the system?**
 1. Start with [QUICKSTART.md](QUICKSTART.md) - 5-minute introduction
 2. Review [ExampleGrammar.txt](ExampleGrammar.txt) - see the syntax

@@ -124,8 +124,8 @@ namespace ProceduralGrammarGeneration.GrammarParsing
 
             return Operator switch
             {
-                ComparisonOperator.Equal => Equals(leftValue, RightValue),
-                ComparisonOperator.NotEqual => !Equals(leftValue, RightValue),
+                ComparisonOperator.Equal => NumericEquals(leftValue, RightValue),
+                ComparisonOperator.NotEqual => !NumericEquals(leftValue, RightValue),
                 ComparisonOperator.LessThan => Compare(leftValue, RightValue) < 0,
                 ComparisonOperator.LessOrEqual => Compare(leftValue, RightValue) <= 0,
                 ComparisonOperator.GreaterThan => Compare(leftValue, RightValue) > 0,
@@ -134,9 +134,36 @@ namespace ProceduralGrammarGeneration.GrammarParsing
             };
         }
 
+        private bool NumericEquals(object left, object right)
+        {
+            // Handle numeric equality with type conversion
+            if (left is int leftInt && right is int rightInt)
+                return leftInt == rightInt;
+            if (left is float leftFloat && right is float rightFloat)
+                return Math.Abs(leftFloat - rightFloat) < float.Epsilon;
+            if (left is int leftInt2 && right is float rightFloat2)
+                return Math.Abs(leftInt2 - rightFloat2) < float.Epsilon;
+            if (left is float leftFloat2 && right is int rightInt2)
+                return Math.Abs(leftFloat2 - rightInt2) < float.Epsilon;
+            
+            // Fallback to standard equality for non-numeric types
+            return Equals(left, right);
+        }
+
         private int Compare(object left, object right)
         {
-            if (left is IComparable leftComp && right is IComparable rightComp)
+            // Handle numeric comparisons with int/float conversion
+            if (left is int leftInt && right is int rightInt)
+                return leftInt.CompareTo(rightInt);
+            if (left is float leftFloat && right is float rightFloat)
+                return leftFloat.CompareTo(rightFloat);
+            if (left is int leftInt2 && right is float rightFloat2)
+                return ((float)leftInt2).CompareTo(rightFloat2);
+            if (left is float leftFloat2 && right is int rightInt2)
+                return leftFloat2.CompareTo((float)rightInt2);
+            
+            // Fallback for other IComparable types
+            if (left is IComparable leftComp && right is IComparable rightComp && left.GetType() == right.GetType())
                 return leftComp.CompareTo(rightComp);
             return 0;
         }

@@ -437,6 +437,9 @@ namespace ProceduralGrammarGeneration.GrammarParsing
                 
                 // Evaluate the expression to get the value
                 var value = kvp.Value.Evaluate(context);
+                
+                // Store the value - allow both int and float types
+                // The spatial layer will handle type conversion as needed
                 symbol.Parameters[paramName] = value;
             }
 

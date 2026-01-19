@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76b1904ac04a24027aae93d208efca8d, type: 3}
+  m_Name: NewSymbolGeometry
+  m_EditorClassIdentifier: 
+  symbolName: 
+  description: 
+  prefab: {fileID: 0}
+  mesh: {fileID: 0}
+  material: {fileID: 0}
+  physicalWidth: 1
+  physicalHeight: 1
+  physicalDepth: 1
+  scaleToParameters: 1
+  pivotOffset: {x: 0.5, y: 0.5, z: 0.5}
+  alignment: 0
+  spacing: 0
+  positionOffset: {x: 0, y: 0, z: 0}
+  rotationOffset: {x: 0, y: 0, z: 0}
+  layer: 0
+  tag: Untagged
+  castShadows: 1
+  receiveShadows: 1

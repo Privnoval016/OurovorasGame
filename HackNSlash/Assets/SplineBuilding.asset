@@ -10,36 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cebfc4250b5df49979650a3f4d956fa1, type: 3}
-  m_Name: ComplexBuilding
+  m_Name: SplineBuilding
   m_EditorClassIdentifier: 
-  grammarName: ImportedGrammar
+  grammarName: SplineBuilding
   axiom: Building
   maxIterations: 100
   symbols:
   - name: Building
     description: '
 
-      Philosophy: Tile sizes used for tiling calculations, geometry
-      maintains scale (1,1,1)
+      Philosophy: Building that follows a spline path with similar
+      structure to ComplexBuilding
 
-      - Grammar is size-agnostic, accepts tile dimensions
-      as parameters
+      - Spline length determines building extent
+      along the path
 
-      - User configures axiom parameters to match their geometry
-      assets
-
-      - Grammar calculates counts dynamically based on parameters
+      - Width creates perpendicular structure depth
 
       -
-      Floors calculated from height / floorHeight
+      Floors stack vertically with windows/doors
 
-      - Terminal symbols have
-      NO dimension parameters - they use SymbolGeometryData dimensions
-
-      - This
-      ensures all meshes maintain scale (1,1,1) without stretching'
+      - Roof tiles over the top
+      following spline curvature'
     parameters:
-    - name: length
+    - name: splineLength
       type: 0
       defaultValue: 
       description: 
@@ -82,7 +76,7 @@ MonoBehaviour:
   - name: Structure
     description: 
     parameters:
-    - name: length
+    - name: splineLength
       type: 0
       defaultValue: 
       description: 
@@ -125,7 +119,7 @@ MonoBehaviour:
   - name: Roof
     description: 
     parameters:
-    - name: length
+    - name: splineLength
       type: 0
       defaultValue: 
       description: 
@@ -143,7 +137,7 @@ MonoBehaviour:
   - name: RoofRow
     description: 
     parameters:
-    - name: length
+    - name: splineLength
       type: 0
       defaultValue: 
       description: 
@@ -166,7 +160,7 @@ MonoBehaviour:
   - name: RoofTileRow
     description: 
     parameters:
-    - name: length
+    - name: splineLength
       type: 0
       defaultValue: 
       description: 
@@ -184,7 +178,7 @@ MonoBehaviour:
   - name: Floor
     description: 
     parameters:
-    - name: length
+    - name: splineLength
       type: 0
       defaultValue: 
       description: 
@@ -327,26 +321,12 @@ MonoBehaviour:
       spatialDataReference: {fileID: 0}
   rules:
   - name: BuildingToStructureAndRoof
-    description: 'Configured via axiom parameters to match SymbolGeometryData:
-
-      -
-      windowSize: width of window tile (e.g., 2.0)
-
-      - doorWidth: width of door
-      tile (e.g., 1.5)
-
-      - wallWidth: width of wall tile (e.g., 2.0)
-
-      -
-      roofTileSize: size of square roof tile (e.g., 2.0)
-
-      - floorHeight: height
-      of each floor (e.g., 3.5)'
+    description: 
     predecessor:
       name: Building
       description: 
       parameters:
-      - name: length
+      - name: splineLength
         type: 0
         defaultValue: 
         description: 
@@ -398,8 +378,8 @@ MonoBehaviour:
       - type: 0
         symbolName: Structure
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: width
           valueExpression: width
         - parameterName: height
@@ -420,8 +400,8 @@ MonoBehaviour:
       - type: 0
         symbolName: Roof
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: width
           valueExpression: width
         - parameterName: roofTileSize
@@ -436,7 +416,7 @@ MonoBehaviour:
       name: Structure
       description: 
       parameters:
-      - name: length
+      - name: splineLength
         type: 0
         defaultValue: 
         description: 
@@ -496,8 +476,8 @@ MonoBehaviour:
       - type: 0
         symbolName: Floor
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: width
           valueExpression: width
         - parameterName: floorHeight
@@ -518,8 +498,8 @@ MonoBehaviour:
       - type: 0
         symbolName: Structure
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: width
           valueExpression: width
         - parameterName: height
@@ -547,7 +527,7 @@ MonoBehaviour:
       name: Structure
       description: 
       parameters:
-      - name: length
+      - name: splineLength
         type: 0
         defaultValue: 
         description: 
@@ -607,8 +587,8 @@ MonoBehaviour:
       - type: 0
         symbolName: Floor
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: width
           valueExpression: width
         - parameterName: floorHeight
@@ -631,12 +611,13 @@ MonoBehaviour:
         op: 0
         rightOperand: 1
   - name: FloorToFourSides
-    description: 
+    description: 'For spline: front follows path, right/left are perpendicular, back
+      closes the rectangle'
     predecessor:
       name: Floor
       description: 
       parameters:
-      - name: length
+      - name: splineLength
         type: 0
         defaultValue: 
         description: 
@@ -689,7 +670,7 @@ MonoBehaviour:
         symbolName: FloorSide
         parameterAssignments:
         - parameterName: sideLength
-          valueExpression: length
+          valueExpression: splineLength
         - parameterName: floorHeight
           valueExpression: floorHeight
         - parameterName: floorNum
@@ -733,7 +714,7 @@ MonoBehaviour:
         symbolName: FloorSide
         parameterAssignments:
         - parameterName: sideLength
-          valueExpression: length
+          valueExpression: splineLength
         - parameterName: floorHeight
           valueExpression: floorHeight
         - parameterName: floorNum
@@ -1236,7 +1217,7 @@ MonoBehaviour:
       name: Roof
       description: 
       parameters:
-      - name: length
+      - name: splineLength
         type: 0
         defaultValue: 
         description: 
@@ -1263,8 +1244,8 @@ MonoBehaviour:
       - type: 0
         symbolName: RoofRow
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: width
           valueExpression: width
         - parameterName: rowsRemaining
@@ -1281,7 +1262,7 @@ MonoBehaviour:
       name: RoofRow
       description: 
       parameters:
-      - name: length
+      - name: splineLength
         type: 0
         defaultValue: 
         description: 
@@ -1313,10 +1294,10 @@ MonoBehaviour:
       - type: 0
         symbolName: RoofTileRow
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: tilesRemaining
-          valueExpression: length / roofTileSize
+          valueExpression: splineLength / roofTileSize
         - parameterName: roofTileSize
           valueExpression: roofTileSize
         operationTarget: 
@@ -1325,8 +1306,8 @@ MonoBehaviour:
       - type: 0
         symbolName: RoofRow
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: width
           valueExpression: width
         - parameterName: rowsRemaining
@@ -1346,7 +1327,7 @@ MonoBehaviour:
       name: RoofRow
       description: 
       parameters:
-      - name: length
+      - name: splineLength
         type: 0
         defaultValue: 
         description: 
@@ -1378,10 +1359,10 @@ MonoBehaviour:
       - type: 0
         symbolName: RoofTileRow
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: tilesRemaining
-          valueExpression: length / roofTileSize
+          valueExpression: splineLength / roofTileSize
         - parameterName: roofTileSize
           valueExpression: roofTileSize
         operationTarget: 
@@ -1397,7 +1378,7 @@ MonoBehaviour:
       name: RoofTileRow
       description: 
       parameters:
-      - name: length
+      - name: splineLength
         type: 0
         defaultValue: 
         description: 
@@ -1430,8 +1411,8 @@ MonoBehaviour:
       - type: 0
         symbolName: RoofTileRow
         parameterAssignments:
-        - parameterName: length
-          valueExpression: length
+        - parameterName: splineLength
+          valueExpression: splineLength
         - parameterName: tilesRemaining
           valueExpression: tilesRemaining - 1
         - parameterName: roofTileSize
@@ -1449,7 +1430,7 @@ MonoBehaviour:
       name: RoofTileRow
       description: 
       parameters:
-      - name: length
+      - name: splineLength
         type: 0
         defaultValue: 
         description: 
@@ -1483,4 +1464,4 @@ MonoBehaviour:
       - leftOperand: tilesRemaining
         op: 5
         rightOperand: 1
-  filePath: /Users/pranavsukesh/Desktop/Github/HackNSlashGame/HackNSlash/Assets/Extensions/ProceduralGrammarGeneration/GrammarParsing/ComplexBuilding.pgr
+  filePath: /Users/pranavsukesh/Desktop/Github/HackNSlashGame/HackNSlash/Assets/Extensions/ProceduralGrammarGeneration/GrammarParsing/SplineBuilding.pgr

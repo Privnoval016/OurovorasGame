@@ -5,53 +5,51 @@ using UnityEngine;
 using ProceduralGrammarGeneration.GrammarParsing;
 using ProceduralGrammarGeneration.Runtime;
 using ProceduralGrammarGeneration.Spatial;
+using ProceduralGrammarGeneration.Testing;
 
-namespace ProceduralGrammarGeneration.Testing
+namespace ProceduralGrammarGeneration.Generation
 {
-    public enum SpatialStrategyType
-    {
-        VerticalStack,
-        // Future: SplineFollow, Grid, etc.
-    }
-    
     /// <summary>
-    /// Tests spatial interpretation - converts derivation tree to positioned 3D nodes.
-    /// Outputs terminal symbol positions and rotations.
+    /// MonoBehaviour for testing the complete grammar -> spatial -> mesh generation pipeline.
+    /// Generates actual Unity GameObjects with meshes from grammar rules.
     /// </summary>
-    public class SpatialTester : MonoBehaviour
+    public class MeshTester : MonoBehaviour
     {
         [Header("Grammar")]
         [Tooltip("Grammar asset to test")]
         public GrammarAsset grammarAsset;
         
         [Header("Spatial Strategy")]
-        [Tooltip("Strategy type for spatial placement")]
-        public SpatialStrategyType strategyType = SpatialStrategyType.VerticalStack;
         
-        [Tooltip("Height per floor (used by VerticalStackStrategy)")]
-        public float heightPerFloor = 3.5f;
+        [SerializeReference]
+        [Tooltip("Type of spatial strategy to use for interpretation")]
+        public BaseSpatialStrategy spatialStrategy;
         
         [Header("Geometry Library")]
-        [Tooltip("Geometry data for terminal symbols (Window, Door, Wall, FloorMarker, etc.)")]
+        [Tooltip("Geometry data for terminal symbols (Window, Door, Wall, etc.)")]
         public SymbolGeometryData[] geometryLibrary;
         
-        [Header("Output")]
-        [Tooltip("File to write spatial output to")]
-        public string outputFile = "Testing/spatial_output.txt";
+        [Header("Generation Options")]
+        [Tooltip("Include non-terminal nodes as GameObjects (for debugging hierarchy)")]
+        public bool includeNonTerminals = false;
+        
+        [Tooltip("Clear previous generation before creating new one")]
+        public bool clearPrevious = true;
         
         [Header("Parameters")]
         [Tooltip("Parameters to pass to the axiom symbol")]
         public List<AxiomParameter> axiomParameters = new List<AxiomParameter>();
         
         [TextArea(3, 6)]
-        [Tooltip("Help: Add parameters that match the axiom symbol's definition. E.g., for Building(length, width, height, ...), add parameters with those names.")]
-        public string parameterHelp = "Add parameters matching your grammar's axiom symbol.";
+        [Tooltip("Help: Add parameters that match the axiom symbol's definition.")]
+        public string parameterHelp = "Add parameters matching your grammar's axiom symbol (e.g., length, width, height, windowSize, etc.)";
         
         private string _lastGrammarName = "";
         private string _lastAxiomName = "";
-
-        [ContextMenu("Test Spatial Generation")]
-        public void TestSpatialGeneration()
+        private GameObject _generatedRoot;
+        
+        [ContextMenu("Generate Mesh")]
+        public void GenerateMesh()
         {
             if (grammarAsset == null)
             {
@@ -61,7 +59,14 @@ namespace ProceduralGrammarGeneration.Testing
             
             try
             {
-                Debug.Log($"=== Testing Spatial Generation: {grammarAsset.grammarName} ===");
+                Debug.Log($"=== Starting Mesh Generation: {grammarAsset.grammarName} ===");
+                
+                // Clear previous generation if requested
+                if (clearPrevious && _generatedRoot != null)
+                {
+                    DestroyImmediate(_generatedRoot);
+                    _generatedRoot = null;
+                }
                 
                 // Step 1: Export grammar to .pgr format
                 var pgrContent = ExportToPGR(grammarAsset);
@@ -76,7 +81,7 @@ namespace ProceduralGrammarGeneration.Testing
                     return;
                 }
                 
-                Debug.Log($"✓ Grammar compiled successfully. {grammarDef.Symbols.Count} symbols, {grammarDef.Rules.Count} rules.");
+                Debug.Log($"✓ Grammar compiled: {grammarDef.Symbols.Count} symbols, {grammarDef.Rules.Count} rules");
                 
                 // Step 3: Build parameter dictionary
                 var parameters = new Dictionary<string, object>();
@@ -96,7 +101,7 @@ namespace ProceduralGrammarGeneration.Testing
                     return;
                 }
                 
-                Debug.Log($"✓ Derivation completed. Tree depth: {derivationTree.GetMaxDepth()}, Leaf nodes: {derivationTree.GetLeafCount()}");
+                Debug.Log($"✓ Derivation completed: {derivationTree.GetMaxDepth()} depth, {derivationTree.GetLeafCount()} leaves");
                 
                 // Step 5: Create spatial interpreter with strategy
                 ISpatialStrategy spatialStrategy = CreateStrategy();
@@ -106,115 +111,50 @@ namespace ProceduralGrammarGeneration.Testing
                 if (geometryLibrary != null && geometryLibrary.Length > 0)
                 {
                     interpreter.RegisterGeometryLibrary(geometryLibrary);
-                    Debug.Log($"✓ Registered {geometryLibrary.Length} geometry data assets");
+                    Debug.Log($"✓ Registered {geometryLibrary.Length} geometry assets");
                 }
                 else
                 {
-                    Debug.LogWarning("⚠ No geometry library assigned - using default dimensions");
+                    Debug.LogWarning("⚠ No geometry library assigned - will use cube placeholders");
                 }
                 
                 // Step 6: Interpret to spatial graph
                 var spatialGraph = interpreter.Interpret(derivationTree);
-                
                 Debug.Log($"✓ Spatial graph created: {spatialGraph.NodesById.Count} nodes");
                 
-                // Step 7: Generate output text
-                string outputText = GenerateSpatialOutput(spatialGraph, grammarDef);
+                // Step 7: Generate Unity meshes
+                var meshGenerator = new MeshGenerator();
+                _generatedRoot = meshGenerator.Generate(spatialGraph, transform, includeNonTerminals);
                 
-                // Step 8: Write to file
-                string fullPath = System.IO.Path.Combine(Application.dataPath, "..", "Assets", "Extensions", "ProceduralGrammarGeneration", outputFile);
-                System.IO.File.WriteAllText(fullPath, outputText);
-                
-                Debug.Log($"✓ Spatial output written to: {outputFile}");
-                Debug.Log($"\n{outputText}");
+                Debug.Log($"✓ Mesh generation complete!");
+                Debug.Log($"Generated structure: {_generatedRoot.transform.childCount} children");
+                Debug.Log($"Bounds: {spatialGraph.Bounds}");
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"Spatial test failed: {e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Mesh generation failed: {e.Message}\n{e.StackTrace}");
             }
         }
         
-        private string GenerateSpatialOutput(SpatialGraph graph, GrammarDefinition grammarDef)
+        [ContextMenu("Clear Generated Mesh")]
+        public void ClearMesh()
         {
-            var sb = new StringBuilder();
-            
-            sb.AppendLine("=== Spatial Interpretation Result ===");
-            sb.AppendLine($"Grammar: {grammarAsset.grammarName}");
-            sb.AppendLine($"Axiom: {grammarAsset.axiom}");
-            sb.AppendLine($"Total Nodes: {graph.NodesById.Count}");
-            sb.AppendLine($"Bounds: {graph.Bounds}");
-            sb.AppendLine();
-            
-            // Get stats
-            var stats = graph.GetStats();
-            sb.AppendLine($"Terminal nodes (leaves): {stats.TerminalNodes}");
-            sb.AppendLine($"Max depth: {stats.MaxDepth}");
-            sb.AppendLine();
-            
-            sb.AppendLine("=== Symbol Distribution ===");
-            foreach (var kvp in stats.SymbolCounts.OrderByDescending(kvp => kvp.Value))
+            if (_generatedRoot != null)
             {
-                bool isTerminal = grammarDef.Symbols.Any(s => s.Type.Name == kvp.Key && s.IsTerminal);
-                string terminalLabel = isTerminal ? "[TERMINAL]" : "[NON-TERMINAL]";
-                sb.AppendLine($"{kvp.Key} {terminalLabel}: {kvp.Value}");
+                DestroyImmediate(_generatedRoot);
+                _generatedRoot = null;
+                Debug.Log("Cleared generated mesh");
             }
-            sb.AppendLine();
-            
-            // Get all terminal nodes
-            var terminalNodes = graph.GetTerminalNodes();
-            
-            sb.AppendLine($"=== Terminal Symbol Positions ({terminalNodes.Count} nodes) ===");
-            sb.AppendLine();
-            
-            // Group by symbol type
-            var groupedBySymbol = terminalNodes.GroupBy(n => n.SymbolName);
-            
-            foreach (var group in groupedBySymbol.OrderBy(g => g.Key))
-            {
-                sb.AppendLine($"--- {group.Key} ({group.Count()} instances) ---");
-                
-                int index = 1;
-                foreach (var node in group)
-                {
-                    sb.AppendLine($"{index}. {node.SymbolName}");
-                    sb.AppendLine($"   Position: {FormatVector3(node.Position)}");
-                    sb.AppendLine($"   Rotation: {FormatQuaternion(node.Rotation)}");
-                    sb.AppendLine($"   Scale: {FormatVector3(node.Scale)}");
-                    
-                    // Show parameters
-                    if (node.Parameters.Count > 0)
-                    {
-                        sb.AppendLine($"   Parameters: {string.Join(", ", node.Parameters.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
-                    }
-                    
-                    // Show geometry data info
-                    if (node.GeometryData != null)
-                    {
-                        sb.AppendLine($"   Geometry: {node.GeometryData.name} (physical size: {node.GeometryData.GetPhysicalSize()})");
-                    }
-                    
-                    sb.AppendLine();
-                    index++;
-                }
-            }
-            
-            return sb.ToString();
         }
         
-        private string FormatVector3(Vector3 v)
+        private ISpatialStrategy CreateStrategy()
         {
-            return $"({v.x:F2}, {v.y:F2}, {v.z:F2})";
-        }
-        
-        private string FormatQuaternion(Quaternion q)
-        {
-            Vector3 euler = q.eulerAngles;
-            return $"({q.x:F3}, {q.y:F3}, {q.z:F3}, {q.w:F3}) [Euler: {FormatVector3(euler)}]";
+            return spatialStrategy;
         }
         
         private string ExportToPGR(GrammarAsset asset)
         {
-            var sb = new StringBuilder();
+            var sb = new System.Text.StringBuilder();
             
             sb.AppendLine($"// Grammar: {asset.grammarName}");
             sb.AppendLine($"// Axiom: {asset.axiom}");
@@ -338,76 +278,52 @@ namespace ProceduralGrammarGeneration.Testing
             };
         }
         
-        private ISpatialStrategy CreateStrategy()
+        private void OnValidate()
         {
-            return strategyType switch
+            // Only rebuild parameters when grammar or axiom changes
+            string currentGrammarName = grammarAsset != null ? grammarAsset.name : "";
+            string currentAxiomName = grammarAsset != null ? grammarAsset.axiom : "";
+            
+            if (currentGrammarName != _lastGrammarName || currentAxiomName != _lastAxiomName)
             {
-                SpatialStrategyType.VerticalStack => new VerticalStackStrategy(heightPerFloor),
-                _ => new VerticalStackStrategy(heightPerFloor)
-            };
+                _lastGrammarName = currentGrammarName;
+                _lastAxiomName = currentAxiomName;
+                
+                if (grammarAsset != null)
+                {
+                    RebuildParameterList();
+                }
+            }
         }
         
-        /// <summary>
-        /// Called when inspector values change - auto-populate axiom parameters
-        /// </summary>
-        void OnValidate()
+        private void RebuildParameterList()
         {
-            if (grammarAsset == null)
+            var axiomSymbol = grammarAsset.symbols.FirstOrDefault(s => s.name == grammarAsset.axiom);
+            if (axiomSymbol == null || axiomSymbol.parameters == null)
+            {
+                axiomParameters.Clear();
                 return;
+            }
             
-            // Only update parameters if grammar or axiom changed
-            bool grammarChanged = _lastGrammarName != grammarAsset.grammarName;
-            bool axiomChanged = _lastAxiomName != grammarAsset.axiom;
-            
-            if (!grammarChanged && !axiomChanged)
-                return;
-            
-            _lastGrammarName = grammarAsset.grammarName;
-            _lastAxiomName = grammarAsset.axiom;
-            
-            // Find the axiom symbol in the grammar
-            var axiomSymbol = grammarAsset.FindSymbol(grammarAsset.axiom);
-            if (axiomSymbol == null || axiomSymbol.parameters.Count == 0)
-                return;
-            
-            // Clear and rebuild parameter list to match axiom
+            // Preserve existing values where parameter names match
+            var existingParams = axiomParameters.ToDictionary(p => p.name, p => p);
             axiomParameters.Clear();
             
             foreach (var param in axiomSymbol.parameters)
             {
-                axiomParameters.Add(new AxiomParameter
+                if (existingParams.TryGetValue(param.name, out var existing))
                 {
-                    name = param.name,
-                    type = param.type,
-                    floatValue = param.type == ParameterType.Float ? (float.TryParse(param.defaultValue, out float fv) ? fv : 0f) : 0f,
-                    intValue = param.type == ParameterType.Int ? (int.TryParse(param.defaultValue, out int iv) ? iv : 0) : 0,
-                    stringValue = param.type == ParameterType.String ? param.defaultValue ?? "" : "",
-                    boolValue = param.type == ParameterType.Bool ? (bool.TryParse(param.defaultValue, out bool bv) ? bv : false) : false
-                });
+                    axiomParameters.Add(existing);
+                }
+                else
+                {
+                    axiomParameters.Add(new AxiomParameter
+                    {
+                        name = param.name,
+                        type = param.type
+                    });
+                }
             }
-        }
-    }
-    
-    [System.Serializable]
-    public class AxiomParameter
-    {
-        public string name;
-        public ParameterType type;
-        public float floatValue;
-        public int intValue;
-        public string stringValue;
-        public bool boolValue;
-        
-        public object GetValue()
-        {
-            return type switch
-            {
-                ParameterType.Float => floatValue,
-                ParameterType.Int => intValue,
-                ParameterType.String => stringValue,
-                ParameterType.Bool => boolValue,
-                _ => floatValue
-            };
         }
     }
 }

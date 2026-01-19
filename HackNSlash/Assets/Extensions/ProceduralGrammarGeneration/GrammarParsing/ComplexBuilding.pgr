@@ -1,38 +1,124 @@
-// Grammar: ComplexBuilding
-// Axiom: Facade
-// Max Iterations: 100
+// Grammar: ComplexBuilding (Tiling Version)
+// Axiom: Building
+// Max Iterations: 200
+// 
+// Philosophy: Tile sizes used for tiling calculations, geometry maintains scale (1,1,1)
+// - Grammar is size-agnostic, accepts tile dimensions as parameters
+// - User configures axiom parameters to match their geometry assets
+// - Grammar calculates counts dynamically based on parameters
+// - Floors calculated from height / floorHeight
+// - Terminal symbols have NO dimension parameters - they use SymbolGeometryData dimensions
+// - This ensures all meshes maintain scale (1,1,1) without stretching
 
 // === SYMBOLS ===
-symbol Facade(width:float, height:float, floors:int);
-symbol Floor(width:float, height:float, floorNum:int, totalFloors:int);
-symbol terminal Window(width:float, height:float);
-symbol terminal Door(width:float, height:float);
-symbol terminal Wall(width:float, height:float);
+symbol Building(length:float, width:float, height:float, windowSize:float, doorWidth:float, wallWidth:float, roofTileSize:float, floorHeight:float);
+symbol Structure(length:float, width:float, height:float, floorsRemaining:int, windowSize:float, doorWidth:float, wallWidth:float, floorHeight:float);
+symbol Roof(length:float, width:float, roofTileSize:float);
+symbol RoofRow(length:float, width:float, rowsRemaining:int, roofTileSize:float);
+symbol RoofTileRow(length:float, tilesRemaining:int, roofTileSize:float);
+symbol Floor(length:float, width:float, floorHeight:float, floorNum:int, windowSize:float, doorWidth:float, wallWidth:float, elementSize:float);
+symbol FloorSide(sideLength:float, floorHeight:float, floorNum:int, sideNum:int, windowSize:float, doorWidth:float, wallWidth:float, elementSize:float);
+symbol ElementRow(sideLength:float, floorHeight:float, elementsRemaining:int, floorNum:int, windowSize:float, doorWidth:float, wallWidth:float);
+symbol terminal Window;
+symbol terminal Door;
+symbol terminal Wall;
+symbol terminal RoofTile;
 symbol terminal FloorMarker(floorNum:int);
 
+// === TILE SIZES ===
+// Configured via axiom parameters to match SymbolGeometryData:
+// - windowSize: width of window tile (e.g., 2.0)
+// - doorWidth: width of door tile (e.g., 1.5)
+// - wallWidth: width of wall tile (e.g., 2.0)
+// - roofTileSize: size of square roof tile (e.g., 2.0)
+// - floorHeight: height of each floor (e.g., 3.5)
+
 // === RULES ===
-// Rule: FacadeToFloors - Generate all floors recursively
-rule FacadeToFloors
-    when Facade(width, height, floors)
-    if (floors > 1)
-    => Floor(width = width, height = height / floors, floorNum = floors - 1, totalFloors = floors) FloorMarker(floorNum = floors - 1) Facade(width = width, height = height, floors = floors - 1);
 
-// Rule: FacadeToSingleFloor - Base case (last floor)
-rule FacadeToSingleFloor
-    when Facade(width, height, floors)
-    if (floors == 1)
-    => Floor(width = width, height = height, floorNum = 0, totalFloors = floors) FloorMarker(floorNum = 0);
+// Rule: BuildingToStructureAndRoof - Calculate floors and split into structure + roof
+rule BuildingToStructureAndRoof
+    when Building(length, width, height, windowSize, doorWidth, wallWidth, roofTileSize, floorHeight)
+    => Structure(length = length, width = width, height = height, floorsRemaining = height / floorHeight, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, floorHeight = floorHeight) Roof(length = length, width = width, roofTileSize = roofTileSize);
 
-// Rule: GroundFloorToDoors - Ground floor has 3 doors
-rule GroundFloorToDoors
-    when Floor(width, height, floorNum, totalFloors)
+// Rule: StructureToFloors - Generate floors recursively (top-down)
+rule StructureToFloors
+    when Structure(length, width, height, floorsRemaining, windowSize, doorWidth, wallWidth, floorHeight)
+    if (floorsRemaining > 1)
+    => FloorMarker(floorNum = floorsRemaining - 1) Floor(length = length, width = width, floorHeight = floorHeight, floorNum = floorsRemaining - 1, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = doorWidth + wallWidth) Structure(length = length, width = width, height = height, floorsRemaining = floorsRemaining - 1, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, floorHeight = floorHeight);
+
+// Rule: StructureToLastFloor - Base case (ground floor)
+rule StructureToLastFloor
+    when Structure(length, width, height, floorsRemaining, windowSize, doorWidth, wallWidth, floorHeight)
+    if (floorsRemaining == 1)
+    => FloorMarker(floorNum = 0) Floor(length = length, width = width, floorHeight = floorHeight, floorNum = 0, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = doorWidth + wallWidth);
+
+// Rule: FloorToFourSides - Each floor has 4 sides (North=length, East=width, South=length, West=width)
+rule FloorToFourSides
+    when Floor(length, width, floorHeight, floorNum, windowSize, doorWidth, wallWidth, elementSize)
+    => FloorSide(sideLength = length, floorHeight = floorHeight, floorNum = floorNum, sideNum = 0, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = elementSize) FloorSide(sideLength = width, floorHeight = floorHeight, floorNum = floorNum, sideNum = 1, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = elementSize) FloorSide(sideLength = length, floorHeight = floorHeight, floorNum = floorNum, sideNum = 2, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = elementSize) FloorSide(sideLength = width, floorHeight = floorHeight, floorNum = floorNum, sideNum = 3, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = elementSize);
+
+// Rule: GroundFloorSideToDoorsAndWalls - Ground floor: alternate doors and walls
+rule GroundFloorSideToDoorsAndWalls
+    when FloorSide(sideLength, floorHeight, floorNum, sideNum, windowSize, doorWidth, wallWidth, elementSize)
     if (floorNum == 0)
-    => Door(width = width / 3, height = height) Door(width = width / 3, height = height) Door(width = width / 3, height = height);
+    => ElementRow(sideLength = sideLength, floorHeight = floorHeight, elementsRemaining = sideLength / elementSize, floorNum = floorNum, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth);
 
-// Rule: UpperFloorToWindows - Upper floors have 5 windows
-rule UpperFloorToWindows
-    when Floor(width, height, floorNum, totalFloors)
+// Rule: ElementRowToDoorWall - Ground floor pattern: Door-Wall-Door-Wall...
+rule ElementRowToDoorWall
+    when ElementRow(sideLength, floorHeight, elementsRemaining, floorNum, windowSize, doorWidth, wallWidth)
+    if (floorNum == 0 && elementsRemaining > 1)
+    => Door Wall ElementRow(sideLength = sideLength, floorHeight = floorHeight, elementsRemaining = elementsRemaining - 1, floorNum = floorNum, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth);
+
+// Rule: ElementRowToFinalElement - Last element
+rule ElementRowToFinalElement
+    when ElementRow(sideLength, floorHeight, elementsRemaining, floorNum, windowSize, doorWidth, wallWidth)
+    if (floorNum == 0 && elementsRemaining <= 1)
+    => Door;
+
+// Rule: UpperFloorSideToWindows - Upper floors: tile windows
+rule UpperFloorSideToWindows
+    when FloorSide(sideLength, floorHeight, floorNum, sideNum, windowSize, doorWidth, wallWidth, elementSize)
     if (floorNum > 0)
-    => Window(width = width / 5, height = height) Window(width = width / 5, height = height) Window(width = width / 5, height = height) Window(width = width / 5, height = height) Window(width = width / 5, height = height);
+    => ElementRow(sideLength = sideLength, floorHeight = floorHeight, elementsRemaining = sideLength / windowSize, floorNum = floorNum, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth);
 
+// Rule: ElementRowToWindows - Upper floor pattern: Window-Window-Window...
+rule ElementRowToWindows
+    when ElementRow(sideLength, floorHeight, elementsRemaining, floorNum, windowSize, doorWidth, wallWidth)
+    if (floorNum > 0 && elementsRemaining > 1)
+    => Window ElementRow(sideLength = sideLength, floorHeight = floorHeight, elementsRemaining = elementsRemaining - 1, floorNum = floorNum, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth);
+
+// Rule: ElementRowToFinalWindow - Last window
+rule ElementRowToFinalWindow
+    when ElementRow(sideLength, floorHeight, elementsRemaining, floorNum, windowSize, doorWidth, wallWidth)
+    if (floorNum > 0 && elementsRemaining <= 1)
+    => Window;
+
+// Rule: RoofToRows - Calculate roof rows
+rule RoofToRows
+    when Roof(length, width, roofTileSize)
+    => RoofRow(length = length, width = width, rowsRemaining = width / roofTileSize, roofTileSize = roofTileSize);
+
+// Rule: RoofRowToTileRow - Generate each row of roof tiles
+rule RoofRowToTileRow
+    when RoofRow(length, width, rowsRemaining, roofTileSize)
+    if (rowsRemaining > 1)
+    => RoofTileRow(length = length, tilesRemaining = length / roofTileSize, roofTileSize = roofTileSize) RoofRow(length = length, width = width, rowsRemaining = rowsRemaining - 1, roofTileSize = roofTileSize);
+
+// Rule: RoofRowToLastTileRow - Last row
+rule RoofRowToLastTileRow
+    when RoofRow(length, width, rowsRemaining, roofTileSize)
+    if (rowsRemaining <= 1)
+    => RoofTileRow(length = length, tilesRemaining = length / roofTileSize, roofTileSize = roofTileSize);
+
+// Rule: RoofTileRowToTiles - Generate tiles in a row
+rule RoofTileRowToTiles
+    when RoofTileRow(length, tilesRemaining, roofTileSize)
+    if (tilesRemaining > 1)
+    => RoofTile RoofTileRow(length = length, tilesRemaining = tilesRemaining - 1, roofTileSize = roofTileSize);
+
+// Rule: RoofTileRowToLastTile - Last tile in row
+rule RoofTileRowToLastTile
+    when RoofTileRow(length, tilesRemaining, roofTileSize)
+    if (tilesRemaining <= 1)
+    => RoofTile;
 

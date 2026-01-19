@@ -1,0 +1,127 @@
+// Grammar: SplineBuilding
+// Axiom: Building
+// Max Iterations: 200
+// 
+// Philosophy: Building that follows a spline path with similar structure to ComplexBuilding
+// - Element dimensions define individual piece sizes (windows, doors, etc.)
+// - Grammar uses these to calculate how many elements fit
+// - Floors stack vertically, roof tiles over top following spline curvature
+//
+// USAGE WITH SplineFollowStrategy:
+// The strategy automatically calculates splineLength from your SplineContainer.
+// Access it via context.GetVariable<float>("splineLength", 0f) in your axiom setup.
+//
+// Example axiom parameters:
+// - splineLength: Use context.GetVariable<float>("splineLength", 20f) - auto from spline!
+// - width: perpendicular building depth (e.g., 6.0)
+// - height: total building height (e.g., 14.0)  
+// - windowSize: width of one window tile (e.g., 2.0)
+// - doorWidth: width of one door tile (e.g., 1.5)
+// - wallWidth: width of one wall tile (e.g., 2.0)
+// - roofTileSize: size of square roof tile (e.g., 2.0)
+// - floorHeight: height of one floor (e.g., 3.5)
+
+// === SYMBOLS ===
+symbol Building(splineLength:float, width:float, height:float, windowSize:float, doorWidth:float, wallWidth:float, roofTileSize:float, floorHeight:float);
+symbol Structure(splineLength:float, width:float, height:float, floorsRemaining:int, windowSize:float, doorWidth:float, wallWidth:float, floorHeight:float);
+symbol Roof(splineLength:float, width:float, roofTileSize:float);
+symbol RoofRow(splineLength:float, width:float, rowsRemaining:int, roofTileSize:float);
+symbol RoofTileRow(splineLength:float, tilesRemaining:int, roofTileSize:float);
+symbol Floor(splineLength:float, width:float, floorHeight:float, floorNum:int, windowSize:float, doorWidth:float, wallWidth:float, elementSize:float);
+symbol FloorSide(sideLength:float, floorHeight:float, floorNum:int, sideNum:int, windowSize:float, doorWidth:float, wallWidth:float, elementSize:float);
+symbol ElementRow(sideLength:float, floorHeight:float, elementsRemaining:int, floorNum:int, windowSize:float, doorWidth:float, wallWidth:float);
+symbol terminal Window;
+symbol terminal Door;
+symbol terminal Wall;
+symbol terminal RoofTile;
+symbol terminal FloorMarker(floorNum:int);
+
+// === RULES ===
+
+// Rule: BuildingToStructureAndRoof - Split into structure and roof
+rule BuildingToStructureAndRoof
+    when Building(splineLength, width, height, windowSize, doorWidth, wallWidth, roofTileSize, floorHeight)
+    => Structure(splineLength = splineLength, width = width, height = height, floorsRemaining = height / floorHeight, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, floorHeight = floorHeight) Roof(splineLength = splineLength, width = width, roofTileSize = roofTileSize);
+
+// Rule: StructureToFloors - Generate floors recursively
+rule StructureToFloors
+    when Structure(splineLength, width, height, floorsRemaining, windowSize, doorWidth, wallWidth, floorHeight)
+    if (floorsRemaining > 1)
+    => FloorMarker(floorNum = floorsRemaining - 1) Floor(splineLength = splineLength, width = width, floorHeight = floorHeight, floorNum = floorsRemaining - 1, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = doorWidth + wallWidth) Structure(splineLength = splineLength, width = width, height = height, floorsRemaining = floorsRemaining - 1, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, floorHeight = floorHeight);
+
+// Rule: StructureToLastFloor - Ground floor
+rule StructureToLastFloor
+    when Structure(splineLength, width, height, floorsRemaining, windowSize, doorWidth, wallWidth, floorHeight)
+    if (floorsRemaining == 1)
+    => FloorMarker(floorNum = 0) Floor(splineLength = splineLength, width = width, floorHeight = floorHeight, floorNum = 0, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = doorWidth + wallWidth);
+
+// Rule: FloorToFourSides - Each floor has 4 sides following spline
+// For spline: front follows path, right/left are perpendicular, back closes the rectangle
+rule FloorToFourSides
+    when Floor(splineLength, width, floorHeight, floorNum, windowSize, doorWidth, wallWidth, elementSize)
+    => FloorSide(sideLength = splineLength, floorHeight = floorHeight, floorNum = floorNum, sideNum = 0, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = elementSize) FloorSide(sideLength = width, floorHeight = floorHeight, floorNum = floorNum, sideNum = 1, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = elementSize) FloorSide(sideLength = splineLength, floorHeight = floorHeight, floorNum = floorNum, sideNum = 2, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = elementSize) FloorSide(sideLength = width, floorHeight = floorHeight, floorNum = floorNum, sideNum = 3, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth, elementSize = elementSize);
+
+// Rule: GroundFloorSideToDoorsAndWalls - Ground floor alternates doors and walls
+rule GroundFloorSideToDoorsAndWalls
+    when FloorSide(sideLength, floorHeight, floorNum, sideNum, windowSize, doorWidth, wallWidth, elementSize)
+    if (floorNum == 0)
+    => ElementRow(sideLength = sideLength, floorHeight = floorHeight, elementsRemaining = sideLength / elementSize, floorNum = floorNum, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth);
+
+// Rule: ElementRowToDoorWall - Ground floor pattern: Door-Wall-Door-Wall...
+rule ElementRowToDoorWall
+    when ElementRow(sideLength, floorHeight, elementsRemaining, floorNum, windowSize, doorWidth, wallWidth)
+    if (floorNum == 0 && elementsRemaining > 1)
+    => Door Wall ElementRow(sideLength = sideLength, floorHeight = floorHeight, elementsRemaining = elementsRemaining - 1, floorNum = floorNum, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth);
+
+// Rule: ElementRowToFinalElement - Last element
+rule ElementRowToFinalElement
+    when ElementRow(sideLength, floorHeight, elementsRemaining, floorNum, windowSize, doorWidth, wallWidth)
+    if (floorNum == 0 && elementsRemaining <= 1)
+    => Door;
+
+// Rule: UpperFloorSideToWindows - Upper floors tile windows
+rule UpperFloorSideToWindows
+    when FloorSide(sideLength, floorHeight, floorNum, sideNum, windowSize, doorWidth, wallWidth, elementSize)
+    if (floorNum > 0)
+    => ElementRow(sideLength = sideLength, floorHeight = floorHeight, elementsRemaining = sideLength / windowSize, floorNum = floorNum, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth);
+
+// Rule: ElementRowToWindows - Upper floor pattern: Window-Window-Window...
+rule ElementRowToWindows
+    when ElementRow(sideLength, floorHeight, elementsRemaining, floorNum, windowSize, doorWidth, wallWidth)
+    if (floorNum > 0 && elementsRemaining > 1)
+    => Window ElementRow(sideLength = sideLength, floorHeight = floorHeight, elementsRemaining = elementsRemaining - 1, floorNum = floorNum, windowSize = windowSize, doorWidth = doorWidth, wallWidth = wallWidth);
+
+// Rule: ElementRowToFinalWindow - Last window
+rule ElementRowToFinalWindow
+    when ElementRow(sideLength, floorHeight, elementsRemaining, floorNum, windowSize, doorWidth, wallWidth)
+    if (floorNum > 0 && elementsRemaining <= 1)
+    => Window;
+
+// Rule: RoofToRows - Generate roof rows following spline
+rule RoofToRows
+    when Roof(splineLength, width, roofTileSize)
+    => RoofRow(splineLength = splineLength, width = width, rowsRemaining = width / roofTileSize, roofTileSize = roofTileSize);
+
+// Rule: RoofRowToTileRow - Generate each row of roof tiles along spline
+rule RoofRowToTileRow
+    when RoofRow(splineLength, width, rowsRemaining, roofTileSize)
+    if (rowsRemaining > 1)
+    => RoofTileRow(splineLength = splineLength, tilesRemaining = splineLength / roofTileSize, roofTileSize = roofTileSize) RoofRow(splineLength = splineLength, width = width, rowsRemaining = rowsRemaining - 1, roofTileSize = roofTileSize);
+
+// Rule: RoofRowToLastTileRow - Last row
+rule RoofRowToLastTileRow
+    when RoofRow(splineLength, width, rowsRemaining, roofTileSize)
+    if (rowsRemaining <= 1)
+    => RoofTileRow(splineLength = splineLength, tilesRemaining = splineLength / roofTileSize, roofTileSize = roofTileSize);
+
+// Rule: RoofTileRowToTiles - Generate tiles along spline path
+rule RoofTileRowToTiles
+    when RoofTileRow(splineLength, tilesRemaining, roofTileSize)
+    if (tilesRemaining > 1)
+    => RoofTile RoofTileRow(splineLength = splineLength, tilesRemaining = tilesRemaining - 1, roofTileSize = roofTileSize);
+
+// Rule: RoofTileRowToLastTile - Last tile in row
+rule RoofTileRowToLastTile
+    when RoofTileRow(splineLength, tilesRemaining, roofTileSize)
+    if (tilesRemaining <= 1)
+    => RoofTile;

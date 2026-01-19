@@ -104,13 +104,42 @@ namespace ProceduralGrammarGeneration.Spatial
         }
         
         /// <summary>
-        /// Get parameter value with type casting
+        /// Get parameter value with type casting and numeric type conversion
         /// </summary>
         public T GetParameter<T>(string name, T defaultValue = default)
         {
-            if (Parameters.TryGetValue(name, out var value) && value is T typedValue)
+            if (!Parameters.TryGetValue(name, out var value))
+                return defaultValue;
+            
+            // Direct type match
+            if (value is T typedValue)
                 return typedValue;
+            
+            // Handle numeric conversions between int and float
+            if (typeof(T) == typeof(float))
+            {
+                if (value is int intVal)
+                    return (T)(object)(float)intVal;
+                if (value is double doubleVal)
+                    return (T)(object)(float)doubleVal;
+            }
+            else if (typeof(T) == typeof(int))
+            {
+                if (value is float floatVal)
+                    return (T)(object)(int)floatVal;
+                if (value is double doubleVal)
+                    return (T)(object)(int)doubleVal;
+            }
+            
             return defaultValue;
+        }
+        
+        /// <summary>
+        /// Check if parameter exists
+        /// </summary>
+        public bool HasParameter(string name)
+        {
+            return Parameters.ContainsKey(name);
         }
         
         /// <summary>

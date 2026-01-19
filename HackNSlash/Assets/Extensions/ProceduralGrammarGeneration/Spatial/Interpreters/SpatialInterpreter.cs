@@ -44,15 +44,34 @@ namespace ProceduralGrammarGeneration.Spatial
         }
         
         /// <summary>
-        /// Interpret a derivation tree into a spatial graph
+        /// Interpret a derivation tree into a spatial graph.
+        /// Validates terminal nodes against strategy's parameter contract.
         /// </summary>
         public SpatialGraph Interpret(DerivationTree tree)
         {
             if (tree == null)
                 throw new ArgumentNullException(nameof(tree));
             
+            Debug.Log($"[SpatialInterpreter] Interpreting derivation tree with strategy: {_strategy.Name}");
+            
+            // Log contract requirements
+            if (_strategy.RequiredContract != null)
+            {
+                Debug.Log($"[SpatialInterpreter] Strategy requires: {_strategy.RequiredContract.GetExpectedParameters()}");
+            }
+            
             var graph = new SpatialGraph();
             var context = new SpatialContext();
+            
+            // Copy root symbol parameters into context for strategies to use
+            // This makes axiom parameters (windowSize, doorWidth, etc.) available globally
+            if (tree.Root != null && tree.Root.Symbol != null)
+            {
+                foreach (var kvp in tree.Root.Symbol.Parameters)
+                {
+                    context.Variables[kvp.Key] = kvp.Value;
+                }
+            }
             
             // Initialize strategy
             _strategy.Initialize(context);

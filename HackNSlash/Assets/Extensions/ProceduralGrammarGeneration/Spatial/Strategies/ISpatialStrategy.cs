@@ -4,6 +4,11 @@ namespace ProceduralGrammarGeneration.Spatial
     /// Interface for spatial placement strategies.
     /// Strategies define HOW to place grammar symbols in 3D space.
     /// Different strategies enable different architectural styles (vertical stacking, spline following, etc.)
+    /// 
+    /// Separation of concerns:
+    /// - Strategy uses parameter contract to read grammar parameters
+    /// - Strategy uses geometry data to respect mesh-specific properties
+    /// - Strategy combines both to determine final placement
     /// </summary>
     public interface ISpatialStrategy
     {
@@ -11,6 +16,12 @@ namespace ProceduralGrammarGeneration.Spatial
         /// Name of this strategy (for debugging and selection)
         /// </summary>
         string Name { get; }
+        
+        /// <summary>
+        /// Parameter contract that defines what parameters terminal symbols must provide.
+        /// Used for validation and type-safe parameter access.
+        /// </summary>
+        IParameterContract RequiredContract { get; }
         
         /// <summary>
         /// Place a single spatial node in 3D space.

@@ -1,66 +1,1795 @@
 === Grammar Derivation Result ===
 Grammar: ImportedGrammar
-Axiom: Facade
+Axiom: Building
 Max Iterations: 100
-Total Nodes: 30
+Total Nodes: 1187
 
-Non-terminal nodes (expanded): 8
-Terminal nodes (leaves): 22
+Non-terminal nodes (expanded): 593
+Terminal nodes (leaves): 594
 
 === Derivation Tree ===
-- Facade [NON-TERMINAL] (width=100, height=100, floors=4) [Expanded]
-  - Floor [NON-TERMINAL] (width=100, height=25, floorNum=3, totalFloors=4) [Expanded]
-    - Window [TERMINAL] (width=20, height=25) [Terminal]
-    - Window [TERMINAL] (width=20, height=25) [Terminal]
-    - Window [TERMINAL] (width=20, height=25) [Terminal]
-    - Window [TERMINAL] (width=20, height=25) [Terminal]
-    - Window [TERMINAL] (width=20, height=25) [Terminal]
-  - FloorMarker [TERMINAL] (floorNum=3) [Terminal]
-  - Facade [NON-TERMINAL] (width=100, height=100, floors=3) [Expanded]
-    - Floor [NON-TERMINAL] (width=100, height=33.33333, floorNum=2, totalFloors=3) [Expanded]
-      - Window [TERMINAL] (width=20, height=33.33333) [Terminal]
-      - Window [TERMINAL] (width=20, height=33.33333) [Terminal]
-      - Window [TERMINAL] (width=20, height=33.33333) [Terminal]
-      - Window [TERMINAL] (width=20, height=33.33333) [Terminal]
-      - Window [TERMINAL] (width=20, height=33.33333) [Terminal]
-    - FloorMarker [TERMINAL] (floorNum=2) [Terminal]
-    - Facade [NON-TERMINAL] (width=100, height=100, floors=2) [Expanded]
-      - Floor [NON-TERMINAL] (width=100, height=50, floorNum=1, totalFloors=2) [Expanded]
-        - Window [TERMINAL] (width=20, height=50) [Terminal]
-        - Window [TERMINAL] (width=20, height=50) [Terminal]
-        - Window [TERMINAL] (width=20, height=50) [Terminal]
-        - Window [TERMINAL] (width=20, height=50) [Terminal]
-        - Window [TERMINAL] (width=20, height=50) [Terminal]
-      - FloorMarker [TERMINAL] (floorNum=1) [Terminal]
-      - Facade [NON-TERMINAL] (width=100, height=100, floors=1) [Expanded]
-        - Floor [NON-TERMINAL] (width=100, height=100, floorNum=0, totalFloors=1) [Expanded]
-          - Door [TERMINAL] (width=33.33333, height=100) [Terminal]
-          - Door [TERMINAL] (width=33.33333, height=100) [Terminal]
-          - Door [TERMINAL] (width=33.33333, height=100) [Terminal]
-        - FloorMarker [TERMINAL] (floorNum=0) [Terminal]
+- Building [NON-TERMINAL] (length=40, width=30, height=14, windowSize=2, doorWidth=1.5, wallWidth=2, roofTileSize=2, floorHeight=3.5) [Expanded]
+  - Structure [NON-TERMINAL] (length=40, width=30, height=14, floorsRemaining=4, windowSize=2, doorWidth=1.5, wallWidth=2, floorHeight=3.5) [Expanded]
+    - FloorMarker [TERMINAL] (floorNum=3) [Terminal]
+    - Floor [NON-TERMINAL] (length=40, width=30, floorHeight=3.5, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+      - FloorSide [NON-TERMINAL] (sideLength=40, floorHeight=3.5, floorNum=3, sideNum=0, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=20, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+          - Window [TERMINAL] [Terminal]
+          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=19, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+            - Window [TERMINAL] [Terminal]
+            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=18, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=17, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=16, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=15, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=14, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=13, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=12, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=11, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=10, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=9, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=8, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=7, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=6, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=5, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+                                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=4, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                          - Window [TERMINAL] [Terminal]
+                                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=3, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                            - Window [TERMINAL] [Terminal]
+                                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=2, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                              - Window [TERMINAL] [Terminal]
+                                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=1, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                - Window [TERMINAL] [Terminal]
+      - FloorSide [NON-TERMINAL] (sideLength=30, floorHeight=3.5, floorNum=3, sideNum=1, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=15, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+          - Window [TERMINAL] [Terminal]
+          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=14, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+            - Window [TERMINAL] [Terminal]
+            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=13, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=12, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=11, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=10, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=9, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=8, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=7, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=6, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=5, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=4, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=3, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=2, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=1, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+      - FloorSide [NON-TERMINAL] (sideLength=40, floorHeight=3.5, floorNum=3, sideNum=2, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=20, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+          - Window [TERMINAL] [Terminal]
+          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=19, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+            - Window [TERMINAL] [Terminal]
+            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=18, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=17, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=16, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=15, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=14, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=13, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=12, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=11, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=10, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=9, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=8, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=7, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=6, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=5, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+                                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=4, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                          - Window [TERMINAL] [Terminal]
+                                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=3, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                            - Window [TERMINAL] [Terminal]
+                                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=2, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                              - Window [TERMINAL] [Terminal]
+                                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=1, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                - Window [TERMINAL] [Terminal]
+      - FloorSide [NON-TERMINAL] (sideLength=30, floorHeight=3.5, floorNum=3, sideNum=3, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=15, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+          - Window [TERMINAL] [Terminal]
+          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=14, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+            - Window [TERMINAL] [Terminal]
+            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=13, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=12, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=11, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=10, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=9, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=8, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=7, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=6, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=5, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=4, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=3, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=2, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=1, floorNum=3, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+    - Structure [NON-TERMINAL] (length=40, width=30, height=14, floorsRemaining=3, windowSize=2, doorWidth=1.5, wallWidth=2, floorHeight=3.5) [Expanded]
+      - FloorMarker [TERMINAL] (floorNum=2) [Terminal]
+      - Floor [NON-TERMINAL] (length=40, width=30, floorHeight=3.5, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+        - FloorSide [NON-TERMINAL] (sideLength=40, floorHeight=3.5, floorNum=2, sideNum=0, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=20, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+            - Window [TERMINAL] [Terminal]
+            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=19, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=18, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=17, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=16, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=15, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=14, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=13, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=12, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=11, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=10, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=9, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=8, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=7, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=6, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+                                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=5, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                          - Window [TERMINAL] [Terminal]
+                                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=4, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                            - Window [TERMINAL] [Terminal]
+                                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=3, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                              - Window [TERMINAL] [Terminal]
+                                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=2, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                - Window [TERMINAL] [Terminal]
+                                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=1, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                  - Window [TERMINAL] [Terminal]
+        - FloorSide [NON-TERMINAL] (sideLength=30, floorHeight=3.5, floorNum=2, sideNum=1, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=15, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+            - Window [TERMINAL] [Terminal]
+            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=14, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=13, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=12, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=11, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=10, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=9, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=8, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=7, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=6, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=5, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=4, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=3, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=2, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=1, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+        - FloorSide [NON-TERMINAL] (sideLength=40, floorHeight=3.5, floorNum=2, sideNum=2, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=20, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+            - Window [TERMINAL] [Terminal]
+            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=19, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=18, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=17, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=16, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=15, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=14, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=13, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=12, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=11, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=10, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=9, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=8, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=7, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=6, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+                                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=5, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                          - Window [TERMINAL] [Terminal]
+                                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=4, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                            - Window [TERMINAL] [Terminal]
+                                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=3, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                              - Window [TERMINAL] [Terminal]
+                                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=2, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                - Window [TERMINAL] [Terminal]
+                                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=1, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                  - Window [TERMINAL] [Terminal]
+        - FloorSide [NON-TERMINAL] (sideLength=30, floorHeight=3.5, floorNum=2, sideNum=3, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=15, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+            - Window [TERMINAL] [Terminal]
+            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=14, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=13, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=12, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=11, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=10, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=9, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=8, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=7, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=6, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=5, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=4, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=3, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=2, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=1, floorNum=2, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+      - Structure [NON-TERMINAL] (length=40, width=30, height=14, floorsRemaining=2, windowSize=2, doorWidth=1.5, wallWidth=2, floorHeight=3.5) [Expanded]
+        - FloorMarker [TERMINAL] (floorNum=1) [Terminal]
+        - Floor [NON-TERMINAL] (length=40, width=30, floorHeight=3.5, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+          - FloorSide [NON-TERMINAL] (sideLength=40, floorHeight=3.5, floorNum=1, sideNum=0, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=20, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=19, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=18, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=17, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=16, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=15, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=14, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=13, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=12, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=11, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=10, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=9, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=8, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=7, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+                                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=6, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                          - Window [TERMINAL] [Terminal]
+                                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=5, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                            - Window [TERMINAL] [Terminal]
+                                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=4, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                              - Window [TERMINAL] [Terminal]
+                                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=3, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                - Window [TERMINAL] [Terminal]
+                                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=2, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                  - Window [TERMINAL] [Terminal]
+                                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=1, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                    - Window [TERMINAL] [Terminal]
+          - FloorSide [NON-TERMINAL] (sideLength=30, floorHeight=3.5, floorNum=1, sideNum=1, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=15, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=14, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=13, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=12, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=11, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=10, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=9, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=8, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=7, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=6, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=5, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=4, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=3, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=2, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+                                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=1, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                          - Window [TERMINAL] [Terminal]
+          - FloorSide [NON-TERMINAL] (sideLength=40, floorHeight=3.5, floorNum=1, sideNum=2, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=20, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=19, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=18, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=17, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=16, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=15, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=14, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=13, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=12, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=11, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=10, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=9, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=8, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=7, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+                                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=6, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                          - Window [TERMINAL] [Terminal]
+                                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=5, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                            - Window [TERMINAL] [Terminal]
+                                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=4, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                              - Window [TERMINAL] [Terminal]
+                                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=3, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                - Window [TERMINAL] [Terminal]
+                                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=2, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                  - Window [TERMINAL] [Terminal]
+                                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=1, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                                    - Window [TERMINAL] [Terminal]
+          - FloorSide [NON-TERMINAL] (sideLength=30, floorHeight=3.5, floorNum=1, sideNum=3, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=15, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+              - Window [TERMINAL] [Terminal]
+              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=14, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Window [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=13, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Window [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=12, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Window [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=11, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Window [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=10, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Window [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=9, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Window [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=8, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Window [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=7, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Window [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=6, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Window [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=5, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Window [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=4, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Window [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=3, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Window [TERMINAL] [Terminal]
+                                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=2, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                        - Window [TERMINAL] [Terminal]
+                                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=1, floorNum=1, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                          - Window [TERMINAL] [Terminal]
+        - Structure [NON-TERMINAL] (length=40, width=30, height=14, floorsRemaining=1, windowSize=2, doorWidth=1.5, wallWidth=2, floorHeight=3.5) [Expanded]
+          - FloorMarker [TERMINAL] (floorNum=0) [Terminal]
+          - Floor [NON-TERMINAL] (length=40, width=30, floorHeight=3.5, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+            - FloorSide [NON-TERMINAL] (sideLength=40, floorHeight=3.5, floorNum=0, sideNum=0, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=11.42857, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Door [TERMINAL] [Terminal]
+                - Wall [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=10.42857, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Door [TERMINAL] [Terminal]
+                  - Wall [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=9.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Door [TERMINAL] [Terminal]
+                    - Wall [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=8.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Door [TERMINAL] [Terminal]
+                      - Wall [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=7.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Door [TERMINAL] [Terminal]
+                        - Wall [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=6.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Door [TERMINAL] [Terminal]
+                          - Wall [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=5.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Door [TERMINAL] [Terminal]
+                            - Wall [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=4.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Door [TERMINAL] [Terminal]
+                              - Wall [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=3.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Door [TERMINAL] [Terminal]
+                                - Wall [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=2.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Door [TERMINAL] [Terminal]
+                                  - Wall [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=1.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Door [TERMINAL] [Terminal]
+                                    - Wall [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=0.4285717, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Door [TERMINAL] [Terminal]
+            - FloorSide [NON-TERMINAL] (sideLength=30, floorHeight=3.5, floorNum=0, sideNum=1, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=8.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Door [TERMINAL] [Terminal]
+                - Wall [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=7.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Door [TERMINAL] [Terminal]
+                  - Wall [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=6.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Door [TERMINAL] [Terminal]
+                    - Wall [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=5.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Door [TERMINAL] [Terminal]
+                      - Wall [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=4.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Door [TERMINAL] [Terminal]
+                        - Wall [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=3.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Door [TERMINAL] [Terminal]
+                          - Wall [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=2.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Door [TERMINAL] [Terminal]
+                            - Wall [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=1.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Door [TERMINAL] [Terminal]
+                              - Wall [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=0.5714283, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Door [TERMINAL] [Terminal]
+            - FloorSide [NON-TERMINAL] (sideLength=40, floorHeight=3.5, floorNum=0, sideNum=2, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=11.42857, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Door [TERMINAL] [Terminal]
+                - Wall [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=10.42857, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Door [TERMINAL] [Terminal]
+                  - Wall [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=9.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Door [TERMINAL] [Terminal]
+                    - Wall [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=8.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Door [TERMINAL] [Terminal]
+                      - Wall [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=7.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Door [TERMINAL] [Terminal]
+                        - Wall [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=6.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Door [TERMINAL] [Terminal]
+                          - Wall [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=5.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Door [TERMINAL] [Terminal]
+                            - Wall [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=4.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Door [TERMINAL] [Terminal]
+                              - Wall [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=3.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Door [TERMINAL] [Terminal]
+                                - Wall [TERMINAL] [Terminal]
+                                - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=2.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                  - Door [TERMINAL] [Terminal]
+                                  - Wall [TERMINAL] [Terminal]
+                                  - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=1.428572, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                    - Door [TERMINAL] [Terminal]
+                                    - Wall [TERMINAL] [Terminal]
+                                    - ElementRow [NON-TERMINAL] (sideLength=40, floorHeight=3.5, elementsRemaining=0.4285717, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                      - Door [TERMINAL] [Terminal]
+            - FloorSide [NON-TERMINAL] (sideLength=30, floorHeight=3.5, floorNum=0, sideNum=3, windowSize=2, doorWidth=1.5, wallWidth=2, elementSize=3.5) [Expanded]
+              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=8.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                - Door [TERMINAL] [Terminal]
+                - Wall [TERMINAL] [Terminal]
+                - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=7.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                  - Door [TERMINAL] [Terminal]
+                  - Wall [TERMINAL] [Terminal]
+                  - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=6.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                    - Door [TERMINAL] [Terminal]
+                    - Wall [TERMINAL] [Terminal]
+                    - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=5.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                      - Door [TERMINAL] [Terminal]
+                      - Wall [TERMINAL] [Terminal]
+                      - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=4.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                        - Door [TERMINAL] [Terminal]
+                        - Wall [TERMINAL] [Terminal]
+                        - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=3.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                          - Door [TERMINAL] [Terminal]
+                          - Wall [TERMINAL] [Terminal]
+                          - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=2.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                            - Door [TERMINAL] [Terminal]
+                            - Wall [TERMINAL] [Terminal]
+                            - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=1.571428, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                              - Door [TERMINAL] [Terminal]
+                              - Wall [TERMINAL] [Terminal]
+                              - ElementRow [NON-TERMINAL] (sideLength=30, floorHeight=3.5, elementsRemaining=0.5714283, floorNum=0, windowSize=2, doorWidth=1.5, wallWidth=2) [Expanded]
+                                - Door [TERMINAL] [Terminal]
+  - Roof [NON-TERMINAL] (length=40, width=30, roofTileSize=2) [Expanded]
+    - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=15, roofTileSize=2) [Expanded]
+      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+        - RoofTile [TERMINAL] [Terminal]
+        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+          - RoofTile [TERMINAL] [Terminal]
+          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+            - RoofTile [TERMINAL] [Terminal]
+            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+              - RoofTile [TERMINAL] [Terminal]
+              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                - RoofTile [TERMINAL] [Terminal]
+                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                  - RoofTile [TERMINAL] [Terminal]
+                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                    - RoofTile [TERMINAL] [Terminal]
+                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                      - RoofTile [TERMINAL] [Terminal]
+                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                        - RoofTile [TERMINAL] [Terminal]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+      - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=14, roofTileSize=2) [Expanded]
+        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+          - RoofTile [TERMINAL] [Terminal]
+          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+            - RoofTile [TERMINAL] [Terminal]
+            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+              - RoofTile [TERMINAL] [Terminal]
+              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                - RoofTile [TERMINAL] [Terminal]
+                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                  - RoofTile [TERMINAL] [Terminal]
+                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                    - RoofTile [TERMINAL] [Terminal]
+                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                      - RoofTile [TERMINAL] [Terminal]
+                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                        - RoofTile [TERMINAL] [Terminal]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+        - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=13, roofTileSize=2) [Expanded]
+          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+            - RoofTile [TERMINAL] [Terminal]
+            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+              - RoofTile [TERMINAL] [Terminal]
+              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                - RoofTile [TERMINAL] [Terminal]
+                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                  - RoofTile [TERMINAL] [Terminal]
+                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                    - RoofTile [TERMINAL] [Terminal]
+                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                      - RoofTile [TERMINAL] [Terminal]
+                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                        - RoofTile [TERMINAL] [Terminal]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+          - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=12, roofTileSize=2) [Expanded]
+            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+              - RoofTile [TERMINAL] [Terminal]
+              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                - RoofTile [TERMINAL] [Terminal]
+                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                  - RoofTile [TERMINAL] [Terminal]
+                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                    - RoofTile [TERMINAL] [Terminal]
+                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                      - RoofTile [TERMINAL] [Terminal]
+                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                        - RoofTile [TERMINAL] [Terminal]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+            - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=11, roofTileSize=2) [Expanded]
+              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                - RoofTile [TERMINAL] [Terminal]
+                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                  - RoofTile [TERMINAL] [Terminal]
+                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                    - RoofTile [TERMINAL] [Terminal]
+                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                      - RoofTile [TERMINAL] [Terminal]
+                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                        - RoofTile [TERMINAL] [Terminal]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+              - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=10, roofTileSize=2) [Expanded]
+                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                  - RoofTile [TERMINAL] [Terminal]
+                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                    - RoofTile [TERMINAL] [Terminal]
+                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                      - RoofTile [TERMINAL] [Terminal]
+                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                        - RoofTile [TERMINAL] [Terminal]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=9, roofTileSize=2) [Expanded]
+                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                    - RoofTile [TERMINAL] [Terminal]
+                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                      - RoofTile [TERMINAL] [Terminal]
+                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                        - RoofTile [TERMINAL] [Terminal]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                          - RoofTile [TERMINAL] [Terminal]
+                  - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=8, roofTileSize=2) [Expanded]
+                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                      - RoofTile [TERMINAL] [Terminal]
+                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                        - RoofTile [TERMINAL] [Terminal]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                          - RoofTile [TERMINAL] [Terminal]
+                                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                            - RoofTile [TERMINAL] [Terminal]
+                    - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=7, roofTileSize=2) [Expanded]
+                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                        - RoofTile [TERMINAL] [Terminal]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                          - RoofTile [TERMINAL] [Terminal]
+                                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                            - RoofTile [TERMINAL] [Terminal]
+                                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                              - RoofTile [TERMINAL] [Terminal]
+                      - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=6, roofTileSize=2) [Expanded]
+                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                          - RoofTile [TERMINAL] [Terminal]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                          - RoofTile [TERMINAL] [Terminal]
+                                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                            - RoofTile [TERMINAL] [Terminal]
+                                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                              - RoofTile [TERMINAL] [Terminal]
+                                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                                - RoofTile [TERMINAL] [Terminal]
+                        - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=5, roofTileSize=2) [Expanded]
+                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                            - RoofTile [TERMINAL] [Terminal]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                          - RoofTile [TERMINAL] [Terminal]
+                                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                            - RoofTile [TERMINAL] [Terminal]
+                                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                              - RoofTile [TERMINAL] [Terminal]
+                                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                                - RoofTile [TERMINAL] [Terminal]
+                                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                                  - RoofTile [TERMINAL] [Terminal]
+                          - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=4, roofTileSize=2) [Expanded]
+                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                              - RoofTile [TERMINAL] [Terminal]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                                          - RoofTile [TERMINAL] [Terminal]
+                                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                            - RoofTile [TERMINAL] [Terminal]
+                                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                              - RoofTile [TERMINAL] [Terminal]
+                                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                                - RoofTile [TERMINAL] [Terminal]
+                                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                                  - RoofTile [TERMINAL] [Terminal]
+                                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                                    - RoofTile [TERMINAL] [Terminal]
+                            - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=3, roofTileSize=2) [Expanded]
+                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                                - RoofTile [TERMINAL] [Terminal]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                                          - RoofTile [TERMINAL] [Terminal]
+                                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                                            - RoofTile [TERMINAL] [Terminal]
+                                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                              - RoofTile [TERMINAL] [Terminal]
+                                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                                - RoofTile [TERMINAL] [Terminal]
+                                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                                  - RoofTile [TERMINAL] [Terminal]
+                                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                                    - RoofTile [TERMINAL] [Terminal]
+                                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                                      - RoofTile [TERMINAL] [Terminal]
+                              - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=2, roofTileSize=2) [Expanded]
+                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                                  - RoofTile [TERMINAL] [Terminal]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                                          - RoofTile [TERMINAL] [Terminal]
+                                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                                            - RoofTile [TERMINAL] [Terminal]
+                                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                                              - RoofTile [TERMINAL] [Terminal]
+                                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                                - RoofTile [TERMINAL] [Terminal]
+                                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                                  - RoofTile [TERMINAL] [Terminal]
+                                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                                    - RoofTile [TERMINAL] [Terminal]
+                                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                                      - RoofTile [TERMINAL] [Terminal]
+                                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                                        - RoofTile [TERMINAL] [Terminal]
+                                - RoofRow [NON-TERMINAL] (length=40, width=30, rowsRemaining=1, roofTileSize=2) [Expanded]
+                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=20, roofTileSize=2) [Expanded]
+                                    - RoofTile [TERMINAL] [Terminal]
+                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=19, roofTileSize=2) [Expanded]
+                                      - RoofTile [TERMINAL] [Terminal]
+                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=18, roofTileSize=2) [Expanded]
+                                        - RoofTile [TERMINAL] [Terminal]
+                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=17, roofTileSize=2) [Expanded]
+                                          - RoofTile [TERMINAL] [Terminal]
+                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=16, roofTileSize=2) [Expanded]
+                                            - RoofTile [TERMINAL] [Terminal]
+                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=15, roofTileSize=2) [Expanded]
+                                              - RoofTile [TERMINAL] [Terminal]
+                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=14, roofTileSize=2) [Expanded]
+                                                - RoofTile [TERMINAL] [Terminal]
+                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=13, roofTileSize=2) [Expanded]
+                                                  - RoofTile [TERMINAL] [Terminal]
+                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=12, roofTileSize=2) [Expanded]
+                                                    - RoofTile [TERMINAL] [Terminal]
+                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=11, roofTileSize=2) [Expanded]
+                                                      - RoofTile [TERMINAL] [Terminal]
+                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=10, roofTileSize=2) [Expanded]
+                                                        - RoofTile [TERMINAL] [Terminal]
+                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=9, roofTileSize=2) [Expanded]
+                                                          - RoofTile [TERMINAL] [Terminal]
+                                                          - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=8, roofTileSize=2) [Expanded]
+                                                            - RoofTile [TERMINAL] [Terminal]
+                                                            - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=7, roofTileSize=2) [Expanded]
+                                                              - RoofTile [TERMINAL] [Terminal]
+                                                              - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=6, roofTileSize=2) [Expanded]
+                                                                - RoofTile [TERMINAL] [Terminal]
+                                                                - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=5, roofTileSize=2) [Expanded]
+                                                                  - RoofTile [TERMINAL] [Terminal]
+                                                                  - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=4, roofTileSize=2) [Expanded]
+                                                                    - RoofTile [TERMINAL] [Terminal]
+                                                                    - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=3, roofTileSize=2) [Expanded]
+                                                                      - RoofTile [TERMINAL] [Terminal]
+                                                                      - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=2, roofTileSize=2) [Expanded]
+                                                                        - RoofTile [TERMINAL] [Terminal]
+                                                                        - RoofTileRow [NON-TERMINAL] (length=40, tilesRemaining=1, roofTileSize=2) [Expanded]
+                                                                          - RoofTile [TERMINAL] [Terminal]
 
 === Terminal Symbols (Final Output) ===
-Total: 22
+Total: 594
 
-1. Window [width=20, height=25]
-2. Window [width=20, height=25]
-3. Window [width=20, height=25]
-4. Window [width=20, height=25]
-5. Window [width=20, height=25]
-6. FloorMarker [floorNum=3]
-7. Window [width=20, height=33.33333]
-8. Window [width=20, height=33.33333]
-9. Window [width=20, height=33.33333]
-10. Window [width=20, height=33.33333]
-11. Window [width=20, height=33.33333]
-12. FloorMarker [floorNum=2]
-13. Window [width=20, height=50]
-14. Window [width=20, height=50]
-15. Window [width=20, height=50]
-16. Window [width=20, height=50]
-17. Window [width=20, height=50]
-18. FloorMarker [floorNum=1]
-19. Door [width=33.33333, height=100]
-20. Door [width=33.33333, height=100]
-21. Door [width=33.33333, height=100]
-22. FloorMarker [floorNum=0]
+1. FloorMarker [floorNum=3]
+2. Window
+3. Window
+4. Window
+5. Window
+6. Window
+7. Window
+8. Window
+9. Window
+10. Window
+11. Window
+12. Window
+13. Window
+14. Window
+15. Window
+16. Window
+17. Window
+18. Window
+19. Window
+20. Window
+21. Window
+22. Window
+23. Window
+24. Window
+25. Window
+26. Window
+27. Window
+28. Window
+29. Window
+30. Window
+31. Window
+32. Window
+33. Window
+34. Window
+35. Window
+36. Window
+37. Window
+38. Window
+39. Window
+40. Window
+41. Window
+42. Window
+43. Window
+44. Window
+45. Window
+46. Window
+47. Window
+48. Window
+49. Window
+50. Window
+51. Window
+52. Window
+53. Window
+54. Window
+55. Window
+56. Window
+57. Window
+58. Window
+59. Window
+60. Window
+61. Window
+62. Window
+63. Window
+64. Window
+65. Window
+66. Window
+67. Window
+68. Window
+69. Window
+70. Window
+71. Window
+72. FloorMarker [floorNum=2]
+73. Window
+74. Window
+75. Window
+76. Window
+77. Window
+78. Window
+79. Window
+80. Window
+81. Window
+82. Window
+83. Window
+84. Window
+85. Window
+86. Window
+87. Window
+88. Window
+89. Window
+90. Window
+91. Window
+92. Window
+93. Window
+94. Window
+95. Window
+96. Window
+97. Window
+98. Window
+99. Window
+100. Window
+101. Window
+102. Window
+103. Window
+104. Window
+105. Window
+106. Window
+107. Window
+108. Window
+109. Window
+110. Window
+111. Window
+112. Window
+113. Window
+114. Window
+115. Window
+116. Window
+117. Window
+118. Window
+119. Window
+120. Window
+121. Window
+122. Window
+123. Window
+124. Window
+125. Window
+126. Window
+127. Window
+128. Window
+129. Window
+130. Window
+131. Window
+132. Window
+133. Window
+134. Window
+135. Window
+136. Window
+137. Window
+138. Window
+139. Window
+140. Window
+141. Window
+142. Window
+143. FloorMarker [floorNum=1]
+144. Window
+145. Window
+146. Window
+147. Window
+148. Window
+149. Window
+150. Window
+151. Window
+152. Window
+153. Window
+154. Window
+155. Window
+156. Window
+157. Window
+158. Window
+159. Window
+160. Window
+161. Window
+162. Window
+163. Window
+164. Window
+165. Window
+166. Window
+167. Window
+168. Window
+169. Window
+170. Window
+171. Window
+172. Window
+173. Window
+174. Window
+175. Window
+176. Window
+177. Window
+178. Window
+179. Window
+180. Window
+181. Window
+182. Window
+183. Window
+184. Window
+185. Window
+186. Window
+187. Window
+188. Window
+189. Window
+190. Window
+191. Window
+192. Window
+193. Window
+194. Window
+195. Window
+196. Window
+197. Window
+198. Window
+199. Window
+200. Window
+201. Window
+202. Window
+203. Window
+204. Window
+205. Window
+206. Window
+207. Window
+208. Window
+209. Window
+210. Window
+211. Window
+212. Window
+213. Window
+214. FloorMarker [floorNum=0]
+215. Door
+216. Wall
+217. Door
+218. Wall
+219. Door
+220. Wall
+221. Door
+222. Wall
+223. Door
+224. Wall
+225. Door
+226. Wall
+227. Door
+228. Wall
+229. Door
+230. Wall
+231. Door
+232. Wall
+233. Door
+234. Wall
+235. Door
+236. Wall
+237. Door
+238. Door
+239. Wall
+240. Door
+241. Wall
+242. Door
+243. Wall
+244. Door
+245. Wall
+246. Door
+247. Wall
+248. Door
+249. Wall
+250. Door
+251. Wall
+252. Door
+253. Wall
+254. Door
+255. Door
+256. Wall
+257. Door
+258. Wall
+259. Door
+260. Wall
+261. Door
+262. Wall
+263. Door
+264. Wall
+265. Door
+266. Wall
+267. Door
+268. Wall
+269. Door
+270. Wall
+271. Door
+272. Wall
+273. Door
+274. Wall
+275. Door
+276. Wall
+277. Door
+278. Door
+279. Wall
+280. Door
+281. Wall
+282. Door
+283. Wall
+284. Door
+285. Wall
+286. Door
+287. Wall
+288. Door
+289. Wall
+290. Door
+291. Wall
+292. Door
+293. Wall
+294. Door
+295. RoofTile
+296. RoofTile
+297. RoofTile
+298. RoofTile
+299. RoofTile
+300. RoofTile
+301. RoofTile
+302. RoofTile
+303. RoofTile
+304. RoofTile
+305. RoofTile
+306. RoofTile
+307. RoofTile
+308. RoofTile
+309. RoofTile
+310. RoofTile
+311. RoofTile
+312. RoofTile
+313. RoofTile
+314. RoofTile
+315. RoofTile
+316. RoofTile
+317. RoofTile
+318. RoofTile
+319. RoofTile
+320. RoofTile
+321. RoofTile
+322. RoofTile
+323. RoofTile
+324. RoofTile
+325. RoofTile
+326. RoofTile
+327. RoofTile
+328. RoofTile
+329. RoofTile
+330. RoofTile
+331. RoofTile
+332. RoofTile
+333. RoofTile
+334. RoofTile
+335. RoofTile
+336. RoofTile
+337. RoofTile
+338. RoofTile
+339. RoofTile
+340. RoofTile
+341. RoofTile
+342. RoofTile
+343. RoofTile
+344. RoofTile
+345. RoofTile
+346. RoofTile
+347. RoofTile
+348. RoofTile
+349. RoofTile
+350. RoofTile
+351. RoofTile
+352. RoofTile
+353. RoofTile
+354. RoofTile
+355. RoofTile
+356. RoofTile
+357. RoofTile
+358. RoofTile
+359. RoofTile
+360. RoofTile
+361. RoofTile
+362. RoofTile
+363. RoofTile
+364. RoofTile
+365. RoofTile
+366. RoofTile
+367. RoofTile
+368. RoofTile
+369. RoofTile
+370. RoofTile
+371. RoofTile
+372. RoofTile
+373. RoofTile
+374. RoofTile
+375. RoofTile
+376. RoofTile
+377. RoofTile
+378. RoofTile
+379. RoofTile
+380. RoofTile
+381. RoofTile
+382. RoofTile
+383. RoofTile
+384. RoofTile
+385. RoofTile
+386. RoofTile
+387. RoofTile
+388. RoofTile
+389. RoofTile
+390. RoofTile
+391. RoofTile
+392. RoofTile
+393. RoofTile
+394. RoofTile
+395. RoofTile
+396. RoofTile
+397. RoofTile
+398. RoofTile
+399. RoofTile
+400. RoofTile
+401. RoofTile
+402. RoofTile
+403. RoofTile
+404. RoofTile
+405. RoofTile
+406. RoofTile
+407. RoofTile
+408. RoofTile
+409. RoofTile
+410. RoofTile
+411. RoofTile
+412. RoofTile
+413. RoofTile
+414. RoofTile
+415. RoofTile
+416. RoofTile
+417. RoofTile
+418. RoofTile
+419. RoofTile
+420. RoofTile
+421. RoofTile
+422. RoofTile
+423. RoofTile
+424. RoofTile
+425. RoofTile
+426. RoofTile
+427. RoofTile
+428. RoofTile
+429. RoofTile
+430. RoofTile
+431. RoofTile
+432. RoofTile
+433. RoofTile
+434. RoofTile
+435. RoofTile
+436. RoofTile
+437. RoofTile
+438. RoofTile
+439. RoofTile
+440. RoofTile
+441. RoofTile
+442. RoofTile
+443. RoofTile
+444. RoofTile
+445. RoofTile
+446. RoofTile
+447. RoofTile
+448. RoofTile
+449. RoofTile
+450. RoofTile
+451. RoofTile
+452. RoofTile
+453. RoofTile
+454. RoofTile
+455. RoofTile
+456. RoofTile
+457. RoofTile
+458. RoofTile
+459. RoofTile
+460. RoofTile
+461. RoofTile
+462. RoofTile
+463. RoofTile
+464. RoofTile
+465. RoofTile
+466. RoofTile
+467. RoofTile
+468. RoofTile
+469. RoofTile
+470. RoofTile
+471. RoofTile
+472. RoofTile
+473. RoofTile
+474. RoofTile
+475. RoofTile
+476. RoofTile
+477. RoofTile
+478. RoofTile
+479. RoofTile
+480. RoofTile
+481. RoofTile
+482. RoofTile
+483. RoofTile
+484. RoofTile
+485. RoofTile
+486. RoofTile
+487. RoofTile
+488. RoofTile
+489. RoofTile
+490. RoofTile
+491. RoofTile
+492. RoofTile
+493. RoofTile
+494. RoofTile
+495. RoofTile
+496. RoofTile
+497. RoofTile
+498. RoofTile
+499. RoofTile
+500. RoofTile
+501. RoofTile
+502. RoofTile
+503. RoofTile
+504. RoofTile
+505. RoofTile
+506. RoofTile
+507. RoofTile
+508. RoofTile
+509. RoofTile
+510. RoofTile
+511. RoofTile
+512. RoofTile
+513. RoofTile
+514. RoofTile
+515. RoofTile
+516. RoofTile
+517. RoofTile
+518. RoofTile
+519. RoofTile
+520. RoofTile
+521. RoofTile
+522. RoofTile
+523. RoofTile
+524. RoofTile
+525. RoofTile
+526. RoofTile
+527. RoofTile
+528. RoofTile
+529. RoofTile
+530. RoofTile
+531. RoofTile
+532. RoofTile
+533. RoofTile
+534. RoofTile
+535. RoofTile
+536. RoofTile
+537. RoofTile
+538. RoofTile
+539. RoofTile
+540. RoofTile
+541. RoofTile
+542. RoofTile
+543. RoofTile
+544. RoofTile
+545. RoofTile
+546. RoofTile
+547. RoofTile
+548. RoofTile
+549. RoofTile
+550. RoofTile
+551. RoofTile
+552. RoofTile
+553. RoofTile
+554. RoofTile
+555. RoofTile
+556. RoofTile
+557. RoofTile
+558. RoofTile
+559. RoofTile
+560. RoofTile
+561. RoofTile
+562. RoofTile
+563. RoofTile
+564. RoofTile
+565. RoofTile
+566. RoofTile
+567. RoofTile
+568. RoofTile
+569. RoofTile
+570. RoofTile
+571. RoofTile
+572. RoofTile
+573. RoofTile
+574. RoofTile
+575. RoofTile
+576. RoofTile
+577. RoofTile
+578. RoofTile
+579. RoofTile
+580. RoofTile
+581. RoofTile
+582. RoofTile
+583. RoofTile
+584. RoofTile
+585. RoofTile
+586. RoofTile
+587. RoofTile
+588. RoofTile
+589. RoofTile
+590. RoofTile
+591. RoofTile
+592. RoofTile
+593. RoofTile
+594. RoofTile

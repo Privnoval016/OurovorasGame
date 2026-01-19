@@ -5,6 +5,20 @@ namespace ProceduralGrammarGeneration.Spatial
     /// <summary>
     /// ScriptableObject that defines physical geometry data for a terminal grammar symbol.
     /// This bridges abstract grammar symbols (e.g., "Window") with concrete 3D assets.
+    /// 
+    /// SEPARATION OF CONCERNS:
+    /// - This class defines MESH-SPECIFIC properties (alignment, pivot, offsets, bounds)
+    /// - Grammar parameters define LOGICAL properties (width, height, position in structure)
+    /// - Strategies combine both to determine final placement
+    /// 
+    /// MESH AUTHORITY:
+    /// If a mesh needs bottom-left alignment → set alignment = AlignmentMode.BottomLeft
+    /// If a mesh has custom pivot → set pivotOffset
+    /// If a mesh needs rotation offset → set rotationOffset
+    /// The rest of the system will respect these mesh-specific requirements.
+    /// 
+    /// The strategy uses grammar parameters to determine WHERE/SIZE, 
+    /// but uses geometry data to determine HOW (alignment, pivot, material, etc.)
     /// </summary>
     [CreateAssetMenu(fileName = "NewSymbolGeometry", menuName = "Procedural Grammar/Symbol Geometry Data", order = 100)]
     public class SymbolGeometryData : ScriptableObject

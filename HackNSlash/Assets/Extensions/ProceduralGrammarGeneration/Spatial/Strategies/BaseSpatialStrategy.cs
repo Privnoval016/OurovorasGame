@@ -4,10 +4,13 @@ namespace ProceduralGrammarGeneration.Spatial
 {
     /// <summary>
     /// Base class for spatial strategies with common functionality.
+    /// Provides helper methods for parameter validation and geometry application.
     /// </summary>
+    [System.Serializable]
     public abstract class BaseSpatialStrategy : ISpatialStrategy
     {
         public abstract string Name { get; }
+        public abstract IParameterContract RequiredContract { get; }
         
         public virtual void Initialize(SpatialContext context)
         {
@@ -29,7 +32,34 @@ namespace ProceduralGrammarGeneration.Spatial
         public abstract void PlaceNode(SpatialNode node, SpatialContext context);
         
         /// <summary>
+        /// Validate that a node satisfies the required parameter contract.
+        /// Call this at the start of PlaceNode() to ensure parameters are valid.
+        /// Only validates terminal symbols (nodes with geometry data).
+        /// </summary>
+        protected bool ValidateNodeParameters(SpatialNode node)
+        {
+            if (RequiredContract == null)
+                return true; // No contract = no validation needed
+            
+            // Skip validation for non-terminal symbols (they don't need physical dimensions)
+            if (node.GeometryData == null)
+                return true;
+            
+            if (!RequiredContract.ValidateNode(node))
+            {
+                string missing = RequiredContract.GetMissingParameters(node);
+                UnityEngine.Debug.LogWarning(
+                    $"Node '{node.SymbolName}' missing required parameters for {Name} strategy. " +
+                    $"Missing: {missing}. Expected: {RequiredContract.GetExpectedParameters()}");
+                return false;
+            }
+            
+            return true;
+        }
+        
+        /// <summary>
         /// Helper: Apply geometry data to a node (scale calculation, offsets, etc.)
+        /// This respects mesh-specific properties like alignment, pivot, rotation offsets.
         /// </summary>
         protected void ApplyGeometryData(SpatialNode node, SpatialContext context)
         {
