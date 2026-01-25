@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 20d4f77b9022eab48b4d94599ed4bf82, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1180,12 +1180,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   axis: 1
-  ableToScroll: 0
+  cycleMode: 0
+  focusCenterPanel: 1
+  centerPanelIndex: 2
+  scrollCooldown: 0.11
+  scrollDuration: 0.1
+  normalScale: {x: 1, y: 1, z: 1}
+  focusedScale: {x: 1.15, y: 1.15, z: 1.15}
+  scaleDuration: 0.08
   scrollItemContainer: {fileID: 1159462970}
-  scrollItemUIPanels: []
-  selectedUIPanelIndex: 0
-  activePanels: 0
-  canScroll: 1
 --- !u!1 &164150180
 GameObject:
   m_ObjectHideFlags: 0
@@ -4655,6 +4658,7 @@ MonoBehaviour:
   fadeDuration: 0.5
   styleGainBufferTime: 0.5
   fadeRange: {x: 0, y: 0.95}
+  rankUpCommitThreshold: 0.15
   minimumVisibleFill: 0.05
   dangerZoneFillRange: 0.25
 --- !u!1001 &647708798
@@ -12010,6 +12014,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c636a7cace2440508f2e7744449d8a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <CurrentGameState>k__BackingField: 0
+  <CurrentOverworldState>k__BackingField: 0
   globalGravity: -9.81
   groundLayer:
     serializedVersion: 2
@@ -13156,6 +13162,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1912397673}
   - component: {fileID: 1912397674}
+  - component: {fileID: 1912397675}
   m_Layer: 0
   m_Name: AudioSystem
   m_TagString: Untagged
@@ -13192,6 +13199,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultPoolSize: 10
   surfaceLookupTable: {fileID: 11400000, guid: 7027cab2011974c819f64b329f27826d, type: 2}
+--- !u!114 &1912397675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1912397672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbf17e12facb4fa996c2d859af185a81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AudioSystem: {fileID: 1912397674}
+  AudioLookupAtlas: {fileID: 11400000, guid: cb651cf53d76e48bfa8c3ef4cbeb489f, type: 2}
 --- !u!1 &1935180619
 GameObject:
   m_ObjectHideFlags: 0

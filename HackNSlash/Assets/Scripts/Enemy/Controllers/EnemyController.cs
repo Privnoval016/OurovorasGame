@@ -1,3 +1,5 @@
+using System;
+using Unity.Entities;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
@@ -44,6 +46,16 @@ public class EnemyController : MonoBehaviour
         {
             hitbox.ts = this;
         }
+    }
+
+    private void OnEnable()
+    {
+        EntityManager.Instance.RegisterEnemy(this);
+    }
+    
+    private void OnDestroy()
+    {
+        EntityManager.Instance.UnregisterEnemy(this);
     }
 
     #endregion

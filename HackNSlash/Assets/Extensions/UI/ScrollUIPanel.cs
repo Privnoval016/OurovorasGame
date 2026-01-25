@@ -5,6 +5,7 @@ namespace Extensions.UI
 {
     public abstract class ScrollUIPanel : MonoBehaviour
     {
+        [Header("Inspector References")]
         public RectTransform rectTransform;
         private void Awake()
         {

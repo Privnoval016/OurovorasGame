@@ -6,6 +6,9 @@ public class EnemyStagger : EnemyState
     {
         base.OnEnter();
         esm.PauseUtilityAITimer(true);
+        
+        EntityManager.Instance.MarkEnemyAware(esm.ts);
+        
         esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.staggerClip, ExitStagger);
     }
 

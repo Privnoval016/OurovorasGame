@@ -4,6 +4,8 @@ public class EnemyInitialState : EnemyState
     {
         base.OnEnter();
         doNotRemove = true;
+        
+        EntityManager.Instance.MarkEnemyUnaware(esm.ts);
     }
 
     public override void OnResume()

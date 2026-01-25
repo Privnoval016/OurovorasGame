@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eventReference:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  description: 
+      Data1: 396549707
+      Data2: 1307265990
+      Data3: -309100383
+      Data4: -1722462859
+    Path: event:/Music/Exploration/Outside
+  description: The audio that plays when the player is out exploring.
   poolSize: 10
   randomVolumeRange: {x: 1, y: 1}
   randomPitchRange: {x: 1, y: 1}

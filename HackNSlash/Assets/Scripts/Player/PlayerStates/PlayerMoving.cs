@@ -93,7 +93,7 @@ public class PlayerMoving : PlayerState
     
     private void PauseCallbacks()
 	{
-		if (GameManager.CurrentGameState == GameState.Menu)
+		if (GameManager.Instance.CurrentGameState == GameState.Menu)
 		{
 			
 			

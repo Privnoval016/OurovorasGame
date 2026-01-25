@@ -17,6 +17,8 @@ public class EnemyHit : EnemyState
         
         esm.ts.animListener.DeactivateAllHitboxes();
         
+        EntityManager.Instance.MarkEnemyAware(esm.ts);
+        
         PlayHitAnimation();
     }
 

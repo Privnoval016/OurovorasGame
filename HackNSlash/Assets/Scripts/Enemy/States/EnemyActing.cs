@@ -1,6 +1,7 @@
 
 using Extensions.Timers;
 using Extensions.UtilityAI;
+using Unity.Entities;
 
 public class EnemyActing : EnemyState
 {
@@ -16,6 +17,16 @@ public class EnemyActing : EnemyState
     public override void OnEnter()
     {
         esm.currentAction = action;
+        
+        if (action.AggroedAction)
+        {
+            EntityManager.Instance.MarkEnemyAware(esm.ts);
+        }
+        else
+        {
+            EntityManager.Instance.MarkEnemyUnaware(esm.ts);
+        }
+        
         action.OnEnter(context, esm);
     }
 

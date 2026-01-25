@@ -1,18 +1,32 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Extensions.EventBus;
 using Extensions.Patterns;
-using Extensions.Utils;
-using MEC;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 
+/**
+ * <summary>
+ * Manages overall game state and global parameters.
+ * </summary>
+ */
 public enum GameState
 {
     PlayerControl,
     Cutscene,
     Menu,
+}
+
+/**
+ * <summary>
+ * Specific states within the overworld.
+ * </summary>
+ */
+public enum OverworldState
+{
+    NonCombat,
+    CombatNormal,
+    CombatElite,
+    CombatBoss
 }
 
 public enum ElementEffect
@@ -32,8 +46,12 @@ public class GameManager : Singleton<GameManager>
 
     [Header("Game State")] 
     
-    public static GameState CurrentGameState;
+    [field: SerializeField] public GameState CurrentGameState { get; private set; }
     private GameState previousGameState;
+    
+    [Header("Overworld State")]
+    [field: SerializeField] public OverworldState CurrentOverworldState { get; private set; }
+    private OverworldState previousOverworldState;
     
     
     [Header("Global Parameters")]
@@ -49,6 +67,9 @@ public class GameManager : Singleton<GameManager>
         base.Awake();
         
         CurrentGameState = GameState.PlayerControl;
+        
+        CurrentOverworldState = OverworldState.NonCombat;
+        ChangeOverworldState(OverworldState.NonCombat);
         
         InputManager.Instance.onPause += OnPauseAction;
     }
@@ -132,4 +153,37 @@ public class GameManager : Singleton<GameManager>
     }
     
     #endregion
+    
+    #region Overworld State Methods
+    
+    public bool ChangeOverworldState(OverworldState newState)
+    {
+        if (newState == CurrentOverworldState) return false;
+        
+        previousOverworldState = CurrentOverworldState;
+        CurrentOverworldState = newState;
+        
+        // Notify listeners of state change
+        EventBus<ChangeOverworldStateEvent>.Raise(new ChangeOverworldStateEvent(previousOverworldState, CurrentOverworldState));
+        
+        // Update music state parameter
+        var value = new AudioParamValue(AudioLookupAtlas.Instance.musicStateParam, (int)CurrentOverworldState);
+        EventBus<PlayMusicEvent>.Raise(new PlayMusicEvent(new [] { value }));
+        
+        return true;
+    }
+    
+    #endregion
+}
+
+public struct ChangeOverworldStateEvent : IEvent
+{
+    public readonly OverworldState PreviousState;
+    public readonly OverworldState NewState;
+
+    public ChangeOverworldStateEvent(OverworldState previousState, OverworldState newState)
+    {
+        PreviousState = previousState;
+        NewState = newState;
+    }
 }

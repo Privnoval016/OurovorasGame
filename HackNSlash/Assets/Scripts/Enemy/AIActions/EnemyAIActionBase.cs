@@ -1,7 +1,11 @@
 using Extensions.UtilityAI;
+using UnityEngine;
 
 public abstract class EnemyAIActionBase : AIAction<EnemyAIContextKey>
 {
+    [Header("Enemy AI Action Settings")]
+    [field: SerializeField] public bool AggroedAction { get; private set; } = true;
+    
     public void OnEnter(Context<EnemyAIContextKey> context, EnemyStateMachine esm)
     {
         OnEnemyEnter(context, esm);
