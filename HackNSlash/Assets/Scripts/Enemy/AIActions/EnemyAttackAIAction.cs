@@ -7,6 +7,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "EnemyAttackAIAction", menuName = "Enemy/AIActions/EnemyAttackAIAction", order = 0)]
 public class EnemyAttackAIAction : EnemyAIActionBase
 {
+    [Header("Enemy Attack AI Action Settings")]
     public EnemyAttack attack;
     
     public EnemyAttackDamageInfo damageInfo;

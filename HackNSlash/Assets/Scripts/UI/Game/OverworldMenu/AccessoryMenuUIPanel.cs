@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class AccessoryMenuUIPanel : ScrollUIPanel
 {
+    [Header("Accessory Component References")]
     public Image icon;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI descriptionText;

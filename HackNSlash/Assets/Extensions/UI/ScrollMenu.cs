@@ -6,298 +6,344 @@ using Extensions.Timers;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using PrimeTween;
-using UnityEngine.Serialization;
 
 namespace Extensions.UI
 {
-    public enum MovementAxis
+    public enum MovementAxis { Horizontal, Vertical }
+
+    public enum CycleMode
     {
-        Horizontal,
-        Vertical
+        CircularStop,   // Circular wrapping only when items >= panels, otherwise stop at edges
+        CircularPure,   // True circular carousel - items wrap visually in a continuous loop
+        Restart,        // Stop at edges, but jump back to start when going past the end
+        Stop           // Stop at first/last item, no wrapping or jumping
     }
+
     public class ScrollMenu : MonoBehaviour
     {
-        [Header("Scroll Settings")]
-        public MovementAxis axis;
-        
-        public int NumPanels => scrollItemUIPanels.Count;
-        [HideInInspector] public bool ableToScroll = true; // Is scrolling enabled based on number of items vs panels
-        
-        [Header("Item Settings")]
-        public Transform scrollItemContainer;
-        public List<ScrollUIPanel> scrollItemUIPanels;
-        [FormerlySerializedAs("selectedItemIndex")] public int selectedUIPanelIndex = 0;
-        public ScrollUIPanel SelectedItem => scrollItemUIPanels[selectedUIPanelIndex];
-        
-        private List<Vector3> itemPositions = new List<Vector3>();
-        
-        private CountdownTimer scrollCooldownTimer;
-        private float scrollCooldown = 0.11f;
-        private float scrollDuration = 0.1f;
+        #region Inspector
 
-        [HideInInspector] public int activePanels;
+        [Header("Scroll Settings")]
+        [SerializeField] private MovementAxis axis;
+        [SerializeField] private CycleMode cycleMode;
+
+        [Tooltip("Whether to visually focus the center panel.")]
+        [SerializeField] private bool focusCenterPanel = true;
+
+        [SerializeField] private int centerPanelIndex = 2;
+
+        [Header("Timing")]
+        [SerializeField] private float scrollCooldown = 0.11f;
+        [SerializeField] private float scrollDuration = 0.1f;
         
-        [HideInInspector] public bool canScroll = true;
-        
-        #region Inventory Parameters
-        
-        private IList inventoryItems;
-        private int inventoryStartIndex = 0;
-        private Func<object, ItemUIInfo> getItemInfoFunc;
-        
-        
+        [Header("Visuals")]
+        [SerializeField] private Vector3 normalScale = Vector3.one;
+        [SerializeField] private Vector3 focusedScale = Vector3.one * 1.15f;
+        [SerializeField] private float scaleDuration = 0.08f;
+
+        [Header("UI")]
+        [SerializeField] private Transform scrollItemContainer;
+
         #endregion
 
+        private LinkedList<ScrollUIPanel> panelQueue;
+        private Vector3 slotDelta;
+
+        private IList inventoryItems;
+        private Func<object, ItemUIInfo> getItemInfoFunc;
+
+        private CountdownTimer scrollCooldownTimer;
+        private IScrollMenuAuthority authority;
+
+        private int selectedIndex;
+        private bool isAnimating;
+
+        #region MonoBehaviour Callbacks
 
         private void Awake()
         {
-            scrollItemUIPanels = scrollItemContainer.GetComponentsInChildren<ScrollUIPanel>(true).ToList();
+            var panels = scrollItemContainer
+                .GetComponentsInChildren<ScrollUIPanel>(true).ToList();
 
-            itemPositions = scrollItemUIPanels.Select(panel => panel.rectTransform.localPosition).ToList();
-            
-            InitializeScrollTimer();
+            panelQueue = new LinkedList<ScrollUIPanel>(panels);
 
-            ableToScroll = true;
-        }
-        
-        private void InitializeScrollTimer()
-        {
-            if (scrollCooldownTimer != null) return;
-            
+            if (panels.Count >= 1)
+            {
+                RectTransform rt = panels[0].rectTransform;
+
+                slotDelta = axis == MovementAxis.Horizontal
+                    ? new Vector3(rt.rect.width, 0f, 0f)
+                    : new Vector3(0f, rt.rect.height, 0f);
+            }
+
             scrollCooldownTimer = new CountdownTimer(scrollCooldown, true);
-            
-            scrollCooldownTimer.OnTimerStart += () => canScroll = false;
-            scrollCooldownTimer.OnTimerStop += () => canScroll = true;
-        }
-        
-        public void Activate<T>(List<T> items, int initialIndex, Func<T, ItemUIInfo> getInfoFunc)
-        {
-            selectedUIPanelIndex = 0;
-            InputManager.Instance.onScroll += OnScroll;
-            
-            InitializeScrollTimer();
-            
             scrollCooldownTimer.Stop();
-            InitializeMenuWithInventory(items, initialIndex, getInfoFunc);
         }
-        
+
+        #endregion
+
+        #region Activation
+
+        public void Activate<T>(List<T> items, int initialIndex, Func<T, 
+            ItemUIInfo> getInfoFunc, IScrollMenuAuthority a) where T : class
+        {
+            scrollCooldownTimer = new CountdownTimer(scrollCooldown, true);
+            scrollCooldownTimer.Stop();
+            
+            Debug.Log("Activating " + items.Count + " items");
+
+            if (items == null || items.Count == 0)
+                return;
+
+            inventoryItems = items;
+            getItemInfoFunc = o => getInfoFunc((T)o);
+
+            selectedIndex = Mathf.Clamp(initialIndex, 0, items.Count - 1);
+
+            authority = a;
+            authority.SubscribeToScroll(this);
+
+            InitializePanels();
+        }
+
         public void Deactivate()
         {
-            InputManager.Instance.onScroll -= OnScroll;
-            
-            InitializeScrollTimer();
-            
-            scrollCooldownTimer.Stop();
-            
+            if (authority != null)
+            {
+                authority.UnsubscribeFromScroll(this);
+                authority = null;
+            }
+
             inventoryItems = null;
             getItemInfoFunc = null;
-            inventoryStartIndex = 0;
+            isAnimating = false;
+            scrollCooldownTimer?.Stop();
         }
-        
-        private void OnScroll(InputAction.CallbackContext context)
+
+        #endregion
+
+        #region Input Callbacks
+
+        public void OnScrollPerformed(Vector2 scrollDelta)
         {
-            if (context.phase == InputActionPhase.Canceled) return;
+            Debug.Log($"isAnimating: {isAnimating}, scrollCooldownTimer.IsRunning: {scrollCooldownTimer.IsRunning}, inventoryItems: {inventoryItems}");
             
-            if (!canScroll) return;
+            if (isAnimating || scrollCooldownTimer.IsRunning || inventoryItems == null)
+                return;
             
+            Debug.Log("Processing scroll input");
+            
+            Vector2 v = scrollDelta;
+            float delta = axis == MovementAxis.Horizontal ? v.x : -v.y;
+
+            if (Mathf.Approximately(delta, 0f))
+                return;
+            
+            Debug.Log("Scroll input delta: " + delta);
+
             scrollCooldownTimer.Restart();
+            scrollCooldownTimer.Start();
 
-            Vector2 scrollValue = context.ReadValue<Vector2>();
-            float value = (axis == MovementAxis.Horizontal) ? scrollValue.x : scrollValue.y;
-            
-            if (value > 0f)
-            {
-                ScrollRight();
-            }
-            else if (value < 0f)
-            {
-                ScrollLeft();
-            }
+            if (delta > 0f)
+                Scroll(+1);
+            else
+                Scroll(-1);
         }
-        
-        private void ScrollLeft()
+
+        #endregion
+
+        #region Scrolling
+
+        private void Scroll(int direction)
         {
-            Debug.Log("Scrolling Left");
-            
-            SelectedItem.OnDeselected();
-            
-            var shiftedPanel = scrollItemUIPanels[0];
-            scrollItemUIPanels.RemoveAt(0);
-            scrollItemUIPanels.Add(shiftedPanel);
-            
-            if (!ableToScroll)
+            Debug.Log($"SCR - Scroll called with direction: {direction}");
+    
+            int next = NextIndex(direction);
+            Debug.Log($"SCR - Current index: {selectedIndex}, Next index: {next}");
+    
+            // For Restart mode, if we're at the boundary and trying to go further, jump to opposite end
+            if (cycleMode == CycleMode.Restart)
             {
-                selectedUIPanelIndex -= 1;
-                
-                int direction = -1;
-                if (selectedUIPanelIndex < 0)
+                bool atEnd = (direction > 0 && selectedIndex == inventoryItems.Count - 1);
+                bool atStart = (direction < 0 && selectedIndex == 0);
+        
+                if (atEnd || atStart)
                 {
-                    selectedUIPanelIndex = 0;
-                    direction = 0;
+                    Debug.Log("SCR - Restart mode: jumping to opposite end");
+                    selectedIndex = atEnd ? 0 : inventoryItems.Count - 1;
+                    InitializePanels();
+                    return;
                 }
-                ScrollIndex(direction);
-                
-                SelectedItem.OnSelected();
+            }
+    
+            if (next == selectedIndex)
+            {
+                Debug.Log("SCR - Next index equals current index - no movement");
                 return;
             }
 
-            selectedUIPanelIndex = 0;
-            
-            ScrollIndex(-1);
-            SelectedItem.OnSelected();
-            
-            for (int i = 0; i < scrollItemUIPanels.Count - 1; i++)
+            Debug.Log("SCR - Actually scrolling now!");
+            selectedIndex = next;
+
+            // When items <= panels, don't scroll the container, just update focus
+            if (inventoryItems.Count <= panelQueue.Count)
             {
-                var panel = scrollItemUIPanels[i];
-                var targetPosition = itemPositions[i];
-                
-                Tween.LocalPosition(panel.rectTransform, targetPosition, scrollDuration, Ease.InOutCubic, 1, 
-                    CycleMode.Restart, 0, 0, true);
-            }
-            
-            var newPosition = itemPositions[0] + (itemPositions[0] - itemPositions[1]);
-            
-            Tween.LocalPosition(shiftedPanel.rectTransform, newPosition, scrollDuration, Ease.InOutCubic, 1, 
-                CycleMode.Restart, 0, 0, true).OnComplete(() =>
-            {
-                shiftedPanel.rectTransform.localPosition = itemPositions.Last();
-            });
-            
-            RefreshScrollPanels(-1, shiftedPanel);
-        }
-        
-        private void ScrollRight()
-        {
-            Debug.Log("Scrolling Right");
-            
-            SelectedItem.OnDeselected();
-            
-            var shiftedPanel = scrollItemUIPanels.Last();
-            scrollItemUIPanels.RemoveAt(scrollItemUIPanels.Count - 1);
-            scrollItemUIPanels.Insert(0, shiftedPanel);
-            
-            if (!ableToScroll)
-            {
-                selectedUIPanelIndex += 1;
-                
-                int direction = 1;
-                if (selectedUIPanelIndex >= activePanels)
-                {
-                    selectedUIPanelIndex = activePanels - 1;
-                    direction = 0;
-                }
-                ScrollIndex(direction);
-                
-                SelectedItem.OnSelected();
+                Debug.Log("SCR - Items <= panels, just updating focus");
+                InitializePanels();
                 return;
             }
-            
-            ScrollIndex(1);
-            SelectedItem.OnSelected();
-            
-            RefreshScrollPanels(1, shiftedPanel);
-            
-            for (int i = 1; i < scrollItemUIPanels.Count; i++)
-            {
-                var panel = scrollItemUIPanels[i];
-                var targetPosition = itemPositions[i];
 
-                Tween.LocalPosition(panel.rectTransform, targetPosition, scrollDuration, Ease.InOutCubic, 1, 
-                    CycleMode.Restart, 0, 0, true);
-            }
-            
-            var newPosition = itemPositions[0] + (itemPositions[0] - itemPositions[1]);
-            
-            shiftedPanel.rectTransform.localPosition = newPosition;
-            
-            Tween.LocalPosition(shiftedPanel.rectTransform, itemPositions[0], scrollDuration, Ease.InOutCubic, 1,
-                CycleMode.Restart, 0, 0, true);
+            if (direction > 0)
+                ScrollForward();
+            else
+                ScrollBackward();
         }
 
-        /**
-         * <summary>
-         * Initializes the scroll menu with a list of items from an inventory.
-         * </summary>
-         *
-         * <typeparam name="T">The type of items in the inventory.</typeparam>
-         * <param name="items">The list of items to display in the scroll menu.</param>
-         * <param name="initialIndex">The index of the item to be initially selected.</param>
-         * <param name="getInfoFunc">A function that takes an item of type T and returns its ItemUIInfo.</param>
-         */
-        private void InitializeMenuWithInventory<T>(List<T> items, int initialIndex, Func<T, ItemUIInfo> getInfoFunc)
+        private int NextIndex(int delta)
         {
-            if (initialIndex < 0) initialIndex = 0;
-            
-            ableToScroll = items.Count >= NumPanels;
-            
-            activePanels = 0;
-            for (int i = 0; i < NumPanels; i++)
+            int next = selectedIndex + delta;
+            int itemCount = inventoryItems.Count;
+
+            switch (cycleMode)
             {
-                int index = initialIndex + i;
-                var panel = scrollItemUIPanels[i];
-                if (index >= items.Count)
+                case CycleMode.Stop:
+                    return Mathf.Clamp(next, 0, itemCount - 1);
+
+                case CycleMode.Restart:
+                    // Clamp at boundaries - the jump is handled in Scroll()
+                    return Mathf.Clamp(next, 0, itemCount - 1);
+
+                case CycleMode.CircularPure:
+                    // Always wrap around
+                    return (next % itemCount + itemCount) % itemCount;
+
+                case CycleMode.CircularStop:
+                    // Only wrap if we have enough items to fill all panels
+                    if (itemCount >= panelQueue.Count)
+                        return (next % itemCount + itemCount) % itemCount;
+                    else
+                        return Mathf.Clamp(next, 0, itemCount - 1);
+            }
+
+            return selectedIndex;
+        }
+
+        #endregion
+
+        #region Queue Motion
+
+        private void ScrollForward()
+        {
+            isAnimating = true;
+
+            ScrollUIPanel panel = panelQueue.First.Value;
+            panelQueue.RemoveFirst();
+            panelQueue.AddLast(panel);
+
+            var last = panelQueue.Last.Previous.Value.rectTransform;
+            panel.rectTransform.localPosition = last.localPosition + slotDelta;
+
+            RefreshPanel(panel, selectedIndex + centerPanelIndex);
+
+            AnimateContainer(-slotDelta);
+        }
+
+        private void ScrollBackward()
+        {
+            isAnimating = true;
+
+            ScrollUIPanel panel = panelQueue.Last.Value;
+            panelQueue.RemoveLast();
+            panelQueue.AddFirst(panel);
+
+            var first = panelQueue.First.Next.Value.rectTransform;
+            panel.rectTransform.localPosition = first.localPosition - slotDelta;
+
+            RefreshPanel(panel, selectedIndex - centerPanelIndex);
+
+            AnimateContainer(slotDelta);
+        }
+
+        private void AnimateContainer(Vector3 offset)
+        {
+            scrollItemContainer.localPosition += offset;
+
+            Tween.LocalPosition(scrollItemContainer, Vector3.zero, scrollDuration, Ease.Linear, 
+                    1, PrimeTween.CycleMode.Restart, 0F, 0F, true)
+                .OnComplete(() =>
                 {
-                    panel.gameObject.SetActive(false);
+                    UpdateFocus();
+                    isAnimating = false;
+                });
+        }
+
+        #endregion
+
+        #region Panel Data
+
+        private void InitializePanels()
+        {
+            int i = 0;
+            foreach (var panel in panelQueue)
+            {
+                int dataIndex = selectedIndex - centerPanelIndex + i;
+                RefreshPanel(panel, dataIndex);
+                i++;
+            }
+
+            UpdateFocus();
+        }
+
+        private void RefreshPanel(ScrollUIPanel panel, int dataIndex)
+        {
+            // Use circular indexing for CircularPure and CircularStop modes
+            if (cycleMode == CycleMode.CircularPure || cycleMode == CycleMode.CircularStop)
+                dataIndex = (dataIndex % inventoryItems.Count + inventoryItems.Count) % inventoryItems.Count;
+
+            if (dataIndex >= 0 && dataIndex < inventoryItems.Count)
+                panel.Refresh(getItemInfoFunc(inventoryItems[dataIndex]));
+            else
+                panel.Refresh(null);
+        }
+
+        #endregion
+
+        #region Focus
+
+        private void UpdateFocus()
+        {
+            if (!focusCenterPanel)
+                return;
+
+            int i = 0;
+            foreach (var panel in panelQueue)
+            {
+                RectTransform rt = panel.rectTransform;
+
+                if (i == centerPanelIndex)
+                {
+                    panel.OnSelected();
+                    Tween.Scale(rt, focusedScale, scaleDuration, Ease.OutQuad, 1, 
+                        PrimeTween.CycleMode.Restart, 0F, 0F, true);
                 }
                 else
                 {
-                    panel.gameObject.SetActive(true);
-                    Debug.Log("Refreshing panel " + panel.name + " with accessory at index " + index);
-                    var accessory = items[index];
-                    panel.Refresh(getInfoFunc(accessory));
-                    activePanels++;
+                    panel.OnDeselected();
+                    Tween.Scale(rt, normalScale, scaleDuration, Ease.OutQuad, 1, 
+                        PrimeTween.CycleMode.Restart, 0F, 0F, true);
                 }
+
+                i++;
             }
-            
-            inventoryItems = items;
-            inventoryStartIndex = initialIndex;
-            getItemInfoFunc = obj => getInfoFunc((T)obj);
         }
 
-        /**
-         * <summary>
-         * Scrolls the stored indices of the menu in the given direction.
-         * </summary>
-         */
-        private void ScrollIndex(int direction)
-        {
-            if (direction == 0) return;
-            
-            inventoryStartIndex -= direction;
-            inventoryStartIndex += inventoryItems.Count;
-            inventoryStartIndex %= inventoryItems.Count;
-            Debug.Log("Current item stack index in UI: " + inventoryStartIndex);
-        }
-        
-        /**
-         * <summary>
-         * Refreshes the scroll panels based on the information from the inventory.
-         * </summary>
-         *
-         * <param name="direction">The direction of the scroll (1 for right, -1 for up).</param>
-         * <param name="refreshedPanel">The panel that was refreshed (if any).</param>
-         */
-        private void RefreshScrollPanels(int direction, ScrollUIPanel refreshedPanel)
-        {
-            if (direction == 0) return;
-            
-            int refreshedItemIndex = direction > 0 ? inventoryStartIndex : NumPanels - 1 + inventoryStartIndex;
-            refreshedItemIndex %= inventoryItems.Count;
-        
-            var accessory = inventoryItems[refreshedItemIndex];
-            refreshedPanel.Refresh(getItemInfoFunc(accessory));
-        }
+        #endregion
+    }
+    
+    public interface IScrollMenuAuthority
+    {
 
-        /**
-         * <summary>
-         * Gets the index of the currently selected item in the inventory list.
-         * </summary>
-         *
-         * <returns>The index of the selected item in the inventory list.</returns>
-         */
-        public int GetIndexInInventory()
-        {
-            return 0;
-        }
+        public void SubscribeToScroll(ScrollMenu menu);
+        public void UnsubscribeFromScroll(ScrollMenu menu);
     }
 }

@@ -2,9 +2,10 @@ using System;
 using Extensions.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class EquipmentMenuUI : TabSelection
+public class EquipmentMenuUI : TabSelection, IScrollMenuAuthority
 {
     public Button defaultButton;
     public GameObject selectedButtonObject;
@@ -36,6 +37,7 @@ public class EquipmentMenuUI : TabSelection
     }
     
     #endregion
+    
     
     #region TabSelection Methods
 
@@ -96,12 +98,33 @@ public class EquipmentMenuUI : TabSelection
         currentItemStackIndexInUI = inventoryInfo.GetIndexOfStack(currentAccessory);
         
         equipmentScrollMenu.Activate(inventoryInfo.GetStacksOfType<Accessory>(), 
-            currentItemStackIndexInUI, stack => stack.GetItemUIInfo());
+            currentItemStackIndexInUI, stack => stack.GetItemUIInfo(), this);
     }
 
     private void InitializePassiveMenu()
     {
 
+    }
+    
+    #endregion
+    
+    #region Scroll Input
+    
+    private void ScrollDelegate(InputAction.CallbackContext context)
+    {
+        Vector2 v = context.ReadValue<Vector2>();
+        equipmentScrollMenu.OnScrollPerformed(v);
+    }
+    
+    
+    public void SubscribeToScroll(ScrollMenu scrollMenu)
+    {
+        InputManager.Instance.onScroll += ScrollDelegate;
+    }
+    
+    public void UnsubscribeFromScroll(ScrollMenu scrollMenu)
+    {
+        InputManager.Instance.onScroll -= ScrollDelegate;
     }
     
     #endregion
