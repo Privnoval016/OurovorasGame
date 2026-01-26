@@ -6,6 +6,8 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(menuName = "Player/Attacks/PlayerAttack")]
 public class PlayerAttack : Attack
 {
+    [Header("Attack Actions")]
+    
     public AttackActionInfo[] attackActions;
     
     [Header("Root Motion")]

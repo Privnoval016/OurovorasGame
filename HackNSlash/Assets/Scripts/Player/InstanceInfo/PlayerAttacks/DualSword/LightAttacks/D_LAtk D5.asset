@@ -61,6 +61,9 @@ MonoBehaviour:
       Scale: {x: 0, y: 0, z: 0}
     applyParentPoseToPosition: 0
   hitStopProfiles: []
+  audioProfiles:
+  - audioEvent: {fileID: 11400000, guid: d8dfa04527f9a4f3aa34344b2886ff8d, type: 2}
+    parameters: []
   attackActions: []
   applyRootMotion: 1
   moveCameraWithAttack: 1

@@ -60,6 +60,9 @@ public abstract class Attack : ScriptableObject
     [Header("Hit Stop")]
     
     public HitStopProfile[] hitStopProfiles;
+    
+    [Header("Audio")]
+    public AudioProfile[] audioProfiles;
 
 
     protected virtual void OnValidate()
@@ -82,6 +85,13 @@ public abstract class Attack : ScriptableObject
         
         return Mathf.Clamp(percentage, 0f, 1f);
     }
+}
+
+[Serializable]
+public class AudioProfile
+{
+    public AudioEvent audioEvent;
+    public AudioParamValue[] parameters;
 }
 
 [Serializable]

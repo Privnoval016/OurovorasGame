@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   param:
     parameter: {fileID: 11400000, guid: 158abafc5009d4c31bfa5e335dbd1d8c, type: 2}
-    value: 1
+    value: 12

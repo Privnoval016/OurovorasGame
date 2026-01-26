@@ -18,10 +18,13 @@ MonoBehaviour:
   attackType: 3
   element: 1
   stats:
+    damage: 0
+    statusEffectStacks: 0
+    statusEffectDuration: 0
     restoreCharge: 1
     charge: 0
     ultimateCharge: 8
-    damage: 0
+    baseStyleGain: 10
   isLockedOn: 1
   requireElementTrigger: 0
   triggerCoolDown: 0
@@ -32,7 +35,6 @@ MonoBehaviour:
   isMidair: 2
   maxUses: 0
   hitInfo:
-    onHitActions: 07000000
     hitActionInfos:
     - hitAction:
         rid: 2944900481171587325
@@ -43,10 +45,6 @@ MonoBehaviour:
     numTargets: 1
     attackCoolDown: 0.1
     hitCoolDown: 0.1
-    hitForce: 5
-    hitDelay: 0
-    hitDirection: {x: 0, y: 0, z: 0}
-    elasticCollision: 0
   vfxInstantSpawns: 
   vfxInfos:
   - vfxAttack: {fileID: 11400000, guid: cfca8351453784fe1a8fd1b140d0725c, type: 2}
@@ -64,6 +62,9 @@ MonoBehaviour:
     applyParentPoseToPosition: 0
   hitStopProfiles:
   - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
+  audioProfiles:
+  - audioEvent: {fileID: 11400000, guid: d8dfa04527f9a4f3aa34344b2886ff8d, type: 2}
+    parameters: []
   attackActions: []
   applyRootMotion: 0
   moveCameraWithAttack: 1
@@ -82,3 +83,4 @@ MonoBehaviour:
       type: {class: LockPhysicsHitAction, ns: , asm: Assembly-CSharp}
       data:
         hitDelay: 0
+        hitForce: 10

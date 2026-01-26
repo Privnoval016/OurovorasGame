@@ -13198,7 +13198,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultPoolSize: 10
-  surfaceLookupTable: {fileID: 11400000, guid: 7027cab2011974c819f64b329f27826d, type: 2}
 --- !u!114 &1912397675
 MonoBehaviour:
   m_ObjectHideFlags: 0
