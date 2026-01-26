@@ -140,8 +140,8 @@ public class VFXSystem : MonoBehaviour, IVFXSystem
         VFXController vfx = InstantiatePlayerVFX(pc, a, vfxIndex, overrideTransform);
         if (vfx == null) return null;
     
-        if (vfx.HitDetector is PlayerVFXHitDetector) 
-            ((PlayerVFXHitDetector) vfx.HitDetector).followedWeaponType = weaponType;
+        if (vfx.HitDetector is PlayerVFXHitDetector hitDetector) 
+            hitDetector.followedWeaponType = weaponType;
     
     
         this.RunSegmentCoroutine(SpawnWithDelay(vfx, a.vfxInfos[vfxIndex].spawnDelay));

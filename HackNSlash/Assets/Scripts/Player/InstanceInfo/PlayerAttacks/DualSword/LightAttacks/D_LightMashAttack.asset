@@ -62,6 +62,9 @@ MonoBehaviour:
     applyParentPoseToPosition: 0
   hitStopProfiles:
   - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
+  audioProfiles:
+  - audioEvent: {fileID: 11400000, guid: d8dfa04527f9a4f3aa34344b2886ff8d, type: 2}
+    parameters: []
   attackActions:
   - attackAction:
       rid: 2944900481171587231

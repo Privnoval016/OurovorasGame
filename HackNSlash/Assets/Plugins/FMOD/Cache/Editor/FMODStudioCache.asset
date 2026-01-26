@@ -15,7 +15,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639048878327895046
+  lastModified: 639050394960943183
   FileSizes: []
   Exists: 1
 --- !u!114 &-4465862459565583231
@@ -33,9 +33,36 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/SFX.bank
   Name: SFX
   StudioPath: bank:/SFX
-  lastModified: 639048675371617287
+  lastModified: 639050434673097425
   FileSizes: []
   Exists: 1
+--- !u!114 &-2876638785520208707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/Player/SwordSlash
+  m_EditorClassIdentifier: 
+  Path: event:/SFX/Player/SwordSlash
+  Guid:
+    Data1: -1175137241
+    Data2: 1305760534
+    Data3: 292457090
+    Data4: -841660424
+  Banks:
+  - {fileID: -4465862459565583231}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 500
 --- !u!114 &-2658309552449895779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,6 +99,46 @@ MonoBehaviour:
   lastModified: 639048675354206665
   FileSizes: []
   Exists: 1
+--- !u!114 &-878153131351957432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Footstep/Surface
+  m_EditorClassIdentifier: 
+  Name: Surface
+  StudioPath: 
+  Min: 0
+  Max: 15
+  Default: 13
+  ID:
+    data1: 3523059675
+    data2: 693805081
+  Type: 2
+  IsGlobal: 0
+  Labels:
+  - Linoleum
+  - Dirt
+  - MetalFloor
+  - Glass
+  - Ice
+  - MetalHollow
+  - Mud
+  - Hardwood
+  - Pavement
+  - Plastic
+  - Rubber
+  - Snow
+  - Grass
+  - Tiled
+  - Water
+  - Marsh
+  Exists: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,18 +164,24 @@ MonoBehaviour:
   EditorEvents:
   - {fileID: 5369551673459953907}
   - {fileID: 210396065489801464}
+  - {fileID: -2876638785520208707}
+  - {fileID: 4102841911134144687}
   EditorParameters: []
   MasterBanks:
   - {fileID: 5667700000838599861}
   StringsBanks:
   - {fileID: 5870138789013942014}
   cacheVersion: 131858
-  cacheTime: 639048878327895046
+  cacheTime: 639050434673097425
   SerializableEventsDict:
   - key: event:/Music/Exploration/Outside
     index: 0
   - key: event:/Music/Hub/MercenaryGuild
     index: 1
+  - key: event:/SFX/Player/SwordSlash
+    index: 2
+  - key: event:/SFX/Player/Footstep
+    index: 3
 --- !u!114 &210396065489801464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,6 +227,34 @@ MonoBehaviour:
   lastModified: 639048675371634862
   FileSizes: []
   Exists: 1
+--- !u!114 &4102841911134144687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/Player/Footstep
+  m_EditorClassIdentifier: 
+  Path: event:/SFX/Player/Footstep
+  Guid:
+    Data1: 502022232
+    Data2: 1289826477
+    Data3: -1873955158
+    Data4: 1134961761
+  Banks:
+  - {fileID: -4465862459565583231}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters:
+  - {fileID: -878153131351957432}
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &5369551673459953907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,7 +297,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639048803061998244
+  lastModified: 639050434672839706
   FileSizes: []
   Exists: 1
 --- !u!114 &5870138789013942014
@@ -214,10 +315,10 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639048803062004819
+  lastModified: 639050434672844944
   FileSizes:
   - Name: 
-    Value: 1552
+    Value: 1716
   Exists: 1
 --- !u!114 &7035638800199298596
 MonoBehaviour:

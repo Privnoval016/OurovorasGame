@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{459aa542-c198-4b1f-9e2c-0a4781e67124}">
+		<property name="name">
+			<value>Surface</value>
+		</property>
+		<relationship name="folder">
+			<destination>{60d0d40e-8fa3-432f-9a0b-0173813541b8}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{7080d64c-0667-45d6-becd-a369aeb9471c}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{7080d64c-0667-45d6-becd-a369aeb9471c}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>16</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Linoleum</value>
+			<value>Dirt</value>
+			<value>MetalFloor</value>
+			<value>Glass</value>
+			<value>Ice</value>
+			<value>MetalHollow</value>
+			<value>Mud</value>
+			<value>Hardwood</value>
+			<value>Pavement</value>
+			<value>Plastic</value>
+			<value>Rubber</value>
+			<value>Snow</value>
+			<value>Grass</value>
+			<value>Tiled</value>
+			<value>Water</value>
+			<value>Marsh</value>
+		</property>
+		<property name="initialValue">
+			<value>13</value>
+		</property>
+	</object>
+</objects>

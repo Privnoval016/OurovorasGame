@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using FMODUnity;
 using FMOD.Studio;
@@ -20,9 +21,6 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
     
     private AudioEvent _currentMusicEvent;
     private AudioEvent _currentAmbientEvent;
-    
-    [Header("Audio Lookup Tables")]
-    [SerializeField] private SurfaceLookupTable surfaceLookupTable;
     
     #endregion
     
@@ -97,6 +95,11 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
         if (!instance.isValid())
         {
             instance = RuntimeManager.CreateInstance(evt.eventReference);
+            //Attach callback
+            instance.setCallback(OnEventEnd);
+            // Store owner reference for callback
+            instance.setUserData(GCHandle.ToIntPtr(GCHandle.Alloc(evt)));
+
             if (!instance.isValid())
             {
                 Debug.LogWarning($"Failed to create EventInstance for {evt.name}");
@@ -114,15 +117,10 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
             foreach (var p in parameters)
                 instance.setParameterByName(p.parameter.parameterName, p.value);
         }
-        
-        instance.setPitch(Random.Range(evt.randomPitchRange.x, evt.randomPitchRange.y));
-        instance.setVolume(Random.Range(evt.randomVolumeRange.x, evt.randomVolumeRange.y));
 
         // 3D attachment
         if (attachTo != null)
-            RuntimeManager.AttachInstanceToGameObject(instance, attachTo, attachTo.GetComponent<Rigidbody>());
-        else
-            RuntimeManager.AttachInstanceToGameObject(instance, transform, (Rigidbody) null);
+            RuntimeManager.AttachInstanceToGameObject(instance, attachTo.gameObject, attachTo.GetComponent<Rigidbody>());
 
         if (start)
             instance.start();
@@ -146,6 +144,30 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
         instance.stop(allowFadeout ? FMOD.Studio.STOP_MODE.ALLOWFADEOUT : FMOD.Studio.STOP_MODE.IMMEDIATE);
         ReturnToPool(instance, owner);
     }
+    
+    private FMOD.RESULT OnEventEnd(EVENT_CALLBACK_TYPE type, IntPtr instancePtr, IntPtr parametersPtr)
+    {
+        if (type != EVENT_CALLBACK_TYPE.STOPPED)
+            return FMOD.RESULT.OK;
+
+        // Convert IntPtr back to EventInstance
+        var instance = new EventInstance(instancePtr);
+
+        // Get stored owner reference
+        instance.getUserData(out IntPtr data);
+        if (data == IntPtr.Zero)
+            return FMOD.RESULT.OK;
+
+        var handle = GCHandle.FromIntPtr(data);
+        var owner = (AudioEvent)handle.Target;
+
+        ReturnToPool(instance, owner);
+
+        handle.Free();
+
+        return FMOD.RESULT.OK;
+    }
+
     
     #endregion
 
@@ -177,11 +199,15 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
 
         // Create and start instance
         snapshot.snapshotDesc.createInstance(out EventInstance instance);
-        if (instance.isValid())
+        if (!instance.isValid())
         {
-            instance.start();
-            _activeSnapshots.Add(new ActiveSnapshot(snapshot, instance));
+            instance.release();
+            return;
         }
+
+        instance.start();
+        _activeSnapshots.Add(new ActiveSnapshot(snapshot, instance));
+
     }
 
     /**
@@ -197,11 +223,13 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
 
         var active = _activeSnapshots.Find(a => a.snapshot == snapshot);
         if (active == null) return;
+        if (!active.instance.isValid()) return;
 
         active.instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         active.instance.release();
         _activeSnapshots.Remove(active);
     }
+
     
     /**
      * <summary>
@@ -325,31 +353,31 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
      */
     public void PlaySurfaceSound(AudioEvent footstepEvent, Transform target, AudioParamValue[] additionalParams = null)
     {
-        var surfaceParam = GetSurfaceParam(target);
+        var paramFound = GetSurfaceParam(target, out AudioParamValue surfaceParam);
         
         additionalParams ??= new AudioParamValue[] { };
         
-        if (surfaceParam.parameter != null)
+        if (paramFound)
             AudioParamValue.ReplaceParameter(additionalParams, surfaceParam);
 
         PlayEvent(footstepEvent, target, true, additionalParams);
     }
 
-    private AudioParamValue GetSurfaceParam(Transform target)
+    private bool GetSurfaceParam(Transform target, out AudioParamValue param)
     {
         if (Physics.Raycast(target.position + Vector3.up * 0.1f, 
                 Vector3.down, out RaycastHit hit, 1f))
         {
-            // might be too expensive to GetComponent every time?
-            if (surfaceLookupTable.TryGetValue(hit.collider.GetComponent<MeshRenderer>().material, out var surfaceType))
+            // might be too expensive to TryGetComponent every time?
+            if (hit.collider.TryGetComponent(out SurfaceParameter surface))
             {
-                return surfaceType.param;
+                param = surface.surfaceParam.param;
+                return true;
             }
-
-            return surfaceLookupTable.GetDefaultValue()?.param ?? default;
         }
 
-        return default;
+        param = new AudioParamValue();
+        return false;
     }
     
     #endregion
@@ -440,13 +468,25 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
         while (queue.Count > 0)
         {
             var pooled = queue.Dequeue();
-            if (pooled.Instance.isValid())
-                return pooled.Instance;
+            if (!pooled.Instance.isValid()) continue;
+
+            ResetInstance(pooled.Instance);
+            return pooled.Instance;
         }
+
 
         // Pool exhausted, create new instance
         return RuntimeManager.CreateInstance(evt.eventReference);
     }
+    
+    private void ResetInstance(EventInstance instance)
+    {
+        if (!instance.isValid()) return;
+
+        instance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        instance.setTimelinePosition(0);
+    }
+
 
     private void ReturnToPool(EventInstance instance, AudioEvent owner)
     {
@@ -454,7 +494,8 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
 
         if (_pool.TryGetValue(owner, out var queue))
         {
-            if (queue.Count < owner.poolSize)
+            int poolSize = owner.poolSize > 0 ? owner.poolSize : defaultPoolSize;
+            if (queue.Count < poolSize)
                 queue.Enqueue(new PooledEvent(instance, owner));
             else
                 instance.release(); // Pool full, release
@@ -463,8 +504,6 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
         {
             instance.release(); // Fallback
         }
-
-        RuntimeManager.AttachInstanceToGameObject(instance, transform, (Rigidbody) null);
     }
     
     #endregion

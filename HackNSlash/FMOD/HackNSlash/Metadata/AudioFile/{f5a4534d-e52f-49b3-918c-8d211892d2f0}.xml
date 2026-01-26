@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{f5a4534d-e52f-49b3-918c-8d211892d2f0}">
+		<property name="assetPath">
+			<value>Tile_Mono_02.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.62498866213151927</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{53d60a0c-a26b-4643-b8f6-3255abb241fa}</destination>
+		</relationship>
+	</object>
+</objects>

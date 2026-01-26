@@ -28,4 +28,12 @@ public class AudioLookupAtlas : ScriptableObject
     public AudioParameter musicIntensityParam;
     [Tooltip("Parameter controlling the state of the music (e.g., non-combat, regular encounter, boss encounter).")]
     public AudioParameter musicStateParam;
+    
+    [Header("Player SFX Events")]
+    [Tooltip("Audio event for player footstep sound effect.")]
+    public AudioEvent playerFootstepSound;
+    [Tooltip("Audio event for player jump sound effect.")]
+    public AudioEvent playerJumpSound;
+    [Tooltip("Audio event for player landing sound effect.")]
+    public AudioEvent playerLandSound;
 }
