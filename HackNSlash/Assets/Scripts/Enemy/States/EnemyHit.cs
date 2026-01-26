@@ -1,3 +1,4 @@
+using Extensions.EventBus;
 using Extensions.Utils;
 using Pathfinding;
 using UnityEngine;
@@ -19,6 +20,7 @@ public class EnemyHit : EnemyState
         
         EntityManager.Instance.MarkEnemyAware(esm.ts);
         
+        PlayHitAudio();
         PlayHitAnimation();
     }
 
@@ -66,5 +68,15 @@ public class EnemyHit : EnemyState
         {
             esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.airHitClip);
         }
+    }
+
+    private void PlayHitAudio()
+    {
+        AudioParamValue[] paramsArray = esm.ts.TryGetComponent(out InstanceParameter instance)
+            ? new[] { instance.instanceParam.param }
+            : null;
+
+        EventBus<PlaySFXEvent>.Raise(new PlaySFXEvent(AudioLookupAtlas.Instance.enemyHitSound,
+            esm.ts.transform, paramsArray));
     }
 }

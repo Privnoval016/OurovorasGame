@@ -4,9 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "EnemyData", menuName = "Enemy/EnemyData", order = 1)]
 public class EnemyData : ScriptableObject
 {
-    [Header("Stats")] 
-    public float maxHealth;
-    
     [Header("Movement")]
     
     public float speed; // Speed of the enemy

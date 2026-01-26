@@ -36,4 +36,12 @@ public class AudioLookupAtlas : ScriptableObject
     public AudioEvent playerJumpSound;
     [Tooltip("Audio event for player landing sound effect.")]
     public AudioEvent playerLandSound;
+    
+    [Header("Standard Enemy SFX Events")]
+    [Tooltip("Audio event for enemy death sound effect.")]
+    public AudioEvent enemyDeathSound;
+    [Tooltip("Audio event for enemy hit sound effect.")]
+    public AudioEvent enemyHitSound;
+    [Tooltip("Audio event for enemy alert sound effect.")]
+    public AudioEvent enemyAlertSound;
 }

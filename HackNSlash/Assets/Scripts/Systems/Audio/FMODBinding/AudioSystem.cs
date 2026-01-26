@@ -369,9 +369,9 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
                 Vector3.down, out RaycastHit hit, 1f))
         {
             // might be too expensive to TryGetComponent every time?
-            if (hit.collider.TryGetComponent(out SurfaceParameter surface))
+            if (hit.collider.TryGetComponent(out InstanceParameter surface))
             {
-                param = surface.surfaceParam.param;
+                param = surface.instanceParam.param;
                 return true;
             }
         }
