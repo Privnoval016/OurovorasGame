@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{ce8b2583-b38e-4158-9408-bd165adc7023}">
+		<property name="assetPath">
+			<value>EM_EARTH_LAUNCH_01.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>2</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{53d60a0c-a26b-4643-b8f6-3255abb241fa}</destination>
+		</relationship>
+	</object>
+</objects>

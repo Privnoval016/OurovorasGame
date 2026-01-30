@@ -37,6 +37,9 @@ namespace Systems.Element
         public Dictionary<VFXType, GameObject> ElementVFXs = new();
     
         public Material weaponTrailMaterial;
+        
+        [Header("Audio")]
+        public AudioParamValueSO elementAudioParam;
     
     
         public GameObject GetVFX(VFXType type)

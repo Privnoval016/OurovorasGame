@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{86fd89e3-5657-4f28-a7d9-b9aac90d98ed}">
+		<property name="assetPath">
+			<value>EM_EARTH_CAST_01_S.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>1.5</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{53d60a0c-a26b-4643-b8f6-3255abb241fa}</destination>
+		</relationship>
+	</object>
+</objects>

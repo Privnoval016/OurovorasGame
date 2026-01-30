@@ -90,8 +90,24 @@ public abstract class Attack : ScriptableObject
 [Serializable]
 public class AudioProfile
 {
+    /**
+     * <summary>
+     * When the audio event will be played.
+     * </summary>
+     */
+    public enum PlayTime
+    {
+        /**
+         * <summary>
+         * Play the audio event when the attack is initiated.
+         * </summary>
+         */
+        Instant
+    }
+    
     public AudioEvent audioEvent;
     public AudioParamValue[] parameters;
+    public PlayTime playTime = PlayTime.Instant;
 }
 
 [Serializable]

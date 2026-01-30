@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eventReference:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
-  volume: 1
-  pitchVariance: 0
+      Data1: 502022232
+      Data2: 1289826477
+      Data3: -1873955158
+      Data4: 1134961761
+    Path: event:/SFX/Player/Footstep
+  description: 
+  poolSize: 10
   defaultParameters: []

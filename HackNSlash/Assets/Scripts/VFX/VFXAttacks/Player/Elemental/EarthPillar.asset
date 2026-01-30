@@ -25,5 +25,11 @@ MonoBehaviour:
     delayScale: 0
   maxVFXAlive: 4
   vfxAction: 3
+  vfxEasing: 1
   vfxSpeed: 0
   canCollide: 1
+  audioProfiles:
+  - audioEvent: {fileID: 11400000, guid: 7cdfe117c41564deeb5ee9d59292f499, type: 2}
+    parameters:
+    - parameter: {fileID: 11400000, guid: d9c00335d53404468baf0a96dcaa82af, type: 2}
+      value: 1

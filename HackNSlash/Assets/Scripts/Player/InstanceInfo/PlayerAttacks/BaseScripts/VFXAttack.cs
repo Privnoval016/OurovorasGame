@@ -33,6 +33,9 @@ public class VFXAttack : ScriptableObject
     public Ease vfxEasing = Ease.Linear;
     public float vfxSpeed;
     public bool canCollide = true;
+    
+    [Header("Audio Settings")]
+    public AudioProfile[] audioProfiles;
 }
 
 [Serializable]

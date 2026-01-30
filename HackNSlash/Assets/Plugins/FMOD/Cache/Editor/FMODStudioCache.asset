@@ -43,7 +43,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639050394960943183
+  lastModified: 639050552556890209
   FileSizes: []
   Exists: 1
 --- !u!114 &-4465862459565583231
@@ -61,7 +61,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/SFX.bank
   Name: SFX
   StudioPath: bank:/SFX
-  lastModified: 639050444007997868
+  lastModified: 639050666212077172
   FileSizes: []
   Exists: 1
 --- !u!114 &-2876638785520208707
@@ -195,13 +195,14 @@ MonoBehaviour:
   - {fileID: -2876638785520208707}
   - {fileID: 4102841911134144687}
   - {fileID: -8603005273542746754}
+  - {fileID: 5855865389922099453}
   EditorParameters: []
   MasterBanks:
   - {fileID: 5667700000838599861}
   StringsBanks:
   - {fileID: 5870138789013942014}
   cacheVersion: 131858
-  cacheTime: 639050444007997868
+  cacheTime: 639051543261546641
   SerializableEventsDict:
   - key: event:/Music/Exploration/Outside
     index: 0
@@ -213,6 +214,8 @@ MonoBehaviour:
     index: 3
   - key: event:/SFX/Enemies/EnemyHit
     index: 4
+  - key: event:/SFX/Player/ElementalAttack
+    index: 5
 --- !u!114 &210396065489801464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,6 +243,64 @@ MonoBehaviour:
   MinDistance: 1
   MaxDistance: 20
   Length: 0
+--- !u!114 &1301179837578266576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/ElementalAttack/Intensity
+  m_EditorClassIdentifier: 
+  Name: Intensity
+  StudioPath: 
+  Min: 0
+  Max: 2
+  Default: 0
+  ID:
+    data1: 931576864
+    data2: 1586756477
+  Type: 2
+  IsGlobal: 0
+  Labels:
+  - Light
+  - Medium
+  - Heavy
+  Exists: 1
+--- !u!114 &2943480723562372571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/ElementalAttack/Element
+  m_EditorClassIdentifier: 
+  Name: Element
+  StudioPath: 
+  Min: 0
+  Max: 6
+  Default: 1
+  ID:
+    data1: 2133969327
+    data2: 3517893467
+  Type: 2
+  IsGlobal: 0
+  Labels:
+  - None
+  - Wind
+  - Fire
+  - Earth
+  - Thunder
+  - Ice
+  - Aether
+  Exists: 1
 --- !u!114 &3528263164194218828
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,9 +416,38 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639050444007507752
+  lastModified: 639051543261541336
   FileSizes: []
   Exists: 1
+--- !u!114 &5855865389922099453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/Player/ElementalAttack
+  m_EditorClassIdentifier: 
+  Path: event:/SFX/Player/ElementalAttack
+  Guid:
+    Data1: -1114833621
+    Data2: 1298045452
+    Data3: -1511148617
+    Data4: 121219580
+  Banks:
+  - {fileID: -4465862459565583231}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters:
+  - {fileID: 2943480723562372571}
+  - {fileID: 1301179837578266576}
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
 --- !u!114 &5870138789013942014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -373,10 +463,10 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639050444007512845
+  lastModified: 639051543261546641
   FileSizes:
   - Name: 
-    Value: 1828
+    Value: 1962
   Exists: 1
 --- !u!114 &7035638800199298596
 MonoBehaviour:

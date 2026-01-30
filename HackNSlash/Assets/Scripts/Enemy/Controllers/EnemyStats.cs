@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Extensions.EventBus;
 using Extensions.Modifiers;
 using Extensions.Patterns;
 using Sirenix.OdinInspector;
@@ -104,6 +105,8 @@ public class EnemyStats : MonoBehaviour, IDamageable
         Debug.Log($"{gameObject.name} took {damageAmount} damage of element {element}");
         
         ChangeHealth(-damageAmount);
+
+        PlayHitAudio();
     }
 
     public virtual void Heal(float healAmount)
@@ -119,5 +122,15 @@ public class EnemyStats : MonoBehaviour, IDamageable
     => new List<IDamageRule>();
 
     #endregion
+    
+    public void PlayHitAudio()
+    {
+        AudioParamValue[] paramsArray = TryGetComponent(out InstanceParameter instance)
+            ? new[] { instance.instanceParam.param }
+            : null;
+
+        EventBus<PlaySFXEvent>.Raise(new PlaySFXEvent(AudioLookupAtlas.Instance.enemyHitSound,
+            transform, paramsArray));
+    }
 }
 
