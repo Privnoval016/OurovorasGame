@@ -8,5 +8,6 @@ using UnityEngine.Serialization;
  */
 public class InstanceParameter : MonoBehaviour
 {
-    [FormerlySerializedAs("surfaceParam")] public AudioParamValueSO instanceParam;
+    [Header("Main Instance Parameter")]
+    public AudioParamValueSO instanceParam;
 }

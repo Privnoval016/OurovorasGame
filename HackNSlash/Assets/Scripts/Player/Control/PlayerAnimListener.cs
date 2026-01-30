@@ -59,6 +59,8 @@ public class PlayerAnimListener : MonoBehaviour
         
         foreach (var profile in pc.psm.currentPlayerAttack.audioProfiles)
         {
+            if (profile.playTime != AudioProfile.PlayTime.Instant) continue;
+            
             EventBus<PlaySFXEvent>.Raise(new PlaySFXEvent(profile.audioEvent, attachTo, profile.parameters));
         }
     }

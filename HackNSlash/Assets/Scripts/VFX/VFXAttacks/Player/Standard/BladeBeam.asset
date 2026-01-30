@@ -24,6 +24,13 @@ MonoBehaviour:
       Scale: {x: 3.6, y: 3, z: 3.6}
     durationScale: 1
     delayScale: 0
+  maxVFXAlive: 0
   vfxAction: 0
+  vfxEasing: 1
   vfxSpeed: 150
   canCollide: 1
+  audioProfiles:
+  - audioEvent: {fileID: 11400000, guid: 7cdfe117c41564deeb5ee9d59292f499, type: 2}
+    parameters:
+    - parameter: {fileID: 11400000, guid: d9c00335d53404468baf0a96dcaa82af, type: 2}
+      value: 0

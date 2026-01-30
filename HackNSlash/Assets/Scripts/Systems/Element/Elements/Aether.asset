@@ -124,3 +124,4 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   weaponTrailMaterial: {fileID: 2100000, guid: 86f4f36df2adbb04399c9c02ebda733c, type: 2}
+  elementAudioParam: {fileID: 11400000, guid: d9535e264f7764becacd31b7391c0b96, type: 2}

@@ -16,7 +16,8 @@ MonoBehaviour:
     type: 2}
   musicIntensityParam: {fileID: 0}
   musicStateParam: {fileID: 11400000, guid: 2f383bc9b86ac45fd94a960368f0b504, type: 2}
-  playerFootstepSound: {fileID: 0}
+  playerFootstepSound: {fileID: 11400000, guid: c1ee17ed5242c4e5c830b22359f9f32b,
+    type: 2}
   playerJumpSound: {fileID: 0}
   playerLandSound: {fileID: 0}
   enemyDeathSound: {fileID: 0}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.EventBus;
 using Extensions.Timers;
 using Extensions.Utils;
 using UnityEngine;
@@ -189,6 +190,7 @@ public class VFXController : KinematicBehaviour, IContactDetector
     public void EnableVFX()
     {
         vfxEnabled = true;
+        PlayVFXAudio();
     }
     
     public void ChangeParent(Transform parent, Vector3 localScale = default)
@@ -258,5 +260,31 @@ public class VFXController : KinematicBehaviour, IContactDetector
         }
 
         return closestPoint;
+    }
+
+    public void PlayVFXAudio()
+    {
+        if (vfxSpawnInfo.vfxAttack.audioProfiles == null || vfxSpawnInfo.vfxAttack.audioProfiles.Length == 0) return;
+
+        var data = Services.Get<ElementSystem>().GetElementData(elementType);
+        if (data == null) return;
+
+        AudioParamValue elementParam = data.elementAudioParam.param;
+        
+        foreach (AudioProfile profile in vfxSpawnInfo.vfxAttack.audioProfiles)
+        {
+            if (profile.playTime != AudioProfile.PlayTime.Instant) continue;
+            
+            var parameters = new List<AudioParamValue>();
+            if (profile.parameters != null)
+            {
+                parameters.AddRange(profile.parameters);
+            }
+            
+            parameters.Add(elementParam);
+            
+            EventBus<PlaySFXEvent>.Raise(new PlaySFXEvent(profile.audioEvent,
+                transform, parameters.ToArray()));
+        }
     }
 }

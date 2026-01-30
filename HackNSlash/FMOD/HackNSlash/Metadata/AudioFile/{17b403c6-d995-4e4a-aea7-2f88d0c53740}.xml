@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{17b403c6-d995-4e4a-aea7-2f88d0c53740}">
+		<property name="assetPath">
+			<value>EM_ICE_CAST_SPELL_SOFT_03.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>2.5000226757369615</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{53d60a0c-a26b-4643-b8f6-3255abb241fa}</destination>
+		</relationship>
+	</object>
+</objects>
