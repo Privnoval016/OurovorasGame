@@ -402,7 +402,7 @@ public class AudioSystem : MonoBehaviour, IAudioSystem
         if (_currentAmbient.isValid())
         {
             if (location != null)
-                RuntimeManager.AttachInstanceToGameObject(_currentAmbient, location, location.GetComponent<Rigidbody>());
+                RuntimeManager.AttachInstanceToGameObject(_currentAmbient, location.gameObject);
             _currentAmbient.start();
         }
     }

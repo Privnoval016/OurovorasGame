@@ -16,7 +16,6 @@ public class StyleMeterUI : MonoBehaviour
     [SerializeField] private float fadeOutThreshold = 0.2f;
 
     [Header("Fade Behavior")]
-    [SerializeField] private float fadeDuration = 0.5f;
     [SerializeField] private float styleGainBufferTime = 0.5f;
     [Tooltip("The range of the shader fade effect (x = min fade, y = max fade). E.g., (0, 0.95) means fade from 0 to 0.95 as style goes from threshold to 0.")]
     [SerializeField] private Vector2 fadeRange = new Vector2(0f, 0.95f);
@@ -24,12 +23,6 @@ public class StyleMeterUI : MonoBehaviour
     [Header("Rank Change Buffer")]
     [Tooltip("Minimum percentage (0-1) of the new rank's bar that must be filled before committing to a rank up. E.g., 0.1 = must be at least 10% into the new rank.")]
     [SerializeField] private float rankUpCommitThreshold = 0.15f;
-
-    [Header("Below Threshold Display")]
-    [Tooltip("Minimum visible fill when below threshold (e.g., 0.05 = 5% always visible)")]
-    [SerializeField] private float minimumVisibleFill = 0.05f;
-    [Tooltip("How much the bar fills in the danger zone (e.g., 0.3 = uses 30% of bar for 0-20% style)")]
-    [SerializeField] private float dangerZoneFillRange = 0.25f;
 
     public float TrueStylePercentage { get; private set; }
 
