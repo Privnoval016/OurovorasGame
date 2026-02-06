@@ -9,8 +9,14 @@ using PrimeTween;
 
 namespace Extensions.UI
 {
+    /// <summary>
+    /// Defines the axis of movement for the scroll menu.
+    /// </summary>
     public enum MovementAxis { Horizontal, Vertical }
 
+    /// <summary>
+    /// Defines how the menu behaves at boundaries.
+    /// </summary>
     public enum CycleMode
     {
         CircularStop,   // Circular wrapping only when items >= panels, otherwise stop at edges
@@ -19,6 +25,10 @@ namespace Extensions.UI
         Stop           // Stop at first/last item, no wrapping or jumping
     }
 
+    /// <summary>
+    /// A modular, reusable scrolling menu component for displaying and navigating through items.
+    /// Completely decoupled from game-specific logic and usable across different projects.
+    /// </summary>
     public class ScrollMenu : MonoBehaviour
     {
         #region Inspector
@@ -84,28 +94,40 @@ namespace Extensions.UI
 
         #region Activation
 
+        /// <summary>
+        /// Activates the scroll menu with the provided items and configuration.
+        /// </summary>
+        /// <typeparam name="T">The type of items to display.</typeparam>
+        /// <param name="items">The list of items to display.</param>
+        /// <param name="initialIndex">The index of the initially selected item.</param>
+        /// <param name="getInfoFunc">Function to convert items to UI display info.</param>
+        /// <param name="authority">The authority that handles input subscription.</param>
         public void Activate<T>(List<T> items, int initialIndex, Func<T, 
-            ItemUIInfo> getInfoFunc, IScrollMenuAuthority a) where T : class
+            ItemUIInfo> getInfoFunc, IScrollMenuAuthority authority) where T : class
         {
             scrollCooldownTimer = new CountdownTimer(scrollCooldown, true);
             scrollCooldownTimer.Stop();
             
-            Debug.Log("Activating " + items.Count + " items");
-
             if (items == null || items.Count == 0)
+            {
+                Debug.LogWarning("ScrollMenu: Cannot activate with null or empty items list.");
                 return;
+            }
 
             inventoryItems = items;
             getItemInfoFunc = o => getInfoFunc((T)o);
 
             selectedIndex = Mathf.Clamp(initialIndex, 0, items.Count - 1);
 
-            authority = a;
-            authority.SubscribeToScroll(this);
+            this.authority = authority;
+            this.authority.SubscribeToScroll(this);
 
             InitializePanels();
         }
 
+        /// <summary>
+        /// Deactivates the scroll menu and cleans up subscriptions.
+        /// </summary>
         public void Deactivate()
         {
             if (authority != null)
@@ -124,22 +146,20 @@ namespace Extensions.UI
 
         #region Input Callbacks
 
+        /// <summary>
+        /// Handles scroll input from the input system.
+        /// </summary>
+        /// <param name="scrollDelta">The scroll direction and magnitude.</param>
         public void OnScrollPerformed(Vector2 scrollDelta)
         {
-            Debug.Log($"isAnimating: {isAnimating}, scrollCooldownTimer.IsRunning: {scrollCooldownTimer.IsRunning}, inventoryItems: {inventoryItems}");
-            
             if (isAnimating || scrollCooldownTimer.IsRunning || inventoryItems == null)
                 return;
-            
-            Debug.Log("Processing scroll input");
-            
+
             Vector2 v = scrollDelta;
             float delta = axis == MovementAxis.Horizontal ? v.x : -v.y;
 
             if (Mathf.Approximately(delta, 0f))
                 return;
-            
-            Debug.Log("Scroll input delta: " + delta);
 
             scrollCooldownTimer.Restart();
             scrollCooldownTimer.Start();
@@ -154,12 +174,13 @@ namespace Extensions.UI
 
         #region Scrolling
 
+        /// <summary>
+        /// Scrolls the menu in the specified direction.
+        /// </summary>
+        /// <param name="direction">The direction to scroll (1 for forward, -1 for backward).</param>
         private void Scroll(int direction)
         {
-            Debug.Log($"SCR - Scroll called with direction: {direction}");
-    
             int next = NextIndex(direction);
-            Debug.Log($"SCR - Current index: {selectedIndex}, Next index: {next}");
     
             // For Restart mode, if we're at the boundary and trying to go further, jump to opposite end
             if (cycleMode == CycleMode.Restart)
@@ -169,7 +190,6 @@ namespace Extensions.UI
         
                 if (atEnd || atStart)
                 {
-                    Debug.Log("SCR - Restart mode: jumping to opposite end");
                     selectedIndex = atEnd ? 0 : inventoryItems.Count - 1;
                     InitializePanels();
                     return;
@@ -178,17 +198,14 @@ namespace Extensions.UI
     
             if (next == selectedIndex)
             {
-                Debug.Log("SCR - Next index equals current index - no movement");
                 return;
             }
 
-            Debug.Log("SCR - Actually scrolling now!");
             selectedIndex = next;
 
             // When items <= panels, don't scroll the container, just update focus
             if (inventoryItems.Count <= panelQueue.Count)
             {
-                Debug.Log("SCR - Items <= panels, just updating focus");
                 InitializePanels();
                 return;
             }

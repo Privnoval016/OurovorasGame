@@ -1,76 +1,150 @@
-using Extensions.Patterns;
 using Extensions.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-
+/// <summary>
+/// Main menu UI controller for the overworld menu.
+/// Manages all 8 tabs and coordinates data providers.
+/// Follows MVVM architecture with complete separation from game logic.
+/// </summary>
 public class OverworldMenuUI : MonoBehaviour, IService
 {
+    [Header("Event System")]
     public EventSystem eventSystem;
-    public PlayerInventory playerInventory;
-
-    [Header("Tabs")]
+    
+    [Header("Tab System")]
     public TabGroup tabGroup;
-
+    
+    [Header("Data Providers")]
+    [SerializeField] private PlayerDataProvider playerDataProvider;
+    [SerializeField] private EquipmentDataProvider equipmentDataProvider;
+    [SerializeField] private ElementProgressDataProvider elementProgressDataProvider;
+    [SerializeField] private SkillTreeDataProvider skillTreeDataProvider;
+    [SerializeField] private InventoryDataProvider inventoryDataProvider;
+    [SerializeField] private QuestDataProvider questDataProvider;
+    [SerializeField] private CompendiumDataProvider compendiumDataProvider;
+    
+    [Header("Tab References")]
+    [SerializeField] private CharacterStatsTab characterStatsTab;
+    [SerializeField] private EquipmentTab equipmentTab;
+    [SerializeField] private ElementProgressTab elementProgressTab;
+    [SerializeField] private SkillTreeTab skillTreeTab;
+    [SerializeField] private InventoryTab inventoryTab;
+    [SerializeField] private MissionsTab missionsTab;
+    [SerializeField] private CompendiumTab compendiumTab;
+    [SerializeField] private SettingsTab settingsTab;
+    
+    // References for external access (backwards compatibility)
+    [HideInInspector] public PlayerInventory playerInventory;
+    
     #region MonoBehaviour Callbacks
-
+    
     private void Awake()
     {
-        playerInventory = Services.Get<PlayerController>().pi;
+        Services.Register<OverworldMenuUI>(this);
+        
+        // Get event system reference
+        if (eventSystem == null)
+            eventSystem = EventSystem.current;
+        
+        // Initialize data providers if not assigned
+        InitializeDataProviders();
+        
+        // Connect data providers to tabs
+        ConnectDataProvidersToTabs();
     }
-
+    
     private void Start()
     {
+        // Get player inventory reference for backwards compatibility
+        var playerController = Services.Get<PlayerController>();
+        if (playerController != null)
+            playerInventory = playerController.pi;
+        
+        // Start with menu closed
         CloseMenu();
     }
-
-    private void Update()
-    {
-
-    }
-
+    
     #endregion
-
-    #region Menu Methods
-
+    
+    #region Initialization
+    
+    private void InitializeDataProviders()
+    {
+        // Find or create data providers
+        if (playerDataProvider == null)
+            playerDataProvider = GetComponentInChildren<PlayerDataProvider>(true);
+        
+        if (equipmentDataProvider == null)
+            equipmentDataProvider = GetComponentInChildren<EquipmentDataProvider>(true);
+        
+        if (elementProgressDataProvider == null)
+            elementProgressDataProvider = GetComponentInChildren<ElementProgressDataProvider>(true);
+        
+        if (skillTreeDataProvider == null)
+            skillTreeDataProvider = GetComponentInChildren<SkillTreeDataProvider>(true);
+        
+        if (inventoryDataProvider == null)
+            inventoryDataProvider = GetComponentInChildren<InventoryDataProvider>(true);
+        
+        if (questDataProvider == null)
+            questDataProvider = GetComponentInChildren<QuestDataProvider>(true);
+        
+        if (compendiumDataProvider == null)
+            compendiumDataProvider = GetComponentInChildren<CompendiumDataProvider>(true);
+    }
+    
+    private void ConnectDataProvidersToTabs()
+    {
+        // Connect each tab to its data provider
+        if (characterStatsTab != null && playerDataProvider != null)
+            characterStatsTab.SetDataProvider(playerDataProvider);
+        
+        if (equipmentTab != null && equipmentDataProvider != null)
+            equipmentTab.SetDataProvider(equipmentDataProvider);
+        
+        if (elementProgressTab != null && elementProgressDataProvider != null)
+            elementProgressTab.SetDataProvider(elementProgressDataProvider);
+        
+        if (skillTreeTab != null && skillTreeDataProvider != null)
+            skillTreeTab.SetDataProvider(skillTreeDataProvider);
+        
+        if (inventoryTab != null && inventoryDataProvider != null)
+            inventoryTab.SetDataProvider(inventoryDataProvider);
+        
+        if (missionsTab != null && questDataProvider != null)
+            missionsTab.SetDataProvider(questDataProvider);
+        
+        if (compendiumTab != null && compendiumDataProvider != null)
+            compendiumTab.SetDataProvider(compendiumDataProvider);
+    }
+    
+    #endregion
+    
+    #region Menu Control
+    
+    /// <summary>
+    /// Opens the menu and activates tab navigation.
+    /// </summary>
     public void OpenMenu()
     {
         gameObject.SetActive(true);
-        if (tabGroup == null) return;
-        tabGroup.tabActive = true;
-    
+        
+        if (tabGroup != null)
+            tabGroup.tabActive = true;
     }
-
+    
+    /// <summary>
+    /// Closes the menu and deactivates tab navigation.
+    /// </summary>
     public void CloseMenu()
     {
         gameObject.SetActive(false);
-        if (tabGroup == null) return;
-        tabGroup.tabActive = false;
+        
+        if (tabGroup != null)
+            tabGroup.tabActive = false;
     }
-
-    #endregion
-
-    #region Event Callbacks
-
-    public void SwapAccessory(int index)
-    {
-        print($"Swapping accessory at index {index}");
-    }
-
-    public void SwapPassive(int index)
-    {
-        print($"Swapping passive at index {index}");
-    }
-
-    public void SwapAttack(int index)
-    {
-        print($"Swapping attack at index {index}");
-    }
-
-    public void SwapReaction(int index)
-    {
-        print($"Swapping reaction at index {index}");
-    }
-
+    
     #endregion
 }
+
