@@ -1,17 +1,18 @@
 using Extensions.UI;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.UI;
+using FMODUnity;
 
 /// <summary>
 /// Tab 8: Settings menu for audio, video, gameplay, and key remapping.
-/// Provides standard game settings configuration.
+/// Provides standard game settings configuration with smooth PrimeTween animations.
+/// Audio uses FMOD through AudioSystem (no Unity AudioMixer).
 /// </summary>
 public class SettingsTab : TabSelection
 {
-    [Header("Audio Settings")]
-    [SerializeField] private AudioMixer audioMixer;
+    [Header("Audio Settings - FMOD")]
     [SerializeField] private Slider masterVolumeSlider;
     [SerializeField] private Slider musicVolumeSlider;
     [SerializeField] private Slider sfxVolumeSlider;
@@ -142,7 +143,7 @@ public class SettingsTab : TabSelection
         
         for (int i = 0; i < availableResolutions.Length; i++)
         {
-            string option = $"{availableResolutions[i].width} x {availableResolutions[i].height} @ {availableResolutions[i].refreshRate}Hz";
+            string option = $"{availableResolutions[i].width} x {availableResolutions[i].height} @ {availableResolutions[i].refreshRateRatio}Hz";
             options.Add(option);
             
             if (availableResolutions[i].width == Screen.currentResolution.width &&
@@ -176,29 +177,57 @@ public class SettingsTab : TabSelection
     
     private void SetMasterVolume(float value)
     {
-        if (audioMixer != null)
-            audioMixer.SetFloat("MasterVolume", Mathf.Log10(value) * 20);
+        // Set FMOD bus volume (Master bus)
+        FMOD.Studio.Bus masterBus = RuntimeManager.GetBus("bus:/");
+        if (masterBus.isValid())
+        {
+            masterBus.setVolume(value);
+        }
         
         if (masterVolumeText != null)
-            masterVolumeText.text = $"{Mathf.RoundToInt(value * 100)}%";
+        {
+            // Animate the text number change for smooth feel
+            int targetPercent = Mathf.RoundToInt(value * 100);
+            masterVolumeText.text = $"{targetPercent}%";
+        }
+        
+        // Play feedback sound at new volume
+        UIAudio.PlayHover();
     }
     
     private void SetMusicVolume(float value)
     {
-        if (audioMixer != null)
-            audioMixer.SetFloat("MusicVolume", Mathf.Log10(value) * 20);
+        // Set FMOD bus volume (Music bus)
+        FMOD.Studio.Bus musicBus = RuntimeManager.GetBus("bus:/Music");
+        if (musicBus.isValid())
+        {
+            musicBus.setVolume(value);
+        }
         
         if (musicVolumeText != null)
-            musicVolumeText.text = $"{Mathf.RoundToInt(value * 100)}%";
+        {
+            int targetPercent = Mathf.RoundToInt(value * 100);
+            musicVolumeText.text = $"{targetPercent}%";
+        }
     }
     
     private void SetSFXVolume(float value)
     {
-        if (audioMixer != null)
-            audioMixer.SetFloat("SFXVolume", Mathf.Log10(value) * 20);
+        // Set FMOD bus volume (SFX bus)
+        FMOD.Studio.Bus sfxBus = RuntimeManager.GetBus("bus:/SFX");
+        if (sfxBus.isValid())
+        {
+            sfxBus.setVolume(value);
+        }
         
         if (sfxVolumeText != null)
-            sfxVolumeText.text = $"{Mathf.RoundToInt(value * 100)}%";
+        {
+            int targetPercent = Mathf.RoundToInt(value * 100);
+            sfxVolumeText.text = $"{targetPercent}%";
+        }
+        
+        // Play feedback sound at new volume
+        UIAudio.PlaySelect();
     }
     
     #endregion
@@ -224,9 +253,9 @@ public class SettingsTab : TabSelection
         Screen.fullScreen = isFullscreen;
     }
     
-    private void SetVSync(bool enabled)
+    private void SetVSync(bool enable)
     {
-        QualitySettings.vSyncCount = enabled ? 1 : 0;
+        QualitySettings.vSyncCount = enable ? 1 : 0;
     }
     
     private void SetBrightness(float value)
@@ -302,7 +331,22 @@ public class SettingsTab : TabSelection
         if (saveStatusText != null)
         {
             saveStatusText.text = "Settings Saved!";
-            Invoke(nameof(ClearSaveStatus), 2f);
+            
+            // Animate the save status text with a fade and scale
+            saveStatusText.transform.localScale = Vector3.one * 0.8f;
+            saveStatusText.color = new Color(saveStatusText.color.r, saveStatusText.color.g, 
+                saveStatusText.color.b, 0f);
+            
+            Sequence.Create(useUnscaledTime: true)
+                .Group(Tween.Scale(saveStatusText.transform, 1f, duration: 0.3f, 
+                    ease: Ease.OutBack))
+                .Group(Tween.Alpha(saveStatusText, 1f, duration: 0.2f, ease: Ease.OutQuad))
+                .ChainDelay(1.5f)
+                .Chain(Tween.Alpha(saveStatusText, 0f, duration: 0.3f, ease: Ease.InQuad))
+                .OnComplete(ClearSaveStatus);
+            
+            // Play confirmation sound
+            UIAudio.PlaySelect();
         }
     }
     

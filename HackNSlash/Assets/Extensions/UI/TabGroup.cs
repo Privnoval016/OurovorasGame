@@ -1,10 +1,14 @@
-using System;
 using System.Collections.Generic;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Extensions.UI
 {
+    /// <summary>
+    /// Manages tab navigation and switching with smooth PrimeTween animations.
+    /// Uses EventBus for audio to avoid singleton dependencies.
+    /// </summary>
     public class TabGroup : MonoBehaviour
     {
         [Header("Tabs")] public List<TabButton> tabButtons;
@@ -36,55 +40,61 @@ namespace Extensions.UI
 
         #region Input Callbacks
 
-        private void OnTabLeft(InputAction.CallbackContext context)
+    private void OnTabLeft(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        
+        if (!tabActive) return;
+
+        if (tabButtons.Count == 0) return;
+
+        if (selectedTab != null)
         {
-            if (!context.performed) return;
-            
-            if (!tabActive) return;
-
-            if (tabButtons.Count == 0) return;
-
-            if (selectedTab != null)
-            {
-                selectedTab.Deselect();
-            }
-
-            if (SelectedTabIndex <= 0)
-            {
-                selectedTab = tabButtons[^1];
-            }
-            else
-            {
-                selectedTab = tabButtons[SelectedTabIndex - 1];
-            }
-
-            selectedTab.Select();
+            selectedTab.Deselect();
         }
 
-        private void OnTabRight(InputAction.CallbackContext context)
+        if (SelectedTabIndex <= 0)
         {
-            if (!context.performed) return;
-            
-            if (!tabActive) return;
-
-            if (tabButtons.Count == 0) return;
-
-            if (selectedTab != null)
-            {
-                selectedTab.Deselect();
-            }
-
-            if (SelectedTabIndex >= tabButtons.Count - 1)
-            {
-                selectedTab = tabButtons[0];
-            }
-            else
-            {
-                selectedTab = tabButtons[SelectedTabIndex + 1];
-            }
-
-            selectedTab.Select();
+            selectedTab = tabButtons[^1];
         }
+        else
+        {
+            selectedTab = tabButtons[SelectedTabIndex - 1];
+        }
+
+        selectedTab.Select();
+        
+        // Play tab switch sound via EventBus
+        UIAudio.PlayTabSwitch();
+    }
+
+    private void OnTabRight(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        
+        if (!tabActive) return;
+
+        if (tabButtons.Count == 0) return;
+
+        if (selectedTab != null)
+        {
+            selectedTab.Deselect();
+        }
+
+        if (SelectedTabIndex >= tabButtons.Count - 1)
+        {
+            selectedTab = tabButtons[0];
+        }
+        else
+        {
+            selectedTab = tabButtons[SelectedTabIndex + 1];
+        }
+
+        selectedTab.Select();
+        
+        // Play tab switch sound via EventBus
+        UIAudio.PlayTabSwitch();
+    }
 
         #endregion
 

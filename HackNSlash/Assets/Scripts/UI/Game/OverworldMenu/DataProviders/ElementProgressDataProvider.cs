@@ -1,35 +1,37 @@
 using System.Collections.Generic;
 using System.Linq;
-using Extensions.Patterns;
 using Extensions.UI;
 using UnityEngine;
 
 /// <summary>
 /// Implementation of IElementProgressDataProvider that bridges the UI with PlayerInventory.
 /// This is the backend connector for Tab 3 (Element Progress).
+/// Locally managed by OverworldMenuUI - not a global service.
 /// </summary>
-public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataProvider, IService
+public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataProvider
 {
     private PlayerInventory playerInventory;
     private ElementLoadout elementLoadout;
     
     #region MonoBehaviour Callbacks
     
-    private void Awake()
-    {
-        Services.Register<ElementProgressDataProvider>(this);
-    }
-    
     private void Start()
     {
-        var playerController = Services.Get<PlayerController>();
-        
-        if (playerController != null)
+        try
         {
-            playerInventory = playerController.pi;
+            var playerController = Services.Get<PlayerController>();
             
-            if (playerInventory?.CurrentLoadout != null)
-                elementLoadout = playerController.pcc.CurrentElementLoadout;
+            if (playerController != null)
+            {
+                playerInventory = playerController.pi;
+                
+                if (playerInventory?.CurrentLoadout != null)
+                    elementLoadout = playerController.pcc.CurrentElementLoadout;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"ElementProgressDataProvider: Could not get PlayerController: {e.Message}");
         }
     }
     
