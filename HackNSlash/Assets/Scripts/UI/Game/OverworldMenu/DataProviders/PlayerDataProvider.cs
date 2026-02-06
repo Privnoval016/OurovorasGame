@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using Extensions.Patterns;
 using Extensions.UI;
 using UnityEngine;
 
 /// <summary>
 /// Implementation of IPlayerDataProvider that bridges the UI with PlayerController/PlayerStats.
 /// This is the backend connector for Tab 1 (Character Stats).
+/// Locally managed by OverworldMenuUI - not a global service.
 /// </summary>
-public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider, IService
+public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider
 {
     private PlayerController playerController;
     private PlayerInventory playerInventory;
@@ -16,16 +16,17 @@ public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider, IService
     
     #region MonoBehaviour Callbacks
     
-    private void Awake()
-    {
-        // Register as service
-        Services.Register<PlayerDataProvider>(this);
-    }
-    
     private void Start()
     {
-        // Get player controller reference
-        playerController = Services.Get<PlayerController>();
+        // Get player controller reference via Services (PlayerController is a valid global service)
+        try
+        {
+            playerController = Services.Get<PlayerController>();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"PlayerDataProvider: Could not get PlayerController service: {e.Message}");
+        }
         
         if (playerController != null)
         {

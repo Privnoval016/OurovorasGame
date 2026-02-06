@@ -1,33 +1,35 @@
 using System.Collections.Generic;
 using System.Linq;
-using Extensions.Patterns;
 using Extensions.UI;
 using UnityEngine;
 
 /// <summary>
 /// Implementation of IEquipmentDataProvider that bridges the UI with PlayerInventory.
 /// This is the backend connector for Tab 2 (Equipment Selection).
+/// Locally managed by OverworldMenuUI - not a global service.
 /// </summary>
-public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider, IService
+public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
 {
     private PlayerInventory playerInventory;
     private InventoryInfo inventoryInfo;
     
     #region MonoBehaviour Callbacks
     
-    private void Awake()
-    {
-        Services.Register<EquipmentDataProvider>(this);
-    }
-    
     private void Start()
     {
-        var playerController = Services.Get<PlayerController>();
-        
-        if (playerController != null)
+        try
         {
-            playerInventory = playerController.pi;
-            inventoryInfo = playerInventory.inventoryInfo;
+            var playerController = Services.Get<PlayerController>();
+            
+            if (playerController != null)
+            {
+                playerInventory = playerController.pi;
+                inventoryInfo = playerInventory.inventoryInfo;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"EquipmentDataProvider: Could not get PlayerController: {e.Message}");
         }
     }
     

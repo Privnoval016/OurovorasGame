@@ -1,4 +1,5 @@
 using TMPro;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -9,6 +10,7 @@ namespace Extensions.UI
     /// <summary>
     /// Modular UI component for displaying an equipment/item slot.
     /// Reusable across different menu contexts (equipment, passives, etc.).
+    /// Uses PrimeTween for smooth animations with unscaled time.
     /// </summary>
     public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
     {
@@ -129,21 +131,40 @@ namespace Extensions.UI
         
         #endregion
         
-        #region Selection
+    #region Selection
+    
+    private void Select()
+    {
+        isSelected = true;
+        UpdateVisuals();
         
-        private void Select()
+        // Animate selection with PrimeTween (unscaled time for menu)
+        if (borderImage != null)
         {
-            isSelected = true;
-            UpdateVisuals();
-            onSlotSelected?.Invoke(slotIndex);
+            Tween.Scale(borderImage.transform, 1.05f, duration: 0.15f, 
+                ease: Ease.OutBack, useUnscaledTime: true);
         }
         
-        private void Deselect()
+        // Play hover sound via EventBus
+        UIAudio.PlayHover();
+        
+        onSlotSelected?.Invoke(slotIndex);
+    }
+    
+    private void Deselect()
+    {
+        isSelected = false;
+        UpdateVisuals();
+        
+        // Animate deselection
+        if (borderImage != null)
         {
-            isSelected = false;
-            UpdateVisuals();
-            onSlotDeselected?.Invoke();
+            Tween.Scale(borderImage.transform, 1f, duration: 0.15f, 
+                ease: Ease.OutQuad, useUnscaledTime: true);
         }
+        
+        onSlotDeselected?.Invoke();
+    }
         
         private void UpdateVisuals()
         {
