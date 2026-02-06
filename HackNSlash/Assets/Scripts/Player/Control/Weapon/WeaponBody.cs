@@ -139,6 +139,11 @@ public class WeaponBody : KinematicBehaviour, IContactDetector
         Vector3[] newPositions = new Vector3[lastPositions.Length];
         for (int i = 0; i < lastPositions.Length; i++)
         {
+            if (tempQueue.Count < 2)
+            {
+                newPositions[i] = lastPositions[i];
+                continue;
+            }
             newPositions[i] = lastPositions[i] + (lastPositions[i] - tempQueue.ElementAt(tempQueue.Count - 2)[i]).normalized * distToContinue;
         }
         tempQueue.Enqueue(newPositions);
