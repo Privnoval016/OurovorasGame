@@ -82,8 +82,7 @@ public class CompendiumTab : TabSelection, IScrollMenuAuthority
     
     private void InitializeCategoryButtons()
     {
-        if (compendiumDataProvider == null)
-            return;
+        compendiumDataProvider ??= compendiumDataProviderObject as ICompendiumDataProvider;
         
         string[] categories = compendiumDataProvider.GetCategories();
         

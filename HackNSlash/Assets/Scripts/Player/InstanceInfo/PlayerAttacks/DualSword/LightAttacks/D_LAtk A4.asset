@@ -65,6 +65,7 @@ MonoBehaviour:
   audioProfiles:
   - audioEvent: {fileID: 11400000, guid: d8dfa04527f9a4f3aa34344b2886ff8d, type: 2}
     parameters: []
+    playTime: 0
   attackActions: []
   applyRootMotion: 0
   moveCameraWithAttack: 1

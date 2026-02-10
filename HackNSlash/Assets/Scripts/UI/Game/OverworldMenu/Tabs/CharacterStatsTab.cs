@@ -63,6 +63,8 @@ public class CharacterStatsTab : TabSelection
     {
         base.OnTabDeselect();
         
+        ForceDeselect();
+        
         if (characterModelDisplay != null)
             characterModelDisplay.Deactivate();
     }
@@ -73,11 +75,7 @@ public class CharacterStatsTab : TabSelection
     
     private void InitializeTab()
     {
-        if (playerDataProvider == null)
-        {
-            Debug.LogError("CharacterStatsTab: No IPlayerDataProvider assigned!");
-            return;
-        }
+        playerDataProvider ??= playerDataProviderObject as IPlayerDataProvider;
         
         // Activate character model display
         if (characterModelDisplay != null)
@@ -126,6 +124,18 @@ public class CharacterStatsTab : TabSelection
             {
                 equippedItemSlots[i].Initialize(i);
                 equippedItemSlots[i].SetItemData(equippedItems[i]);
+            }
+        }
+    }
+    
+    private void ForceDeselect()
+    {
+        // Deselect all equipped item slots to prevent lingering selection
+        if (equippedItemSlots != null)
+        {
+            foreach (var slot in equippedItemSlots)
+            {
+                slot.ForceDeselect();
             }
         }
     }

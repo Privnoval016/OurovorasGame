@@ -65,21 +65,21 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <summary>
     /// Gets the currently equipped accessory at the specified slot.
     /// </summary>
-    public EquippedItemDisplayData GetEquippedAccessory(int slotIndex)
+    public Extensions.UI.EquippedItemDisplayData GetEquippedAccessory(int slotIndex)
     {
         if (playerInventory == null || playerInventory.CurrentLoadout == null)
-            return EquippedItemDisplayData.Empty();
+            return Extensions.UI.EquippedItemDisplayData.Empty();
         
         if (playerInventory.CurrentLoadout.equippedAccessories == null ||
             slotIndex < 0 || slotIndex >= playerInventory.CurrentLoadout.equippedAccessories.Length)
-            return EquippedItemDisplayData.Empty();
+            return Extensions.UI.EquippedItemDisplayData.Empty();
         
         Accessory accessory = playerInventory.CurrentLoadout.equippedAccessories[slotIndex];
         
         if (accessory == null)
-            return EquippedItemDisplayData.Empty();
+            return Extensions.UI.EquippedItemDisplayData.Empty();
         
-        return new EquippedItemDisplayData
+        return new Extensions.UI.EquippedItemDisplayData
         {
             icon = accessory.itemIcon,
             itemName = accessory.itemName,
@@ -92,52 +92,61 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <summary>
     /// Gets the currently equipped passive at the specified slot.
     /// </summary>
-    public EquippedItemDisplayData GetEquippedPassive(int slotIndex)
+    public Extensions.UI.EquippedItemDisplayData GetEquippedPassive(int slotIndex)
     {
         // TODO: Implement passive skill system
-        return EquippedItemDisplayData.Empty();
+        return Extensions.UI.EquippedItemDisplayData.Empty();
     }
     
     /// <summary>
     /// Equips an accessory to the specified slot.
     /// </summary>
-    public void EquipAccessory(int slotIndex, int itemIndex)
+    /// <param name="slotIndex">The slot index (0-2)</param>
+    /// <param name="item">The item UI info</param>
+    /// <returns>True if successfully equipped</returns>
+    public bool EquipAccessory(int slotIndex, ItemUIInfo item)
     {
         if (playerInventory == null || playerInventory.CurrentLoadout == null || inventoryInfo == null)
         {
             Debug.LogWarning("EquipmentDataProvider: Cannot equip accessory, data not available!");
-            return;
-        }
-        
-        var accessoryStacks = inventoryInfo.GetStacksOfType<Accessory>();
-        
-        if (itemIndex < 0 || itemIndex >= accessoryStacks.Count)
-        {
-            Debug.LogWarning($"EquipmentDataProvider: Invalid item index {itemIndex}!");
-            return;
+            return false;
         }
         
         if (slotIndex < 0 || slotIndex >= playerInventory.CurrentLoadout.equippedAccessories.Length)
         {
             Debug.LogWarning($"EquipmentDataProvider: Invalid slot index {slotIndex}!");
-            return;
+            return false;
         }
         
-        Accessory accessory = accessoryStacks[itemIndex].item as Accessory;
+        // Find the accessory in inventory by name
+        var accessoryStacks = inventoryInfo.GetStacksOfType<Accessory>();
+        var matchingStack = accessoryStacks.FirstOrDefault(stack => stack.item.itemName == item.itemName);
+        
+        if (matchingStack == null || matchingStack.item == null)
+        {
+            Debug.LogWarning($"EquipmentDataProvider: Could not find accessory '{item.itemName}' in inventory!");
+            return false;
+        }
+        
+        Accessory accessory = matchingStack.item as Accessory;
         playerInventory.CurrentLoadout.equippedAccessories[slotIndex] = accessory;
         
-        Debug.Log($"Equipped {accessory.itemName} to accessory slot {slotIndex}");
+        Debug.Log($"EquipmentDataProvider: Equipped {accessory.itemName} to accessory slot {slotIndex}");
+        return true;
     }
     
     /// <summary>
     /// Equips a passive skill to the specified slot.
     /// </summary>
-    public void EquipPassive(int slotIndex, int itemIndex)
+    /// <param name="slotIndex">The slot index (0-2)</param>
+    /// <param name="item">The item UI info</param>
+    /// <returns>True if successfully equipped</returns>
+    public bool EquipPassive(int slotIndex, ItemUIInfo item)
     {
         // TODO: Implement passive skill system
         Debug.LogWarning("EquipmentDataProvider: Passive system not yet implemented!");
+        return false;
     }
     
     #endregion
 }
-

@@ -1,92 +1,93 @@
-using System;
 using PrimeTween;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace Extensions.UI
 {
     /// <summary>
-    /// Base class for tab content panels with smooth PrimeTween animations.
-    /// All animations use unscaled time since the menu pauses the game (timeScale = 0).
+    /// Base class for tab content panels.
+    /// Animation is handled by TabGroup for centralized control.
+    /// This component only manages first element selection for controller navigation.
     /// </summary>
     public class TabSelection : MonoBehaviour
     {
-        [Header("Animation Settings")]
-        [SerializeField] private float fadeInDuration = 0.25f;
-        [SerializeField] private float fadeOutDuration = 0.15f;
-        [SerializeField] private Ease fadeInEase = Ease.OutQuad;
-        [SerializeField] private Ease fadeOutEase = Ease.InQuad;
+        [Header("Navigation")]
+        [Tooltip("Automatically select first element when tab opens. Should be true for controller support.")]
+        [SerializeField] private bool autoSelectFirstElement = true;
         
-        private CanvasGroup canvasGroup;
-        private RectTransform rectTransform;
+        [Header("Selection Timing")]
+        [Tooltip("Delay before selecting first element to allow animations to start")]
+        [SerializeField] private float selectionDelay = 0.15f;
         
         private void Awake()
         {
-            // Ensure we have a CanvasGroup for fading
-            canvasGroup = GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-                canvasGroup = gameObject.AddComponent<CanvasGroup>();
-            
-            rectTransform = GetComponent<RectTransform>();
-            
             gameObject.SetActive(false);
         }
 
         /// <summary>
-        /// Called when the tab is selected. Override to add custom behavior.
+        /// Called when the tab is selected.
+        /// TabGroup handles all animations - this just manages first element selection.
         /// </summary>
         public virtual void OnTabSelect()
         {
-            gameObject.SetActive(true);
-            AnimateIn();
+            // CRITICAL: Select first element for controller navigation
+            if (autoSelectFirstElement)
+            {
+                SelectFirstElement();
+            }
         }
 
         /// <summary>
-        /// Called when the tab is deselected. Override to add custom behavior.
+        /// Called when the tab is deselected.
+        /// TabGroup handles all animations.
         /// </summary>
         public virtual void OnTabDeselect()
         {
-            AnimateOut();
+            // Nothing to do - TabGroup handles animation and deactivation
         }
         
         /// <summary>
-        /// Animates the tab content in with a smooth fade and slight scale.
+        /// Selects the first interactable element in this tab's content.
+        /// CRITICAL for controller navigation - EventSystem needs a selected GameObject.
         /// </summary>
-        protected virtual void AnimateIn()
+        protected void SelectFirstElement()
         {
-            if (canvasGroup == null) return;
-            
-            // Start invisible and slightly scaled down
-            canvasGroup.alpha = 0f;
-            if (rectTransform != null)
-                rectTransform.localScale = Vector3.one * 0.95f;
-            
-            // Fade in
-            Tween.Alpha(canvasGroup, 1f, duration: fadeInDuration, 
-                ease: fadeInEase, useUnscaledTime: true);
-            
-            // Scale up to normal with slight overshoot
-            if (rectTransform != null)
+            if (EventSystem.current == null)
             {
-                Tween.Scale(rectTransform, 1f, duration: fadeInDuration, 
-                    ease: Ease.OutBack, useUnscaledTime: true);
-            }
-        }
-        
-        /// <summary>
-        /// Animates the tab content out with a quick fade.
-        /// </summary>
-        protected virtual void AnimateOut()
-        {
-            if (canvasGroup == null)
-            {
-                gameObject.SetActive(false);
+                Debug.LogWarning("TabSelection: No EventSystem found! Controller navigation will not work.");
                 return;
             }
             
-            // Fade out
-            Tween.Alpha(canvasGroup, 0f, duration: fadeOutDuration, 
-                ease: fadeOutEase, useUnscaledTime: true)
-                .OnComplete(() => gameObject.SetActive(false));
+            // Find first interactable Selectable
+            Selectable firstSelectable = FindFirstSelectableInChildren();
+            
+            if (firstSelectable != null)
+            {
+                // Delay slightly to ensure tab is fully visible
+                Tween.Delay(selectionDelay, useUnscaledTime: true)
+                    .OnComplete(() =>
+                    {
+                        if (firstSelectable != null && firstSelectable.gameObject.activeInHierarchy)
+                        {
+                            EventSystem.current.SetSelectedGameObject(firstSelectable.gameObject);
+                        }
+                    });
+            }
+        }
+        
+        /// <summary>
+        /// Finds the first interactable Selectable in this tab's children.
+        /// </summary>
+        private Selectable FindFirstSelectableInChildren()
+        {
+            Selectable[] selectables = GetComponentsInChildren<Selectable>(true);
+            foreach (var selectable in selectables)
+            {
+                if (selectable.IsInteractable())
+                    return selectable;
+            }
+            return null;
         }
     }
 }

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using PrimeTween;
+using PrimeTween;  // Used for tab swipe animations
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,12 +11,18 @@ namespace Extensions.UI
     /// </summary>
     public class TabGroup : MonoBehaviour
     {
-        [Header("Tabs")] public List<TabButton> tabButtons;
-        public TabButton selectedTab;
-        private int SelectedTabIndex => tabButtons.IndexOf(selectedTab);
+    [Header("Tabs")] public List<TabButton> tabButtons;
+    public TabButton selectedTab;
+    private int SelectedTabIndex => tabButtons.IndexOf(selectedTab);
 
-        [Header("Input Actions")] 
-        public bool tabActive = true;
+    [Header("Input Actions")] 
+    public bool tabActive = true;
+    
+    [Header("Tab Animation")]
+    [SerializeField] private bool enableTabSwipe = true;
+    [SerializeField] private float swipeDistance = 1920f;
+    [SerializeField] private float swipeDuration = 0.3f;
+    [SerializeField] private float fadeDuration = 0.25f;
 
         #region MonoBehaviour Callbacks
 
@@ -37,62 +43,135 @@ namespace Extensions.UI
         }
 
         #endregion
+        
+        #region Tab Management
+        
+        /// <summary>
+        /// Programmatically selects a specific tab.
+        /// Called by TabButton when clicked or by external code.
+        /// </summary>
+        /// <param name="tab">The tab button to select.</param>
+        public void SelectTab(TabButton tab)
+        {
+            if (tab == null || !tabButtons.Contains(tab)) return;
+            
+            int oldIndex = selectedTab != null ? tabButtons.IndexOf(selectedTab) : 0;
+            int newIndex = tabButtons.IndexOf(tab);
+            
+            SwitchTabs(oldIndex, newIndex);
+        }
+        
+        /// <summary>
+        /// Programmatically selects a tab by index.
+        /// </summary>
+        /// <param name="index">The tab index (0-based).</param>
+        public void SelectTabByIndex(int index)
+        {
+            if (index < 0 || index >= tabButtons.Count) return;
+            SelectTab(tabButtons[index]);
+        }
+        
+        #endregion
 
         #region Input Callbacks
 
     private void OnTabLeft(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
-        
         if (!tabActive) return;
-
         if (tabButtons.Count == 0) return;
 
-        if (selectedTab != null)
-        {
-            selectedTab.Deselect();
-        }
-
-        if (SelectedTabIndex <= 0)
-        {
-            selectedTab = tabButtons[^1];
-        }
-        else
-        {
-            selectedTab = tabButtons[SelectedTabIndex - 1];
-        }
-
-        selectedTab.Select();
+        int oldIndex = SelectedTabIndex;
+        int newIndex = oldIndex <= 0 ? tabButtons.Count - 1 : oldIndex - 1;
         
-        // Play tab switch sound via EventBus
-        UIAudio.PlayTabSwitch();
+        SwitchTabs(oldIndex, newIndex);
     }
 
     private void OnTabRight(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
-        
         if (!tabActive) return;
-
         if (tabButtons.Count == 0) return;
 
-        if (selectedTab != null)
+        int oldIndex = SelectedTabIndex;
+        int newIndex = oldIndex >= tabButtons.Count - 1 ? 0 : oldIndex + 1;
+        
+        SwitchTabs(oldIndex, newIndex);
+    }
+    
+    private void SwitchTabs(int oldIndex, int newIndex)
+    {
+        if (oldIndex == newIndex) return;
+        
+        bool swipingRight = newIndex > oldIndex;
+        TabButton oldTab = tabButtons[oldIndex];
+        TabButton newTab = tabButtons[newIndex];
+        
+        Debug.Log($"TabGroup: Switching from tab {oldIndex} to {newIndex}, swipingRight={swipingRight}");
+        
+        // Get TabSelection components
+        TabSelection oldContent = oldTab.contentPanel;
+        TabSelection newContent = newTab.contentPanel;
+        
+        if (oldContent == null || newContent == null)
         {
-            selectedTab.Deselect();
+            Debug.LogError("TabGroup: Tab content panels don't have TabSelection component!");
+            return;
         }
-
-        if (SelectedTabIndex >= tabButtons.Count - 1)
+        
+        // Activate new tab immediately (but invisible)
+        newContent.gameObject.SetActive(true);
+        
+        // Get components for animation
+        var oldCanvasGroup = oldContent.GetComponent<CanvasGroup>();
+        var newCanvasGroup = newContent.GetComponent<CanvasGroup>();
+        var oldRect = oldContent.GetComponent<RectTransform>();
+        var newRect = newContent.GetComponent<RectTransform>();
+        
+        if (enableTabSwipe && oldRect != null && newRect != null)
         {
-            selectedTab = tabButtons[0];
+            // Setup positions - use anchoredPosition for UI RectTransforms
+            float oldEndX = swipingRight ? -swipeDistance : swipeDistance;
+            float newStartX = swipingRight ? swipeDistance : -swipeDistance;
+            
+            // Ensure new tab starts at correct position
+            newRect.anchoredPosition = new Vector2(newStartX, 0f);
+            if (newCanvasGroup != null) newCanvasGroup.alpha = 0f;
+            
+            Debug.Log($"  Old tab sliding to X={oldEndX}, New tab sliding from X={newStartX} to 0");
+            
+            // Animate OLD tab out
+            if (oldCanvasGroup != null)
+            {
+                Tween.Alpha(oldCanvasGroup, 0f, fadeDuration * 0.7f, Ease.InQuad, useUnscaledTime: true);
+            }
+            Tween.UIAnchoredPosition(oldRect, new Vector2(oldEndX, 0f), swipeDuration * 0.7f, Ease.InCubic, useUnscaledTime: true)
+                .OnComplete(() => 
+                {
+                    oldContent.gameObject.SetActive(false);
+                    oldRect.anchoredPosition = Vector2.zero; // Reset position
+                });
+            
+            // Animate NEW tab in
+            if (newCanvasGroup != null)
+            {
+                newCanvasGroup.alpha = 0f;
+                Tween.Alpha(newCanvasGroup, 1f, fadeDuration, Ease.OutQuad, useUnscaledTime: true);
+            }
+            Tween.UIAnchoredPosition(newRect, Vector2.zero, swipeDuration, Ease.OutCubic, useUnscaledTime: true);
         }
         else
         {
-            selectedTab = tabButtons[SelectedTabIndex + 1];
+            // No animation - just switch
+            oldContent.gameObject.SetActive(false);
+            newContent.gameObject.SetActive(true);
         }
-
+        
+        // Update selection
+        selectedTab.Deselect();
+        selectedTab = newTab;
         selectedTab.Select();
         
-        // Play tab switch sound via EventBus
         UIAudio.PlayTabSwitch();
     }
 

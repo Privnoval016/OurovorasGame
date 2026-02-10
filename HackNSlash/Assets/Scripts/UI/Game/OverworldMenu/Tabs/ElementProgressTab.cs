@@ -73,7 +73,7 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         InitializeElementButtons();
         
         // Select first element by default
-        SelectElement(ElementEffect.Fire);
+        SelectElement(0);
     }
     
     /// <summary>
@@ -99,8 +99,7 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
     
     private void InitializeElementButtons()
     {
-        if (elementDataProvider == null)
-            return;
+        elementDataProvider ??= elementDataProviderObject as IElementProgressDataProvider;
         
         ElementEffect[] elements = elementDataProvider.GetAvailableElements();
         
@@ -109,8 +108,7 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
             if (elementButtons[i] != null)
             {
                 int index = i;
-                ElementEffect element = elements[i];
-                elementButtons[i].onClick.AddListener(() => SelectElement(element));
+                elementButtons[i].onClick.AddListener(() => SelectElement(index));
             }
         }
     }
@@ -122,10 +120,21 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
     /// <summary>
     /// Selects an element and updates all displays.
     /// </summary>
-    /// <param name="element">The element to select.</param>
-    public void SelectElement(ElementEffect element)
+    /// <param name="elementIndex">The index of the element to select.</param>
+    public void SelectElement(int elementIndex)
     {
-        currentElement = element;
+        if (elementDataProvider == null)
+            return;
+        
+        ElementEffect[] elements = elementDataProvider.GetAvailableElements();
+        
+        if (elementIndex < 0 || elementIndex >= elements.Length)
+        {
+            Debug.LogWarning($"ElementProgressTab: Invalid element index {elementIndex}");
+            return;
+        }
+        
+        currentElement = elements[elementIndex];
         
         UpdateElementButtonVisuals();
         UpdateProgressDisplay();
@@ -139,7 +148,7 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         
         ElementEffect[] elements = elementDataProvider.GetAvailableElements();
         
-        for (int i = 0; i < elementButtons.Length && i < elements.Length; i++)
+        for (int i = 0; i < elementButtonIcons.Length && i < elements.Length; i++)
         {
             if (elementButtonIcons[i] != null)
             {
@@ -307,110 +316,9 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         if (gameObject.activeInHierarchy)
         {
             InitializeElementButtons();
-            SelectElement(ElementEffect.Fire);
+            SelectElement(0);
         }
     }
     
     #endregion
 }
-
-/// <summary>
-/// Component for displaying a single level in the element progression.
-/// </summary>
-public class ProgressLevelDisplay : MonoBehaviour, UnityEngine.EventSystems.IPointerEnterHandler, UnityEngine.EventSystems.IPointerExitHandler
-{
-    [Header("UI References")]
-    [SerializeField] private Image levelIcon;
-    [SerializeField] private TextMeshProUGUI levelText;
-    [SerializeField] private GameObject lockedIndicator;
-    [SerializeField] private GameObject tooltipPanel;
-    [SerializeField] private TextMeshProUGUI tooltipText;
-    
-    [Header("Colors")]
-    [SerializeField] private Color unlockedColor = Color.green;
-    [SerializeField] private Color lockedColor = Color.gray;
-    
-    private int level;
-    private bool isUnlocked;
-    private string description;
-    
-    /// <summary>
-    /// Sets the level data and updates visuals.
-    /// </summary>
-    public void SetLevel(int levelNumber, bool unlocked, string desc)
-    {
-        level = levelNumber;
-        isUnlocked = unlocked;
-        description = desc;
-        
-        UpdateVisuals();
-    }
-    
-    private void UpdateVisuals()
-    {
-        if (levelText != null)
-            levelText.text = level.ToString();
-        
-        if (levelIcon != null)
-            levelIcon.color = isUnlocked ? unlockedColor : lockedColor;
-        
-        if (lockedIndicator != null)
-            lockedIndicator.SetActive(!isUnlocked);
-        
-        if (tooltipPanel != null)
-            tooltipPanel.SetActive(false);
-    }
-    
-    public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData eventData)
-    {
-        if (tooltipPanel != null && tooltipText != null)
-        {
-            tooltipText.text = description;
-            tooltipPanel.SetActive(true);
-        }
-    }
-    
-    public void OnPointerExit(UnityEngine.EventSystems.PointerEventData eventData)
-    {
-        if (tooltipPanel != null)
-            tooltipPanel.SetActive(false);
-    }
-}
-
-/// <summary>
-/// Component for displaying and selecting attack assignments.
-/// </summary>
-public class AttackAssignmentButton : MonoBehaviour
-{
-    [Header("UI References")]
-    [SerializeField] private Image attackIcon;
-    [SerializeField] private TextMeshProUGUI attackNameText;
-    [SerializeField] private Image buttonIndicator; // Shows X, Y, or A
-    
-    private AttackDisplayData currentAttack;
-    
-    /// <summary>
-    /// Sets the attack data for this button.
-    /// </summary>
-    public void SetAttack(AttackDisplayData attack)
-    {
-        currentAttack = attack;
-        UpdateDisplay();
-    }
-    
-    private void UpdateDisplay()
-    {
-        if (currentAttack == null)
-            return;
-        
-        if (attackIcon != null)
-        {
-            attackIcon.sprite = currentAttack.icon;
-            attackIcon.enabled = currentAttack.icon != null;
-        }
-        
-        if (attackNameText != null)
-            attackNameText.text = currentAttack.attackName;
-    }
-}
-

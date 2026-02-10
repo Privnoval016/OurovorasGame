@@ -77,7 +77,7 @@ public class WeaponBody : KinematicBehaviour, IContactDetector
     
     public void ActivateTrail()
     {
-        if (vfxTrail != null)
+        if (vfxTrail != null && vfxTrail.isActiveAndEnabled)
         {
             vfxTrail.Begin();
         }
@@ -85,7 +85,7 @@ public class WeaponBody : KinematicBehaviour, IContactDetector
     
     public void DeactivateTrail()
     {
-        if (vfxTrail != null)
+        if (vfxTrail != null && vfxTrail.isActiveAndEnabled)
         {
             vfxTrail.End();
         }

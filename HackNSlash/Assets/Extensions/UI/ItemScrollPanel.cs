@@ -92,10 +92,13 @@ public class ItemScrollPanel : ScrollUIPanel
         
         if (info == null)
         {
-            // Show as empty panel
-            SetEmpty();
+            // Hide the entire panel when empty (items < panels)
+            HidePanel();
             return;
         }
+        
+        // Show the panel
+        ShowPanel();
         
         // Update icon
         if (icon != null)
@@ -139,27 +142,15 @@ public class ItemScrollPanel : ScrollUIPanel
     
     #region Helper Methods
     
-    private void SetEmpty()
+    private void HidePanel()
     {
-        if (icon != null)
-        {
-            icon.enabled = false;
-        }
-        
-        if (nameText != null)
-        {
-            nameText.text = "Empty";
-            nameText.color = emptyColor;
-        }
-        
-        if (amountText != null)
-            amountText.gameObject.SetActive(false);
-        
-        if (descriptionText != null)
-            descriptionText.text = "";
-        
-        if (emptyIndicator != null)
-            emptyIndicator.SetActive(true);
+        // Hide the entire panel's canvas group or just disable all visuals
+        gameObject.SetActive(false);
+    }
+    
+    private void ShowPanel()
+    {
+        gameObject.SetActive(true);
     }
     
     private Color GetRarityColor(Rarity rarity)

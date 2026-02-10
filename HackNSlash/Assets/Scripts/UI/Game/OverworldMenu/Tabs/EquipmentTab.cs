@@ -9,6 +9,7 @@ using UnityEngine.UI;
 /// <summary>
 /// Tab 2: Equipment selection tab for managing equipped items.
 /// Shows equipment slots on the left, scrolling menu in center, and character model on right.
+/// Manually checks for B button to close scroll menu (can't use ICancelHandler due to cleared EventSystem selection).
 /// </summary>
 public class EquipmentTab : TabSelection, IScrollMenuAuthority
 {
@@ -72,6 +73,50 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         
         if (scrollMenuContainer != null)
             scrollMenuContainer.SetActive(false);
+        
+        // Subscribe to back/cancel input for closing scroll menu
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.onBack += OnBackInput;
+            // CRITICAL: Subscribe to Submit (A button) for item selection in scroll menu
+            InputManager.Instance.onSelect += OnSubmitInput;
+        }
+    }
+    
+    private void OnDestroy()
+    {
+        // Unsubscribe from input
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.onBack -= OnBackInput;
+            InputManager.Instance.onSelect -= OnSubmitInput;
+        }
+    }
+    
+    private void OnSubmitInput(InputAction.CallbackContext context)
+    {
+        // Only handle if scroll menu is active and button was pressed (not released)
+        if (!context.performed || !isScrollMenuActive)
+            return;
+        
+        Debug.Log("EquipmentTab: Submit (A button) pressed in scroll menu");
+        
+        // Get current selected item and equip it
+        if (equipmentScrollMenu != null)
+        {
+            int selectedIndex = equipmentScrollMenu.GetSelectedIndex();
+            equipmentScrollMenu.OnItemConfirmed?.Invoke(selectedIndex);
+        }
+    }
+    
+    private void OnBackInput(InputAction.CallbackContext context)
+    {
+        // Only handle if scroll menu is active and button was pressed (not released)
+        if (!context.performed || !isScrollMenuActive)
+            return;
+        
+        DeactivateScrollMenu();
+        UIAudio.PlayBack();
     }
     
     #endregion
@@ -85,11 +130,7 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
     {
         base.OnTabSelect();
         
-        if (equipmentDataProvider == null)
-        {
-            Debug.LogError("EquipmentMenuUI: No IEquipmentDataProvider assigned!");
-            return;
-        }
+        equipmentDataProvider ??= equipmentDataProviderObject as IEquipmentDataProvider;
         
         // Activate character model
         if (characterModelDisplay != null)
@@ -113,6 +154,13 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         // Deactivate scroll menu if active
         if (isScrollMenuActive)
             DeactivateScrollMenu();
+        
+        // Force deselect all slots and clear highlights
+        ClearAllSlotSelections();
+        
+        // Clear EventSystem selection to prevent highlights from sticking
+        if (eventSystem != null)
+            eventSystem.SetSelectedGameObject(null);
         
         // Deactivate character model
         if (characterModelDisplay != null)
@@ -195,6 +243,13 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         if (equipmentScrollMenu == null || equipmentDataProvider == null)
             return;
         
+        // CRITICAL: Disable slot navigation so controller can't navigate back to slots
+        DisableSlotNavigation();
+        
+        // Clear EventSystem selection so slots don't stay highlighted
+        if (eventSystem != null)
+            eventSystem.SetSelectedGameObject(null);
+        
         if (scrollMenuContainer != null)
             scrollMenuContainer.SetActive(true);
         
@@ -236,21 +291,164 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         equipmentScrollMenu.Activate(items, currentItemIndex, item => item, this);
         isScrollMenuActive = true;
         
-        // Update current item display
+        // Subscribe to item confirmation (A button press)
+        equipmentScrollMenu.OnItemConfirmed += OnItemConfirmed;
+        
+        // Subscribe to scroll input to update selected item display
+        if (InputManager.Instance != null)
+            InputManager.Instance.onScroll += OnScrollUpdateDisplay;
+        
+        // CRITICAL: Select the scroll menu container so it can receive Cancel (B button) input
+        // This makes the scroll menu receive input events
+        if (scrollMenuContainer != null && eventSystem != null)
+        {
+            // Check if container has SelectableContainer component
+            var selectableContainer = scrollMenuContainer.GetComponent<SelectableContainer>();
+            if (selectableContainer != null)
+            {
+                selectableContainer.SelectThis();
+            }
+            else
+            {
+                // Fallback: Just set it as selected even without SelectableContainer
+                eventSystem.SetSelectedGameObject(scrollMenuContainer);
+            }
+        }
+        
+        // Update current item display (what's currently equipped)
         UpdateCurrentItemDisplay();
+        
+        // Update selected item display (what's being looked at in scroll menu)
+        UpdateSelectedItemDisplay();
     }
     
     private void DeactivateScrollMenu()
     {
         if (equipmentScrollMenu != null)
+        {
+            // Unsubscribe from item confirmation
+            equipmentScrollMenu.OnItemConfirmed -= OnItemConfirmed;
             equipmentScrollMenu.Deactivate();
+        }
+        
+        // Unsubscribe from scroll display updates
+        if (InputManager.Instance != null)
+            InputManager.Instance.onScroll -= OnScrollUpdateDisplay;
         
         if (scrollMenuContainer != null)
             scrollMenuContainer.SetActive(false);
         
         isScrollMenuActive = false;
+        
+        // CRITICAL: Re-enable slot navigation so controller can navigate slots again
+        EnableSlotNavigation();
+        
+        // Return focus to the slot that opened the scroll menu
+        if (eventSystem != null && currentSlotIndex >= 0)
+        {
+            ItemSlotUI[] slots = currentSlotType == EquipmentSlotType.Accessory ? accessorySlots : passiveSlots;
+            if (slots != null && currentSlotIndex < slots.Length && slots[currentSlotIndex] != null)
+            {
+                var button = slots[currentSlotIndex].GetComponent<Button>();
+                if (button != null)
+                    eventSystem.SetSelectedGameObject(button.gameObject);
+            }
+        }
+        
         currentSlotType = EquipmentSlotType.None;
         currentSlotIndex = -1;
+    }
+    
+    /// <summary>
+    /// Called when user presses A button to confirm item selection in scroll menu.
+    /// Equips the item but keeps scroll menu open for continued browsing.
+    /// </summary>
+    private void OnItemConfirmed(int itemIndex)
+    {
+        if (equipmentDataProvider == null)
+            return;
+        
+        Debug.Log($"EquipmentTab: Item confirmed at index {itemIndex}");
+        
+        // Get the selected item
+        ItemUIInfo selectedItem = equipmentScrollMenu.GetSelectedItem();
+        if (selectedItem == null)
+        {
+            Debug.LogWarning("EquipmentTab: Selected item is null!");
+            return;
+        }
+        
+        // Actually equip the item via data provider
+        bool equipped = false;
+        switch (currentSlotType)
+        {
+            case EquipmentSlotType.Accessory:
+                Debug.Log($"EquipmentTab: Equipping accessory '{selectedItem.itemName}' to slot {currentSlotIndex}");
+                equipped = equipmentDataProvider.EquipAccessory(currentSlotIndex, selectedItem);
+                break;
+            
+            case EquipmentSlotType.Passive:
+                Debug.Log($"EquipmentTab: Equipping passive '{selectedItem.itemName}' to slot {currentSlotIndex}");
+                equipped = equipmentDataProvider.EquipPassive(currentSlotIndex, selectedItem);
+                break;
+        }
+        
+        if (equipped)
+        {
+            UIAudio.PlayItemEquip();
+            
+            // Refresh the slot display to show newly equipped item
+            RefreshAllSlots();
+            
+            // Update the "currently equipped" display in the scroll menu
+            UpdateCurrentItemDisplay();
+        }
+        else
+        {
+            UIAudio.PlayError();
+            Debug.LogWarning($"EquipmentTab: Failed to equip item '{selectedItem.itemName}'");
+        }
+        
+        // DON'T close scroll menu - let user continue browsing and equipping different items
+        // They can press B to close when done
+    }
+    
+    /// <summary>
+    /// Called when scroll input is received - updates the selected item display.
+    /// </summary>
+    private void OnScrollUpdateDisplay(InputAction.CallbackContext context)
+    {
+        if (!isScrollMenuActive || equipmentScrollMenu == null)
+            return;
+        
+        // Wait a frame for scroll menu to update its selection
+        StartCoroutine(UpdateSelectedItemDisplayNextFrame());
+    }
+    
+    private System.Collections.IEnumerator UpdateSelectedItemDisplayNextFrame()
+    {
+        yield return null;
+        UpdateSelectedItemDisplay();
+    }
+    
+    private void UpdateSelectedItemDisplay()
+    {
+        if (equipmentScrollMenu == null)
+            return;
+        
+        ItemUIInfo selectedItem = equipmentScrollMenu.GetSelectedItem();
+        if (selectedItem == null)
+            return;
+        
+        if (selectedItemNameText != null)
+            selectedItemNameText.text = selectedItem.itemName;
+        if (selectedItemDescriptionText != null)
+            selectedItemDescriptionText.text = selectedItem.itemDescription;
+        if (selectedItemIcon != null && selectedItem.icon != null)
+        {
+            selectedItemIcon.sprite = selectedItem.icon;
+            selectedItemIcon.enabled = true;
+        }
     }
     
     private void UpdateCurrentItemDisplay()
@@ -294,6 +492,7 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
             return;
         
         Vector2 scrollInput = context.ReadValue<Vector2>();
+        Debug.Log($"ScrollDelegate: Received scroll input: {scrollInput}, isScrollMenuActive: {isScrollMenuActive}");
         equipmentScrollMenu.OnScrollPerformed(scrollInput);
     }
     
@@ -315,12 +514,14 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
             InputManager.Instance.onScroll -= ScrollDelegate;
     }
     
+
     #endregion
     
     #region Slot Callbacks
     
     /// <summary>
-    /// Called when an accessory slot is selected.
+    /// Called when an accessory slot is selected (A button pressed).
+    /// Opens scroll menu to choose equipment.
     /// </summary>
     /// <param name="slotIndex">The slot index.</param>
     public void OnAccessorySlotSelected(int slotIndex)
@@ -331,16 +532,8 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
     }
     
     /// <summary>
-    /// Called when an accessory slot is deselected.
-    /// </summary>
-    public void OnAccessorySlotDeselected()
-    {
-        if (currentSlotType == EquipmentSlotType.Accessory)
-            DeactivateScrollMenu();
-    }
-    
-    /// <summary>
-    /// Called when a passive slot is selected.
+    /// Called when a passive slot is selected (A button pressed).
+    /// Opens scroll menu to choose passive ability.
     /// </summary>
     /// <param name="slotIndex">The slot index.</param>
     public void OnPassiveSlotSelected(int slotIndex)
@@ -348,15 +541,6 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         currentSlotType = EquipmentSlotType.Passive;
         currentSlotIndex = slotIndex;
         ActivateScrollMenu();
-    }
-    
-    /// <summary>
-    /// Called when a passive slot is deselected.
-    /// </summary>
-    public void OnPassiveSlotDeselected()
-    {
-        if (currentSlotType == EquipmentSlotType.Passive)
-            DeactivateScrollMenu();
     }
     
     #endregion
@@ -373,6 +557,86 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         
         if (gameObject.activeInHierarchy)
             RefreshAllSlots();
+    }
+    
+    #endregion
+    
+    #region Helper Methods
+    
+    /// <summary>
+    /// Clears all slot selections and visual highlights.
+    /// </summary>
+    private void ClearAllSlotSelections()
+    {
+        // Force deselect all accessory slots
+        if (accessorySlots != null)
+        {
+            foreach (var slot in accessorySlots)
+            {
+                if (slot != null)
+                    slot.ForceDeselect();
+            }
+        }
+        
+        // Force deselect all passive slots
+        if (passiveSlots != null)
+        {
+            foreach (var slot in passiveSlots)
+            {
+                if (slot != null)
+                    slot.ForceDeselect();
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Disables all slot buttons to prevent navigation while scroll menu is active.
+    /// </summary>
+    private void DisableSlotNavigation()
+    {
+        SetSlotsInteractable(false);
+    }
+    
+    /// <summary>
+    /// Re-enables all slot buttons after scroll menu is closed.
+    /// </summary>
+    private void EnableSlotNavigation()
+    {
+        SetSlotsInteractable(true);
+    }
+    
+    /// <summary>
+    /// Sets interactability of all slot buttons.
+    /// </summary>
+    private void SetSlotsInteractable(bool interactable)
+    {
+        // Set accessory slots
+        if (accessorySlots != null)
+        {
+            foreach (var slot in accessorySlots)
+            {
+                if (slot != null)
+                {
+                    var button = slot.GetComponent<Button>();
+                    if (button != null)
+                        button.interactable = interactable;
+                }
+            }
+        }
+        
+        // Set passive slots
+        if (passiveSlots != null)
+        {
+            foreach (var slot in passiveSlots)
+            {
+                if (slot != null)
+                {
+                    var button = slot.GetComponent<Button>();
+                    if (button != null)
+                        button.interactable = interactable;
+                }
+            }
+        }
     }
     
     #endregion
