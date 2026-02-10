@@ -38,7 +38,7 @@ MonoBehaviour:
     hitActionInfos:
     - hitAction:
         rid: 2944900481171587364
-    hitDetection: 1
+    hitDetection: 0
     lateralRadius: 3
     verticalRadius: 1
     hitRegisterAngle: 120
@@ -62,6 +62,7 @@ MonoBehaviour:
     applyParentPoseToPosition: 0
   hitStopProfiles:
   - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
+  audioProfiles: []
   attackActions: []
   applyRootMotion: 0
   moveCameraWithAttack: 1

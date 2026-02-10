@@ -54,11 +54,7 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     {
         base.OnTabSelect();
         
-        if (inventoryDataProvider == null)
-        {
-            Debug.LogError("InventoryTab: No IInventoryDataProvider assigned!");
-            return;
-        }
+        inventoryDataProvider ??= inventoryDataProviderObject as IInventoryDataProvider;
         
         // Activate character model
         if (characterModelDisplay != null)

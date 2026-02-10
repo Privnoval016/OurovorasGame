@@ -32,6 +32,14 @@ MonoBehaviour:
           amount: 1
         - item: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
           amount: 1
+        - item: {fileID: 11400000, guid: 8cf8d6d63d94d47c783d078aea16897d, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: 05da69199f12e1949b266b43ec1ec0ac, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: daaffd68ee01a4dd89bd5542dc318835, type: 2}
+          amount: 1
     - rid: 6772710401733820540
       type: {class: ConsumableCategory, ns: , asm: Assembly-CSharp}
       data:

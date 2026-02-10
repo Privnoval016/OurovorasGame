@@ -81,6 +81,13 @@ public class VFXSystem : MonoBehaviour, IVFXSystem
         }
     
         HitStopProfile hitStopProfile = a.hitStopProfiles[hitStopProfileIndex];
+        
+        if (hitStopProfile?.hitStopVFX?.vfxAttack?.vfxHitBox == null)
+        {
+            Debug.LogWarning("No hit stop VFX assigned for attack " + a.name);
+            return null;
+        }
+        
         TransformInfo start = overrideTransform;
         start.Position += hitStopProfile.hitStopVFX.spawnTransform.Position;
         start.Rotation = hitStopProfile.hitStopVFX.spawnTransform.Rotation.eulerAngles != Vector3.zero

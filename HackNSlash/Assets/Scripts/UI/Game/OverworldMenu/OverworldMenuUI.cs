@@ -125,17 +125,48 @@ public class OverworldMenuUI : MonoBehaviour, IService
     
     /// <summary>
     /// Opens the menu and activates tab navigation.
+    /// CRITICAL: Ensures EventSystem is ready and Menu input is enabled.
+    /// Resets to first tab every time menu opens.
     /// </summary>
     public void OpenMenu()
     {
         gameObject.SetActive(true);
         
+        // CRITICAL: Reset to first tab when opening menu
         if (tabGroup != null)
+        {
+            tabGroup.SelectTabByIndex(0);
             tabGroup.tabActive = true;
+        }
+        
+        // CRITICAL: Ensure Menu action map is enabled
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.EnableStateInputs(GameState.Menu);
+        }
+        
+        // CRITICAL: Ensure EventSystem has something selected for controller navigation
+        // This happens after a delay to ensure everything is initialized
+        if (eventSystem != null)
+        {
+            // Clear current selection first
+            eventSystem.SetSelectedGameObject(null);
+            
+            // The TabSelection will auto-select first element when tab becomes active
+            // But we can also force it here as a backup
+            if (tabGroup != null && tabGroup.selectedTab != null && tabGroup.selectedTab.contentPanel != null)
+            {
+                // Give it a frame to initialize
+                StartCoroutine(SelectFirstElementNextFrame());
+            }
+        }
+        
+        Debug.Log("OverworldMenuUI: Menu opened, reset to first tab, controller navigation should work");
     }
     
     /// <summary>
     /// Closes the menu and deactivates tab navigation.
+    /// Ensures all UI state is reset for next opening.
     /// </summary>
     public void CloseMenu()
     {
@@ -143,6 +174,27 @@ public class OverworldMenuUI : MonoBehaviour, IService
         
         if (tabGroup != null)
             tabGroup.tabActive = false;
+        
+        // Clear EventSystem selection
+        if (eventSystem != null)
+            eventSystem.SetSelectedGameObject(null);
+        
+        Debug.Log("OverworldMenuUI: Menu closed and reset");
+    }
+    
+    private System.Collections.IEnumerator SelectFirstElementNextFrame()
+    {
+        yield return null; // Wait one frame
+        
+        if (tabGroup != null && tabGroup.selectedTab != null && tabGroup.selectedTab.contentPanel != null)
+        {
+            UnityEngine.UI.Selectable firstSelectable = tabGroup.selectedTab.contentPanel.GetComponentInChildren<UnityEngine.UI.Selectable>();
+            if (firstSelectable != null && firstSelectable.IsInteractable())
+            {
+                eventSystem.SetSelectedGameObject(firstSelectable.gameObject);
+                Debug.Log($"OverworldMenuUI: Force-selected {firstSelectable.gameObject.name}");
+            }
+        }
     }
     
     #endregion

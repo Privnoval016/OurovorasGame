@@ -55,16 +55,18 @@ namespace Extensions.UI
         /// <summary>
         /// Equips an accessory to the specified slot.
         /// </summary>
-        /// <param name="slotIndex">The slot to equip to.</param>
-        /// <param name="itemIndex">The index of the item in inventory.</param>
-        void EquipAccessory(int slotIndex, int itemIndex);
+        /// <param name="slotIndex">The slot to equip to (0-2).</param>
+        /// <param name="item">The item to equip.</param>
+        /// <returns>True if successfully equipped.</returns>
+        bool EquipAccessory(int slotIndex, ItemUIInfo item);
         
         /// <summary>
         /// Equips a passive skill to the specified slot.
         /// </summary>
-        /// <param name="slotIndex">The slot to equip to.</param>
-        /// <param name="itemIndex">The index of the item in inventory.</param>
-        void EquipPassive(int slotIndex, int itemIndex);
+        /// <param name="slotIndex">The slot to equip to (0-2).</param>
+        /// <param name="item">The passive to equip.</param>
+        /// <returns>True if successfully equipped.</returns>
+        bool EquipPassive(int slotIndex, ItemUIInfo item);
     }
     
     /// <summary>

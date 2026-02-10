@@ -11,8 +11,9 @@ namespace Extensions.UI
     /// Modular UI component for displaying an equipment/item slot.
     /// Reusable across different menu contexts (equipment, passives, etc.).
     /// Uses PrimeTween for smooth animations with unscaled time.
+    /// Controller-only navigation - no mouse support.
     /// </summary>
-    public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
+    public class ItemSlotUI : MonoBehaviour, ISelectHandler, IDeselectHandler, ISubmitHandler
     {
         [Header("UI References")]
         [SerializeField] private Image iconImage;
@@ -25,6 +26,11 @@ namespace Extensions.UI
         [SerializeField] private Color normalColor = Color.white;
         [SerializeField] private Color selectedColor = Color.yellow;
         [SerializeField] private Color emptyColor = Color.gray;
+        
+        [Header("Text Colors")]
+        [SerializeField] private Color normalTextColor = Color.white;
+        [SerializeField] private Color selectedTextColor = Color.yellow;
+        [SerializeField] private Color emptyTextColor = Color.gray;
         
         [Header("Events")]
         [SerializeField] private UnityEvent<int> onSlotSelected;
@@ -104,20 +110,21 @@ namespace Extensions.UI
         /// </summary>
         public bool IsEmpty() => isEmpty;
         
+        /// <summary>
+        /// Forces deselection without EventSystem involvement.
+        /// Used for cleanup when switching tabs.
+        /// </summary>
+        public void ForceDeselect()
+        {
+            if (isSelected)
+            {
+                Deselect();
+            }
+        }
+        
         #endregion
         
         #region Event System Handlers
-        
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            Select();
-        }
-        
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            if (!isSelected)
-                Deselect();
-        }
         
         public void OnSelect(BaseEventData eventData)
         {
@@ -127,6 +134,13 @@ namespace Extensions.UI
         public void OnDeselect(BaseEventData eventData)
         {
             Deselect();
+        }
+        
+        public void OnSubmit(BaseEventData eventData)
+        {
+            // Handle controller A button press - ONLY call callback on Submit, not Select
+            UIAudio.PlaySelect();
+            onSlotSelected?.Invoke(slotIndex);
         }
         
         #endregion
@@ -148,7 +162,8 @@ namespace Extensions.UI
         // Play hover sound via EventBus
         UIAudio.PlayHover();
         
-        onSlotSelected?.Invoke(slotIndex);
+        // NOTE: Do NOT invoke onSlotSelected here - only on Submit (A button press)
+        // Just selecting/hovering over a slot should not open the scroll menu
     }
     
     private void Deselect()
@@ -163,28 +178,42 @@ namespace Extensions.UI
                 ease: Ease.OutQuad, useUnscaledTime: true);
         }
         
-        onSlotDeselected?.Invoke();
+        // NOTE: Removed onSlotDeselected callback to prevent circular dependency
+        // Scroll menu should only close via Cancel (B button), not when slot is deselected
     }
         
-        private void UpdateVisuals()
+    private void UpdateVisuals()
+    {
+        Color targetBorderColor = normalColor;
+        Color targetTextColor = normalTextColor;
+        
+        if (isSelected)
         {
-            Color targetColor = normalColor;
-            
-            if (isSelected)
-                targetColor = selectedColor;
-            else if (isEmpty)
-                targetColor = emptyColor;
-            
-            if (borderImage != null)
-                borderImage.color = targetColor;
-            
-            if (backgroundImage != null)
-            {
-                Color bgColor = isEmpty ? emptyColor : normalColor;
-                bgColor.a = backgroundImage.color.a; // Preserve alpha
-                backgroundImage.color = bgColor;
-            }
+            targetBorderColor = selectedColor;
+            targetTextColor = selectedTextColor;
         }
+        else if (isEmpty)
+        {
+            targetBorderColor = emptyColor;
+            targetTextColor = emptyTextColor;
+        }
+        
+        // Update border
+        if (borderImage != null)
+            borderImage.color = targetBorderColor;
+        
+        // Update background
+        if (backgroundImage != null)
+        {
+            Color bgColor = isEmpty ? emptyColor : normalColor;
+            bgColor.a = backgroundImage.color.a; // Preserve alpha
+            backgroundImage.color = bgColor;
+        }
+        
+        // CRITICAL: Update text color for visibility
+        if (nameText != null)
+            nameText.color = targetTextColor;
+    }
         
         #endregion
     }

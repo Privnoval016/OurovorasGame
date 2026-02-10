@@ -67,15 +67,15 @@ public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider
     /// <summary>
     /// Gets the equipped items for all slots.
     /// </summary>
-    public EquippedItemDisplayData[] GetEquippedItems()
+    public Extensions.UI.EquippedItemDisplayData[] GetEquippedItems()
     {
         if (playerInventory == null || playerInventory.CurrentLoadout == null)
         {
             Debug.LogWarning("PlayerDataProvider: PlayerInventory or CurrentLoadout not available!");
-            return new EquippedItemDisplayData[6]; // 3 accessories + 3 passives
+            return new Extensions.UI.EquippedItemDisplayData[6]; // 3 accessories + 3 passives
         }
         
-        var equipped = new List<EquippedItemDisplayData>();
+        var equipped = new List<Extensions.UI.EquippedItemDisplayData>();
         
         // Get equipped accessories
         for (int i = 0; i < 3; i++)
@@ -87,7 +87,7 @@ public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider
             
             if (accessory != null)
             {
-                equipped.Add(new EquippedItemDisplayData
+                equipped.Add(new Extensions.UI.EquippedItemDisplayData
                 {
                     icon = accessory.itemIcon,
                     itemName = accessory.itemName,
@@ -98,14 +98,14 @@ public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider
             }
             else
             {
-                equipped.Add(EquippedItemDisplayData.Empty());
+                equipped.Add(Extensions.UI.EquippedItemDisplayData.Empty());
             }
         }
         
         // Get equipped passives (TODO: Implement passive system)
         for (int i = 0; i < 3; i++)
         {
-            equipped.Add(EquippedItemDisplayData.Empty());
+            equipped.Add(Extensions.UI.EquippedItemDisplayData.Empty());
         }
         
         return equipped.ToArray();

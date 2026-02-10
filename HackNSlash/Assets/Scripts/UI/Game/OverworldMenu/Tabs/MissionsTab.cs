@@ -61,11 +61,7 @@ public class MissionsTab : TabSelection, IScrollMenuAuthority
     {
         base.OnTabSelect();
         
-        if (questDataProvider == null)
-        {
-            Debug.LogError("MissionsTab: No IQuestDataProvider assigned!");
-            return;
-        }
+        questDataProvider ??= questDataProviderObject as IQuestDataProvider;
         
         // Activate character model (behind quest details)
         if (characterModelDisplay != null)

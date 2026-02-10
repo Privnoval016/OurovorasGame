@@ -64,11 +64,7 @@ public class SkillTreeTab : TabSelection
     {
         base.OnTabSelect();
         
-        if (skillTreeDataProvider == null)
-        {
-            Debug.LogError("SkillTreeTab: No ISkillTreeDataProvider assigned!");
-            return;
-        }
+        skillTreeDataProvider ??= skillTreeDataProviderObject as ISkillTreeDataProvider;
         
         // Activate character model (behind skill tree)
         if (characterModelDisplay != null)
@@ -327,8 +323,9 @@ public class SkillTreeTab : TabSelection
 
 /// <summary>
 /// UI component for a single skill node in the skill tree.
+/// Controller-only navigation - no mouse support.
 /// </summary>
-public class SkillNodeUI : MonoBehaviour, IPointerClickHandler
+public class SkillNodeUI : MonoBehaviour, ISelectHandler, IDeselectHandler, ISubmitHandler
 {
     [Header("UI References")]
     [SerializeField] private Image nodeIcon;
@@ -345,6 +342,7 @@ public class SkillNodeUI : MonoBehaviour, IPointerClickHandler
     private int nodeIndex;
     
     public System.Action<int> onNodeClicked;
+    public System.Action<int> onNodeSelected;
     
     /// <summary>
     /// Initializes the node with data.
@@ -390,9 +388,22 @@ public class SkillNodeUI : MonoBehaviour, IPointerClickHandler
             lockedOverlay.SetActive(!nodeData.isUnlocked);
     }
     
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnSelect(UnityEngine.EventSystems.BaseEventData eventData)
+    {
+        SetSelected(true);
+        onNodeSelected?.Invoke(nodeIndex);
+        UIAudio.PlayHover();
+    }
+    
+    public void OnDeselect(UnityEngine.EventSystems.BaseEventData eventData)
+    {
+        SetSelected(false);
+    }
+    
+    public void OnSubmit(UnityEngine.EventSystems.BaseEventData eventData)
     {
         onNodeClicked?.Invoke(nodeIndex);
+        UIAudio.PlaySelect();
     }
 }
 
