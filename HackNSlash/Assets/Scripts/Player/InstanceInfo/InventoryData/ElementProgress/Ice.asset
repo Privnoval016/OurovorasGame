@@ -1,0 +1,124 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad39fc822d14dc7ba822d686e132afa, type: 3}
+  m_Name: Ice
+  m_EditorClassIdentifier: 
+  element: 3
+  progressionEntries:
+  - unlockedAttack:
+      SwordAttack: {fileID: 0}
+      KatanaAttack: {fileID: 0}
+    statChange:
+      innateStat: 0
+      changeType: 0
+      value: 0
+      duration: 0
+    isAttackUnlock: 0
+    isStatChange: 1
+    levelRequirement: 1
+    description: 
+  - unlockedAttack:
+      SwordAttack: {fileID: 0}
+      KatanaAttack: {fileID: 0}
+    statChange:
+      innateStat: 0
+      changeType: 0
+      value: 0
+      duration: 0
+    isAttackUnlock: 0
+    isStatChange: 1
+    levelRequirement: 2
+    description: 
+  - unlockedAttack:
+      SwordAttack: {fileID: 11400000, guid: 08a6eb99a04a22b4f904416b1caeb46e, type: 2}
+      KatanaAttack: {fileID: 11400000, guid: 08a6eb99a04a22b4f904416b1caeb46e, type: 2}
+    statChange:
+      innateStat: 0
+      changeType: 0
+      value: 0
+      duration: 0
+    isAttackUnlock: 1
+    isStatChange: 0
+    levelRequirement: 3
+    description: Spinning Blades
+  - unlockedAttack:
+      SwordAttack: {fileID: 11400000, guid: 93e94f0fc5d573f4bb6141da37a3871e, type: 2}
+      KatanaAttack: {fileID: 11400000, guid: 364519e535acef949a9a6c5c40b48f6f, type: 2}
+    statChange:
+      innateStat: 0
+      changeType: 0
+      value: 0
+      duration: 0
+    isAttackUnlock: 1
+    isStatChange: 0
+    levelRequirement: 4
+    description: Imbue Element
+  - unlockedAttack:
+      SwordAttack: {fileID: 0}
+      KatanaAttack: {fileID: 0}
+    statChange:
+      innateStat: 0
+      changeType: 0
+      value: 0
+      duration: 0
+    isAttackUnlock: 0
+    isStatChange: 1
+    levelRequirement: 5
+    description: 
+  - unlockedAttack:
+      SwordAttack: {fileID: 0}
+      KatanaAttack: {fileID: 0}
+    statChange:
+      innateStat: 0
+      changeType: 0
+      value: 0
+      duration: 0
+    isAttackUnlock: 0
+    isStatChange: 1
+    levelRequirement: 6
+    description: 
+  - unlockedAttack:
+      SwordAttack: {fileID: 11400000, guid: da7f9306f6310044f8349c49c8210b4d, type: 2}
+      KatanaAttack: {fileID: 11400000, guid: da7f9306f6310044f8349c49c8210b4d, type: 2}
+    statChange:
+      innateStat: 0
+      changeType: 0
+      value: 0
+      duration: 0
+    isAttackUnlock: 1
+    isStatChange: 0
+    levelRequirement: 7
+    description: Ice Spikes
+  - unlockedAttack:
+      SwordAttack: {fileID: 0}
+      KatanaAttack: {fileID: 0}
+    statChange:
+      innateStat: 0
+      changeType: 0
+      value: 0
+      duration: 0
+    isAttackUnlock: 0
+    isStatChange: 1
+    levelRequirement: 8
+    description: 
+  - unlockedAttack:
+      SwordAttack: {fileID: 0}
+      KatanaAttack: {fileID: 0}
+    statChange:
+      innateStat: 0
+      changeType: 0
+      value: 0
+      duration: 0
+    isAttackUnlock: 0
+    isStatChange: 1
+    levelRequirement: 9
+    description: 

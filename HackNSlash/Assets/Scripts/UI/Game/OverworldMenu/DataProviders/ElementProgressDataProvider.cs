@@ -130,7 +130,7 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
         var attacks = new List<AttackDisplayData>();
         foreach (var entry in entries)
         {
-            if (entry.unlockedAttack != null)
+            if (entry.isAttackUnlock && entry.unlockedAttack != null)
             {
                 attacks.Add(ConvertToDisplayData(entry.unlockedAttack, element));
             }
@@ -169,6 +169,7 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
         
         Debug.Log($"Assigned attack {availableAttacks[attackIndex].attackName} to {keyBind} button for {element}");
         
+        RefreshLookup();
         var attackToAssign = attackLookup.ContainsKey(availableAttacks[attackIndex].attackName) 
             ? attackLookup[availableAttacks[attackIndex].attackName] 
             : null;
