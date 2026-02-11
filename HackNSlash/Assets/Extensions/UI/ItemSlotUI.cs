@@ -39,6 +39,7 @@ namespace Extensions.UI
         private int slotIndex = -1;
         private bool isEmpty = true;
         private bool isSelected = false;
+        private EquippedItemDisplayData currentData; // Store current item data
         
         #region Public Methods
         
@@ -58,6 +59,8 @@ namespace Extensions.UI
         /// <param name="data">The item data to display.</param>
         public void SetItemData(EquippedItemDisplayData data)
         {
+            currentData = data; // Store for later retrieval
+            
             if (data == null || data.isEmpty)
             {
                 SetEmpty();
@@ -87,6 +90,7 @@ namespace Extensions.UI
         public void SetEmpty()
         {
             isEmpty = true;
+            currentData = null; // Clear stored data
             
             if (iconImage != null)
                 iconImage.enabled = false;
@@ -109,6 +113,12 @@ namespace Extensions.UI
         /// Gets whether the slot is empty.
         /// </summary>
         public bool IsEmpty() => isEmpty;
+        
+        /// <summary>
+        /// Gets the currently displayed item data.
+        /// Returns null if slot is empty.
+        /// </summary>
+        public EquippedItemDisplayData GetCurrentItemData() => currentData;
         
         /// <summary>
         /// Forces deselection without EventSystem involvement.

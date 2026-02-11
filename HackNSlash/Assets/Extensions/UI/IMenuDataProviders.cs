@@ -107,7 +107,7 @@ namespace Extensions.UI
         /// <param name="element">The element type.</param>
         /// <param name="buttonIndex">The button index (0=X, 1=Y, 2=A).</param>
         /// <param name="attackIndex">The index of the attack to assign.</param>
-        void AssignAttack(ElementEffect element, int buttonIndex, int attackIndex);
+        bool AssignAttack(ElementEffect element, int buttonIndex, int attackIndex);
     }
     
     /// <summary>
