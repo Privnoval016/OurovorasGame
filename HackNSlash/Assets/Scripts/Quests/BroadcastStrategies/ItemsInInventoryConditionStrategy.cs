@@ -36,7 +36,7 @@ public class ItemsInInventoryConditionStrategy : IQuestConditionStrategy
     {
         Debug.Log("OnInventoryUpdate");
         
-        InventoryInfo inventory = player.pi.inventoryInfo;
+        InventoryInfo inventory = player.rps.inventoryInfo;
         
         foreach (var req in requiredItems)
         {

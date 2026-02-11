@@ -10,7 +10,7 @@ using UnityEngine;
 /// </summary>
 public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
 {
-    private PlayerInventory playerInventory;
+    private RuntimePlayerStatus runtimePlayerStatus;
     private InventoryInfo inventoryInfo;
     
     #region MonoBehaviour Callbacks
@@ -23,8 +23,8 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
             
             if (playerController != null)
             {
-                playerInventory = playerController.pi;
-                inventoryInfo = playerInventory.inventoryInfo;
+                runtimePlayerStatus = playerController.rps;
+                inventoryInfo = runtimePlayerStatus.inventoryInfo;
             }
         }
         catch (System.Exception e)
@@ -67,14 +67,14 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// </summary>
     public Extensions.UI.EquippedItemDisplayData GetEquippedAccessory(int slotIndex)
     {
-        if (playerInventory == null || playerInventory.CurrentLoadout == null)
+        if (runtimePlayerStatus == null || runtimePlayerStatus.CurrentLoadout == null)
             return Extensions.UI.EquippedItemDisplayData.Empty();
         
-        if (playerInventory.CurrentLoadout.equippedAccessories == null ||
-            slotIndex < 0 || slotIndex >= playerInventory.CurrentLoadout.equippedAccessories.Length)
+        if (runtimePlayerStatus.CurrentLoadout.equippedAccessories == null ||
+            slotIndex < 0 || slotIndex >= runtimePlayerStatus.CurrentLoadout.equippedAccessories.Length)
             return Extensions.UI.EquippedItemDisplayData.Empty();
         
-        Accessory accessory = playerInventory.CurrentLoadout.equippedAccessories[slotIndex];
+        Accessory accessory = runtimePlayerStatus.CurrentLoadout.equippedAccessories[slotIndex];
         
         if (accessory == null)
             return Extensions.UI.EquippedItemDisplayData.Empty();
@@ -106,13 +106,13 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <returns>True if successfully equipped</returns>
     public bool EquipAccessory(int slotIndex, ItemUIInfo item)
     {
-        if (playerInventory == null || playerInventory.CurrentLoadout == null || inventoryInfo == null)
+        if (runtimePlayerStatus == null || runtimePlayerStatus.CurrentLoadout == null || inventoryInfo == null)
         {
             Debug.LogWarning("EquipmentDataProvider: Cannot equip accessory, data not available!");
             return false;
         }
         
-        if (slotIndex < 0 || slotIndex >= playerInventory.CurrentLoadout.equippedAccessories.Length)
+        if (slotIndex < 0 || slotIndex >= runtimePlayerStatus.CurrentLoadout.equippedAccessories.Length)
         {
             Debug.LogWarning($"EquipmentDataProvider: Invalid slot index {slotIndex}!");
             return false;
@@ -129,7 +129,7 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
         }
         
         Accessory accessory = matchingStack.item as Accessory;
-        playerInventory.CurrentLoadout.equippedAccessories[slotIndex] = accessory;
+        runtimePlayerStatus.CurrentLoadout.equippedAccessories[slotIndex] = accessory;
         
         Debug.Log($"EquipmentDataProvider: Equipped {accessory.itemName} to accessory slot {slotIndex}");
         return true;

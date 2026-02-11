@@ -518,7 +518,7 @@ public class PlayerStateMachine : MonoBehaviour
         
         #region Elemental Attack
 
-        Attack[] elementAttacks = pc.pcc.CurrentElementLoadout?.GetElementAttacks(pc.pcc.currentElementEffect, movingState);
+        Attack[] elementAttacks = pc.rps.CurrentElementLoadout?.GetElementAttacks(pc.pcc.currentElementEffect, movingState);
 
         SpiritAttack s = null;
         foreach (var e in elementAttacks)

@@ -114,7 +114,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     private void Start()
     {
         UpdateElementalAttackIcons();
-        elementSwapDial.SetDial(pc.pcc.elementEffects.ToList(), pc.pcc.currentElementEffect);
+        elementSwapDial.SetDial(pc.rps.elementEffects.ToList(), pc.pcc.currentElementEffect);
         InitializeElementSwapMenu();
     }
 
@@ -212,7 +212,7 @@ public class HUDMenuUI : MonoBehaviour, IService
         for (int i = 0; i < elementIcons.Length; i++)
         {
             elementIconRects[i] = elementIcons[i].GetComponent<RectTransform>();
-            ElementEffect element = pc.pcc.elementEffects[i];
+            ElementEffect element = pc.rps.elementEffects[i];
             
             // Set icon sprite later
             elementIcons[i].color = Services.Get<ElementSystem>().GetElementData(element).elementInactiveColor;
@@ -320,7 +320,7 @@ public class HUDMenuUI : MonoBehaviour, IService
             }
             else
             {
-                elementIcons[i].color = Services.Get<ElementSystem>().GetElementData(pc.pcc.elementEffects[i]).elementInactiveColor;
+                elementIcons[i].color = Services.Get<ElementSystem>().GetElementData(pc.rps.elementEffects[i]).elementInactiveColor;
                 if (i == selectedElementIndex)
                     Tween.Scale(elementIconRects[i], radialMenuDefaultScale, 0.1f, useUnscaledTime: true);
             }

@@ -17,14 +17,15 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [Header("Components")] 
     
     public BaseStats baseStats;
-    [FormerlySerializedAs("statData")] public BattleParameters battleParameters;
+    public BattleParameters battleParameters;
     
     #endregion
 
     #region Stat Info
 
     [Header("Stat Info")] 
-    [field: SerializeField] public int Level { get; private set; } = 10;
+    
+    public int Level => pc.rps.Level;
     
     [field: SerializeField] public float CurrentHealth { get; private set; }
     [field: SerializeField] public float CurrentElementCharge { get; private set; }
@@ -71,8 +72,14 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     private void InitializeStats()
     {
-        EvaluatedStats = new EvaluatedStats(baseStats, () => Level);
+        EvaluatedStats = new EvaluatedStats(baseStats, () => pc.rps.Level);
 
+        foreach (var item in pc.rps.elementUnlocks)
+        {
+            item.Initialize(Stats);
+        }
+        
+        
         CurrentHealth = 0f;
         CurrentElementCharge = 0f;
         CurrentUltimateCharge = 0f;
@@ -187,7 +194,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public void TryResetFinisherCharge(Attack a)
     {
-        if (a != null && !pc.pcc.CurrentElementLoadout.AttackIsFinisher(a)) return;
+        if (a != null && !pc.rps.CurrentElementLoadout.AttackIsFinisher(a)) return;
         ResetFinisherCharge();
     }
     
@@ -214,7 +221,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public bool CanUseFinisher(Attack a = null)
     {
-        if (a != null && !pc.pcc.CurrentElementLoadout.AttackIsFinisher(a)) return true;
+        if (a != null && !pc.rps.CurrentElementLoadout.AttackIsFinisher(a)) return true;
 
         LockOnTarget target = pc.pi.pc.psm.NearestHEnemy;
 
@@ -255,7 +262,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public EvaluatedStats Stats => EvaluatedStats;
 
     public IEnumerable<IDamageRule> DamageEvalRules
-        => pc.pi.CurrentLoadout?.equippedAccessories?.SelectMany(acc => acc?.ContributeRules() ?? Enumerable.Empty<IDamageRule>()) 
+        => pc.rps.CurrentLoadout?.equippedAccessories?.SelectMany(acc => acc?.ContributeRules() ?? Enumerable.Empty<IDamageRule>()) 
            ?? Enumerable.Empty<IDamageRule>();
 
     #endregion

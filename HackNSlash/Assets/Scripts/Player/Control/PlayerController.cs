@@ -30,6 +30,7 @@ public class PlayerController : KinematicBehaviour, IService
     [HideInInspector] public PlayerStats ps;
     [HideInInspector] public OnAttackEvents oae;
     [HideInInspector] public OnHitEvents ohe;
+    [HideInInspector] public RuntimePlayerStatus rps;
     
     public PlayerSaveBinding saveBinding;
     
@@ -56,6 +57,7 @@ public class PlayerController : KinematicBehaviour, IService
         oae = GetComponent<OnAttackEvents>();
         ohe = GetComponent<OnHitEvents>();
         ps = GetComponent<PlayerStats>();
+        rps = GetComponent<RuntimePlayerStatus>();
         
         saveBinding = GetComponent<PlayerSaveBinding>();
 

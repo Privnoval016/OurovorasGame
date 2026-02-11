@@ -22,21 +22,17 @@ public class PlayerCombatControl : MonoBehaviour
     #region Element Info
     
     [Header("Element Info")]
-    
-    public ElementLoadout[] elementLoadouts;
-    public int currentElementLoadoutIndex = 0;
-    public ElementLoadout CurrentElementLoadout => elementLoadouts.Length > 0 ? elementLoadouts[currentElementLoadoutIndex] : null;
 
     public ElementEffect currentElementEffect = ElementEffect.None;
     public ElementEffect imbuedElementEffect = ElementEffect.None;
-
-    public ElementEffect[] elementEffects = Array.Empty<ElementEffect>();
     
-    public int CurrentElementIndex => elementEffects.ToList().IndexOf(currentElementEffect);
+    public int CurrentElementIndex => pc.rps.elementEffects.ToList().IndexOf(currentElementEffect);
+    
+    // old
     private RadialMenuOption<ElementEffect> CurrentElementOption => ElementRadialMenu.GetOption(CurrentElementIndex);
     
     public RadialMenu<ElementEffect> ElementRadialMenu;
-    
+    // end old
     
     #endregion
     
@@ -52,7 +48,7 @@ public class PlayerCombatControl : MonoBehaviour
         InputManager.Instance.onElementSwapLeft += OnElementSwapLeftAction;
         InputManager.Instance.onElementSwapRight += OnElementSwapRightAction;
         
-        CurrentElementLoadout?.ValidateElementAttacks();
+        pc.rps.CurrentElementLoadout?.ValidateElementAttacks();
 
         ActivateAttacksFromSkillTree();
     }
@@ -109,16 +105,16 @@ public class PlayerCombatControl : MonoBehaviour
     {
         if (!context.performed) return;
 
-        int nextIndex = (CurrentElementIndex - 1 + elementEffects.Length) % elementEffects.Length;
-        SwapElement(-1, elementEffects[nextIndex]);
+        int nextIndex = (CurrentElementIndex - 1 + pc.rps.elementEffects.Length) % pc.rps.elementEffects.Length;
+        SwapElement(-1, pc.rps.elementEffects[nextIndex]);
     }
     
     private void OnElementSwapRightAction(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
 
-        int nextIndex = (CurrentElementIndex + 1) % elementEffects.Length;
-        SwapElement(1, elementEffects[nextIndex]);
+        int nextIndex = (CurrentElementIndex + 1) % pc.rps.elementEffects.Length;
+        SwapElement(1, pc.rps.elementEffects[nextIndex]);
     }
 
     #endregion
@@ -153,9 +149,9 @@ public class PlayerCombatControl : MonoBehaviour
     
     public bool AttackInElementLoadout(Attack attack)
     {
-        if (CurrentElementLoadout == null) return false;
+        if (pc.rps.CurrentElementLoadout == null) return false;
         
-        return CurrentElementLoadout.GetElementAttack(currentElementEffect)?.AttackInLoadout(attack) ?? false;
+        return pc.rps.CurrentElementLoadout.GetElementAttack(currentElementEffect)?.AttackInLoadout(attack) ?? false;
     }
 
     #endregion
@@ -164,27 +160,27 @@ public class PlayerCombatControl : MonoBehaviour
     
     public EquippedElementAttack GetCurrentElementAttack()
     {
-        return CurrentElementLoadout?.GetElementAttack(currentElementEffect);
+        return pc.rps.CurrentElementLoadout?.GetElementAttack(currentElementEffect);
     }
 
     public float GetElementAttackChargePercentage(KeyBind k)
     {
-        float keybindCooldown = CurrentElementLoadout?.GetMinCharge(k) ?? 0f;
+        float keybindCooldown = pc.rps.CurrentElementLoadout?.GetMinCharge(k) ?? 0f;
         
         return keybindCooldown > 0 ? Mathf.Clamp01(pc.ps.CurrentElementCharge / keybindCooldown) : 1f;
     }
 
     private void InitializeElementMenu()
     {
-        RadialMenuOption<ElementEffect>[] elementOptions = new RadialMenuOption<ElementEffect>[elementEffects.Length];
-        for (int i = 0; i < elementEffects.Length; i++)
+        RadialMenuOption<ElementEffect>[] elementOptions = new RadialMenuOption<ElementEffect>[pc.rps.elementEffects.Length];
+        for (int i = 0; i < pc.rps.elementEffects.Length; i++)
         {
-            elementOptions[i] = new RadialMenuOption<ElementEffect>(i, elementEffects[i]);
+            elementOptions[i] = new RadialMenuOption<ElementEffect>(i, pc.rps.elementEffects[i]);
         }
         
         ElementRadialMenu = new RadialMenu<ElementEffect>(elementOptions, Vector2.up);
         
-        SwapElement(0, elementEffects.Length > 0 ? elementEffects[0] : ElementEffect.Wind);
+        SwapElement(0, pc.rps.elementEffects.Length > 0 ? pc.rps.elementEffects[0] : ElementEffect.Wind);
     }
 
     public void SwapElement(int direction, ElementEffect next)
@@ -217,7 +213,7 @@ public class PlayerCombatControl : MonoBehaviour
     
     public float GetCooldownPercentage(KeyBind k)
     {
-        float minCharge = CurrentElementLoadout.GetMinCharge(k);
+        float minCharge = pc.rps.CurrentElementLoadout.GetMinCharge(k);
 
         if (minCharge <= 0) return 1f;
 
