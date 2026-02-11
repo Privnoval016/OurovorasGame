@@ -18,6 +18,17 @@ public class Accessory : InventoryItem
             yield return effect.GetRule();
         }
     }
+    
+    public void InitializeEffects(EvaluatedStats stats)
+    {
+        var modifierFactory = new StatModifierFactory();
+        
+        foreach (var statChange in statChanges)
+        {
+            var modifier = modifierFactory.Create(statChange);
+            stats.StatMediator.AddModifier(modifier);
+        }
+    }
 }
 
 public interface IEquipmentEffect

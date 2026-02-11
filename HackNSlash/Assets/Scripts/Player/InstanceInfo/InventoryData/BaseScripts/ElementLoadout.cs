@@ -27,6 +27,11 @@ public class ElementLoadout : SerializedScriptableObject
     
     #region Element Methods
     
+    /**
+     * <summary>
+     * Sets the attack for a given element and keybind. Returns true if the attack was successfully set, false otherwise.
+     * </summary>
+     */
     public bool SetElementAttack(ElementEffect elementEffect, AttacksByWeapon attack, KeyBind k)
     {
         if (!elementAttackMap.TryGetValue(elementEffect, out var elementAttack))

@@ -11,7 +11,7 @@ using UnityEngine;
 public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider
 {
     private PlayerController playerController;
-    private PlayerInventory playerInventory;
+    private RuntimePlayerStatus runtimePlayerStatus;
     private PlayerStats playerStats;
     
     #region MonoBehaviour Callbacks
@@ -30,7 +30,7 @@ public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider
         
         if (playerController != null)
         {
-            playerInventory = playerController.pi;
+            runtimePlayerStatus = playerController.rps;
             playerStats = playerController.ps;
         }
     }
@@ -69,7 +69,7 @@ public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider
     /// </summary>
     public Extensions.UI.EquippedItemDisplayData[] GetEquippedItems()
     {
-        if (playerInventory == null || playerInventory.CurrentLoadout == null)
+        if (runtimePlayerStatus == null || runtimePlayerStatus.CurrentLoadout == null)
         {
             Debug.LogWarning("PlayerDataProvider: PlayerInventory or CurrentLoadout not available!");
             return new Extensions.UI.EquippedItemDisplayData[6]; // 3 accessories + 3 passives
@@ -80,9 +80,9 @@ public class PlayerDataProvider : MonoBehaviour, IPlayerDataProvider
         // Get equipped accessories
         for (int i = 0; i < 3; i++)
         {
-            Accessory accessory = playerInventory.CurrentLoadout.equippedAccessories != null && 
-                                  i < playerInventory.CurrentLoadout.equippedAccessories.Length
-                ? playerInventory.CurrentLoadout.equippedAccessories[i]
+            Accessory accessory = runtimePlayerStatus.CurrentLoadout.equippedAccessories != null && 
+                                  i < runtimePlayerStatus.CurrentLoadout.equippedAccessories.Length
+                ? runtimePlayerStatus.CurrentLoadout.equippedAccessories[i]
                 : null;
             
             if (accessory != null)

@@ -10,7 +10,7 @@ using UnityEngine;
 /// </summary>
 public class InventoryDataProvider : MonoBehaviour, IInventoryDataProvider, IService
 {
-    private PlayerInventory playerInventory;
+    private RuntimePlayerStatus runtimePlayerStatus;
     private InventoryInfo inventoryInfo;
     
     #region MonoBehaviour Callbacks
@@ -26,8 +26,8 @@ public class InventoryDataProvider : MonoBehaviour, IInventoryDataProvider, ISer
         
         if (playerController != null)
         {
-            playerInventory = playerController.pi;
-            inventoryInfo = playerInventory.inventoryInfo;
+            runtimePlayerStatus = playerController.rps;
+            inventoryInfo = runtimePlayerStatus.inventoryInfo;
         }
     }
     

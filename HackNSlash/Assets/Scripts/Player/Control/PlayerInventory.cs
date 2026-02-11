@@ -17,12 +17,6 @@ public class PlayerInventory : MonoBehaviour
     #region Loadout Info
     
     [Header("Loadout Info")]
-
-    public EquipmentLoadout[] loadouts = Array.Empty<EquipmentLoadout>();
-    public int currentLoadoutIndex = 0;
-    public EquipmentLoadout CurrentLoadout => loadouts.Length > 0 ? loadouts[currentLoadoutIndex] : null;
-    
-    public InventoryInfo inventoryInfo;
     
     public InventoryItem testItem;
 
@@ -33,7 +27,7 @@ public class PlayerInventory : MonoBehaviour
     private void Awake()
     {
         pc = GetComponent<PlayerController>();
-        inventoryInfo?.Initialize();
+        pc.rps.inventoryInfo?.Initialize();
     }
 
     private void Update()
@@ -56,13 +50,13 @@ public class PlayerInventory : MonoBehaviour
     
     public void SwitchLoadout(int loadoutIndex)
     {
-        if (loadoutIndex < 0 || loadoutIndex >= loadouts.Length)
+        if (loadoutIndex < 0 || loadoutIndex >= pc.rps.loadouts.Length)
         {
             Debug.LogWarning("Invalid loadout index");
             return;
         }
 
-        currentLoadoutIndex = loadoutIndex;
+        pc.rps.currentLoadoutIndex = loadoutIndex;
         EventBus<OnLoadoutChangedEvent>.Raise(new OnLoadoutChangedEvent
         {
             playerInventory = this
@@ -72,7 +66,7 @@ public class PlayerInventory : MonoBehaviour
     public void AddItemToInventory(InventoryItem item, int amount = 1)
     {
         Debug.Log("Adding item to player inventory");
-        inventoryInfo.AddItem(item, amount);
+        pc.rps.inventoryInfo.AddItem(item, amount);
         EventBus<OnInventoryUpdatedEvent>.Raise(new OnInventoryUpdatedEvent
         {
             playerInventory = this,
@@ -82,7 +76,7 @@ public class PlayerInventory : MonoBehaviour
     
     public void RemoveItemFromInventory(InventoryItem item, int amount = 1)
     {
-        InventoryItem removedItem = inventoryInfo.RemoveItem(item, amount);
+        InventoryItem removedItem = pc.rps.inventoryInfo.RemoveItem(item, amount);
         
         if (removedItem != null)
         {

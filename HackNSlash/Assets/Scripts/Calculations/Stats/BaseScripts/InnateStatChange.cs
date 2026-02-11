@@ -3,7 +3,7 @@ using Extensions.Modifiers;
 using UnityEngine;
 
 [Serializable]
-public struct InnateStatChange : IModifierProvider
+public class InnateStatChange : IModifierProvider
 {
     
     public InnateStat innateStat;

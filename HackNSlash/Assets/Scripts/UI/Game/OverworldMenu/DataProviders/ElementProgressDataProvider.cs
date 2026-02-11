@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.UI;
@@ -10,8 +11,10 @@ using UnityEngine;
 /// </summary>
 public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataProvider
 {
-    private PlayerInventory playerInventory;
+    private RuntimePlayerStatus runtimePlayerStatus;
     private ElementLoadout elementLoadout;
+    
+    private Dictionary<string, AttacksByWeapon> attackLookup = new Dictionary<string, AttacksByWeapon>();
     
     #region MonoBehaviour Callbacks
     
@@ -23,10 +26,10 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
             
             if (playerController != null)
             {
-                playerInventory = playerController.pi;
+                runtimePlayerStatus = playerController.rps;
                 
-                if (playerInventory?.CurrentLoadout != null)
-                    elementLoadout = playerController.pcc.CurrentElementLoadout;
+                if (runtimePlayerStatus?.CurrentLoadout != null)
+                    elementLoadout = playerController.rps.CurrentElementLoadout;
             }
         }
         catch (System.Exception e)
@@ -44,22 +47,27 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
     /// </summary>
     public ElementProgressData GetElementProgress(ElementEffect element)
     {
-        // TODO: Implement element progression system
-        var progressData = new ElementProgressData
+        if (runtimePlayerStatus == null)
         {
-            element = element,
-            currentLevel = 1,
-            progressToNextLevel = 0.3f,
-            levelDescriptions = new string[10]
-        };
-        
-        // Placeholder descriptions
-        for (int i = 0; i < 10; i++)
-        {
-            progressData.levelDescriptions[i] = $"{element} Level {i + 1} - Unlocks new abilities and stat bonuses";
+            Debug.LogWarning("ElementProgressDataProvider: RuntimePlayerStatus not available!");
+            return new ElementProgressData { element = element, currentLevel = 0, progressToNextLevel = 0f };
         }
         
-        return progressData;
+        var unlockInfo = runtimePlayerStatus.elementUnlocks.FirstOrDefault(e => e.elementUnlock.element == element);
+        
+        if (unlockInfo == null)
+        {
+            Debug.LogWarning($"ElementProgressDataProvider: No unlock info found for element {element}!");
+            return new ElementProgressData { element = element, currentLevel = 0, progressToNextLevel = 0f };
+        }
+        
+        return new ElementProgressData
+        {
+            element = element,
+            currentLevel = unlockInfo.CurrentLevel,
+            progressToNextLevel = unlockInfo.unlockLevelProgress - unlockInfo.CurrentLevel,
+            levelDescriptions = unlockInfo.elementUnlock.progressionEntries.Select(e => e.description).ToArray()
+        };
     }
     
     /// <summary>
@@ -67,14 +75,7 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
     /// </summary>
     public ElementEffect[] GetAvailableElements()
     {
-        return new ElementEffect[]
-        {
-            ElementEffect.Fire,
-            ElementEffect.Ice,
-            ElementEffect.Lightning,
-            ElementEffect.Earth,
-            ElementEffect.Wind
-        };
+        return runtimePlayerStatus?.elementEffects ?? Array.Empty<ElementEffect>();
     }
     
     /// <summary>
@@ -98,9 +99,9 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
         var displayData = new AttackDisplayData[3];
         
         // Get attacks for each button (West=X, North=Y, South=A in Xbox controller layout)
-        displayData[0] = ConvertToDisplayData(equippedAttacks.westAttack?.SwordAttack, element);
-        displayData[1] = ConvertToDisplayData(equippedAttacks.northAttack?.SwordAttack, element);
-        displayData[2] = ConvertToDisplayData(equippedAttacks.southAttack?.SwordAttack, element);
+        displayData[0] = ConvertToDisplayData(equippedAttacks.westAttack, element);
+        displayData[1] = ConvertToDisplayData(equippedAttacks.northAttack, element);
+        displayData[2] = ConvertToDisplayData(equippedAttacks.southAttack, element);
         
         return displayData;
     }
@@ -110,36 +111,30 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
     /// </summary>
     public List<AttackDisplayData> GetAvailableAttacks(ElementEffect element)
     {
+        if (runtimePlayerStatus == null)
+        {
+            Debug.LogWarning("ElementProgressDataProvider: RuntimePlayerStatus not available!");
+            return new List<AttackDisplayData>();
+        }
+        
+        var elementUnlocks = runtimePlayerStatus.elementUnlocks.FirstOrDefault(e => e.elementUnlock.element == element);
+        
+        if (elementUnlocks == null)
+        {
+            Debug.LogWarning($"ElementProgressDataProvider: No unlock info found for element {element}!");
+            return new List<AttackDisplayData>();
+        }
+
+        var entries = elementUnlocks.GetUnlockedEntries();
+        
         var attacks = new List<AttackDisplayData>();
-        
-        // TODO: Get actual attacks from skill tree or attack data
-        // For now, return placeholder data
-        attacks.Add(new AttackDisplayData
+        foreach (var entry in entries)
         {
-            attackName = $"{element} Strike",
-            description = "A basic elemental attack",
-            element = element,
-            isUnlocked = true,
-            isEquipped = false
-        });
-        
-        attacks.Add(new AttackDisplayData
-        {
-            attackName = $"{element} Slash",
-            description = "A powerful elemental slash",
-            element = element,
-            isUnlocked = true,
-            isEquipped = false
-        });
-        
-        attacks.Add(new AttackDisplayData
-        {
-            attackName = $"{element} Burst",
-            description = "An explosive elemental attack",
-            element = element,
-            isUnlocked = true,
-            isEquipped = false
-        });
+            if (entry.unlockedAttack != null)
+            {
+                attacks.Add(ConvertToDisplayData(entry.unlockedAttack, element));
+            }
+        }
         
         return attacks;
     }
@@ -172,28 +167,52 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
             _ => KeyBind.West
         };
         
-        // TODO: Get actual attack object and set it
         Debug.Log($"Assigned attack {availableAttacks[attackIndex].attackName} to {keyBind} button for {element}");
+        
+        var attackToAssign = attackLookup.ContainsKey(availableAttacks[attackIndex].attackName) 
+            ? attackLookup[availableAttacks[attackIndex].attackName] 
+            : null;
+        
+        elementLoadout.SetElementAttack(element, attackToAssign, keyBind);
     }
     
     #endregion
     
     #region Helper Methods
     
-    private AttackDisplayData ConvertToDisplayData(Attack attack, ElementEffect element)
+    private AttackDisplayData ConvertToDisplayData(AttacksByWeapon attack, ElementEffect element)
     {
         if (attack == null)
             return AttackDisplayData.Empty();
         
         return new AttackDisplayData
         {
-            attackName = attack.name,
+            attackName = attack.SwordAttack.name,
             description = "Attack description", // TODO: Add description field to Attack class
             icon = null, // TODO: Add icon field to Attack class
-            element = attack.element,
-            isUnlocked = attack.isEnabled,
+            element = attack.SwordAttack.element,
+            isUnlocked = attack.SwordAttack.isEnabled,
             isEquipped = true
         };
+    }
+    
+    private void RefreshLookup()
+    {
+        attackLookup.Clear();
+        
+        if (runtimePlayerStatus == null) return;
+        
+        foreach (var elementUnlock in runtimePlayerStatus.elementUnlocks)
+        {
+            var entries = elementUnlock.GetUnlockedEntries();
+            foreach (var entry in entries)
+            {
+                if (entry.unlockedAttack != null && !attackLookup.ContainsKey(entry.unlockedAttack.SwordAttack.name))
+                {
+                    attackLookup.Add(entry.unlockedAttack.SwordAttack.name, entry.unlockedAttack);
+                }
+            }
+        }
     }
     
     #endregion
