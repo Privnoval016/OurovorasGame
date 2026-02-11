@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Extensions.UI;
 using UnityEngine;
@@ -15,14 +16,13 @@ public class ElementUnlocks : ScriptableObject
         
         foreach (ElementProgressEntry entry in progressionEntries)
         {
-            if (level >= entry.levelRequirement && entry.statChange != null)
+            if (level >= entry.levelRequirement && entry.statChange != null && entry.isStatChange)
             {
                 var modifier = modifierFactory.Create(entry.statChange);
                 stats.StatMediator.AddModifier(modifier);
             }
         }
     }
-    
 }
 
 [System.Serializable]
@@ -30,6 +30,12 @@ public class ElementProgressEntry
 {
     public AttacksByWeapon unlockedAttack;
     public InnateStatChange statChange;
+    
+    [Tooltip("Whether this entry unlocks a new attack. If false, the unlockedAttack field will be ignored.")]
+    public bool isAttackUnlock = true;
+
+    [Tooltip("Whether this entry provides a stat change. If false, the statChange field will be ignored.")]
+    public bool isStatChange = false;
     
     public int levelRequirement;
     
