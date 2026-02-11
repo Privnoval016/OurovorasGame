@@ -135,7 +135,8 @@ public class CharacterStatsTab : TabSelection
         {
             foreach (var slot in equippedItemSlots)
             {
-                slot.ForceDeselect();
+                if (slot != null)
+                    slot.ForceDeselect();
             }
         }
     }

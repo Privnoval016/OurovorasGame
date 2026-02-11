@@ -25,6 +25,7 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
     [Header("UI Components - Scroll Menu")]
     [SerializeField] private ScrollMenu equipmentScrollMenu;
     [SerializeField] private GameObject scrollMenuContainer;
+    [SerializeField] private SelectableContainer scrollMenuSelectable; // Needed to receive input in scroll menu
     
     [Header("UI Components - Info Display")]
     [SerializeField] private TextMeshProUGUI currentItemNameText;
@@ -298,20 +299,25 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         if (InputManager.Instance != null)
             InputManager.Instance.onScroll += OnScrollUpdateDisplay;
         
-        // CRITICAL: Select the scroll menu container so it can receive Cancel (B button) input
-        // This makes the scroll menu receive input events
-        if (scrollMenuContainer != null && eventSystem != null)
+        // CRITICAL: Select the SelectableContainer so it can receive A/B button input
+        if (scrollMenuSelectable != null)
         {
-            // Check if container has SelectableContainer component
-            var selectableContainer = scrollMenuContainer.GetComponent<SelectableContainer>();
-            if (selectableContainer != null)
+            scrollMenuSelectable.SelectThis();
+        }
+        else
+        {
+            // If no SelectableContainer assigned, try to get it at runtime from the container
+            if (scrollMenuContainer != null)
             {
-                selectableContainer.SelectThis();
-            }
-            else
-            {
-                // Fallback: Just set it as selected even without SelectableContainer
-                eventSystem.SetSelectedGameObject(scrollMenuContainer);
+                var selectable = scrollMenuContainer.GetComponent<SelectableContainer>();
+                if (selectable != null)
+                {
+                    selectable.SelectThis();
+                }
+                else
+                {
+                    Debug.LogWarning("EquipmentTab: No SelectableContainer found! Scroll menu won't receive input.");
+                }
             }
         }
         
@@ -362,6 +368,7 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
     /// <summary>
     /// Called when user presses A button to confirm item selection in scroll menu.
     /// Equips the item but keeps scroll menu open for continued browsing.
+    /// If item is already equipped elsewhere, swaps it with the current slot.
     /// </summary>
     private void OnItemConfirmed(int itemIndex)
     {
@@ -378,7 +385,47 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
             return;
         }
         
-        // Actually equip the item via data provider
+        // CRITICAL: Check if this item is already equipped in another slot
+        // If so, swap it with the current slot instead of double-equipping
+        int existingSlotIndex = -1;
+        EquipmentSlotType existingSlotType = EquipmentSlotType.None;
+        
+        if (currentSlotType == EquipmentSlotType.Accessory)
+        {
+            existingSlotIndex = FindAccessorySlotWithItem(selectedItem);
+            existingSlotType = existingSlotIndex >= 0 ? EquipmentSlotType.Accessory : EquipmentSlotType.None;
+        }
+        else if (currentSlotType == EquipmentSlotType.Passive)
+        {
+            existingSlotIndex = FindPassiveSlotWithItem(selectedItem);
+            existingSlotType = existingSlotIndex >= 0 ? EquipmentSlotType.Passive : EquipmentSlotType.None;
+        }
+        
+        // If item is already equipped in another slot, perform a swap
+        if (existingSlotIndex >= 0 && existingSlotIndex != currentSlotIndex && existingSlotType == currentSlotType)
+        {
+            Debug.Log($"EquipmentTab: Item '{selectedItem.itemName}' is already equipped in slot {existingSlotIndex}, swapping with slot {currentSlotIndex}");
+            
+            // Perform the swap
+            bool swapped = SwapItems(currentSlotType, currentSlotIndex, existingSlotIndex);
+            
+            if (swapped)
+            {
+                UIAudio.PlayItemEquip();
+                RefreshAllSlots();
+                UpdateCurrentItemDisplay();
+                Debug.Log($"EquipmentTab: Successfully swapped items between slots {currentSlotIndex} and {existingSlotIndex}");
+            }
+            else
+            {
+                UIAudio.PlayError();
+                Debug.LogWarning($"EquipmentTab: Failed to swap items");
+            }
+            
+            return;
+        }
+        
+        // Otherwise, equip normally
         bool equipped = false;
         switch (currentSlotType)
         {
@@ -411,6 +458,116 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         
         // DON'T close scroll menu - let user continue browsing and equipping different items
         // They can press B to close when done
+    }
+    
+    /// <summary>
+    /// Finds which accessory slot has the specified item equipped.
+    /// Returns slot index or -1 if not found.
+    /// </summary>
+    private int FindAccessorySlotWithItem(ItemUIInfo item)
+    {
+        if (accessorySlots == null || item == null) return -1;
+        
+        for (int i = 0; i < accessorySlots.Length; i++)
+        {
+            if (accessorySlots[i] != null)
+            {
+                var slotData = accessorySlots[i].GetCurrentItemData();
+                if (slotData != null && !slotData.isEmpty && slotData.itemName == item.itemName)
+                {
+                    return i;
+                }
+            }
+        }
+        
+        return -1;
+    }
+    
+    /// <summary>
+    /// Finds which passive slot has the specified item equipped.
+    /// Returns slot index or -1 if not found.
+    /// </summary>
+    private int FindPassiveSlotWithItem(ItemUIInfo item)
+    {
+        if (passiveSlots == null || item == null) return -1;
+        
+        for (int i = 0; i < passiveSlots.Length; i++)
+        {
+            if (passiveSlots[i] != null)
+            {
+                var slotData = passiveSlots[i].GetCurrentItemData();
+                if (slotData != null && !slotData.isEmpty && slotData.itemName == item.itemName)
+                {
+                    return i;
+                }
+            }
+        }
+        
+        return -1;
+    }
+    
+    /// <summary>
+    /// Swaps items between two slots of the same type.
+    /// </summary>
+    private bool SwapItems(EquipmentSlotType slotType, int slotA, int slotB)
+    {
+        if (equipmentDataProvider == null) return false;
+        
+        // Get both items from data provider
+        EquippedItemDisplayData dataA = null;
+        EquippedItemDisplayData dataB = null;
+        
+        if (slotType == EquipmentSlotType.Accessory)
+        {
+            dataA = equipmentDataProvider.GetEquippedAccessory(slotA);
+            dataB = equipmentDataProvider.GetEquippedAccessory(slotB);
+            
+            // Convert to ItemUIInfo for equipping
+            ItemUIInfo itemA = ConvertToItemUIInfo(dataA);
+            ItemUIInfo itemB = ConvertToItemUIInfo(dataB);
+            
+            // Perform swap via data provider
+            if (equipmentDataProvider.EquipAccessory(slotA, itemB) && 
+                equipmentDataProvider.EquipAccessory(slotB, itemA))
+            {
+                return true;
+            }
+        }
+        else if (slotType == EquipmentSlotType.Passive)
+        {
+            dataA = equipmentDataProvider.GetEquippedPassive(slotA);
+            dataB = equipmentDataProvider.GetEquippedPassive(slotB);
+            
+            // Convert to ItemUIInfo for equipping
+            ItemUIInfo itemA = ConvertToItemUIInfo(dataA);
+            ItemUIInfo itemB = ConvertToItemUIInfo(dataB);
+            
+            // Perform swap via data provider
+            if (equipmentDataProvider.EquipPassive(slotA, itemB) && 
+                equipmentDataProvider.EquipPassive(slotB, itemA))
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// Converts EquippedItemDisplayData to ItemUIInfo.
+    /// Returns null if data is empty.
+    /// </summary>
+    private ItemUIInfo ConvertToItemUIInfo(EquippedItemDisplayData data)
+    {
+        if (data == null || data.isEmpty) return null;
+        
+        return new ItemUIInfo
+        {
+            itemName = data.itemName,
+            itemDescription = data.itemDescription,
+            icon = data.icon,
+            itemRarity = data.rarity
+        };
     }
     
     /// <summary>

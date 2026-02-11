@@ -12,7 +12,7 @@ namespace Extensions.UI
     /// Shows element icon/name and supports controller navigation with visual feedback.
     /// Completely modular and reusable.
     /// </summary>
-    public class ElementSlotUI : Selectable, ISelectHandler, IDeselectHandler, ISubmitHandler
+    public class ElementSlotUI : Selectable, ISubmitHandler
     {
         [Header("UI References")]
         [SerializeField] private Image iconImage;
@@ -28,6 +28,7 @@ namespace Extensions.UI
         
         [Header("Events")]
         [SerializeField] private UnityEvent<int> onElementSelected;
+        [SerializeField] private UnityEvent<int> onElementHovered; // NEW: For updating UI without transitioning
         
         private ElementEffect element;
         private int elementIndex;
@@ -63,7 +64,7 @@ namespace Extensions.UI
         /// <summary>
         /// Called when element slot is selected with controller.
         /// </summary>
-        public void OnSelect(BaseEventData eventData)
+        public override void OnSelect(BaseEventData eventData)
         {
             isSelected = true;
             UpdateVisuals();
@@ -71,13 +72,16 @@ namespace Extensions.UI
             // Scale up animation
             Tween.Scale(transform, originalScale * selectedScale, animationDuration, Ease.OutBack, useUnscaledTime: true);
             
+            // Fire hover event to update UI without transitioning
+            onElementHovered?.Invoke(elementIndex);
+            
             UIAudio.PlayHover();
         }
         
         /// <summary>
         /// Called when element slot is deselected.
         /// </summary>
-        public void OnDeselect(BaseEventData eventData)
+        public override void OnDeselect(BaseEventData eventData)
         {
             isSelected = false;
             UpdateVisuals();

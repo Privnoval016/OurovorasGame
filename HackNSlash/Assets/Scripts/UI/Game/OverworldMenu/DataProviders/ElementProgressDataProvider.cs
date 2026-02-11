@@ -16,6 +16,9 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
     
     private Dictionary<string, AttacksByWeapon> attackLookup = new Dictionary<string, AttacksByWeapon>();
     
+    // Cache display data to maintain consistent references across multiple calls
+    private Dictionary<string, AttackDisplayData> attackDisplayDataCache = new Dictionary<string, AttackDisplayData>();
+    
     #region MonoBehaviour Callbacks
     
     private void Start()
@@ -142,12 +145,12 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
     /// <summary>
     /// Assigns an attack to a button for the specified element.
     /// </summary>
-    public void AssignAttack(ElementEffect element, int buttonIndex, int attackIndex)
+    public bool AssignAttack(ElementEffect element, int buttonIndex, int attackIndex)
     {
         if (elementLoadout == null)
         {
             Debug.LogWarning("ElementProgressDataProvider: Cannot assign attack, ElementLoadout not available!");
-            return;
+            return false;
         }
         
         var availableAttacks = GetAvailableAttacks(element);
@@ -155,7 +158,7 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
         if (attackIndex < 0 || attackIndex >= availableAttacks.Count)
         {
             Debug.LogWarning($"ElementProgressDataProvider: Invalid attack index {attackIndex}!");
-            return;
+            return false;
         }
         
         // Convert button index to KeyBind
@@ -167,14 +170,27 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
             _ => KeyBind.West
         };
         
-        Debug.Log($"Assigned attack {availableAttacks[attackIndex].attackName} to {keyBind} button for {element}");
+        Debug.Log($"ElementProgressDataProvider: Assigning attack '{availableAttacks[attackIndex].attackName}' to {keyBind} button for {element}");
         
         RefreshLookup();
+        
+        if (attackLookup == null || attackLookup.Count == 0)
+        {
+            Debug.LogWarning("ElementProgressDataProvider: Attack lookup is empty after refresh!");
+            return false;
+        }
+        
         var attackToAssign = attackLookup.ContainsKey(availableAttacks[attackIndex].attackName) 
             ? attackLookup[availableAttacks[attackIndex].attackName] 
             : null;
         
-        elementLoadout.SetElementAttack(element, attackToAssign, keyBind);
+        if (attackToAssign == null)
+        {
+            Debug.LogWarning($"ElementProgressDataProvider: Could not find attack '{availableAttacks[attackIndex].attackName}' in lookup!");
+            return false;
+        }
+        
+        return elementLoadout.SetElementAttack(element, attackToAssign, keyBind);
     }
     
     #endregion
@@ -186,29 +202,59 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
         if (attack == null)
             return AttackDisplayData.Empty();
         
-        return new AttackDisplayData
+        string attackName = attack.SwordAttack.name;
+        
+        // Return cached instance if it exists
+        if (attackDisplayDataCache.ContainsKey(attackName))
         {
-            attackName = attack.SwordAttack.name,
+            return attackDisplayDataCache[attackName];
+        }
+        
+        // Create new instance and cache it
+        var displayData = new AttackDisplayData
+        {
+            attackName = attackName,
             description = "Attack description", // TODO: Add description field to Attack class
             icon = null, // TODO: Add icon field to Attack class
             element = attack.SwordAttack.element,
             isUnlocked = attack.SwordAttack.isEnabled,
             isEquipped = true
         };
+        
+        attackDisplayDataCache[attackName] = displayData;
+        return displayData;
     }
     
     private void RefreshLookup()
     {
         attackLookup.Clear();
         
-        if (runtimePlayerStatus == null) return;
+        if (runtimePlayerStatus == null)
+        {
+            Debug.LogWarning("ElementProgressDataProvider: Cannot refresh lookup - RuntimePlayerStatus is null!");
+            return;
+        }
+        
+        if (runtimePlayerStatus.elementUnlocks == null)
+        {
+            Debug.LogWarning("ElementProgressDataProvider: Cannot refresh lookup - elementUnlocks is null!");
+            return;
+        }
         
         foreach (var elementUnlock in runtimePlayerStatus.elementUnlocks)
         {
+            if (elementUnlock == null) continue;
+            
             var entries = elementUnlock.GetUnlockedEntries();
+            if (entries == null) continue;
+            
             foreach (var entry in entries)
             {
-                if (entry.unlockedAttack != null && !attackLookup.ContainsKey(entry.unlockedAttack.SwordAttack.name))
+                if (entry == null) continue;
+                
+                if (entry.unlockedAttack != null && 
+                    entry.unlockedAttack.SwordAttack != null &&
+                    !attackLookup.ContainsKey(entry.unlockedAttack.SwordAttack.name))
                 {
                     attackLookup.Add(entry.unlockedAttack.SwordAttack.name, entry.unlockedAttack);
                 }
