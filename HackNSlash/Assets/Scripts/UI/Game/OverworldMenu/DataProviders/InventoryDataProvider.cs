@@ -38,15 +38,15 @@ public class InventoryDataProvider : MonoBehaviour, IInventoryDataProvider, ISer
     /// <summary>
     /// Gets all items in the inventory.
     /// </summary>
-    public List<ItemUIInfo<InventoryItem>> GetAllItems()
+    public List<ItemUIInfo<InventoryStack>> GetAllItems()
     {
         if (inventoryInfo == null)
         {
             Debug.LogWarning("InventoryDataProvider: InventoryInfo not available!");
-            return new List<ItemUIInfo<InventoryItem>>();
+            return new List<ItemUIInfo<InventoryStack>>();
         }
         
-        var allItems = new List<ItemUIInfo<InventoryItem>>();
+        var allItems = new List<ItemUIInfo<InventoryStack>>();
         
         // Get all categories and combine their items
         foreach (var category in inventoryInfo.categories)
@@ -65,12 +65,12 @@ public class InventoryDataProvider : MonoBehaviour, IInventoryDataProvider, ISer
     /// <summary>
     /// Gets items filtered by category.
     /// </summary>
-    public List<ItemUIInfo<InventoryItem>> GetItemsByCategory(string category)
+    public List<ItemUIInfo<InventoryStack>> GetItemsByCategory(string category)
     {
         if (inventoryInfo == null)
         {
             Debug.LogWarning("InventoryDataProvider: InventoryInfo not available!");
-            return new List<ItemUIInfo<InventoryItem>>();
+            return new List<ItemUIInfo<InventoryStack>>();
         }
         
         // Map category name to type

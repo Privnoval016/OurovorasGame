@@ -4,12 +4,16 @@ using UnityEngine.Video;
 namespace Extensions.UI
 {
     /// <summary>
-    /// Data container for attack/ability display information.
-    /// Used in the element progress and skill tree tabs.
+    /// <summary>
+    /// Data container for attack/ability display in menus.
     /// </summary>
     [System.Serializable]
     public class AttackDisplayData
     {
+        [Tooltip("Unique identifier for this attack instance")]
+        public string guid;
+        
+        [Tooltip("Reference to the actual attack object")]
         public AttacksByWeapon attackReference;
         
         [Tooltip("The attack/ability name")]

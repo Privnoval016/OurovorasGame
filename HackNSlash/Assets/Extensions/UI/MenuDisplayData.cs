@@ -62,6 +62,9 @@ namespace Extensions.UI
     [System.Serializable]
     public class EquippedItemDisplayData
     {
+        [Tooltip("Reference to the original item data (for identification)")]
+        public InventoryStack itemReference;
+        
         [Tooltip("The item icon")]
         public Sprite icon;
         
