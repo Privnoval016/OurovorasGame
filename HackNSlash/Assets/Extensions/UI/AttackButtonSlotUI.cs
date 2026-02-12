@@ -96,7 +96,7 @@ namespace Extensions.UI
         /// <summary>
         /// Called when hovering over button (controller navigation).
         /// </summary>
-        public void OnSelect(BaseEventData eventData)
+        public override void OnSelect(BaseEventData eventData)
         {
             isHovered = true;
             UpdateVisuals();
@@ -113,7 +113,7 @@ namespace Extensions.UI
         /// <summary>
         /// Called when deselecting button.
         /// </summary>
-        public void OnDeselect(BaseEventData eventData)
+        public override void OnDeselect(BaseEventData eventData)
         {
             isHovered = false;
             UpdateVisuals();

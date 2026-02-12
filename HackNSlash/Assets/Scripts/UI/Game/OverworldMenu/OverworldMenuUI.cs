@@ -132,6 +132,16 @@ public class OverworldMenuUI : MonoBehaviour, IService
     {
         gameObject.SetActive(true);
         
+        // CRITICAL: Ensure all tabs are deactivated first to prevent stale state
+        if (characterStatsTab != null) characterStatsTab.gameObject.SetActive(false);
+        if (equipmentTab != null) equipmentTab.gameObject.SetActive(false);
+        if (elementProgressTab != null) elementProgressTab.gameObject.SetActive(false);
+        if (skillTreeTab != null) skillTreeTab.gameObject.SetActive(false);
+        if (inventoryTab != null) inventoryTab.gameObject.SetActive(false);
+        if (missionsTab != null) missionsTab.gameObject.SetActive(false);
+        if (compendiumTab != null) compendiumTab.gameObject.SetActive(false);
+        if (settingsTab != null) settingsTab.gameObject.SetActive(false);
+        
         // CRITICAL: Reset to first tab when opening menu
         if (tabGroup != null)
         {

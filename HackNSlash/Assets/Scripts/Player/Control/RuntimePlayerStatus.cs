@@ -12,6 +12,11 @@ using UnityEngine;
  */
 public class RuntimePlayerStatus : MonoBehaviour
 {
+    [Header("Currency")]
+    public int gold = 0; // placeholder
+
+    public int skillPoints = 10000;
+    
     [Header("Level")]
     [field: SerializeField] public int Level { get; private set; } = 10;
     
@@ -32,6 +37,10 @@ public class RuntimePlayerStatus : MonoBehaviour
     public EquipmentLoadout CurrentLoadout => loadouts.Length > 0 ? loadouts[currentLoadoutIndex] : null;
     
     public InventoryInfo inventoryInfo;
+    
+    [Header("Skill Tree")]
+    
+    public PlayerSkillTreeData skillTreeData;
     
     #region Saving and Loading
     

@@ -12,7 +12,7 @@ namespace Extensions.UI
     /// Add this to the unlock grid button GameObject.
     /// </summary>
     [RequireComponent(typeof(Selectable))]
-    public class UnlockGridButtonVisual : MonoBehaviour, ISelectHandler, IDeselectHandler, ISubmitHandler
+    public class UnlockGridButtonVisual : Selectable, ISubmitHandler
     {
         [Header("Visual Settings")]
         [SerializeField] private Image borderImage;
@@ -25,21 +25,15 @@ namespace Extensions.UI
         [Header("Events")]
         public UnityEvent onClick = new UnityEvent();
         
-        public Selectable selectable;
-        
         private Vector3 originalScale;
-        private bool isSelected = false;
         
-        private void Awake()
+        protected override void Awake()
         {
             originalScale = transform.localScale;
-            selectable = GetComponent<Selectable>();
         }
         
-        public void OnSelect(BaseEventData eventData)
+        public override void OnSelect(BaseEventData eventData)
         {
-            isSelected = true;
-            
             // Scale up
             Tween.Scale(transform, originalScale * selectedScale, animationDuration, Ease.OutBack, useUnscaledTime: true);
             
@@ -52,10 +46,8 @@ namespace Extensions.UI
             UIAudio.PlayHover();
         }
         
-        public void OnDeselect(BaseEventData eventData)
+        public override void OnDeselect(BaseEventData eventData)
         {
-            isSelected = false;
-            
             // Scale down
             Tween.Scale(transform, originalScale, animationDuration, Ease.OutQuad, useUnscaledTime: true);
             
