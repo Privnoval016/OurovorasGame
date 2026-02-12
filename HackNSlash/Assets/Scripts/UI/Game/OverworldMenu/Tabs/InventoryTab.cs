@@ -16,10 +16,7 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     private IInventoryDataProvider inventoryDataProvider;
     
     [Header("UI Components - Category Selection")]
-    [SerializeField] private Button[] categoryButtons;
-    [SerializeField] private TextMeshProUGUI[] categoryButtonTexts;
-    [SerializeField] private Color selectedCategoryColor = Color.yellow;
-    [SerializeField] private Color unselectedCategoryColor = Color.white;
+    [SerializeField] private CategoryButton[] categoryButtons;
     
     [Header("UI Components - Item Display")]
     [SerializeField] private ScrollMenu itemScrollMenu;
@@ -33,9 +30,6 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     [SerializeField] private ItemActionMenu itemActionMenu;
     [SerializeField] private GameObject actionMenuContainer;
     
-    [Header("UI Components - Equipped Indicator")]
-    [SerializeField] private Image equippedIndicator; // Shows when item is currently equipped
-    
     [Header("UI Components - Sort")]
     [SerializeField] private TextMeshProUGUI sortMethodText; // Shows current sort method
     [SerializeField] private GameObject sortIndicator; // Container for sort display
@@ -47,10 +41,13 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     [SerializeField] private MonoBehaviour equipmentDataProviderObject;
     private IEquipmentDataProvider equipmentDataProvider;
     
+    [Header("Default Button")]
+    [SerializeField] private Selectable defaultButton;
+    
     private string currentCategory = "All";
     private bool isScrollMenuActive;
     private bool isActionMenuActive;
-    private ItemUIInfo currentSelectedItem;
+    private ItemUIInfo<InventoryItem> currentSelectedItem;
     private InventorySortMethod currentSortMethod = InventorySortMethod.NameAscending;
     
     #region MonoBehaviour Callbacks
@@ -74,10 +71,6 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         // Hide action menu initially
         if (actionMenuContainer != null)
             actionMenuContainer.SetActive(false);
-        
-        // Hide equipped indicator initially
-        if (equippedIndicator != null)
-            equippedIndicator.gameObject.SetActive(false);
         
         // Subscribe to input
         if (InputManager.Instance != null)
@@ -130,6 +123,10 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         
         // Show all items by default
         SelectCategory("All");
+        
+        // Set default button
+        if (defaultButton != null)
+            defaultButton.Select();
     }
     
     /// <summary>
@@ -168,10 +165,11 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
             {
                 string category = allCategories[i];
                 
-                if (categoryButtonTexts != null && i < categoryButtonTexts.Length && categoryButtonTexts[i] != null)
-                    categoryButtonTexts[i].text = category;
+                // Initialize button with category name
+                categoryButtons[i].Initialize(category);
                 
-                categoryButtons[i].onClick.AddListener(() => SelectCategory(category));
+                // Subscribe to selection event
+                categoryButtons[i].AddListener(() => SelectCategory(category));
             }
         }
     }
@@ -201,13 +199,12 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         allCategories[0] = "All";
         System.Array.Copy(categories, 0, allCategories, 1, categories.Length);
         
-        for (int i = 0; i < categoryButtonTexts.Length && i < allCategories.Length; i++)
+        for (int i = 0; i < categoryButtons.Length && i < allCategories.Length; i++)
         {
-            if (categoryButtonTexts[i] != null)
+            if (categoryButtons[i] != null)
             {
-                categoryButtonTexts[i].color = allCategories[i] == currentCategory
-                    ? selectedCategoryColor
-                    : unselectedCategoryColor;
+                bool isCurrent = allCategories[i] == currentCategory;
+                categoryButtons[i].SetAsCurrentCategory(isCurrent);
             }
         }
     }
@@ -227,7 +224,7 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         if (itemScrollMenu == null || inventoryDataProvider == null)
             return;
         
-        List<ItemUIInfo> items;
+        List<ItemUIInfo<InventoryItem>> items;
         
         if (currentCategory == "All")
             items = inventoryDataProvider.GetAllItems();
@@ -249,7 +246,11 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         if (scrollMenuContainer != null)
             scrollMenuContainer.SetActive(true);
         
-        itemScrollMenu.Activate(items, 0, item => item, this);
+        itemScrollMenu.Activate(items, 0, this);
+        
+        // Set equipped check callback so scroll panels show equipped indicator
+        itemScrollMenu.SetEquippedCheckCallback(obj => IsItemEquipped(obj as ItemUIInfo<InventoryItem>));
+        
         isScrollMenuActive = true;
         
         // Display first item info
@@ -264,7 +265,7 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         isScrollMenuActive = false;
     }
     
-    private void UpdateSelectedItemInfo(ItemUIInfo itemInfo)
+    private void UpdateSelectedItemInfo(ItemUIInfo<InventoryItem> itemInfo)
     {
         if (itemInfo == null)
         {
@@ -292,9 +293,6 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
                 ? $"x{itemInfo.amount}"
                 : "";
         }
-        
-        // Update equipped indicator
-        UpdateEquippedIndicator();
     }
     
     private void ClearItemInfo()
@@ -310,10 +308,6 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         
         if (selectedItemQuantityText != null)
             selectedItemQuantityText.text = "";
-        
-        // Hide equipped indicator
-        if (equippedIndicator != null)
-            equippedIndicator.gameObject.SetActive(false);
     }
     
     #endregion
@@ -332,7 +326,7 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         // If scroll menu is active, open action menu
         if (isScrollMenuActive && itemScrollMenu != null)
         {
-            currentSelectedItem = itemScrollMenu.GetSelectedItem();
+            currentSelectedItem = itemScrollMenu.GetSelectedItem<InventoryItem>();
             if (currentSelectedItem != null)
             {
                 OpenActionMenu();
@@ -414,37 +408,76 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     /// <summary>
     /// Sorts a list of items based on current sort method.
     /// </summary>
-    private List<ItemUIInfo> SortItems(List<ItemUIInfo> items)
+    private List<ItemUIInfo<InventoryItem>> SortItems(List<ItemUIInfo<InventoryItem>> items)
     {
         if (items == null || items.Count == 0)
             return items;
         
-        var sortedItems = new List<ItemUIInfo>(items);
+        var sortedItems = new List<ItemUIInfo<InventoryItem>>(items);
+        
+        if (sortedItems.Count <= 1)
+            return sortedItems; // No need to sort
         
         switch (currentSortMethod)
         {
             case InventorySortMethod.NameAscending:
-                sortedItems.Sort((a, b) => string.Compare(a.itemName, b.itemName, System.StringComparison.Ordinal));
+                sortedItems.Sort((a, b) =>
+                {
+                    if (a == null && b == null) return 0;
+                    if (a == null) return 1;
+                    if (b == null) return -1;
+                    return string.Compare(a.itemName ?? "", b.itemName ?? "", System.StringComparison.Ordinal);
+                });
                 break;
             
             case InventorySortMethod.NameDescending:
-                sortedItems.Sort((a, b) => string.Compare(b.itemName, a.itemName, System.StringComparison.Ordinal));
+                sortedItems.Sort((a, b) =>
+                {
+                    if (a == null && b == null) return 0;
+                    if (a == null) return 1;
+                    if (b == null) return -1;
+                    return string.Compare(b.itemName ?? "", a.itemName ?? "", System.StringComparison.Ordinal);
+                });
                 break;
             
             case InventorySortMethod.RarityDescending:
-                sortedItems.Sort((a, b) => b.itemRarity.CompareTo(a.itemRarity));
+                sortedItems.Sort((a, b) =>
+                {
+                    if (a == null && b == null) return 0;
+                    if (a == null) return 1;
+                    if (b == null) return -1;
+                    return b.rarity.CompareTo(a.rarity);
+                });
                 break;
             
             case InventorySortMethod.RarityAscending:
-                sortedItems.Sort((a, b) => a.itemRarity.CompareTo(b.itemRarity));
+                sortedItems.Sort((a, b) =>
+                {
+                    if (a == null && b == null) return 0;
+                    if (a == null) return 1;
+                    if (b == null) return -1;
+                    return a.rarity.CompareTo(b.rarity);
+                });
                 break;
             
             case InventorySortMethod.QuantityDescending:
-                sortedItems.Sort((a, b) => b.amount.CompareTo(a.amount));
+                sortedItems.Sort((a, b) =>
+                {
+                    if (a == null && b == null) return 0;
+                    if (a == null) return 1;
+                    if (b == null) return -1;
+                    return b.amount.CompareTo(a.amount);
+                });
                 break;
             
             case InventorySortMethod.QuantityAscending:
-                sortedItems.Sort((a, b) => a.amount.CompareTo(b.amount));
+                sortedItems.Sort((a, b) =>
+                {
+                    if (a == null && b == null) return 0;
+                    if (a == null) return 1;
+                    if (b == null) return -1;
+                    return a.amount.CompareTo(b.amount);
+                });
                 break;
             
             case InventorySortMethod.DateObtainedNewest:
@@ -458,7 +491,13 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
                 break;
             
             case InventorySortMethod.Category:
-                sortedItems.Sort((a, b) => string.Compare(a.category, b.category, System.StringComparison.Ordinal));
+                sortedItems.Sort((a, b) =>
+                {
+                    if (a == null && b == null) return 0;
+                    if (a == null) return 1;
+                    if (b == null) return -1;
+                    return string.Compare(a.category ?? "", b.category ?? "", System.StringComparison.Ordinal);
+                });
                 break;
         }
         
@@ -536,12 +575,12 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
             return;
         
         // CRITICAL: Check if item is equipped before discarding
-        bool isEquipped = IsItemEquipped(currentSelectedItem.itemName);
+        bool isEquipped = IsItemEquipped(currentSelectedItem);
         
         if (isEquipped)
         {
-            // Unequip item first
-            UnequipItem(currentSelectedItem.itemName);
+            // Unequip item first using itemReference
+            UnequipItem(currentSelectedItem.itemReference);
         }
         
         // Discard item
@@ -565,25 +604,35 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     /// <summary>
     /// Checks if an item is currently equipped.
     /// </summary>
-    private bool IsItemEquipped(string itemName)
+    private bool IsItemEquipped(ItemUIInfo<InventoryItem> itemUIInfo)
     {
-        if (equipmentDataProvider == null)
+        if (equipmentDataProvider == null || itemUIInfo == null || itemUIInfo.itemReference == null)
             return false;
         
+        // CRITICAL: Compare by object reference, not name!
         // Check accessories
         for (int i = 0; i < 3; i++)
         {
             var equippedItem = equipmentDataProvider.GetEquippedAccessory(i);
-            if (equippedItem != null && equippedItem.itemName == itemName)
-                return true;
+            if (equippedItem != null && equippedItem.itemName == itemUIInfo.itemReference.itemName)
+            {
+                // Double-check it's actually the same object reference
+                var accessoryStacks = equipmentDataProvider.GetAccessories();
+                var matchingStack = accessoryStacks.Find(a => a.itemReference == itemUIInfo.itemReference);
+                if (matchingStack != null) return true;
+            }
         }
         
         // Check passives
         for (int i = 0; i < 3; i++)
         {
             var equippedItem = equipmentDataProvider.GetEquippedPassive(i);
-            if (equippedItem != null && equippedItem.itemName == itemName)
-                return true;
+            if (equippedItem != null && equippedItem.itemName == itemUIInfo.itemReference.itemName)
+            {
+                var passiveStacks = equipmentDataProvider.GetPassives();
+                var matchingStack = passiveStacks.Find(p => p.itemReference == itemUIInfo.itemReference);
+                if (matchingStack != null) return true;
+            }
         }
         
         return false;
@@ -592,18 +641,25 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     /// <summary>
     /// Unequips an item from all slots.
     /// </summary>
-    private void UnequipItem(string itemName)
+    private void UnequipItem(InventoryItem itemReference)
     {
-        if (equipmentDataProvider == null)
+        if (equipmentDataProvider == null || itemReference == null)
             return;
         
+        // CRITICAL: Use object reference comparison, not name
         // Check and unequip from accessories
         for (int i = 0; i < 3; i++)
         {
             var equippedItem = equipmentDataProvider.GetEquippedAccessory(i);
-            if (equippedItem != null && equippedItem.itemName == itemName)
+            if (equippedItem != null)
             {
-                equipmentDataProvider.UnequipAccessory(i);
+                // Get the accessory list and find matching reference
+                var accessories = equipmentDataProvider.GetAccessories();
+                var matchingAccessory = accessories.Find(a => a.itemReference == itemReference);
+                if (matchingAccessory != null && matchingAccessory.itemName == equippedItem.itemName)
+                {
+                    equipmentDataProvider.UnequipAccessory(i);
+                }
             }
         }
         
@@ -611,23 +667,16 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         for (int i = 0; i < 3; i++)
         {
             var equippedItem = equipmentDataProvider.GetEquippedPassive(i);
-            if (equippedItem != null && equippedItem.itemName == itemName)
+            if (equippedItem != null)
             {
-                equipmentDataProvider.UnequipPassive(i);
+                var passives = equipmentDataProvider.GetPassives();
+                var matchingPassive = passives.Find(p => p.itemReference == itemReference);
+                if (matchingPassive != null && matchingPassive.itemName == equippedItem.itemName)
+                {
+                    equipmentDataProvider.UnequipPassive(i);
+                }
             }
         }
-    }
-    
-    /// <summary>
-    /// Updates the equipped indicator based on whether the current item is equipped.
-    /// </summary>
-    private void UpdateEquippedIndicator()
-    {
-        if (equippedIndicator == null || currentSelectedItem == null)
-            return;
-        
-        bool isEquipped = IsItemEquipped(currentSelectedItem.itemName);
-        equippedIndicator.gameObject.SetActive(isEquipped);
     }
     
     #endregion

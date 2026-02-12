@@ -41,26 +41,27 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <summary>
     /// Gets all accessories in the inventory.
     /// </summary>
-    public List<ItemUIInfo> GetAccessories()
+    public List<ItemUIInfo<InventoryItem>> GetAccessories()
     {
         if (inventoryInfo == null)
         {
             Debug.LogWarning("EquipmentDataProvider: InventoryInfo not available!");
-            return new List<ItemUIInfo>();
+            return new List<ItemUIInfo<InventoryItem>>();
         }
         
         var accessoryStacks = inventoryInfo.GetStacksOfType<Accessory>();
-        return accessoryStacks.Select(stack => stack.GetItemUIInfo()).ToList();
+        // Filter out null ItemUIInfo objects
+        return accessoryStacks.Select(stack => stack.GetItemUIInfo()).Where(info => info != null).ToList();
     }
     
     /// <summary>
     /// Gets all passive skills in the inventory.
     /// </summary>
-    public List<ItemUIInfo> GetPassives()
+    public List<ItemUIInfo<InventoryItem>> GetPassives()
     {
         // TODO: Implement passive skill system
         Debug.LogWarning("EquipmentDataProvider: Passive system not yet implemented!");
-        return new List<ItemUIInfo>();
+        return new List<ItemUIInfo<InventoryItem>>();
     }
     
     /// <summary>
@@ -105,7 +106,7 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <param name="slotIndex">The slot index (0-2)</param>
     /// <param name="item">The item UI info</param>
     /// <returns>True if successfully equipped</returns>
-    public bool EquipAccessory(int slotIndex, ItemUIInfo item)
+    public bool EquipAccessory(int slotIndex, ItemUIInfo<InventoryItem> item)
     {
         if (runtimePlayerStatus == null || runtimePlayerStatus.CurrentLoadout == null || inventoryInfo == null)
         {
@@ -119,17 +120,20 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
             return false;
         }
         
-        // Find the accessory in inventory by name
-        var accessoryStacks = inventoryInfo.GetStacksOfType<Accessory>();
-        var matchingStack = accessoryStacks.FirstOrDefault(stack => stack.item.itemName == item.itemName);
-        
-        if (matchingStack == null || matchingStack.item == null)
+        // CRITICAL: Use itemReference instead of itemName for bijective identification
+        if (item.itemReference == null)
         {
-            Debug.LogWarning($"EquipmentDataProvider: Could not find accessory '{item.itemName}' in inventory!");
+            Debug.LogWarning($"EquipmentDataProvider: ItemUIInfo has null itemReference!");
             return false;
         }
         
-        Accessory accessory = matchingStack.item as Accessory;
+        Accessory accessory = item.itemReference as Accessory;
+        if (accessory == null)
+        {
+            Debug.LogWarning($"EquipmentDataProvider: Item is not an Accessory!");
+            return false;
+        }
+        
         runtimePlayerStatus.CurrentLoadout.equippedAccessories[slotIndex] = accessory;
         
         Debug.Log($"EquipmentDataProvider: Equipped {accessory.itemName} to accessory slot {slotIndex}");
@@ -146,7 +150,7 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <param name="slotIndex">The slot index (0-2)</param>
     /// <param name="item">The item UI info</param>
     /// <returns>True if successfully equipped</returns>
-    public bool EquipPassive(int slotIndex, ItemUIInfo item)
+    public bool EquipPassive(int slotIndex, ItemUIInfo<InventoryItem> item)
     {
         // TODO: Implement passive skill system
         Debug.LogWarning("EquipmentDataProvider: Passive system not yet implemented!");

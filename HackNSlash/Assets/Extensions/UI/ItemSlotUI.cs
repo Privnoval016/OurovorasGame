@@ -1,5 +1,4 @@
 using TMPro;
-using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -10,10 +9,10 @@ namespace Extensions.UI
     /// <summary>
     /// Modular UI component for displaying an equipment/item slot.
     /// Reusable across different menu contexts (equipment, passives, etc.).
-    /// Uses PrimeTween for smooth animations with unscaled time.
+    /// Uses UIAnimationManager for consistent animations.
     /// Controller-only navigation - no mouse support.
     /// </summary>
-    public class ItemSlotUI : MonoBehaviour, ISelectHandler, IDeselectHandler, ISubmitHandler
+    public class ItemSlotUI : Selectable, ISubmitHandler
     {
         [Header("UI References")]
         [SerializeField] private Image iconImage;
@@ -21,17 +20,6 @@ namespace Extensions.UI
         [SerializeField] private Image borderImage;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private GameObject emptyIndicator;
-        [SerializeField] private Image equippedIndicator; // Shows when item is equipped elsewhere
-        
-        [Header("Visual Settings")]
-        [SerializeField] private Color normalColor = Color.white;
-        [SerializeField] private Color selectedColor = Color.yellow;
-        [SerializeField] private Color emptyColor = Color.gray;
-        
-        [Header("Text Colors")]
-        [SerializeField] private Color normalTextColor = Color.white;
-        [SerializeField] private Color selectedTextColor = Color.yellow;
-        [SerializeField] private Color emptyTextColor = Color.gray;
         
         [Header("Events")]
         [SerializeField] private UnityEvent<int> onSlotSelected;
@@ -41,6 +29,8 @@ namespace Extensions.UI
         private bool isEmpty = true;
         private bool isSelected = false;
         private EquippedItemDisplayData currentData; // Store current item data
+        
+        private UIAnimationManager animationManager;
         
         #region Public Methods
         
@@ -52,10 +42,11 @@ namespace Extensions.UI
         {
             slotIndex = index;
             
-            // Hide equipped indicator by default
-            if (equippedIndicator != null)
-                equippedIndicator.gameObject.SetActive(false);
+            // Get animation manager
+            animationManager = UIAnimationManager.Instance;
         }
+        
+        // ...existing SetItemData, SetEmpty, SetEquippedIndicator, GetSlotIndex, IsEmpty, GetCurrentItemData, ForceDeselect methods...
         
         /// <summary>
         /// Sets the slot to display item data.
@@ -106,16 +97,6 @@ namespace Extensions.UI
                 emptyIndicator.SetActive(true);
             
             UpdateVisuals();
-        }
-        
-        /// <summary>
-        /// Sets the equipped indicator visibility.
-        /// </summary>
-        /// <param name="isEquipped">Whether the item is equipped elsewhere.</param>
-        public void SetEquippedIndicator(bool isEquipped)
-        {
-            if (equippedIndicator != null)
-                equippedIndicator.gameObject.SetActive(isEquipped);
         }
         
         /// <summary>
@@ -176,11 +157,11 @@ namespace Extensions.UI
             isSelected = true;
             UpdateVisuals();
             
-            // Animate selection with PrimeTween (unscaled time for menu)
-            if (borderImage != null)
+            // Animate selection using animation manager
+            if (animationManager != null && borderImage != null)
             {
-                Tween.Scale(borderImage.transform, 1.05f, duration: 0.15f, 
-                    ease: Ease.OutBack, useUnscaledTime: true);
+                animationManager.CreateBuilder(borderImage.transform)
+                    .AnimateSelection();
             }
             
             // Play hover sound via EventBus
@@ -196,10 +177,10 @@ namespace Extensions.UI
             UpdateVisuals();
             
             // Animate deselection
-            if (borderImage != null)
+            if (animationManager != null && borderImage != null)
             {
-                Tween.Scale(borderImage.transform, 1f, duration: 0.15f, 
-                    ease: Ease.OutQuad, useUnscaledTime: true);
+                animationManager.CreateBuilder(borderImage.transform)
+                    .AnimateDeselection();
             }
             
             // NOTE: Removed onSlotDeselected callback to prevent circular dependency
@@ -208,18 +189,29 @@ namespace Extensions.UI
             
         private void UpdateVisuals()
         {
-            Color targetBorderColor = normalColor;
-            Color targetTextColor = normalTextColor;
+            if (animationManager == null)
+            {
+                animationManager = UIAnimationManager.Instance;
+                if (animationManager == null) return;
+            }
+            
+            Color targetBorderColor;
+            Color targetTextColor;
             
             if (isSelected)
             {
-                targetBorderColor = selectedColor;
-                targetTextColor = selectedTextColor;
+                targetBorderColor = animationManager.GetSelectedColor();
+                targetTextColor = animationManager.GetSelectedTextColor();
             }
             else if (isEmpty)
             {
-                targetBorderColor = emptyColor;
-                targetTextColor = emptyTextColor;
+                targetBorderColor = animationManager.GetEmptyColor();
+                targetTextColor = animationManager.GetEmptyTextColor();
+            }
+            else
+            {
+                targetBorderColor = animationManager.GetNormalColor();
+                targetTextColor = animationManager.GetNormalTextColor();
             }
             
             // Update border
@@ -229,12 +221,12 @@ namespace Extensions.UI
             // Update background
             if (backgroundImage != null)
             {
-                Color bgColor = isEmpty ? emptyColor : normalColor;
+                Color bgColor = isEmpty ? animationManager.GetEmptyColor() : animationManager.GetNormalColor();
                 bgColor.a = backgroundImage.color.a; // Preserve alpha
                 backgroundImage.color = bgColor;
             }
             
-            // CRITICAL: Update text color for visibility
+            // Update text color
             if (nameText != null)
                 nameText.color = targetTextColor;
         }

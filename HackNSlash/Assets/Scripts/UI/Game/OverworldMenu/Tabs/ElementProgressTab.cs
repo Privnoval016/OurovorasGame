@@ -125,9 +125,7 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         
         // Set default navigation to first element slot
         if (defaultButton != null)
-        {
-            eventSystem.SetSelectedGameObject(defaultButton.gameObject);
-        }
+            defaultButton.Select();
         
         currentState = NavigationState.ElementSelection;
     }
@@ -277,17 +275,21 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
     /// </summary>
     private int FindButtonWithAttack(AttackDisplayData attack)
     {
-        if (attackButtons == null || attack == null) return -1;
+        if (attackButtons == null || attack == null || attack.attackReference == null) return -1;
         
+        // CRITICAL: Compare by object reference, not name!
         for (int i = 0; i < attackButtons.Length; i++)
         {
             if (attackButtons[i] != null)
             {
                 AttackDisplayData buttonAttack = attackButtons[i].GetCurrentAttack();
-                // Compare by name, not reference
-                if (buttonAttack != null && buttonAttack.attackName == attack.attackName)
+                if (buttonAttack != null && buttonAttack.attackReference != null)
                 {
-                    return i;
+                    // Use bijective reference comparison
+                    if (buttonAttack.attackReference == attack.attackReference)
+                    {
+                        return i;
+                    }
                 }
             }
         }
@@ -601,24 +603,31 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         // CRITICAL: Cache the available attacks to maintain references
         cachedAvailableAttacks = availableAttacks;
         
+        // Convert AttackDisplayData to ItemUIInfo<AttacksByWeapon> for scroll menu
+        var attackInfoList = new List<ItemUIInfo<AttacksByWeapon>>();
+        foreach (var attack in availableAttacks)
+        {
+            attackInfoList.Add(new ItemUIInfo<AttacksByWeapon>
+            {
+                itemReference = attack.attackReference, // CRITICAL: Store reference for bijective identification
+                itemName = attack.attackName,
+                itemDescription = attack.description,
+                icon = attack.icon,
+                rarity = Rarity.Common, // Attacks don't have rarity, use default
+                isStackable = false,
+                amount = 1,
+                category = "Attack"
+            });
+        }
+        
         // CRITICAL: Disable all attack buttons and unlock grid button so they can't be navigated to
         SetLayerTwoInteractable(false);
         
         // Show scroll menu
         scrollMenuContainer.SetActive(true);
         
-        // Populate with attacks
-        attackScrollMenu.Activate(
-            availableAttacks,
-            0,
-            attack => new ItemUIInfo
-            {
-                itemName = attack.attackName,
-                itemDescription = attack.description,
-                icon = attack.icon
-            },
-            this
-        );
+        // Populate with attacks using new simplified signature
+        attackScrollMenu.Activate(attackInfoList, 0, this);
         
         // Subscribe to item confirmation event
         if (attackScrollMenu != null)

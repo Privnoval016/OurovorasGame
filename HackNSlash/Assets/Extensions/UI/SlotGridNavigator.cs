@@ -73,10 +73,10 @@ namespace Extensions.UI
         private void ConfigureSlot(ItemSlotUI slot, int index)
         {
             // Get or add Button component
-            Button button = slot.GetComponent<Button>();
+            Selectable button = slot.GetComponent<Selectable>();
             if (button == null)
             {
-                button = slot.gameObject.AddComponent<Button>();
+                button = slot.gameObject.AddComponent<Selectable>();
             }
             
             // Setup navigation
@@ -91,7 +91,7 @@ namespace Extensions.UI
             int leftIndex = index - 1;
             if (col > 0 && leftIndex >= 0 && leftIndex < slots.Length)
             {
-                Button leftButton = slots[leftIndex].GetComponent<Button>();
+                Selectable leftButton = slots[leftIndex].GetComponent<Selectable>();
                 if (leftButton != null)
                     nav.selectOnLeft = leftButton;
             }
@@ -100,7 +100,7 @@ namespace Extensions.UI
             int rightIndex = index + 1;
             if (col < columns - 1 && rightIndex < slots.Length)
             {
-                Button rightButton = slots[rightIndex].GetComponent<Button>();
+                Selectable rightButton = slots[rightIndex].GetComponent<Selectable>();
                 if (rightButton != null)
                     nav.selectOnRight = rightButton;
             }
@@ -109,7 +109,7 @@ namespace Extensions.UI
             int upIndex = index - columns;
             if (upIndex >= 0)
             {
-                Button upButton = slots[upIndex].GetComponent<Button>();
+                Selectable upButton = slots[upIndex].GetComponent<Selectable>();
                 if (upButton != null)
                     nav.selectOnUp = upButton;
             }
@@ -123,7 +123,7 @@ namespace Extensions.UI
             int downIndex = index + columns;
             if (downIndex < slots.Length)
             {
-                Button downButton = slots[downIndex].GetComponent<Button>();
+                Selectable downButton = slots[downIndex].GetComponent<Selectable>();
                 if (downButton != null)
                     nav.selectOnDown = downButton;
             }

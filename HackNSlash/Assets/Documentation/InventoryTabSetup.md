@@ -4,6 +4,41 @@
 
 The Inventory Tab provides a complete item management system with category filtering, item usage, and discard functionality. It includes equipped item indicators and automatically unequips items before discarding them.
 
+All UI animations use the centralized **UIAnimationManager** system for consistent, customizable animations across the entire menu.
+
+## Animation System
+
+### UIAnimationManager (NEW)
+All menu UI uses a centralized animation system for consistency and easy customization:
+
+**Components**:
+1. **UIAnimationConfig** (ScriptableObject): Stores all colors, durations, and animation settings
+2. **UIAnimationManager** (MonoBehaviour): Central manager providing animation builders
+3. **UIAnimationBuilder**: Fluent API for building animations
+
+**Custom Button Components** (NO regular Unity Buttons):
+- **CategoryButton**: Custom Selectable for category filtering
+- **ActionMenuButton**: Custom Selectable for action menus (Use/Discard)
+- **ItemSlotUI**: Custom Selectable for item slots
+- **AttackButtonSlotUI**: Custom Selectable for attack buttons
+- **UnlockSlotUI**: Custom Selectable for unlock grid
+
+**Benefits**:
+- **Centralized Colors**: Change all menu colors from one ScriptableObject
+- **Consistent Animations**: All UI elements use the same animation style
+- **Easy Customization**: Modify animation durations, easing, scales in one place
+- **Builder Pattern**: Fluent API for composing animations
+- **No Hardcoded Values**: Colors and settings come from config
+- **Controller-Optimized**: Custom Selectables designed for gamepad navigation
+
+**Setup**:
+1. Create UIAnimationConfig asset: `Create → UI → Animation Config`
+2. Configure colors and animation settings
+3. Add UIAnimationManager to root menu GameObject
+4. Assign UIAnimationConfig to UIAnimationManager
+5. All UI components automatically use it
+6. **NEVER use regular Unity Button** - always use custom Selectable components
+
 ## Architecture
 
 ### Core Components
@@ -48,11 +83,13 @@ The Inventory Tab provides a complete item management system with category filte
 ```
 InventoryTab (GameObject)
 ├── CategoryPanel (Left side)
-│   ├── CategoryButton_All (Button)
+│   ├── CategoryButton_All (CategoryButton component)
+│   │   ├── Background (Image)
+│   │   ├── Border (Image)
 │   │   └── Text (TextMeshProUGUI)
-│   ├── CategoryButton_Accessories (Button)
-│   │   └── Text (TextMeshProUGUI)
-│   ├── CategoryButton_Consumables (Button)
+│   ├── CategoryButton_Accessories (CategoryButton component)
+│   │   ├── Background (Image)
+│   │   ├── Border (Image)
 │   │   └── Text (TextMeshProUGUI)
 │   └── ... (More category buttons as needed)
 ├── ItemDisplayPanel (Center)
@@ -61,9 +98,13 @@ InventoryTab (GameObject)
 │   │       └── Panels[] (ScrollPanel components)
 │   ├── ActionMenuContainer (GameObject - initially disabled)
 │   │   └── ItemActionMenu (Component: ItemActionMenu)
-│   │       ├── UseButton (Button)
+│   │       ├── UseButton (ActionMenuButton component)
+│   │       │   ├── Background (Image)
+│   │       │   ├── Border (Image)
 │   │       │   └── Text (TextMeshProUGUI) "Use"
-│   │       └── DiscardButton (Button)
+│   │       └── DiscardButton (ActionMenuButton component)
+│   │           ├── Background (Image)
+│   │           ├── Border (Image)
 │   │           └── Text (TextMeshProUGUI) "Discard"
 │   └── InfoPanel (Bottom display)
 │       ├── ItemIcon (Image)
@@ -74,6 +115,12 @@ InventoryTab (GameObject)
 └── CharacterModelDisplay (Right side - RenderTextureDisplay)
 ```
 
+**IMPORTANT**: 
+- **NO regular Unity Button components** - all use custom Selectables
+- Each button has Background and Border Images for animations
+- Text is separate child for color control
+- All visual parameters come from UIAnimationConfig
+
 ### Component Configuration
 
 #### 1. InventoryTab Component
@@ -83,10 +130,7 @@ InventoryTab (GameObject)
 - **Equipment Data Provider Object**: Drag EquipmentDataProvider GameObject
 
 **UI Components - Category Selection:**
-- **Category Buttons[]**: Array of category filter buttons
-- **Category Button Texts[]**: Array of TextMeshProUGUI components for each button
-- **Selected Category Color**: Yellow (1, 1, 0)
-- **Unselected Category Color**: White (1, 1, 1)
+- **Category Buttons[]**: Array of CategoryButton components (NOT regular Buttons)
 
 **UI Components - Item Display:**
 - **Item Scroll Menu**: ScrollMenu component
@@ -95,6 +139,10 @@ InventoryTab (GameObject)
 - **Selected Item Description Text**: TextMeshProUGUI for description
 - **Selected Item Icon**: Image for item icon
 - **Selected Item Quantity Text**: TextMeshProUGUI for "x10" etc.
+
+**UI Components - Sort:**
+- **Sort Method Text**: TextMeshProUGUI showing current sort method
+- **Sort Indicator**: Container GameObject for sort display
 
 **UI Components - Action Menu:**
 - **Item Action Menu**: ItemActionMenu component
@@ -106,18 +154,46 @@ InventoryTab (GameObject)
 **UI Components - Character Model:**
 - **Character Model Display**: RenderTextureDisplay component
 
-#### 2. ItemActionMenu Component
+#### 2. CategoryButton Component (Custom Selectable)
+
+**UI References:**
+- **Background Image**: Image component for background
+- **Border Image**: Image component for border/outline (animated on select)
+- **Category Text**: TextMeshProUGUI showing category name
+
+**Events:**
+- **On Category Selected**: UnityEvent<string> (handled by InventoryTab)
+
+**Setup:**
+- Add CategoryButton component to GameObject
+- Assign Background, Border, and Text references
+- Text is auto-populated via Initialize()
+- Colors come from UIAnimationManager automatically
+
+#### 3. ItemActionMenu Component
 
 **Menu Buttons:**
-- **Use Button**: Button component for "Use" action
-- **Discard Button**: Button component for "Discard" action
-
-**Button Text (Optional):**
-- **Use Button Text**: TextMeshProUGUI showing "Use"
-- **Discard Button Text**: TextMeshProUGUI showing "Discard"
+- **Use Button**: ActionMenuButton component for "Use" action
+- **Discard Button**: ActionMenuButton component for "Discard" action
 
 **Settings:**
 - **Hide On Action**: True (menu closes after action)
+
+#### 4. ActionMenuButton Component (Custom Selectable)
+
+**UI References:**
+- **Background Image**: Image component for background
+- **Border Image**: Image component for border/outline (animated on select)
+- **Button Text**: TextMeshProUGUI showing button label
+
+**Events:**
+- **On Button Pressed**: UnityEvent (handled by ItemActionMenu)
+
+**Setup:**
+- Add ActionMenuButton component to GameObject
+- Assign Background, Border, and Text references
+- Set text via inspector or SetText() method
+- Colors come from UIAnimationManager automatically
 
 #### 3. ScrollMenu Component
 
@@ -128,20 +204,65 @@ Follow the standard ScrollMenu setup (see ScrollMenuSetup.md).
 - **Visible Panels**: 5-7 (depends on screen space)
 - **Focus Index**: 2 (middle position)
 
-#### 4. Category Buttons
+#### 4. ScrollUIPanel / ItemScrollPanel (for scroll menu)
+
+Each scroll panel should:
+- Have an **ItemScrollPanel component** (inherits from ScrollUIPanel)
+- Have UI element structure:
+  - Icon (Image) - item icon
+  - Name Text (TextMeshProUGUI) - item name
+  - Description Text (TextMeshProUGUI) - item description
+  - Amount Text (TextMeshProUGUI) - stack count
+  - Border Image (Image) - animated on selection
+  - Empty Indicator (GameObject) - shown when panel is empty
+  - **Equipped Indicator (Image)** - shown when item is equipped elsewhere
+- Be a child of ScrollMenu's item container
+
+**Equipped Indicator**: 
+- Lives on ScrollUIPanel (base class)
+- Set via SetEquippedIndicator(bool)
+- Automatically updated by ScrollMenu when equipped check callback is set
+- Shows in scroll menu, NOT on equipment slots
+
+**Structure Example**:
+```
+ItemScrollPanel (ItemScrollPanel component)
+├── Icon (Image)
+├── Border (Image)
+├── NameText (TextMeshProUGUI)
+├── DescriptionText (TextMeshProUGUI)
+├── AmountText (TextMeshProUGUI)
+├── EmptyIndicator (GameObject)
+└── EquippedIndicator (Image) ← Shows when item is equipped
+```
+
+**Visual Settings**: All colors come from UIAnimationConfig via UIAnimationManager!
 
 Each category button should:
-- Have a Button component
-- Have a child TextMeshProUGUI for the category name
-- Be added to the categoryButtons array in order
-- Corresponding text added to categoryButtonTexts array
+- Have a **CategoryButton component** (NOT Unity Button)
+- Have child GameObject structure:
+  - Background (Image) - for background color
+  - Border (Image) - for animated border on selection
+  - Text (TextMeshProUGUI) - for category name
+- Be added to the categoryButtons array in InventoryTab
+- Category name is set via Initialize() at runtime
+
+**Structure Example**:
+```
+CategoryButton_All (CategoryButton component)
+├── Background (Image)
+├── Border (Image) 
+└── Text (TextMeshProUGUI)
+```
 
 **Default Categories** (customize based on your inventory system):
 - All
 - Accessories
 - Consumables
-- Materials
+- Resources
 - Key Items
+
+**Visual Settings**: All colors come from UIAnimationConfig - no per-button settings needed!
 
 #### 5. Equipped Indicator Setup
 

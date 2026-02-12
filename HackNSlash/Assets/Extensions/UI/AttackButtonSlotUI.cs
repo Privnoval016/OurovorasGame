@@ -1,5 +1,4 @@
 using TMPro;
-using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -10,7 +9,7 @@ namespace Extensions.UI
     /// <summary>
     /// UI component for displaying an attack button slot (X, Y, A on Xbox controller).
     /// Shows button icon and assigned attack name with visual feedback.
-    /// Completely modular and reusable.
+    /// Uses UIAnimationManager for consistent animations.
     /// </summary>
     public class AttackButtonSlotUI : Selectable, ISelectHandler, IDeselectHandler, ISubmitHandler
     {
@@ -20,26 +19,19 @@ namespace Extensions.UI
         [SerializeField] private Image borderImage;
         [SerializeField] private TextMeshProUGUI attackNameText;
         
-        [Header("Visual Settings")]
-        [SerializeField] private Color normalColor = Color.white;
-        [SerializeField] private Color hoverColor = new Color(0.8f, 0.8f, 0.8f);
-        [SerializeField] private Color selectedColor = Color.yellow;
-        [SerializeField] private float selectedScale = 1.15f;
-        [SerializeField] private float animationDuration = 0.15f;
-        
         [Header("Events")]
         [SerializeField] private UnityEvent<int> onButtonSelected; // Passes button index
         [SerializeField] private UnityEvent<int> onButtonHovered; // For showing description
         
         private int buttonIndex;
-        private AttackDisplayData currentAttack; // west = X (1), north = Y (0), south = A (2)
+        private AttackDisplayData currentAttack;
         private bool isHovered = false;
-        private Vector3 originalScale;
+        private UIAnimationManager animationManager;
         
         protected override void Awake()
         {
             base.Awake();
-            originalScale = transform.localScale;
+            animationManager = UIAnimationManager.Instance;
         }
         
         /// <summary>
@@ -49,6 +41,9 @@ namespace Extensions.UI
         {
             buttonIndex = index;
             
+            if (animationManager == null)
+                animationManager = UIAnimationManager.Instance;
+            
             if (buttonIconImage != null && buttonIcon != null)
             {
                 buttonIconImage.sprite = buttonIcon;
@@ -56,6 +51,8 @@ namespace Extensions.UI
             
             SetEmpty();
         }
+        
+        // ...existing SetAttack, SetEmpty, GetButtonIndex, GetCurrentAttack methods...
         
         /// <summary>
         /// Sets the assigned attack data.
@@ -74,7 +71,7 @@ namespace Extensions.UI
                 else
                 {
                     attackNameText.text = attack.attackName;
-                    attackNameText.color = normalColor;
+                    attackNameText.color = animationManager.GetNormalColor();
                 }
             }
         }
@@ -101,8 +98,12 @@ namespace Extensions.UI
             isHovered = true;
             UpdateVisuals();
             
-            // Scale up animation
-            Tween.Scale(transform, originalScale * selectedScale, animationDuration, Ease.OutBack, useUnscaledTime: true);
+            // Animate selection using animation manager
+            if (animationManager != null)
+            {
+                animationManager.CreateBuilder(transform, borderImage, backgroundImage)
+                    .AnimateSelection();
+            }
             
             // Notify for description display
             onButtonHovered?.Invoke(buttonIndex);
@@ -118,8 +119,12 @@ namespace Extensions.UI
             isHovered = false;
             UpdateVisuals();
             
-            // Scale down animation
-            Tween.Scale(transform, originalScale, animationDuration, Ease.OutQuad, useUnscaledTime: true);
+            // Animate deselection using animation manager
+            if (animationManager != null)
+            {
+                animationManager.CreateBuilder(transform, borderImage, backgroundImage)
+                    .AnimateDeselection();
+            }
         }
         
         /// <summary>
@@ -127,16 +132,29 @@ namespace Extensions.UI
         /// </summary>
         public void OnSubmit(BaseEventData eventData)
         {
+            // Punch animation on submit
+            if (animationManager != null)
+            {
+                animationManager.CreateBuilder(transform)
+                    .AnimatePunch();
+            }
+            
             onButtonSelected?.Invoke(buttonIndex);
             UIAudio.PlaySelect();
         }
         
         private void UpdateVisuals()
         {
-            Color targetColor = isHovered ? selectedColor : normalColor;
+            if (animationManager == null)
+            {
+                animationManager = UIAnimationManager.Instance;
+                if (animationManager == null) return;
+            }
+            
+            Color targetColor = isHovered ? animationManager.GetSelectedColor() : animationManager.GetNormalColor();
             
             if (borderImage != null)
-                Tween.Color(borderImage, targetColor, animationDuration, useUnscaledTime: true);
+                borderImage.color = targetColor;
         }
         
         /// <summary>

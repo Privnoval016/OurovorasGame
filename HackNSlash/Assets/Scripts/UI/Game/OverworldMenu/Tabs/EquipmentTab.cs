@@ -39,7 +39,7 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
     [SerializeField] private RenderTextureDisplay characterModelDisplay;
     
     [Header("UI References")]
-    [SerializeField] private Button defaultButton;
+    [SerializeField] private Selectable defaultButton;
     
     private EventSystem eventSystem;
     private EquipmentSlotType currentSlotType = EquipmentSlotType.None;
@@ -141,8 +141,8 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         RefreshAllSlots();
         
         // Set default selection
-        if (defaultButton != null && eventSystem != null)
-            eventSystem.SetSelectedGameObject(defaultButton.gameObject);
+        if (defaultButton != null)
+            defaultButton.Select();
     }
     
     /// <summary>
@@ -254,7 +254,7 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         if (scrollMenuContainer != null)
             scrollMenuContainer.SetActive(true);
         
-        List<ItemUIInfo> items = null;
+        List<ItemUIInfo<InventoryItem>> items = null;
         int currentItemIndex = 0;
         
         // Get items based on slot type
@@ -262,11 +262,13 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         {
             case EquipmentSlotType.Accessory:
                 items = equipmentDataProvider.GetAccessories();
-                // Try to find currently equipped item in list
+                // Try to find currently equipped item in list by reference
                 var equippedAccessory = equipmentDataProvider.GetEquippedAccessory(currentSlotIndex);
                 if (items != null && !equippedAccessory.isEmpty)
                 {
-                    currentItemIndex = items.FindIndex(item => item.itemName == equippedAccessory.itemName);
+                    // Use itemReference for comparison instead of itemName
+                    currentItemIndex = items.FindIndex(item => 
+                        item.itemReference != null && item.itemReference.itemName == equippedAccessory.itemName);
                     if (currentItemIndex < 0) currentItemIndex = 0;
                 }
                 break;
@@ -276,7 +278,8 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
                 var equippedPassive = equipmentDataProvider.GetEquippedPassive(currentSlotIndex);
                 if (items != null && !equippedPassive.isEmpty)
                 {
-                    currentItemIndex = items.FindIndex(item => item.itemName == equippedPassive.itemName);
+                    currentItemIndex = items.FindIndex(item => 
+                        item.itemReference != null && item.itemReference.itemName == equippedPassive.itemName);
                     if (currentItemIndex < 0) currentItemIndex = 0;
                 }
                 break;
@@ -288,8 +291,12 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
             return;
         }
         
-        // Activate scroll menu with items
-        equipmentScrollMenu.Activate(items, currentItemIndex, item => item, this);
+        // Activate scroll menu with ItemUIInfo<InventoryItem> list
+        equipmentScrollMenu.Activate(items, currentItemIndex, this);
+        
+        // Set equipped check callback so scroll panels show equipped indicator
+        equipmentScrollMenu.SetEquippedCheckCallback(obj => IsItemEquippedInAnySlot(obj as ItemUIInfo<InventoryItem>));
+        
         isScrollMenuActive = true;
         
         // Subscribe to item confirmation (A button press)
@@ -377,8 +384,8 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         
         Debug.Log($"EquipmentTab: Item confirmed at index {itemIndex}");
         
-        // Get the selected item
-        ItemUIInfo selectedItem = equipmentScrollMenu.GetSelectedItem();
+        // Get the selected item using generic parameter
+        ItemUIInfo<InventoryItem> selectedItem = equipmentScrollMenu.GetSelectedItem<InventoryItem>();
         if (selectedItem == null)
         {
             Debug.LogWarning("EquipmentTab: Selected item is null!");
@@ -464,7 +471,7 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
     /// Finds which accessory slot has the specified item equipped.
     /// Returns slot index or -1 if not found.
     /// </summary>
-    private int FindAccessorySlotWithItem(ItemUIInfo item)
+    private int FindAccessorySlotWithItem(ItemUIInfo<InventoryItem> item)
     {
         if (accessorySlots == null || item == null) return -1;
         
@@ -484,10 +491,75 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
     }
     
     /// <summary>
+    /// Checks if an item is equipped in any slot (for scroll panel equipped indicator).
+    /// Uses object reference for bijective identification.
+    /// </summary>
+    private bool IsItemEquippedInAnySlot(ItemUIInfo<InventoryItem> item)
+    {
+        if (item == null || item.itemReference == null) return false;
+        
+        // CRITICAL: Compare by object reference, not name!
+        // Check accessories
+        if (accessorySlots != null)
+        {
+            for (int i = 0; i < accessorySlots.Length; i++)
+            {
+                if (accessorySlots[i] != null)
+                {
+                    var slotData = accessorySlots[i].GetCurrentItemData();
+                    if (slotData != null && !slotData.isEmpty)
+                    {
+                        // Get equipped accessory
+                        var equippedAccessory = equipmentDataProvider?.GetEquippedAccessory(i);
+                        if (equippedAccessory != null)
+                        {
+                            // Compare by checking if it's the same item object
+                            if (item.itemReference.itemName == equippedAccessory.itemName)
+                            {
+                                // Verify it's actually the same object by comparing with item reference
+                                var accessories = equipmentDataProvider.GetAccessories();
+                                var match = accessories.Find(a => a.itemReference == item.itemReference);
+                                if (match != null) return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Check passives
+        if (passiveSlots != null)
+        {
+            for (int i = 0; i < passiveSlots.Length; i++)
+            {
+                if (passiveSlots[i] != null)
+                {
+                    var slotData = passiveSlots[i].GetCurrentItemData();
+                    if (slotData != null && !slotData.isEmpty)
+                    {
+                        var equippedPassive = equipmentDataProvider?.GetEquippedPassive(i);
+                        if (equippedPassive != null)
+                        {
+                            if (item.itemReference.itemName == equippedPassive.itemName)
+                            {
+                                var passives = equipmentDataProvider.GetPassives();
+                                var match = passives.Find(p => p.itemReference == item.itemReference);
+                                if (match != null) return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
     /// Finds which passive slot has the specified item equipped.
     /// Returns slot index or -1 if not found.
     /// </summary>
-    private int FindPassiveSlotWithItem(ItemUIInfo item)
+    private int FindPassiveSlotWithItem(ItemUIInfo<InventoryItem> item)
     {
         if (passiveSlots == null || item == null) return -1;
         
@@ -523,8 +595,8 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
             dataB = equipmentDataProvider.GetEquippedAccessory(slotB);
             
             // Convert to ItemUIInfo for equipping
-            ItemUIInfo itemA = ConvertToItemUIInfo(dataA);
-            ItemUIInfo itemB = ConvertToItemUIInfo(dataB);
+            ItemUIInfo<InventoryItem> itemA = ConvertToItemUIInfo(dataA);
+            ItemUIInfo<InventoryItem> itemB = ConvertToItemUIInfo(dataB);
             
             // Perform swap via data provider
             if (equipmentDataProvider.EquipAccessory(slotA, itemB) && 
@@ -539,8 +611,8 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
             dataB = equipmentDataProvider.GetEquippedPassive(slotB);
             
             // Convert to ItemUIInfo for equipping
-            ItemUIInfo itemA = ConvertToItemUIInfo(dataA);
-            ItemUIInfo itemB = ConvertToItemUIInfo(dataB);
+            ItemUIInfo<InventoryItem> itemA = ConvertToItemUIInfo(dataA);
+            ItemUIInfo<InventoryItem> itemB = ConvertToItemUIInfo(dataB);
             
             // Perform swap via data provider
             if (equipmentDataProvider.EquipPassive(slotA, itemB) && 
@@ -554,21 +626,31 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
     }
     
     /// <summary>
-    /// Converts EquippedItemDisplayData to ItemUIInfo.
+    /// Converts EquippedItemDisplayData to ItemUIInfo<InventoryItem>.
     /// Returns null if data is empty.
+    /// WARNING: This creates an ItemUIInfo without itemReference, so it cannot be used for equipping!
+    /// This method should only be used for swapping already-equipped items.
     /// </summary>
-    private ItemUIInfo ConvertToItemUIInfo(EquippedItemDisplayData data)
+    private ItemUIInfo<InventoryItem> ConvertToItemUIInfo(EquippedItemDisplayData data)
     {
         if (data == null || data.isEmpty) return null;
         
-        return new ItemUIInfo
+        return new ItemUIInfo<InventoryItem>
         {
+            itemReference = null, // WARNING: No reference available from EquippedItemDisplayData
             itemName = data.itemName,
             itemDescription = data.itemDescription,
             icon = data.icon,
-            itemRarity = data.rarity
+            rarity = data.rarity,
+            isStackable = false,
+            amount = 1,
+            category = "Equipment"
         };
     }
+    
+    #endregion
+    
+    #region Scroll Menu Display Updates
     
     /// <summary>
     /// Called when scroll input is received - updates the selected item display.
@@ -593,7 +675,7 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         if (equipmentScrollMenu == null)
             return;
         
-        ItemUIInfo selectedItem = equipmentScrollMenu.GetSelectedItem();
+        ItemUIInfo<InventoryItem> selectedItem = equipmentScrollMenu.GetSelectedItem<InventoryItem>();
         if (selectedItem == null)
             return;
         

@@ -31,19 +31,13 @@ public class ItemScrollPanel : ScrollUIPanel
     [SerializeField] private Image borderImage;
     [SerializeField] private GameObject emptyIndicator;
     
-    [Header("Visual Settings")]
-    [SerializeField] private Color normalBorderColor = Color.white;
-    [SerializeField] private Color selectedBorderColor = Color.yellow;
-    [SerializeField] private Color emptyColor = Color.gray;
+    private ItemUIInfo<InventoryItem> currentInfo;
+    private UIAnimationManager animationManager;
     
-    [Header("Rarity Colors")]
-    [SerializeField] private Color commonColor = Color.white;
-    [SerializeField] private Color uncommonColor = Color.green;
-    [SerializeField] private Color rareColor = Color.blue;
-    [SerializeField] private Color epicColor = Color.magenta;
-    [SerializeField] private Color legendaryColor = Color.yellow;
-    
-    private ItemUIInfo currentInfo;
+    private void Awake()
+    {
+        animationManager = UIAnimationManager.Instance;
+    }
     
     #region ScrollUIPanel Implementation
     
@@ -53,8 +47,11 @@ public class ItemScrollPanel : ScrollUIPanel
     /// </summary>
     public override void OnSelected()
     {
-        if (borderImage != null)
-            borderImage.color = selectedBorderColor;
+        if (animationManager == null)
+            animationManager = UIAnimationManager.Instance;
+        
+        if (borderImage != null && animationManager != null)
+            borderImage.color = animationManager.GetSelectedColor();
         
         // Show description for selected item
         if (descriptionText != null && currentInfo != null)
@@ -73,8 +70,11 @@ public class ItemScrollPanel : ScrollUIPanel
     /// </summary>
     public override void OnDeselected()
     {
-        if (borderImage != null)
-            borderImage.color = normalBorderColor;
+        if (animationManager == null)
+            animationManager = UIAnimationManager.Instance;
+        
+        if (borderImage != null && animationManager != null)
+            borderImage.color = animationManager.GetNormalColor();
         
         // Hide description for non-selected items
         if (descriptionText != null)
@@ -85,12 +85,16 @@ public class ItemScrollPanel : ScrollUIPanel
     /// Called to update this panel with new item data.
     /// This happens when the panel is recycled during scrolling.
     /// </summary>
-    /// <param name="info">The item information to display, or null for empty panel.</param>
-    public override void Refresh(ItemUIInfo info)
+    /// <param name="info">The item information to display (ItemUIInfo<InventoryItem> boxed as object), or null for empty panel.</param>
+    public override void Refresh(object info)
     {
-        currentInfo = info;
+        // Unbox to ItemUIInfo<InventoryItem>
+        currentInfo = info as ItemUIInfo<InventoryItem>;
         
-        if (info == null)
+        if (animationManager == null)
+            animationManager = UIAnimationManager.Instance;
+        
+        if (currentInfo == null)
         {
             // Hide the entire panel when empty (items < panels)
             HidePanel();
@@ -103,24 +107,26 @@ public class ItemScrollPanel : ScrollUIPanel
         // Update icon
         if (icon != null)
         {
-            icon.sprite = info.icon;
-            icon.enabled = info.icon != null;
-            icon.color = info.icon != null ? Color.white : emptyColor;
+            icon.sprite = currentInfo.icon;
+            icon.enabled = currentInfo.icon != null;
+            icon.color = currentInfo.icon != null ? Color.white : 
+                (animationManager != null ? animationManager.GetEmptyColor() : Color.gray);
         }
         
         // Update name
         if (nameText != null)
         {
-            nameText.text = info.itemName;
-            nameText.color = GetRarityColor(info.itemRarity);
+            nameText.text = currentInfo.itemName;
+            nameText.color = animationManager != null ? 
+                animationManager.GetRarityColor(currentInfo.rarity) : Color.white;
         }
         
         // Update amount (only show for stackable items)
         if (amountText != null)
         {
-            if (info.isStackable && info.amount > 1)
+            if (currentInfo.isStackable && currentInfo.amount > 1)
             {
-                amountText.text = $"x{info.amount}";
+                amountText.text = $"x{currentInfo.amount}";
                 amountText.gameObject.SetActive(true);
             }
             else
@@ -131,11 +137,14 @@ public class ItemScrollPanel : ScrollUIPanel
         
         // Description handled in OnSelected/OnDeselected
         if (descriptionText != null)
-            descriptionText.text = info.itemDescription;
+            descriptionText.text = currentInfo.itemDescription;
         
         // Hide empty indicator
         if (emptyIndicator != null)
             emptyIndicator.SetActive(false);
+            
+        // NOTE: Equipped indicator visibility should be set externally
+        // by the menu that knows whether this item is equipped
     }
     
     #endregion
@@ -151,19 +160,6 @@ public class ItemScrollPanel : ScrollUIPanel
     private void ShowPanel()
     {
         gameObject.SetActive(true);
-    }
-    
-    private Color GetRarityColor(Rarity rarity)
-    {
-        return rarity switch
-        {
-            Rarity.Common => commonColor,
-            Rarity.Uncommon => uncommonColor,
-            Rarity.Rare => rareColor,
-            Rarity.Epic => epicColor,
-            Rarity.Legendary => legendaryColor,
-            _ => commonColor
-        };
     }
     
     #endregion

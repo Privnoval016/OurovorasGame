@@ -10,6 +10,8 @@ namespace Extensions.UI
     [System.Serializable]
     public class AttackDisplayData
     {
+        public AttacksByWeapon attackReference;
+        
         [Tooltip("The attack/ability name")]
         public string attackName;
         
