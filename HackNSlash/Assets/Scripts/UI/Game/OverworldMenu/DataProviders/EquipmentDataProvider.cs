@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.UI;
+using Extensions.EventBus;
 using UnityEngine;
 
 /// <summary>
@@ -132,6 +133,10 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
         runtimePlayerStatus.CurrentLoadout.equippedAccessories[slotIndex] = accessory;
         
         Debug.Log($"EquipmentDataProvider: Equipped {accessory.itemName} to accessory slot {slotIndex}");
+        
+        // Raise event to refresh player stats
+        EventBus<PlayerStatsChangedEvent>.Raise(new PlayerStatsChangedEvent("Equipment - Equip Accessory"));
+        
         return true;
     }
     
@@ -144,6 +149,46 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     public bool EquipPassive(int slotIndex, ItemUIInfo item)
     {
         // TODO: Implement passive skill system
+        Debug.LogWarning("EquipmentDataProvider: Passive system not yet implemented!");
+        return false;
+    }
+    
+    /// <summary>
+    /// Unequips an accessory from the specified slot.
+    /// </summary>
+    /// <param name="slotIndex">The slot index (0-2)</param>
+    /// <returns>True if successfully unequipped</returns>
+    public bool UnequipAccessory(int slotIndex)
+    {
+        if (runtimePlayerStatus == null)
+        {
+            Debug.LogWarning("EquipmentDataProvider: RuntimePlayerStatus not available!");
+            return false;
+        }
+        
+        if (slotIndex < 0 || slotIndex >= 3)
+        {
+            Debug.LogWarning($"EquipmentDataProvider: Invalid accessory slot index {slotIndex}");
+            return false;
+        }
+        
+        runtimePlayerStatus.CurrentLoadout.equippedAccessories[slotIndex] = null;
+        Debug.Log($"EquipmentDataProvider: Unequipped accessory from slot {slotIndex}");
+        
+        // Raise event to refresh player stats
+        EventBus<PlayerStatsChangedEvent>.Raise(new PlayerStatsChangedEvent("Equipment - Unequip Accessory"));
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// Unequips a passive from the specified slot.
+    /// </summary>
+    /// <param name="slotIndex">The slot index (0-2)</param>
+    /// <returns>True if successfully unequipped</returns>
+    public bool UnequipPassive(int slotIndex)
+    {
+        // TODO: Implement when passive system exists
         Debug.LogWarning("EquipmentDataProvider: Passive system not yet implemented!");
         return false;
     }

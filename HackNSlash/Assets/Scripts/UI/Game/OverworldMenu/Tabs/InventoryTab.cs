@@ -29,11 +29,29 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     [SerializeField] private Image selectedItemIcon;
     [SerializeField] private TextMeshProUGUI selectedItemQuantityText;
     
+    [Header("UI Components - Action Menu")]
+    [SerializeField] private ItemActionMenu itemActionMenu;
+    [SerializeField] private GameObject actionMenuContainer;
+    
+    [Header("UI Components - Equipped Indicator")]
+    [SerializeField] private Image equippedIndicator; // Shows when item is currently equipped
+    
+    [Header("UI Components - Sort")]
+    [SerializeField] private TextMeshProUGUI sortMethodText; // Shows current sort method
+    [SerializeField] private GameObject sortIndicator; // Container for sort display
+    
     [Header("UI Components - Character Model")]
     [SerializeField] private RenderTextureDisplay characterModelDisplay;
     
+    [Header("Data Providers for Equipment Check")]
+    [SerializeField] private MonoBehaviour equipmentDataProviderObject;
+    private IEquipmentDataProvider equipmentDataProvider;
+    
     private string currentCategory = "All";
-    private bool isScrollMenuActive = false;
+    private bool isScrollMenuActive;
+    private bool isActionMenuActive;
+    private ItemUIInfo currentSelectedItem;
+    private InventorySortMethod currentSortMethod = InventorySortMethod.NameAscending;
     
     #region MonoBehaviour Callbacks
     
@@ -41,6 +59,53 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     {
         if (inventoryDataProviderObject != null)
             inventoryDataProvider = inventoryDataProviderObject as IInventoryDataProvider;
+        
+        if (equipmentDataProviderObject != null)
+            equipmentDataProvider = equipmentDataProviderObject as IEquipmentDataProvider;
+        
+        // Subscribe to action menu events
+        if (itemActionMenu != null)
+        {
+            itemActionMenu.OnUseRequested += HandleItemUse;
+            itemActionMenu.OnDiscardRequested += HandleItemDiscard;
+            itemActionMenu.OnMenuClosed += HandleActionMenuClosed;
+        }
+        
+        // Hide action menu initially
+        if (actionMenuContainer != null)
+            actionMenuContainer.SetActive(false);
+        
+        // Hide equipped indicator initially
+        if (equippedIndicator != null)
+            equippedIndicator.gameObject.SetActive(false);
+        
+        // Subscribe to input
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.onSelect += OnSelectInput;
+            InputManager.Instance.onBack += OnBackInput;
+            InputManager.Instance.onSort += OnSortInput;
+        }
+        
+        // Update sort display
+        UpdateSortDisplay();
+    }
+    
+    private void OnDestroy()
+    {
+        if (itemActionMenu != null)
+        {
+            itemActionMenu.OnUseRequested -= HandleItemUse;
+            itemActionMenu.OnDiscardRequested -= HandleItemDiscard;
+            itemActionMenu.OnMenuClosed -= HandleActionMenuClosed;
+        }
+        
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.onSelect -= OnSelectInput;
+            InputManager.Instance.onBack -= OnBackInput;
+            InputManager.Instance.onSort -= OnSortInput;
+        }
     }
     
     #endregion
@@ -178,6 +243,9 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
             return;
         }
         
+        // Sort items based on current sort method
+        items = SortItems(items);
+        
         if (scrollMenuContainer != null)
             scrollMenuContainer.SetActive(true);
         
@@ -204,6 +272,8 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
             return;
         }
         
+        currentSelectedItem = itemInfo;
+        
         if (selectedItemNameText != null)
             selectedItemNameText.text = itemInfo.itemName;
         
@@ -222,6 +292,9 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
                 ? $"x{itemInfo.amount}"
                 : "";
         }
+        
+        // Update equipped indicator
+        UpdateEquippedIndicator();
     }
     
     private void ClearItemInfo()
@@ -237,6 +310,324 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         
         if (selectedItemQuantityText != null)
             selectedItemQuantityText.text = "";
+        
+        // Hide equipped indicator
+        if (equippedIndicator != null)
+            equippedIndicator.gameObject.SetActive(false);
+    }
+    
+    #endregion
+    
+    #region Input Handling
+    
+    private void OnSelectInput(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+            return;
+        
+        // If action menu is active, it will handle the input itself
+        if (isActionMenuActive)
+            return;
+        
+        // If scroll menu is active, open action menu
+        if (isScrollMenuActive && itemScrollMenu != null)
+        {
+            currentSelectedItem = itemScrollMenu.GetSelectedItem();
+            if (currentSelectedItem != null)
+            {
+                OpenActionMenu();
+            }
+        }
+    }
+    
+    private void OnBackInput(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+            return;
+        
+        // Close action menu if open
+        if (isActionMenuActive)
+        {
+            CloseActionMenu();
+        }
+    }
+    
+    private void OnSortInput(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+            return;
+        
+        // Don't allow sorting while action menu is open
+        if (isActionMenuActive)
+            return;
+        
+        // Cycle to next sort method
+        CycleSortMethod();
+        
+        // Refresh display with new sort
+        UpdateItemDisplay();
+        
+        UIAudio.PlayHover();
+    }
+    
+    #endregion
+    
+    #region Sorting
+    
+    /// <summary>
+    /// Cycles to the next sort method.
+    /// </summary>
+    private void CycleSortMethod()
+    {
+        int currentIndex = (int)currentSortMethod;
+        int nextIndex = (currentIndex + 1) % System.Enum.GetValues(typeof(InventorySortMethod)).Length;
+        currentSortMethod = (InventorySortMethod)nextIndex;
+        
+        UpdateSortDisplay();
+    }
+    
+    /// <summary>
+    /// Updates the sort method display text.
+    /// </summary>
+    private void UpdateSortDisplay()
+    {
+        if (sortMethodText == null)
+            return;
+        
+        string displayText = currentSortMethod switch
+        {
+            InventorySortMethod.NameAscending => "Sort: Name (A-Z)",
+            InventorySortMethod.NameDescending => "Sort: Name (Z-A)",
+            InventorySortMethod.RarityDescending => "Sort: Rarity (High-Low)",
+            InventorySortMethod.RarityAscending => "Sort: Rarity (Low-High)",
+            InventorySortMethod.QuantityDescending => "Sort: Quantity (High-Low)",
+            InventorySortMethod.QuantityAscending => "Sort: Quantity (Low-High)",
+            InventorySortMethod.DateObtainedNewest => "Sort: Date (Newest)",
+            InventorySortMethod.DateObtainedOldest => "Sort: Date (Oldest)",
+            InventorySortMethod.Category => "Sort: Category",
+            _ => "Sort: Unknown"
+        };
+        
+        sortMethodText.text = displayText;
+    }
+    
+    /// <summary>
+    /// Sorts a list of items based on current sort method.
+    /// </summary>
+    private List<ItemUIInfo> SortItems(List<ItemUIInfo> items)
+    {
+        if (items == null || items.Count == 0)
+            return items;
+        
+        var sortedItems = new List<ItemUIInfo>(items);
+        
+        switch (currentSortMethod)
+        {
+            case InventorySortMethod.NameAscending:
+                sortedItems.Sort((a, b) => string.Compare(a.itemName, b.itemName, System.StringComparison.Ordinal));
+                break;
+            
+            case InventorySortMethod.NameDescending:
+                sortedItems.Sort((a, b) => string.Compare(b.itemName, a.itemName, System.StringComparison.Ordinal));
+                break;
+            
+            case InventorySortMethod.RarityDescending:
+                sortedItems.Sort((a, b) => b.itemRarity.CompareTo(a.itemRarity));
+                break;
+            
+            case InventorySortMethod.RarityAscending:
+                sortedItems.Sort((a, b) => a.itemRarity.CompareTo(b.itemRarity));
+                break;
+            
+            case InventorySortMethod.QuantityDescending:
+                sortedItems.Sort((a, b) => b.amount.CompareTo(a.amount));
+                break;
+            
+            case InventorySortMethod.QuantityAscending:
+                sortedItems.Sort((a, b) => a.amount.CompareTo(b.amount));
+                break;
+            
+            case InventorySortMethod.DateObtainedNewest:
+                // TODO: Implement when date tracking is added to items
+                // For now, maintain current order
+                break;
+            
+            case InventorySortMethod.DateObtainedOldest:
+                // TODO: Implement when date tracking is added to items
+                // For now, maintain current order
+                break;
+            
+            case InventorySortMethod.Category:
+                sortedItems.Sort((a, b) => string.Compare(a.category, b.category, System.StringComparison.Ordinal));
+                break;
+        }
+        
+        return sortedItems;
+    }
+    
+    #endregion
+    
+    #region Action Menu
+    
+    private void OpenActionMenu()
+    {
+        if (itemActionMenu == null || currentSelectedItem == null)
+            return;
+        
+        // Check if item can be used
+        bool canUse = inventoryDataProvider?.CanItemBeUsed(currentSelectedItem.itemName) ?? false;
+        
+        // Show action menu
+        if (actionMenuContainer != null)
+            actionMenuContainer.SetActive(true);
+        
+        itemActionMenu.Show(canUse);
+        isActionMenuActive = true;
+        
+        UIAudio.PlayHover();
+    }
+    
+    private void CloseActionMenu()
+    {
+        if (itemActionMenu != null)
+            itemActionMenu.Hide();
+        
+        if (actionMenuContainer != null)
+            actionMenuContainer.SetActive(false);
+        
+        isActionMenuActive = false;
+        
+        UIAudio.PlayBack();
+    }
+    
+    private void HandleActionMenuClosed()
+    {
+        isActionMenuActive = false;
+        
+        if (actionMenuContainer != null)
+            actionMenuContainer.SetActive(false);
+    }
+    
+    private void HandleItemUse()
+    {
+        if (inventoryDataProvider == null || currentSelectedItem == null)
+            return;
+        
+        bool success = inventoryDataProvider.UseItem(currentSelectedItem.itemName);
+        
+        if (success)
+        {
+            UIAudio.PlayItemEquip();
+            
+            // Refresh display
+            UpdateItemDisplay();
+        }
+        else
+        {
+            UIAudio.PlayError();
+        }
+        
+        CloseActionMenu();
+    }
+    
+    private void HandleItemDiscard()
+    {
+        if (inventoryDataProvider == null || currentSelectedItem == null)
+            return;
+        
+        // CRITICAL: Check if item is equipped before discarding
+        bool isEquipped = IsItemEquipped(currentSelectedItem.itemName);
+        
+        if (isEquipped)
+        {
+            // Unequip item first
+            UnequipItem(currentSelectedItem.itemName);
+        }
+        
+        // Discard item
+        bool success = inventoryDataProvider.DiscardItem(currentSelectedItem.itemName);
+        
+        if (success)
+        {
+            UIAudio.PlayBack();
+            
+            // Refresh display
+            UpdateItemDisplay();
+        }
+        else
+        {
+            UIAudio.PlayError();
+        }
+        
+        CloseActionMenu();
+    }
+    
+    /// <summary>
+    /// Checks if an item is currently equipped.
+    /// </summary>
+    private bool IsItemEquipped(string itemName)
+    {
+        if (equipmentDataProvider == null)
+            return false;
+        
+        // Check accessories
+        for (int i = 0; i < 3; i++)
+        {
+            var equippedItem = equipmentDataProvider.GetEquippedAccessory(i);
+            if (equippedItem != null && equippedItem.itemName == itemName)
+                return true;
+        }
+        
+        // Check passives
+        for (int i = 0; i < 3; i++)
+        {
+            var equippedItem = equipmentDataProvider.GetEquippedPassive(i);
+            if (equippedItem != null && equippedItem.itemName == itemName)
+                return true;
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// Unequips an item from all slots.
+    /// </summary>
+    private void UnequipItem(string itemName)
+    {
+        if (equipmentDataProvider == null)
+            return;
+        
+        // Check and unequip from accessories
+        for (int i = 0; i < 3; i++)
+        {
+            var equippedItem = equipmentDataProvider.GetEquippedAccessory(i);
+            if (equippedItem != null && equippedItem.itemName == itemName)
+            {
+                equipmentDataProvider.UnequipAccessory(i);
+            }
+        }
+        
+        // Check and unequip from passives
+        for (int i = 0; i < 3; i++)
+        {
+            var equippedItem = equipmentDataProvider.GetEquippedPassive(i);
+            if (equippedItem != null && equippedItem.itemName == itemName)
+            {
+                equipmentDataProvider.UnequipPassive(i);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Updates the equipped indicator based on whether the current item is equipped.
+    /// </summary>
+    private void UpdateEquippedIndicator()
+    {
+        if (equippedIndicator == null || currentSelectedItem == null)
+            return;
+        
+        bool isEquipped = IsItemEquipped(currentSelectedItem.itemName);
+        equippedIndicator.gameObject.SetActive(isEquipped);
     }
     
     #endregion

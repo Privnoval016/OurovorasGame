@@ -68,6 +68,20 @@ namespace Extensions.UI
         /// <param name="item">The passive to equip.</param>
         /// <returns>True if successfully equipped.</returns>
         bool EquipPassive(int slotIndex, ItemUIInfo item);
+        
+        /// <summary>
+        /// Unequips an accessory from the specified slot.
+        /// </summary>
+        /// <param name="slotIndex">The slot to unequip from (0-2).</param>
+        /// <returns>True if successfully unequipped.</returns>
+        bool UnequipAccessory(int slotIndex);
+        
+        /// <summary>
+        /// Unequips a passive from the specified slot.
+        /// </summary>
+        /// <param name="slotIndex">The slot to unequip from (0-2).</param>
+        /// <returns>True if successfully unequipped.</returns>
+        bool UnequipPassive(int slotIndex);
     }
     
     /// <summary>
@@ -197,6 +211,27 @@ namespace Extensions.UI
         /// </summary>
         /// <returns>Array of category names.</returns>
         string[] GetCategories();
+        
+        /// <summary>
+        /// Uses an item (calls its usage strategy).
+        /// </summary>
+        /// <param name="itemName">The name of the item to use.</param>
+        /// <returns>True if the item was used successfully.</returns>
+        bool UseItem(string itemName);
+        
+        /// <summary>
+        /// Discards an item from the inventory.
+        /// </summary>
+        /// <param name="itemName">The name of the item to discard.</param>
+        /// <returns>True if the item was discarded successfully.</returns>
+        bool DiscardItem(string itemName);
+        
+        /// <summary>
+        /// Checks if an item can be used.
+        /// </summary>
+        /// <param name="itemName">The name of the item.</param>
+        /// <returns>True if the item has a usable strategy.</returns>
+        bool CanItemBeUsed(string itemName);
     }
     
     /// <summary>

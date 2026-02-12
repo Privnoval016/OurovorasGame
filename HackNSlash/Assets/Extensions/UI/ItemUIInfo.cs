@@ -11,5 +11,6 @@ namespace Extensions.UI
         public bool isStackable;
         public int amount;
         public Rarity itemRarity;
+        public string category;
     }
 }

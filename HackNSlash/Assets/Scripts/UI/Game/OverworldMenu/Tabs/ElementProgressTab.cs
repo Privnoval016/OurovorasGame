@@ -810,7 +810,7 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         // Return to attack buttons layer
         currentState = NavigationState.AttackButtons;
         
-        // Select the unlock grid button
+        // Select the unlock grid button (it IS a Selectable)
         if (unlockGridButton != null)
         {
             Debug.Log("ElementProgressTab: Selecting unlock grid button");

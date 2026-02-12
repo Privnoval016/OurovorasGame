@@ -99,6 +99,119 @@ public class InventoryDataProvider : MonoBehaviour, IInventoryDataProvider, ISer
         };
     }
     
+    /// <summary>
+    /// Uses an item (calls its usage strategy).
+    /// </summary>
+    public bool UseItem(string itemName)
+    {
+        if (inventoryInfo == null)
+        {
+            Debug.LogWarning("InventoryDataProvider: InventoryInfo not available!");
+            return false;
+        }
+        
+        // Find the item in inventory by checking all categories
+        InventoryStack stack = null;
+        foreach (var category in inventoryInfo.categories)
+        {
+            if (category != null)
+            {
+                var stacks = category.GetAllStacks();
+                stack = stacks.Find(s => s.item != null && s.item.itemName == itemName);
+                if (stack != null) break;
+            }
+        }
+        
+        if (stack == null || stack.item == null)
+        {
+            Debug.LogWarning($"InventoryDataProvider: Item '{itemName}' not found in inventory!");
+            return false;
+        }
+        
+        var item = stack.item;
+        
+        // Check if item can be used
+        if (!item.canBeUsed || item.usageStrategy == null)
+        {
+            Debug.LogWarning($"InventoryDataProvider: Item '{itemName}' cannot be used!");
+            return false;
+        }
+        
+        // Use the item via its strategy
+        item.usageStrategy.Use(item);
+        
+        // Remove one from inventory (if consumable)
+        if (item.isStackable)
+        {
+            inventoryInfo.RemoveItem(item, 1);
+        }
+        
+        Debug.Log($"InventoryDataProvider: Used item '{itemName}'");
+        return true;
+    }
+    
+    /// <summary>
+    /// Discards an item from the inventory.
+    /// </summary>
+    public bool DiscardItem(string itemName)
+    {
+        if (inventoryInfo == null)
+        {
+            Debug.LogWarning("InventoryDataProvider: InventoryInfo not available!");
+            return false;
+        }
+        
+        // Find the item in inventory by checking all categories
+        InventoryStack stack = null;
+        foreach (var category in inventoryInfo.categories)
+        {
+            if (category != null)
+            {
+                var stacks = category.GetAllStacks();
+                stack = stacks.Find(s => s.item != null && s.item.itemName == itemName);
+                if (stack != null) break;
+            }
+        }
+        
+        if (stack == null || stack.item == null)
+        {
+            Debug.LogWarning($"InventoryDataProvider: Item '{itemName}' not found in inventory!");
+            return false;
+        }
+        
+        // Remove one from inventory
+        inventoryInfo.RemoveItem(stack.item, 1);
+        
+        Debug.Log($"InventoryDataProvider: Discarded item '{itemName}'");
+        return true;
+    }
+    
+    /// <summary>
+    /// Checks if an item can be used.
+    /// </summary>
+    public bool CanItemBeUsed(string itemName)
+    {
+        if (inventoryInfo == null)
+            return false;
+        
+        // Find the item in inventory by checking all categories
+        InventoryStack stack = null;
+        foreach (var category in inventoryInfo.categories)
+        {
+            if (category != null)
+            {
+                var stacks = category.GetAllStacks();
+                stack = stacks.Find(s => s.item != null && s.item.itemName == itemName);
+                if (stack != null) break;
+            }
+        }
+        
+        if (stack == null || stack.item == null)
+            return false;
+        
+        return stack.item.canBeUsed && stack.item.usageStrategy != null;
+    }
+    
     #endregion
 }
 
