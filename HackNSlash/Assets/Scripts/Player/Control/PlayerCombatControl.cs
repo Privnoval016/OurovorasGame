@@ -17,7 +17,6 @@ public class PlayerCombatControl : MonoBehaviour
     [Header("Combat")]
     
     public AttackConfig[] attackDatas;
-    public PlayerSkillTree skillTree;
     
     #region Element Info
     
@@ -50,6 +49,8 @@ public class PlayerCombatControl : MonoBehaviour
         
         pc.rps.CurrentElementLoadout?.ValidateElementAttacks();
 
+        pc.rps.skillTreeData.onTreeUpdated += OnTreeUpdate;
+        
         ActivateAttacksFromSkillTree();
     }
 
@@ -131,19 +132,22 @@ public class PlayerCombatControl : MonoBehaviour
             }
         }
         
-        if (!skillTree) return;
+        if (!pc.rps.skillTreeData?.skillTree) return;
 
-        foreach (var node in skillTree.skillTreeNodes)
+        foreach (var node in pc.rps.skillTreeData.GetAllDeactivatedNodes())
         {
-            if (!node) continue;
-
-            if (!node.isUnlocked || !node.isActive)
+            foreach (var attack in node.unlockedAttacks)
             {
-                foreach (var attack in node.unlockedAttacks)
-                {
-                    attack.isEnabled = false;
-                }
+                attack.isEnabled = false;
             }
+        }
+    }
+
+    private void OnTreeUpdate(SkillTreeNode node, bool isEnabled)
+    {
+        foreach (var attack in node.unlockedAttacks)
+        {
+            attack.isEnabled = isEnabled;
         }
     }
     

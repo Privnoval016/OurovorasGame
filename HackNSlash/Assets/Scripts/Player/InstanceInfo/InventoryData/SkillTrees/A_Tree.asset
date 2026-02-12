@@ -13,4 +13,54 @@ MonoBehaviour:
   m_Name: A_Tree
   m_EditorClassIdentifier: 
   treeName: 
-  skillTreeNodes: []
+  startNodeId: 59e83239-afd1-4529-8262-77b55dfd198c
+  nodes:
+  - nodeId: ba4c2962-93a4-4fe0-9b00-c0cac77cab8e
+    nodeName: Enemy Step
+    description: 
+    icon: {fileID: 0}
+    demonstrationVideo: {fileID: 0}
+    cost: 1
+    parentNodeIds:
+    - 59e83239-afd1-4529-8262-77b55dfd198c
+    unlockedAttacks:
+    - {fileID: 11400000, guid: ad44dd1239c408440a970d6f204734b6, type: 2}
+    - {fileID: 11400000, guid: e53371ef873d6f34bbe79795ccd54c92, type: 2}
+    displayedAttackIndex: 0
+    uiPosition: {x: 0.5061082, y: 0.3529412}
+  - nodeId: 59e83239-afd1-4529-8262-77b55dfd198c
+    nodeName: Double Jump
+    description: 
+    icon: {fileID: 0}
+    demonstrationVideo: {fileID: 0}
+    cost: 1
+    parentNodeIds: []
+    unlockedAttacks: []
+    displayedAttackIndex: 0
+    uiPosition: {x: 0.503615, y: 0.503268}
+  - nodeId: a4a34d3d-535f-427b-8e6d-4c8ee86ab715
+    nodeName: Dodge
+    description: 
+    icon: {fileID: 0}
+    demonstrationVideo: {fileID: 0}
+    cost: 1
+    parentNodeIds:
+    - 59e83239-afd1-4529-8262-77b55dfd198c
+    unlockedAttacks:
+    - {fileID: 11400000, guid: 6afab0c4d1daf4f97b63e7c2254ef2a7, type: 2}
+    - {fileID: 11400000, guid: 18dd024e407772a4e95419f02f3d3165, type: 2}
+    displayedAttackIndex: 0
+    uiPosition: {x: 0.38893044, y: 0.49673203}
+  - nodeId: 2f392dc3-647a-4c58-b115-5beb89a8af2e
+    nodeName: Ground Dash
+    description: 
+    icon: {fileID: 0}
+    demonstrationVideo: {fileID: 0}
+    cost: 1
+    parentNodeIds:
+    - 59e83239-afd1-4529-8262-77b55dfd198c
+    unlockedAttacks:
+    - {fileID: 11400000, guid: e066ee6eb132d4e799f3c6c2d178323b, type: 2}
+    - {fileID: 11400000, guid: cbde3890a7b6d0c4aa9557842c8efed9, type: 2}
+    displayedAttackIndex: 0
+    uiPosition: {x: 0.50236845, y: 0.6781046}

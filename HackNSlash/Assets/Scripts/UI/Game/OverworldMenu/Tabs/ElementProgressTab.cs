@@ -727,7 +727,7 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         // Disable/enable unlock grid button
         if (unlockGridButton != null)
         {
-            unlockGridButton.selectable.interactable = interactable;
+            unlockGridButton.interactable = interactable;
         }
     }
     
@@ -811,7 +811,7 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         currentState = NavigationState.AttackButtons;
         
         // Select the unlock grid button
-        if (unlockGridButton != null && unlockGridButton.selectable != null)
+        if (unlockGridButton != null)
         {
             Debug.Log("ElementProgressTab: Selecting unlock grid button");
             if (eventSystem != null)

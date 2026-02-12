@@ -88,6 +88,9 @@ namespace Extensions.UI
     [System.Serializable]
     public class SkillNodeDisplayData
     {
+        [Tooltip("Unique identifier for this node")]
+        public string nodeId;
+        
         [Tooltip("The node name")]
         public string nodeName;
         
@@ -97,25 +100,22 @@ namespace Extensions.UI
         [Tooltip("The node icon")]
         public Sprite icon;
         
-        [Tooltip("Position in the skill tree")]
-        public Vector2 treePosition;
+        [Tooltip("UI position in relative screen space (0-1)")]
+        public Vector2 uiPosition;
         
-        [Tooltip("Whether this node is unlocked")]
+        [Tooltip("Whether this node is unlocked (permanently available)")]
         public bool isUnlocked;
         
-        [Tooltip("Whether this node is active")]
-        public bool isActive;
+        [Tooltip("Whether this node is activated (currently equipped)")]
+        public bool isActivated;
         
         [Tooltip("Whether this node can be unlocked (prerequisites met)")]
         public bool canUnlock;
         
         [Tooltip("Cost to unlock this node")]
-        public int unlockCost;
+        public int cost;
         
-        [Tooltip("Attacks unlocked by this node")]
-        public AttackDisplayData[] unlockedAttacks;
-        
-        [Tooltip("Video demonstration for the primary attack")]
+        [Tooltip("Optional video demonstration")]
         public VideoClip demonstrationVideo;
     }
     

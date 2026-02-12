@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Extensions.UI
 {
@@ -118,29 +119,59 @@ namespace Extensions.UI
         /// <summary>
         /// Gets all skill nodes in the tree.
         /// </summary>
-        /// <returns>Array of skill node display data.</returns>
-        SkillNodeDisplayData[] GetAllNodes();
+        /// <returns>List of skill node display data.</returns>
+        List<SkillNodeDisplayData> GetAllNodes();
         
         /// <summary>
-        /// Gets a specific skill node by index.
+        /// Gets a specific skill node by ID.
         /// </summary>
-        /// <param name="nodeIndex">The node index.</param>
+        /// <param name="nodeId">The node ID.</param>
         /// <returns>The skill node data.</returns>
-        SkillNodeDisplayData GetNode(int nodeIndex);
+        SkillNodeDisplayData GetNode(string nodeId);
         
         /// <summary>
-        /// Attempts to unlock a skill node.
+        /// Gets the start node of the skill tree.
         /// </summary>
-        /// <param name="nodeIndex">The index of the node to unlock.</param>
-        /// <returns>True if successfully unlocked, false otherwise.</returns>
-        bool UnlockNode(int nodeIndex);
+        /// <returns>The start node data.</returns>
+        SkillNodeDisplayData GetStartNode();
         
         /// <summary>
-        /// Gets the indices of nodes connected to the specified node.
+        /// Gets the nearest node in a given direction from the current node.
         /// </summary>
-        /// <param name="nodeIndex">The node index.</param>
-        /// <returns>Array of connected node indices.</returns>
-        int[] GetConnectedNodes(int nodeIndex);
+        /// <param name="currentNodeId">Current node ID.</param>
+        /// <param name="direction">Direction to search.</param>
+        /// <returns>Nearest node in that direction.</returns>
+        SkillNodeDisplayData GetNearestNodeInDirection(string currentNodeId, Vector2 direction);
+        
+        /// <summary>
+        /// Checks if a node is unlocked.
+        /// </summary>
+        bool IsNodeUnlocked(string nodeId);
+        
+        /// <summary>
+        /// Checks if a node is activated.
+        /// </summary>
+        bool IsNodeActivated(string nodeId);
+        
+        /// <summary>
+        /// Attempts to unlock a node (spend points).
+        /// </summary>
+        bool UnlockNode(string nodeId);
+        
+        /// <summary>
+        /// Activates a node (toggle on).
+        /// </summary>
+        bool ActivateNode(string nodeId);
+        
+        /// <summary>
+        /// Deactivates a node (toggle off).
+        /// </summary>
+        bool DeactivateNode(string nodeId);
+        
+        /// <summary>
+        /// Gets available skill points.
+        /// </summary>
+        int GetAvailableSkillPoints();
     }
     
     /// <summary>

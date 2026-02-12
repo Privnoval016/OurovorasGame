@@ -12,7 +12,7 @@ namespace Extensions.UI
     /// Shows unlock icon, level requirement, and locked/unlocked state.
     /// Completely modular and reusable.
     /// </summary>
-    public class UnlockSlotUI : Selectable, ISelectHandler, IDeselectHandler, ISubmitHandler
+    public class UnlockSlotUI : Selectable, ISubmitHandler
     {
         [Header("UI References")]
         [SerializeField] private Image iconImage;
@@ -91,7 +91,7 @@ namespace Extensions.UI
         /// <summary>
         /// Called when hovering over unlock slot.
         /// </summary>
-        public void OnSelect(BaseEventData eventData)
+        public override void OnSelect(BaseEventData eventData)
         {
             if (!isUnlocked) return;
             
@@ -110,7 +110,7 @@ namespace Extensions.UI
         /// <summary>
         /// Called when deselecting unlock slot.
         /// </summary>
-        public void OnDeselect(BaseEventData eventData)
+        public override void OnDeselect(BaseEventData eventData)
         {
             isHovered = false;
             UpdateVisuals();

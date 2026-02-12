@@ -1,304 +1,530 @@
 using System.Collections.Generic;
 using Extensions.UI;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
+using UnityEngine.Video;
 
 /// <summary>
-/// Tab 4: Skill Tree tab for viewing and unlocking skills/abilities.
-/// Shows navigable skill tree with nodes, info panel at bottom, character model behind.
+/// Tab 4: Skill Tree visualization and navigation.
+/// Allows the player to navigate the skill tree, unlock nodes, and activate/deactivate abilities.
 /// </summary>
 public class SkillTreeTab : TabSelection
 {
     [Header("Data Provider")]
-    [SerializeField] private MonoBehaviour skillTreeDataProviderObject;
-    private ISkillTreeDataProvider skillTreeDataProvider;
+    [SerializeField] private SkillTreeDataProvider skillTreeDataProvider;
     
-    [Header("UI Components - Skill Tree Display")]
-    [SerializeField] private RectTransform skillTreeContainer;
-    [SerializeField] private GameObject skillNodePrefab;
-    [SerializeField] private float navigationSpeed = 500f;
+    [Header("UI References - Tree View")]
+    [SerializeField] private RectTransform treeContainer; // Container that moves to keep focused node centered
+    [SerializeField] private RectTransform nodeContainer; // Parent for all node UI elements
+    [SerializeField] private SkillTreeNodeUI nodeUIPrefab; // Prefab for node visuals
     
-    [Header("UI Components - Skill Info")]
-    [SerializeField] private GameObject skillInfoPanel;
-    [SerializeField] private TextMeshProUGUI skillNameText;
-    [SerializeField] private TextMeshProUGUI skillDescriptionText;
-    [SerializeField] private Image skillIcon;
-    [SerializeField] private VideoDisplay skillVideoDisplay;
-    [SerializeField] private Button unlockButton;
-    [SerializeField] private TextMeshProUGUI unlockCostText;
-    [SerializeField] private GameObject lockedIndicator;
+    [Header("UI References - Info Display")]
+    [SerializeField] private Image nodeIcon;
+    [SerializeField] private TextMeshProUGUI nodeNameText;
+    [SerializeField] private TextMeshProUGUI nodeDescriptionText;
+    [SerializeField] private TextMeshProUGUI nodeCostText;
+    [SerializeField] private TextMeshProUGUI skillPointsText;
+    [SerializeField] private GameObject infoPanel; // Bottom panel with node info
     
-    [Header("UI Components - Character Model")]
+    [Header("UI References - Video Player")]
+    [SerializeField] private VideoPlayer videoPlayer;
+    [SerializeField] private GameObject videoPlayerOverlay;
+    
+    [Header("UI References - Background")]
     [SerializeField] private RenderTextureDisplay characterModelDisplay;
     
-    private List<SkillNodeUI> skillNodes = new List<SkillNodeUI>();
-    private int currentSelectedNodeIndex = 0;
-    private SkillNodeDisplayData[] allNodesData;
+    [Header("Animation Settings")]
+    [SerializeField] private float focusAnimationDuration = 0.3f;
+    [SerializeField] private Ease focusAnimationEase = Ease.OutCubic;
+    [SerializeField] private float nodeScaleNormal = 1f;
+    [SerializeField] private float nodeScaleFocused = 1.2f;
     
-    #region MonoBehaviour Callbacks
+    private Dictionary<string, SkillTreeNodeUI> nodeUIElements = new Dictionary<string, SkillTreeNodeUI>();
+    private SkillNodeDisplayData currentFocusedNode;
+    private bool isHoldingToUnlock = false;
+    private bool isHoldingToDeactivate = false;
+    private float holdTimer = 0f;
+    private const float HOLD_DURATION = 0.5f; // How long to hold to unlock/deactivate
+    
+    #region Initialization
     
     private void Awake()
     {
-        if (skillTreeDataProviderObject != null)
-            skillTreeDataProvider = skillTreeDataProviderObject as ISkillTreeDataProvider;
-    }
-    
-    private void Update()
-    {
-        if (!gameObject.activeInHierarchy)
-            return;
+        if (skillTreeDataProvider == null)
+        {
+            Debug.LogWarning("SkillTreeTab: skillTreeDataProvider is not assigned!");
+        }
         
-        HandleNavigation();
+        // Subscribe to input
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.onNavigate += OnNavigateInput;
+            InputManager.Instance.onSelect += OnSelectInput;
+            InputManager.Instance.onBack += OnBackInput;
+        }
     }
     
-    #endregion
+    private void OnDestroy()
+    {
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.onNavigate -= OnNavigateInput;
+            InputManager.Instance.onSelect -= OnSelectInput;
+            InputManager.Instance.onBack -= OnBackInput;
+        }
+    }
     
-    #region TabSelection Overrides
-    
-    /// <summary>
-    /// Called when this tab is selected.
-    /// </summary>
     public override void OnTabSelect()
     {
         base.OnTabSelect();
         
-        skillTreeDataProvider ??= skillTreeDataProviderObject as ISkillTreeDataProvider;
-        
-        // Activate character model (behind skill tree)
-        if (characterModelDisplay != null)
-            characterModelDisplay.Activate();
-        
-        // Build skill tree
         BuildSkillTree();
-        
-        // Select first node
-        if (skillNodes.Count > 0)
-            SelectNode(0);
+        FocusOnStartNode();
+        UpdateSkillPointsDisplay();
     }
     
-    /// <summary>
-    /// Called when this tab is deselected.
-    /// </summary>
-    public override void OnTabDeselect()
+    public new void OnTabDeselect()
     {
-        base.OnTabDeselect();
-        
-        if (characterModelDisplay != null)
-            characterModelDisplay.Deactivate();
-        
-        if (skillVideoDisplay != null)
-            skillVideoDisplay.Deactivate();
+        // Reset hold states
+        isHoldingToUnlock = false;
+        isHoldingToDeactivate = false;
+        holdTimer = 0f;
     }
     
     #endregion
     
     #region Skill Tree Building
     
+    /// <summary>
+    /// Builds the skill tree UI from the data provider.
+    /// </summary>
     private void BuildSkillTree()
     {
-        // Clear existing nodes
-        ClearSkillTree();
-        
-        // Get all node data
-        allNodesData = skillTreeDataProvider.GetAllNodes();
-        
-        if (allNodesData == null || allNodesData.Length == 0)
+        if (skillTreeDataProvider == null)
         {
-            Debug.LogWarning("SkillTreeTab: No skill nodes available!");
+            Debug.LogWarning("SkillTreeTab: Cannot build skill tree - no data provider!");
             return;
         }
         
-        // Create UI nodes
-        for (int i = 0; i < allNodesData.Length; i++)
+        // Clear existing nodes
+        foreach (var kvp in nodeUIElements)
         {
-            CreateSkillNode(allNodesData[i], i);
+            if (kvp.Value != null)
+                Destroy(kvp.Value.gameObject);
+        }
+        nodeUIElements.Clear();
+        
+        // Get all nodes from data provider
+        var allNodes = skillTreeDataProvider.GetAllNodes();
+        
+        if (allNodes == null || allNodes.Count == 0)
+        {
+            Debug.LogWarning("SkillTreeTab: No nodes found in skill tree!");
+            return;
+        }
+        
+        // Create UI element for each node
+        foreach (var nodeData in allNodes)
+        {
+            CreateNodeUI(nodeData);
         }
         
         // Draw connections between nodes
-        DrawNodeConnections();
+        DrawConnections();
     }
     
-    private void CreateSkillNode(SkillNodeDisplayData nodeData, int index)
+    /// <summary>
+    /// Creates a UI element for a skill tree node.
+    /// </summary>
+    private void CreateNodeUI(SkillNodeDisplayData nodeData)
     {
-        if (skillNodePrefab == null || skillTreeContainer == null)
+        if (nodeUIPrefab == null || nodeContainer == null)
             return;
         
-        GameObject nodeObj = Instantiate(skillNodePrefab, skillTreeContainer);
-        SkillNodeUI nodeUI = nodeObj.GetComponent<SkillNodeUI>();
+        SkillTreeNodeUI nodeUI = Instantiate(nodeUIPrefab, nodeContainer);
         
-        if (nodeUI != null)
+        // Set position based on uiPosition (0-1 relative space)
+        RectTransform rectTransform = nodeUI.GetComponent<RectTransform>();
+        if (rectTransform != null)
         {
-            nodeUI.Initialize(nodeData, index);
-            nodeUI.onNodeClicked += OnNodeClicked;
-            skillNodes.Add(nodeUI);
+            // Convert 0-1 space to anchored position
+            Vector2 containerSize = nodeContainer.rect.size;
+            Vector2 anchoredPos = new Vector2(
+                nodeData.uiPosition.x * containerSize.x - containerSize.x / 2,
+                nodeData.uiPosition.y * containerSize.y - containerSize.y / 2
+            );
             
-            // Position the node
-            RectTransform nodeRect = nodeObj.GetComponent<RectTransform>();
-            if (nodeRect != null)
-            {
-                nodeRect.anchoredPosition = nodeData.treePosition;
-            }
-        }
-    }
-    
-    private void DrawNodeConnections()
-    {
-        // TODO: Draw lines between connected nodes
-        // This would require a line drawing system or UI line renderers
-    }
-    
-    private void ClearSkillTree()
-    {
-        foreach (var node in skillNodes)
-        {
-            if (node != null)
-            {
-                node.onNodeClicked -= OnNodeClicked;
-                Destroy(node.gameObject);
-            }
+            rectTransform.anchoredPosition = anchoredPos;
         }
         
-        skillNodes.Clear();
+        // Initialize the node UI
+        nodeUI.Initialize(nodeData);
+        
+        // Store reference
+        nodeUIElements[nodeData.nodeId] = nodeUI;
+    }
+    
+    /// <summary>
+    /// Draws connection lines between parent and child nodes.
+    /// </summary>
+    private void DrawConnections()
+    {
+        // TODO: Implement connection line drawing
+        // This would create Line Renderers or UI Lines between connected nodes
     }
     
     #endregion
     
     #region Navigation
     
-    private void HandleNavigation()
+    /// <summary>
+    /// Focuses on the start node when entering the tab.
+    /// </summary>
+    private void FocusOnStartNode()
     {
-        // Navigate with WASD or arrow keys
-        Vector2 input = Vector2.zero;
+        if (skillTreeDataProvider == null)
+            return;
         
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
-            input.y = 1f;
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-            input.y = -1f;
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
-            input.x = -1f;
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-            input.x = 1f;
-        
-        if (input != Vector2.zero)
+        var startNode = skillTreeDataProvider.GetStartNode();
+        if (startNode != null)
         {
-            // Move the skill tree container to keep selected node centered
-            Vector2 movement = input * navigationSpeed * Time.deltaTime;
-            skillTreeContainer.anchoredPosition += movement;
+            FocusOnNode(startNode, false); // No animation on first focus
         }
     }
     
-    private void OnNodeClicked(int nodeIndex)
+    /// <summary>
+    /// Focuses the camera/view on a specific node (animated).
+    /// </summary>
+    private void FocusOnNode(SkillNodeDisplayData nodeData, bool animate = true)
     {
-        SelectNode(nodeIndex);
-    }
-    
-    private void SelectNode(int nodeIndex)
-    {
-        if (nodeIndex < 0 || nodeIndex >= skillNodes.Count)
+        if (nodeData == null || treeContainer == null)
             return;
         
-        currentSelectedNodeIndex = nodeIndex;
+        currentFocusedNode = nodeData;
         
-        // Update visual selection
-        for (int i = 0; i < skillNodes.Count; i++)
+        // Get the node UI element
+        if (!nodeUIElements.TryGetValue(nodeData.nodeId, out SkillTreeNodeUI nodeUI))
+            return;
+        
+        // Calculate the position to center this node
+        Vector2 nodeWorldPos = nodeUI.GetComponent<RectTransform>().anchoredPosition;
+        Vector2 targetPosition = -nodeWorldPos; // Negate to center
+        
+        // Animate the tree container to center the node
+        if (animate)
         {
-            if (skillNodes[i] != null)
-                skillNodes[i].SetSelected(i == nodeIndex);
+            Tween.Custom(treeContainer.anchoredPosition, targetPosition, focusAnimationDuration,
+                onValueChange: pos => treeContainer.anchoredPosition = pos,
+                ease: focusAnimationEase,
+                useUnscaledTime: true);
+            
+            // Scale animation for focused node
+            foreach (var kvp in nodeUIElements)
+            {
+                float targetScale = kvp.Key == nodeData.nodeId ? nodeScaleFocused : nodeScaleNormal;
+                Tween.Scale(kvp.Value.transform, targetScale, focusAnimationDuration, 
+                    ease: focusAnimationEase, useUnscaledTime: true);
+            }
+        }
+        else
+        {
+            treeContainer.anchoredPosition = targetPosition;
+            
+            foreach (var kvp in nodeUIElements)
+            {
+                float targetScale = kvp.Key == nodeData.nodeId ? nodeScaleFocused : nodeScaleNormal;
+                kvp.Value.transform.localScale = Vector3.one * targetScale;
+            }
         }
         
-        // Center the selected node
-        CenterNode(nodeIndex);
+        // Update info display
+        UpdateNodeInfoDisplay(nodeData);
         
-        // Update info panel
-        UpdateSkillInfo(allNodesData[nodeIndex]);
+        // Update video player
+        UpdateVideoPlayer(nodeData);
     }
     
-    private void CenterNode(int nodeIndex)
+    private void OnNavigateInput(InputAction.CallbackContext context)
     {
-        if (nodeIndex < 0 || nodeIndex >= skillNodes.Count || skillNodes[nodeIndex] == null)
+        if (!context.performed || currentFocusedNode == null)
             return;
         
-        RectTransform nodeRect = skillNodes[nodeIndex].GetComponent<RectTransform>();
-        if (nodeRect != null)
+        Vector2 navInput = context.ReadValue<Vector2>();
+        
+        if (navInput.magnitude < 0.1f)
+            return;
+        
+        // Get nearest node in the navigation direction
+        var nearestNode = skillTreeDataProvider.GetNearestNodeInDirection(currentFocusedNode.nodeId, navInput);
+        
+        if (nearestNode != null)
         {
-            // Calculate position to center this node
-            Vector2 targetPosition = -nodeRect.anchoredPosition;
-            skillTreeContainer.anchoredPosition = targetPosition;
+            FocusOnNode(nearestNode, true);
+            UIAudio.PlayHover();
         }
     }
     
     #endregion
     
-    #region Skill Info Display
+    #region Node Interaction
     
-    private void UpdateSkillInfo(SkillNodeDisplayData nodeData)
+    private void OnSelectInput(InputAction.CallbackContext context)
     {
-        if (skillInfoPanel != null)
-            skillInfoPanel.SetActive(true);
+        if (currentFocusedNode == null || skillTreeDataProvider == null)
+            return;
         
-        if (skillNameText != null)
-            skillNameText.text = nodeData.nodeName;
-        
-        if (skillDescriptionText != null)
-            skillDescriptionText.text = nodeData.description;
-        
-        if (skillIcon != null)
+        if (context.started)
         {
-            skillIcon.sprite = nodeData.icon;
-            skillIcon.enabled = nodeData.icon != null;
+            // Start holding to unlock or activate
+            if (!currentFocusedNode.isUnlocked && currentFocusedNode.canUnlock)
+            {
+                isHoldingToUnlock = true;
+                isHoldingToDeactivate = false;
+                holdTimer = 0f;
+                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, true);
+            }
+            else if (currentFocusedNode.isUnlocked && !currentFocusedNode.isActivated)
+            {
+                // Can activate already unlocked node
+                isHoldingToUnlock = true;
+                isHoldingToDeactivate = false;
+                holdTimer = 0f;
+                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, true);
+            }
         }
-        
-        // Update unlock button
-        if (unlockButton != null)
+        else if (context.canceled)
         {
-            unlockButton.gameObject.SetActive(!nodeData.isUnlocked);
-            unlockButton.interactable = nodeData.canUnlock;
-            unlockButton.onClick.RemoveAllListeners();
-            unlockButton.onClick.AddListener(() => OnUnlockButtonClicked(currentSelectedNodeIndex));
-        }
-        
-        if (unlockCostText != null)
-            unlockCostText.text = $"Cost: {nodeData.unlockCost}";
-        
-        if (lockedIndicator != null)
-            lockedIndicator.SetActive(!nodeData.isUnlocked);
-        
-        // Show video if available
-        if (skillVideoDisplay != null && nodeData.demonstrationVideo != null)
-        {
-            skillVideoDisplay.SetVideo(nodeData.demonstrationVideo, true);
-            skillVideoDisplay.Activate();
-        }
-        else if (skillVideoDisplay != null)
-        {
-            skillVideoDisplay.Deactivate();
+            // Released before full hold
+            isHoldingToUnlock = false;
+            holdTimer = 0f;
+            UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, false);
         }
     }
     
-    private void OnUnlockButtonClicked(int nodeIndex)
+    private void OnBackInput(InputAction.CallbackContext context)
     {
-        if (skillTreeDataProvider == null)
+        if (currentFocusedNode == null || skillTreeDataProvider == null)
             return;
         
-        bool success = skillTreeDataProvider.UnlockNode(nodeIndex);
+        if (context.started)
+        {
+            // Start holding to deactivate
+            if (currentFocusedNode.isActivated)
+            {
+                isHoldingToDeactivate = true;
+                isHoldingToUnlock = false;
+                holdTimer = 0f;
+                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, true);
+            }
+        }
+        else if (context.canceled)
+        {
+            // Released before full hold
+            isHoldingToDeactivate = false;
+            holdTimer = 0f;
+            UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, false);
+        }
+    }
+    
+    private void Update()
+    {
+        HandleHoldInput();
+    }
+    
+    private void HandleHoldInput()
+    {
+        if (currentFocusedNode == null)
+        {
+            // Safety: Clear hold states if no focused node
+            if (isHoldingToUnlock || isHoldingToDeactivate)
+            {
+                isHoldingToUnlock = false;
+                isHoldingToDeactivate = false;
+                holdTimer = 0f;
+            }
+            return;
+        }
+        
+        if (isHoldingToUnlock || isHoldingToDeactivate)
+        {
+            holdTimer += Time.unscaledDeltaTime;
+            
+            // Update progress visual on the focused node
+            float progress = Mathf.Clamp01(holdTimer / HOLD_DURATION);
+            UpdateNodeHoldProgress(currentFocusedNode.nodeId, progress, true);
+            
+            if (holdTimer >= HOLD_DURATION)
+            {
+                if (isHoldingToUnlock)
+                {
+                    AttemptUnlockNode();
+                }
+                else if (isHoldingToDeactivate)
+                {
+                    AttemptDeactivateNode();
+                }
+                
+                // Reset hold state
+                isHoldingToUnlock = false;
+                isHoldingToDeactivate = false;
+                holdTimer = 0f;
+                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, false);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Updates the hold progress ring on a specific node.
+    /// </summary>
+    private void UpdateNodeHoldProgress(string nodeId, float progress, bool visible)
+    {
+        if (nodeUIElements.TryGetValue(nodeId, out SkillTreeNodeUI nodeUI))
+        {
+            nodeUI.SetHoldProgress(progress, visible);
+        }
+    }
+    
+    private void AttemptUnlockNode()
+    {
+        if (currentFocusedNode == null || skillTreeDataProvider == null)
+        {
+            Debug.LogWarning("SkillTreeTab: Cannot unlock node - null reference");
+            return;
+        }
+        
+        bool success = false;
+        
+        // If already unlocked, try to activate instead
+        if (currentFocusedNode.isUnlocked)
+        {
+            success = skillTreeDataProvider.ActivateNode(currentFocusedNode.nodeId);
+        }
+        else
+        {
+            success = skillTreeDataProvider.UnlockNode(currentFocusedNode.nodeId);
+        }
         
         if (success)
         {
-            // Refresh the skill tree
-            allNodesData = skillTreeDataProvider.GetAllNodes();
+            UIAudio.PlayItemEquip();
             
-            // Update the unlocked node's visual
-            if (nodeIndex >= 0 && nodeIndex < skillNodes.Count && skillNodes[nodeIndex] != null)
+            // Refresh the node display
+            RefreshCurrentNode();
+        }
+        else
+        {
+            UIAudio.PlayError();
+        }
+    }
+    
+    private void AttemptDeactivateNode()
+    {
+        if (currentFocusedNode == null || skillTreeDataProvider == null)
+        {
+            Debug.LogWarning("SkillTreeTab: Cannot deactivate node - null reference");
+            return;
+        }
+        
+        bool success = skillTreeDataProvider.DeactivateNode(currentFocusedNode.nodeId);
+        
+        if (success)
+        {
+            UIAudio.PlayBack();
+            
+            // Refresh the node display
+            RefreshCurrentNode();
+        }
+        else
+        {
+            UIAudio.PlayError();
+        }
+    }
+    
+    /// <summary>
+    /// Refreshes the currently focused node's data and UI.
+    /// </summary>
+    private void RefreshCurrentNode()
+    {
+        if (currentFocusedNode == null || skillTreeDataProvider == null)
+            return;
+        
+        var updatedNode = skillTreeDataProvider.GetNode(currentFocusedNode.nodeId);
+        if (updatedNode != null)
+        {
+            currentFocusedNode = updatedNode;
+            
+            // Update the node UI
+            if (nodeUIElements.TryGetValue(currentFocusedNode.nodeId, out SkillTreeNodeUI nodeUI))
             {
-                skillNodes[nodeIndex].Initialize(allNodesData[nodeIndex], nodeIndex);
+                nodeUI.UpdateState(updatedNode);
             }
             
-            // Update info panel
-            UpdateSkillInfo(allNodesData[nodeIndex]);
-            
-            Debug.Log($"Successfully unlocked skill node {nodeIndex}!");
+            UpdateNodeInfoDisplay(updatedNode);
+            UpdateSkillPointsDisplay();
+        }
+    }
+    
+    #endregion
+    
+    #region UI Updates
+    
+    private void UpdateNodeInfoDisplay(SkillNodeDisplayData nodeData)
+    {
+        if (nodeData == null)
+            return;
+        
+        if (nodeIcon != null)
+        {
+            nodeIcon.sprite = nodeData.icon;
+            nodeIcon.enabled = nodeData.icon != null;
+        }
+        
+        if (nodeNameText != null)
+            nodeNameText.text = nodeData.nodeName;
+        
+        if (nodeDescriptionText != null)
+            nodeDescriptionText.text = nodeData.description;
+        
+        if (nodeCostText != null)
+        {
+            if (nodeData.isUnlocked)
+            {
+                nodeCostText.text = nodeData.isActivated ? "ACTIVATED" : "UNLOCKED";
+            }
+            else
+            {
+                nodeCostText.text = $"Cost: {nodeData.cost} SP";
+            }
+        }
+    }
+    
+    private void UpdateVideoPlayer(SkillNodeDisplayData nodeData)
+    {
+        if (videoPlayer == null || videoPlayerOverlay == null)
+            return;
+        
+        if (nodeData.demonstrationVideo != null)
+        {
+            videoPlayer.clip = nodeData.demonstrationVideo;
+            videoPlayer.Play();
+            videoPlayerOverlay.SetActive(true);
+        }
+        else
+        {
+            videoPlayer.Stop();
+            videoPlayerOverlay.SetActive(false);
+        }
+    }
+    
+    private void UpdateSkillPointsDisplay()
+    {
+        if (skillPointsText != null && skillTreeDataProvider != null)
+        {
+            int availablePoints = skillTreeDataProvider.GetAvailableSkillPoints();
+            skillPointsText.text = $"Skill Points: {availablePoints}";
         }
     }
     
@@ -309,101 +535,11 @@ public class SkillTreeTab : TabSelection
     /// <summary>
     /// Sets the skill tree data provider for this tab.
     /// </summary>
-    /// <param name="provider">The skill tree data provider.</param>
-    public void SetDataProvider(ISkillTreeDataProvider provider)
+    public void SetDataProvider(SkillTreeDataProvider provider)
     {
         skillTreeDataProvider = provider;
-        
-        if (gameObject.activeInHierarchy)
-            BuildSkillTree();
     }
     
     #endregion
-}
-
-/// <summary>
-/// UI component for a single skill node in the skill tree.
-/// Controller-only navigation - no mouse support.
-/// </summary>
-public class SkillNodeUI : MonoBehaviour, ISelectHandler, IDeselectHandler, ISubmitHandler
-{
-    [Header("UI References")]
-    [SerializeField] private Image nodeIcon;
-    [SerializeField] private Image nodeBackground;
-    [SerializeField] private GameObject lockedOverlay;
-    [SerializeField] private GameObject selectedIndicator;
-    
-    [Header("Colors")]
-    [SerializeField] private Color unlockedColor = Color.green;
-    [SerializeField] private Color lockedColor = Color.gray;
-    [SerializeField] private Color canUnlockColor = Color.yellow;
-    
-    private SkillNodeDisplayData nodeData;
-    private int nodeIndex;
-    
-    public System.Action<int> onNodeClicked;
-    public System.Action<int> onNodeSelected;
-    
-    /// <summary>
-    /// Initializes the node with data.
-    /// </summary>
-    public void Initialize(SkillNodeDisplayData data, int index)
-    {
-        nodeData = data;
-        nodeIndex = index;
-        UpdateVisuals();
-    }
-    
-    /// <summary>
-    /// Sets whether this node is selected.
-    /// </summary>
-    public void SetSelected(bool selected)
-    {
-        if (selectedIndicator != null)
-            selectedIndicator.SetActive(selected);
-    }
-    
-    private void UpdateVisuals()
-    {
-        if (nodeIcon != null && nodeData.icon != null)
-        {
-            nodeIcon.sprite = nodeData.icon;
-            nodeIcon.enabled = true;
-        }
-        else if (nodeIcon != null)
-        {
-            nodeIcon.enabled = false;
-        }
-        
-        Color bgColor = lockedColor;
-        if (nodeData.isUnlocked)
-            bgColor = unlockedColor;
-        else if (nodeData.canUnlock)
-            bgColor = canUnlockColor;
-        
-        if (nodeBackground != null)
-            nodeBackground.color = bgColor;
-        
-        if (lockedOverlay != null)
-            lockedOverlay.SetActive(!nodeData.isUnlocked);
-    }
-    
-    public void OnSelect(UnityEngine.EventSystems.BaseEventData eventData)
-    {
-        SetSelected(true);
-        onNodeSelected?.Invoke(nodeIndex);
-        UIAudio.PlayHover();
-    }
-    
-    public void OnDeselect(UnityEngine.EventSystems.BaseEventData eventData)
-    {
-        SetSelected(false);
-    }
-    
-    public void OnSubmit(UnityEngine.EventSystems.BaseEventData eventData)
-    {
-        onNodeClicked?.Invoke(nodeIndex);
-        UIAudio.PlaySelect();
-    }
 }
 
