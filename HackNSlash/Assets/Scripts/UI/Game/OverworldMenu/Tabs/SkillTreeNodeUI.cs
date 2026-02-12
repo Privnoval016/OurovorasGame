@@ -121,17 +121,17 @@ public class SkillTreeNodeUI : MonoBehaviour
     /// Sets the hold progress ring fill amount and visibility.
     /// </summary>
     /// <param name="progress">Progress from 0-1</param>
-    /// <param name="visible">Whether the ring should be visible</param>
-    public void SetHoldProgress(float progress, bool visible)
+    /// <param name="finished">Whether the hold action is finished (to trigger completion feedback)</param>
+    public void SetHoldProgress(float progress, bool finished)
     {
         if (holdProgressRing == null || holdProgressRingImage == null)
             return;
         
         holdProgressRing.value = progress;
-        holdProgressRingImage.gameObject.SetActive(visible);
+        holdProgressRingImage.gameObject.SetActive(true);
         
         // Animate the ring appearance
-        if (visible && progress > 0f)
+        if (true && progress > 0f)
         {
             // Optional: Pulse effect as it fills
             float scale = 1f + (progress * 0.1f);
@@ -140,6 +140,12 @@ public class SkillTreeNodeUI : MonoBehaviour
         else
         {
             holdProgressRingImage.transform.localScale = Vector3.one;
+        }
+
+        if (finished)
+        {
+            holdProgressRing.value = 0f; // Reset progress once it finishes
+            PlayPulseAnimation();
         }
     }
 }

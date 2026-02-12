@@ -19,6 +19,7 @@ public class SkillTreeTab : TabSelection
     [Header("UI References - Tree View")]
     [SerializeField] private RectTransform treeContainer; // Container that moves to keep focused node centered
     [SerializeField] private RectTransform nodeContainer; // Parent for all node UI elements
+    [SerializeField] private RectTransform maskObject; // Mask for the tree view area
     [SerializeField] private SkillTreeNodeUI nodeUIPrefab; // Prefab for node visuals
     
     [Header("UI References - Info Display")]
@@ -160,6 +161,8 @@ public class SkillTreeTab : TabSelection
             rectTransform.anchoredPosition = anchoredPos;
         }
         
+        nodeUI.transform.SetParent(maskObject, false); // Ensure it's under the mask for proper clipping
+        
         // Initialize the node UI
         nodeUI.Initialize(nodeData);
         
@@ -284,7 +287,7 @@ public class SkillTreeTab : TabSelection
                 isHoldingToUnlock = true;
                 isHoldingToDeactivate = false;
                 holdTimer = 0f;
-                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, true);
+                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, false);
             }
             else if (currentFocusedNode.isUnlocked && !currentFocusedNode.isActivated)
             {
@@ -292,7 +295,7 @@ public class SkillTreeTab : TabSelection
                 isHoldingToUnlock = true;
                 isHoldingToDeactivate = false;
                 holdTimer = 0f;
-                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, true);
+                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, false);
             }
         }
         else if (context.canceled)
@@ -317,7 +320,7 @@ public class SkillTreeTab : TabSelection
                 isHoldingToDeactivate = true;
                 isHoldingToUnlock = false;
                 holdTimer = 0f;
-                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, true);
+                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, false);
             }
         }
         else if (context.canceled)
@@ -354,7 +357,7 @@ public class SkillTreeTab : TabSelection
             
             // Update progress visual on the focused node
             float progress = Mathf.Clamp01(holdTimer / HOLD_DURATION);
-            UpdateNodeHoldProgress(currentFocusedNode.nodeId, progress, true);
+            UpdateNodeHoldProgress(currentFocusedNode.nodeId, progress, false);
             
             if (holdTimer >= HOLD_DURATION)
             {
@@ -371,7 +374,7 @@ public class SkillTreeTab : TabSelection
                 isHoldingToUnlock = false;
                 isHoldingToDeactivate = false;
                 holdTimer = 0f;
-                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, false);
+                UpdateNodeHoldProgress(currentFocusedNode.nodeId, 0f, true);
             }
         }
     }
@@ -379,11 +382,11 @@ public class SkillTreeTab : TabSelection
     /// <summary>
     /// Updates the hold progress ring on a specific node.
     /// </summary>
-    private void UpdateNodeHoldProgress(string nodeId, float progress, bool visible)
+    private void UpdateNodeHoldProgress(string nodeId, float progress, bool finished)
     {
         if (nodeUIElements.TryGetValue(nodeId, out SkillTreeNodeUI nodeUI))
         {
-            nodeUI.SetHoldProgress(progress, visible);
+            nodeUI.SetHoldProgress(progress, finished);
         }
     }
     
