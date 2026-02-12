@@ -17,6 +17,11 @@ public abstract class InventoryItem : ScriptableObject
     public int purchasePrice; // Price to purchase the item
     public int SellPrice => Mathf.RoundToInt(purchasePrice * 0.5f); // Price to sell the item, typically half of purchase price
 
+    [Header("Usage Details")] 
+    public bool canBeUsed = true;
+    
+    [SerializeReference]
+    public UsageStrategy usageStrategy;
 }
 
 public enum Rarity
