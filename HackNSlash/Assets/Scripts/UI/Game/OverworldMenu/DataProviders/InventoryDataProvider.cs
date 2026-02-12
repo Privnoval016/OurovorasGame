@@ -38,15 +38,15 @@ public class InventoryDataProvider : MonoBehaviour, IInventoryDataProvider, ISer
     /// <summary>
     /// Gets all items in the inventory.
     /// </summary>
-    public List<ItemUIInfo> GetAllItems()
+    public List<ItemUIInfo<InventoryItem>> GetAllItems()
     {
         if (inventoryInfo == null)
         {
             Debug.LogWarning("InventoryDataProvider: InventoryInfo not available!");
-            return new List<ItemUIInfo>();
+            return new List<ItemUIInfo<InventoryItem>>();
         }
         
-        var allItems = new List<ItemUIInfo>();
+        var allItems = new List<ItemUIInfo<InventoryItem>>();
         
         // Get all categories and combine their items
         foreach (var category in inventoryInfo.categories)
@@ -54,7 +54,8 @@ public class InventoryDataProvider : MonoBehaviour, IInventoryDataProvider, ISer
             if (category != null)
             {
                 var stacks = category.GetAllStacks();
-                allItems.AddRange(stacks.Select(stack => stack.GetItemUIInfo()));
+                // Filter out null ItemUIInfo objects
+                allItems.AddRange(stacks.Select(stack => stack.GetItemUIInfo()).Where(info => info != null));
             }
         }
         
@@ -64,12 +65,12 @@ public class InventoryDataProvider : MonoBehaviour, IInventoryDataProvider, ISer
     /// <summary>
     /// Gets items filtered by category.
     /// </summary>
-    public List<ItemUIInfo> GetItemsByCategory(string category)
+    public List<ItemUIInfo<InventoryItem>> GetItemsByCategory(string category)
     {
         if (inventoryInfo == null)
         {
             Debug.LogWarning("InventoryDataProvider: InventoryInfo not available!");
-            return new List<ItemUIInfo>();
+            return new List<ItemUIInfo<InventoryItem>>();
         }
         
         // Map category name to type
@@ -82,7 +83,8 @@ public class InventoryDataProvider : MonoBehaviour, IInventoryDataProvider, ISer
             _ => new List<InventoryStack>()
         };
         
-        return stacks.Select(stack => stack.GetItemUIInfo()).ToList();
+        // Filter out null ItemUIInfo objects
+        return stacks.Select(stack => stack.GetItemUIInfo()).Where(info => info != null).ToList();
     }
     
     /// <summary>

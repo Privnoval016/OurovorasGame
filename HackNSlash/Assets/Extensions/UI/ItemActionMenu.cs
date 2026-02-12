@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using TMPro;
 
 namespace Extensions.UI
 {
@@ -10,16 +9,13 @@ namespace Extensions.UI
     /// Reusable action menu for inventory items.
     /// Shows "Use" and "Discard" options when an item is selected.
     /// Completely modular and can be used in any inventory system.
+    /// Uses custom ActionMenuButton components for consistent animations.
     /// </summary>
     public class ItemActionMenu : MonoBehaviour
     {
         [Header("Menu Buttons")]
-        [SerializeField] private Button useButton;
-        [SerializeField] private Button discardButton;
-        
-        [Header("Button Text (Optional)")]
-        [SerializeField] private TextMeshProUGUI useButtonText;
-        [SerializeField] private TextMeshProUGUI discardButtonText;
+        [SerializeField] private ActionMenuButton useButton;
+        [SerializeField] private ActionMenuButton discardButton;
         
         [Header("Settings")]
         [SerializeField] private bool hideOnAction = true;
@@ -48,14 +44,14 @@ namespace Extensions.UI
             // Setup button listeners
             if (useButton != null)
             {
-                useButton.onClick.RemoveAllListeners();
-                useButton.onClick.AddListener(HandleUsePressed);
+                useButton.RemoveAllListeners();
+                useButton.AddListener(HandleUsePressed);
             }
             
             if (discardButton != null)
             {
-                discardButton.onClick.RemoveAllListeners();
-                discardButton.onClick.AddListener(HandleDiscardPressed);
+                discardButton.RemoveAllListeners();
+                discardButton.AddListener(HandleDiscardPressed);
             }
             
             // Setup navigation
@@ -141,24 +137,6 @@ namespace Extensions.UI
             
             if (hideOnAction)
                 Hide();
-        }
-        
-        /// <summary>
-        /// Sets the text for the use button.
-        /// </summary>
-        public void SetUseButtonText(string text)
-        {
-            if (useButtonText != null)
-                useButtonText.text = text;
-        }
-        
-        /// <summary>
-        /// Sets the text for the discard button.
-        /// </summary>
-        public void SetDiscardButtonText(string text)
-        {
-            if (discardButtonText != null)
-                discardButtonText.text = text;
         }
     }
 }

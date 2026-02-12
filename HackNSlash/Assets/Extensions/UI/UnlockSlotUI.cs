@@ -21,13 +21,6 @@ namespace Extensions.UI
         [SerializeField] private Image lockOverlay;
         [SerializeField] private TextMeshProUGUI levelText;
         
-        [Header("Visual Settings")]
-        [SerializeField] private Color normalColor = Color.white;
-        [SerializeField] private Color selectedColor = Color.yellow;
-        [SerializeField] private Color lockedColor = Color.gray;
-        [SerializeField] private float selectedScale = 1.1f;
-        [SerializeField] private float animationDuration = 0.15f;
-        
         [Header("Events")]
         public UnityEvent<int> onUnlockHovered; // For showing description
         
@@ -36,13 +29,13 @@ namespace Extensions.UI
         private string description;
         private int requiredLevel;
         private bool isUnlocked;
-        private bool isHovered = false;
-        private Vector3 originalScale;
+        private bool isHovered;
+        private UIAnimationManager animationManager;
         
         protected override void Awake()
         {
             base.Awake();
-            originalScale = transform.localScale;
+            animationManager = UIAnimationManager.Instance;
         }
         
         /// <summary>
@@ -81,7 +74,7 @@ namespace Extensions.UI
             
             if (iconImage != null)
             {
-                iconImage.color = isUnlocked ? Color.white : lockedColor;
+                iconImage.color = isUnlocked ? Color.white : animationManager.GetLockedColor();
             }
             
             // Can only interact if unlocked
@@ -98,8 +91,12 @@ namespace Extensions.UI
             isHovered = true;
             UpdateVisuals();
             
-            // Scale up animation
-            Tween.Scale(transform, originalScale * selectedScale, animationDuration, Ease.OutBack, useUnscaledTime: true);
+            // Animate selection
+            if (animationManager != null)
+            {
+                animationManager.CreateBuilder(transform, borderImage)
+                    .AnimateSelection();
+            }
             
             // Notify for description display
             onUnlockHovered?.Invoke(unlockIndex);
@@ -115,8 +112,12 @@ namespace Extensions.UI
             isHovered = false;
             UpdateVisuals();
             
-            // Scale down animation
-            Tween.Scale(transform, originalScale, animationDuration, Ease.OutQuad, useUnscaledTime: true);
+            // Animate deselection
+            if (animationManager != null)
+            {
+                animationManager.CreateBuilder(transform, borderImage)
+                    .AnimateDeselection();
+            }
         }
         
         /// <summary>
@@ -134,10 +135,16 @@ namespace Extensions.UI
         {
             if (!isUnlocked) return;
             
-            Color targetColor = isHovered ? selectedColor : normalColor;
+            if (animationManager == null)
+            {
+                animationManager = UIAnimationManager.Instance;
+                if (animationManager == null) return;
+            }
+            
+            Color targetColor = isHovered ? animationManager.GetSelectedColor() : animationManager.GetNormalColor();
             
             if (borderImage != null)
-                Tween.Color(borderImage, targetColor, animationDuration, useUnscaledTime: true);
+                borderImage.color = targetColor;
         }
         
         /// <summary>

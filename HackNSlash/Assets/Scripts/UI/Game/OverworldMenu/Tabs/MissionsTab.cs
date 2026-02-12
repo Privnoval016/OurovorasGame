@@ -169,22 +169,22 @@ public class MissionsTab : TabSelection, IScrollMenuAuthority
         }
         
         // Convert quests to ItemUIInfo for scroll menu
-        List<ItemUIInfo> questItems = new List<ItemUIInfo>();
+        List<ItemUIInfo<MissionEntryData>> questItems = new();
         foreach (var quest in quests)
         {
-            questItems.Add(new ItemUIInfo
+            questItems.Add(new ItemUIInfo<MissionEntryData>
             {
                 itemName = quest.questName,
                 itemDescription = quest.progressText,
                 icon = null, // Could add quest icons if available
-                itemRarity = quest.isMainQuest ? Rarity.Epic : Rarity.Common
+                rarity = quest.isMainQuest ? Rarity.Epic : Rarity.Common
             });
         }
         
         if (scrollMenuContainer != null)
             scrollMenuContainer.SetActive(true);
         
-        questScrollMenu.Activate(questItems, 0, item => item, this);
+        questScrollMenu.Activate(questItems, 0, this);
         isScrollMenuActive = true;
         currentQuestIndex = 0;
         

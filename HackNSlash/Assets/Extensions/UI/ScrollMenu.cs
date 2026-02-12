@@ -65,7 +65,8 @@ namespace Extensions.UI
         private Vector3 originalBottomBufferPosition;
 
         private IList inventoryItems;
-        private Func<object, ItemUIInfo> getItemInfoFunc;
+        private Func<object, object> getItemInfoFunc; // Returns ItemUIInfo<T> boxed as object
+        private Func<object, bool> isItemEquippedFunc; // Takes ItemUIInfo<T> boxed as object
 
         private IScrollMenuAuthority authority;
 
@@ -82,12 +83,13 @@ namespace Extensions.UI
         /// <summary>
         /// Gets the currently selected item's data.
         /// </summary>
-        public ItemUIInfo GetSelectedItem()
+        public ItemUIInfo<TItem> GetSelectedItem<TItem>() where TItem : class
         {
             if (inventoryItems == null || selectedIndex < 0 || selectedIndex >= inventoryItems.Count)
                 return null;
             
-            return getItemInfoFunc(inventoryItems[selectedIndex]);
+            var obj = getItemInfoFunc(inventoryItems[selectedIndex]);
+            return obj as ItemUIInfo<TItem>;
         }
         
         /// <summary>
@@ -174,9 +176,10 @@ namespace Extensions.UI
         #region Activation
 
         /// <summary>
-        /// Activates the scroll menu with the provided items and configuration.
+        /// Activates the scroll menu with the provided ItemUIInfo items.
         /// </summary>
-        public void Activate<T>(List<T> items, int initialIndex, Func<T, ItemUIInfo> getInfoFunc, IScrollMenuAuthority authority) where T : class
+        /// <typeparam name="T">The type of the item reference (e.g., InventoryItem, AttacksByWeapon)</typeparam>
+        public void Activate<T>(List<ItemUIInfo<T>> items, int initialIndex, IScrollMenuAuthority authority) where T : class
         {
             if (items == null || items.Count == 0)
             {
@@ -185,7 +188,7 @@ namespace Extensions.UI
             }
 
             inventoryItems = items;
-            getItemInfoFunc = o => getInfoFunc((T)o);
+            getItemInfoFunc = obj => obj; // Items ARE already ItemUIInfo, just return as object
             selectedIndex = Mathf.Clamp(initialIndex, 0, items.Count - 1);
             
             this.authority = authority;
@@ -199,6 +202,16 @@ namespace Extensions.UI
             
             // CRITICAL: Initialize buffer panels with correct data for first scroll
             InitializeBufferPanels();
+        }
+        
+        /// <summary>
+        /// Sets the callback function to check if an item is equipped.
+        /// This is optional - if not set, equipped indicators won't show.
+        /// </summary>
+        /// <param name="checkFunc">Function that takes ItemUIInfo<T> (as object) and returns true if equipped.</param>
+        public void SetEquippedCheckCallback(Func<object, bool> checkFunc)
+        {
+            isItemEquippedFunc = checkFunc;
         }
 
         /// <summary>
@@ -504,12 +517,20 @@ namespace Extensions.UI
 
             if (dataIndex >= 0 && dataIndex < inventoryItems.Count)
             {
-                ItemUIInfo info = getItemInfoFunc(inventoryItems[dataIndex]);
+                object info = getItemInfoFunc(inventoryItems[dataIndex]);
                 panel.Refresh(info);
+                
+                // Update equipped indicator if callback is set
+                if (isItemEquippedFunc != null && info != null)
+                {
+                    bool isEquipped = isItemEquippedFunc(info);
+                    panel.SetEquippedIndicator(isEquipped);
+                }
             }
             else
             {
                 panel.Refresh(null);
+                panel.SetEquippedIndicator(false);
             }
         }
 
@@ -583,13 +604,21 @@ namespace Extensions.UI
 
             if (dataIndex >= 0 && dataIndex < inventoryItems.Count)
             {
-                ItemUIInfo info = getItemInfoFunc(inventoryItems[dataIndex]);
+                object info = getItemInfoFunc(inventoryItems[dataIndex]);
                 panel.Refresh(info);
+                
+                // Update equipped indicator if callback is set
+                if (isItemEquippedFunc != null && info != null)
+                {
+                    bool isEquipped = isItemEquippedFunc(info);
+                    panel.SetEquippedIndicator(isEquipped);
+                }
             }
             else
             {
                 // Only show as null/empty if we're in Stop mode and out of bounds
                 panel.Refresh(null);
+                panel.SetEquippedIndicator(false);
             }
         }
 

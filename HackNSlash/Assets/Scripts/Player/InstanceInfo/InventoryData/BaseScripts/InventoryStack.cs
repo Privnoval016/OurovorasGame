@@ -11,15 +11,19 @@ public class InventoryStack
     public InventoryItem item; // only one type per stack
     public int amount;
 
-    public ItemUIInfo GetItemUIInfo()
+    public ItemUIInfo<InventoryItem> GetItemUIInfo()
     {
-        return new ItemUIInfo
+        if (item == null)
+            return null;
+
+        return new ItemUIInfo<InventoryItem>
         {
+            itemReference = item, // CRITICAL: Store reference for bijective identification
             itemName = item.itemName,
             itemDescription = item.itemDescription,
             amount = amount,
             isStackable = item.isStackable,
-            itemRarity = item.itemRarity,
+            rarity = item.itemRarity,
             icon = item.itemIcon,
             category = GetItemCategory(item)
         };

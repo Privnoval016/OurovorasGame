@@ -22,67 +22,7 @@ namespace Extensions.UI
         EquippedItemDisplayData[] GetEquippedItems();
     }
     
-    /// <summary>
-    /// Interface for providing equipment/inventory data to the UI.
-    /// </summary>
-    public interface IEquipmentDataProvider
-    {
-        /// <summary>
-        /// Gets all accessories in the inventory.
-        /// </summary>
-        /// <returns>List of accessory item info.</returns>
-        List<ItemUIInfo> GetAccessories();
-        
-        /// <summary>
-        /// Gets all passive skills in the inventory.
-        /// </summary>
-        /// <returns>List of passive skill item info.</returns>
-        List<ItemUIInfo> GetPassives();
-        
-        /// <summary>
-        /// Gets the currently equipped accessory at the specified slot.
-        /// </summary>
-        /// <param name="slotIndex">The slot index (0-2).</param>
-        /// <returns>The equipped accessory data or empty if none.</returns>
-        EquippedItemDisplayData GetEquippedAccessory(int slotIndex);
-        
-        /// <summary>
-        /// Gets the currently equipped passive at the specified slot.
-        /// </summary>
-        /// <param name="slotIndex">The slot index (0-2).</param>
-        /// <returns>The equipped passive data or empty if none.</returns>
-        EquippedItemDisplayData GetEquippedPassive(int slotIndex);
-        
-        /// <summary>
-        /// Equips an accessory to the specified slot.
-        /// </summary>
-        /// <param name="slotIndex">The slot to equip to (0-2).</param>
-        /// <param name="item">The item to equip.</param>
-        /// <returns>True if successfully equipped.</returns>
-        bool EquipAccessory(int slotIndex, ItemUIInfo item);
-        
-        /// <summary>
-        /// Equips a passive skill to the specified slot.
-        /// </summary>
-        /// <param name="slotIndex">The slot to equip to (0-2).</param>
-        /// <param name="item">The passive to equip.</param>
-        /// <returns>True if successfully equipped.</returns>
-        bool EquipPassive(int slotIndex, ItemUIInfo item);
-        
-        /// <summary>
-        /// Unequips an accessory from the specified slot.
-        /// </summary>
-        /// <param name="slotIndex">The slot to unequip from (0-2).</param>
-        /// <returns>True if successfully unequipped.</returns>
-        bool UnequipAccessory(int slotIndex);
-        
-        /// <summary>
-        /// Unequips a passive from the specified slot.
-        /// </summary>
-        /// <param name="slotIndex">The slot to unequip from (0-2).</param>
-        /// <returns>True if successfully unequipped.</returns>
-        bool UnequipPassive(int slotIndex);
-    }
+
     
     /// <summary>
     /// Interface for providing element progression data to the UI.
@@ -197,14 +137,14 @@ namespace Extensions.UI
         /// Gets all items in the inventory.
         /// </summary>
         /// <returns>List of all inventory items.</returns>
-        List<ItemUIInfo> GetAllItems();
+        List<ItemUIInfo<InventoryItem>> GetAllItems();
         
         /// <summary>
         /// Gets items filtered by category.
         /// </summary>
         /// <param name="category">The category name (e.g., "Accessories", "Consumables").</param>
         /// <returns>List of items in the specified category.</returns>
-        List<ItemUIInfo> GetItemsByCategory(string category);
+        List<ItemUIInfo<InventoryItem>> GetItemsByCategory(string category);
         
         /// <summary>
         /// Gets all available item categories.

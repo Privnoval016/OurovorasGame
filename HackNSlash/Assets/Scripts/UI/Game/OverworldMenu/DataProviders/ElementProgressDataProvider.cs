@@ -14,8 +14,6 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
     private RuntimePlayerStatus runtimePlayerStatus;
     private ElementLoadout elementLoadout;
     
-    private Dictionary<string, AttacksByWeapon> attackLookup = new Dictionary<string, AttacksByWeapon>();
-    
     // Cache display data to maintain consistent references across multiple calls
     private Dictionary<string, AttackDisplayData> attackDisplayDataCache = new Dictionary<string, AttackDisplayData>();
     
@@ -135,7 +133,8 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
         {
             if (entry.isAttackUnlock && entry.unlockedAttack != null)
             {
-                attacks.Add(ConvertToDisplayData(entry.unlockedAttack, element));
+                // CRITICAL: Use entry description for attack name, not ScriptableObject name
+                attacks.Add(ConvertToDisplayData(entry.unlockedAttack, element, entry));
             }
         }
         
@@ -161,6 +160,14 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
             return false;
         }
         
+        // CRITICAL: Use attackReference for bijective identification, not name
+        var selectedAttack = availableAttacks[attackIndex];
+        if (selectedAttack.attackReference == null)
+        {
+            Debug.LogWarning($"ElementProgressDataProvider: Selected attack has null attackReference!");
+            return false;
+        }
+        
         // Convert button index to KeyBind
         KeyBind keyBind = buttonIndex switch
         {
@@ -170,98 +177,55 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
             _ => KeyBind.West
         };
         
-        Debug.Log($"ElementProgressDataProvider: Assigning attack '{availableAttacks[attackIndex].attackName}' to {keyBind} button for {element}");
+        Debug.Log($"ElementProgressDataProvider: Assigning attack '{selectedAttack.attackName}' to {keyBind} button for {element}");
         
-        RefreshLookup();
-        
-        if (attackLookup == null || attackLookup.Count == 0)
-        {
-            Debug.LogWarning("ElementProgressDataProvider: Attack lookup is empty after refresh!");
-            return false;
-        }
-        
-        var attackToAssign = attackLookup.ContainsKey(availableAttacks[attackIndex].attackName) 
-            ? attackLookup[availableAttacks[attackIndex].attackName] 
-            : null;
-        
-        if (attackToAssign == null)
-        {
-            Debug.LogWarning($"ElementProgressDataProvider: Could not find attack '{availableAttacks[attackIndex].attackName}' in lookup!");
-            return false;
-        }
-        
-        return elementLoadout.SetElementAttack(element, attackToAssign, keyBind);
+        return elementLoadout.SetElementAttack(element, selectedAttack.attackReference, keyBind);
     }
     
     #endregion
     
     #region Helper Methods
     
-    private AttackDisplayData ConvertToDisplayData(AttacksByWeapon attack, ElementEffect element)
+    private AttackDisplayData ConvertToDisplayData(AttacksByWeapon attack, ElementEffect element, ElementProgressEntry entry = null)
     {
         if (attack == null)
             return AttackDisplayData.Empty();
         
-        string attackName = attack.SwordAttack.name;
+        // CRITICAL: Use entry description for display name, NOT ScriptableObject name
+        // This allows proper unique display names even if attacks share the same ScriptableObject
+        string displayName = entry != null && !string.IsNullOrEmpty(entry.description) 
+            ? entry.description 
+            : attack.SwordAttack.name;
+        
+        // Use attack hash code as cache key for bijective identification
+        string cacheKey = attack.GetHashCode().ToString();
         
         // Return cached instance if it exists
-        if (attackDisplayDataCache.ContainsKey(attackName))
+        if (attackDisplayDataCache.ContainsKey(cacheKey))
         {
-            return attackDisplayDataCache[attackName];
+            var cached = attackDisplayDataCache[cacheKey];
+            // Update name in case entry description changed
+            cached.attackName = displayName;
+            return cached;
         }
         
         // Create new instance and cache it
         var displayData = new AttackDisplayData
         {
-            attackName = attackName,
-            description = "Attack description", // TODO: Add description field to Attack class
+            attackReference = attack, // CRITICAL: Store reference for bijective identification
+            attackName = displayName,
+            description = entry != null ? entry.description : "Attack description",
             icon = null, // TODO: Add icon field to Attack class
             element = attack.SwordAttack.element,
             isUnlocked = attack.SwordAttack.isEnabled,
             isEquipped = true
         };
         
-        attackDisplayDataCache[attackName] = displayData;
+        attackDisplayDataCache[cacheKey] = displayData;
         return displayData;
     }
     
-    private void RefreshLookup()
-    {
-        attackLookup.Clear();
-        
-        if (runtimePlayerStatus == null)
-        {
-            Debug.LogWarning("ElementProgressDataProvider: Cannot refresh lookup - RuntimePlayerStatus is null!");
-            return;
-        }
-        
-        if (runtimePlayerStatus.elementUnlocks == null)
-        {
-            Debug.LogWarning("ElementProgressDataProvider: Cannot refresh lookup - elementUnlocks is null!");
-            return;
-        }
-        
-        foreach (var elementUnlock in runtimePlayerStatus.elementUnlocks)
-        {
-            if (elementUnlock == null) continue;
-            
-            var entries = elementUnlock.GetUnlockedEntries();
-            if (entries == null) continue;
-            
-            foreach (var entry in entries)
-            {
-                if (entry == null) continue;
-                
-                if (entry.unlockedAttack != null && 
-                    entry.unlockedAttack.SwordAttack != null &&
-                    !attackLookup.ContainsKey(entry.unlockedAttack.SwordAttack.name))
-                {
-                    attackLookup.Add(entry.unlockedAttack.SwordAttack.name, entry.unlockedAttack);
-                }
-            }
-        }
-    }
-    
+
     #endregion
 }
 

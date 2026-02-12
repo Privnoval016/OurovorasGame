@@ -171,22 +171,22 @@ public class CompendiumTab : TabSelection, IScrollMenuAuthority
         }
         
         // Convert entries to ItemUIInfo for scroll menu
-        List<ItemUIInfo> entryItems = new List<ItemUIInfo>();
+        List<ItemUIInfo<CompendiumEntryData>> entryItems = new();
         foreach (var entry in entries)
         {
-            entryItems.Add(new ItemUIInfo
+            entryItems.Add(new ItemUIInfo<CompendiumEntryData>
             {
                 itemName = entry.isDiscovered ? entry.entryName : "???",
                 itemDescription = entry.isDiscovered ? entry.category : "Undiscovered",
                 icon = entry.isDiscovered ? entry.icon : null,
-                itemRarity = Rarity.Common
+                rarity = Rarity.Common
             });
         }
         
         if (scrollMenuContainer != null)
             scrollMenuContainer.SetActive(true);
         
-        entryScrollMenu.Activate(entryItems, 0, item => item, this);
+        entryScrollMenu.Activate(entryItems, 0, this);
         isScrollMenuActive = true;
         
         // Display first entry details

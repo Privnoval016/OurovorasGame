@@ -75,7 +75,7 @@ namespace Extensions.UI
             // Configure each tab's content navigation
             foreach (var tabButton in tabButtons)
             {
-                ConfigureTabContent(tabButton);
+                //ConfigureTabContent(tabButton);
             }
             
             Debug.Log("MenuNavigationConfigurator: Navigation configuration complete");

@@ -1,5 +1,6 @@
 using Extensions.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Tab 1: Character/Stats tab showing player information and equipped items.
@@ -19,6 +20,9 @@ public class CharacterStatsTab : TabSelection
     [Header("Refresh Settings")]
     [SerializeField] private bool autoRefresh = true;
     [SerializeField] private float refreshInterval = 0.5f;
+    
+    [Header("Default Button")]
+    [SerializeField] private Selectable defaultButton;
     
     private float lastRefreshTime;
     
@@ -54,6 +58,10 @@ public class CharacterStatsTab : TabSelection
     {
         base.OnTabSelect();
         InitializeTab();
+        
+        // Set default selected button for navigation
+        if (defaultButton != null)
+            defaultButton.Select();
     }
     
     /// <summary>
