@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Extensions.UI;
 using TMPro;
@@ -286,7 +287,18 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         
         if (items == null || items.Count == 0)
         {
-            Debug.LogWarning($"EquipmentMenuUI: No items available for {currentSlotType}");
+            Debug.LogWarning($"InventoryTab: No items in inventory for slot type {currentSlotType}, cannot open scroll menu");
+            
+            // Hide scroll menu container when no items
+            if (scrollMenuContainer != null)
+                scrollMenuContainer.SetActive(false);
+            
+            isScrollMenuActive = false;
+            
+            UpdateCurrentItemDisplay();
+            UpdateSelectedItemDisplay();
+            
+            isScrollMenuActive = true;
             return;
         }
         
@@ -638,7 +650,7 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         StartCoroutine(UpdateSelectedItemDisplayNextFrame());
     }
     
-    private System.Collections.IEnumerator UpdateSelectedItemDisplayNextFrame()
+    private IEnumerator UpdateSelectedItemDisplayNextFrame()
     {
         yield return null;
         UpdateSelectedItemDisplay();
@@ -651,7 +663,15 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
         
         ItemUIInfo<InventoryStack> selectedItem = equipmentScrollMenu.GetSelectedItem<InventoryStack>();
         if (selectedItem == null)
+        {
+            if (selectedItemNameText != null)
+                selectedItemNameText.text = "No Item";
+            if (selectedItemDescriptionText != null)                
+                selectedItemDescriptionText.text = "";
+            if (selectedItemIcon != null)
+                selectedItemIcon.enabled = false;
             return;
+        }
         
         if (selectedItemNameText != null)
             selectedItemNameText.text = selectedItem.itemName;
@@ -692,6 +712,15 @@ public class EquipmentTab : TabSelection, IScrollMenuAuthority
                 currentItemIcon.sprite = currentData.icon;
                 currentItemIcon.enabled = true;
             }
+        }
+        else
+        {
+            if (currentItemNameText != null)
+                currentItemNameText.text = "No Item";
+            if (currentItemDescriptionText != null)                
+                currentItemDescriptionText.text = "";
+            if (currentItemIcon != null)
+                currentItemIcon.enabled = false;
         }
     }
     

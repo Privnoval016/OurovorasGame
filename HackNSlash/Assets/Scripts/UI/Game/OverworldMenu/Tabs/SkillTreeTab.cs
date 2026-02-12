@@ -161,7 +161,7 @@ public class SkillTreeTab : TabSelection
             rectTransform.anchoredPosition = anchoredPos;
         }
         
-        nodeUI.transform.SetParent(maskObject, false); // Ensure it's under the mask for proper clipping
+        //nodeUI.transform.SetParent(maskObject, false); // Ensure it's under the mask for proper clipping
         
         // Initialize the node UI
         nodeUI.Initialize(nodeData);
@@ -467,6 +467,35 @@ public class SkillTreeTab : TabSelection
             
             UpdateNodeInfoDisplay(updatedNode);
             UpdateSkillPointsDisplay();
+            
+            // CRITICAL: When a node is unlocked, refresh all connected nodes
+            // because their canUnlock state may have changed
+            RefreshConnectedNodes(currentFocusedNode.nodeId);
+        }
+    }
+    
+    /// <summary>
+    /// Refreshes all nodes that are connected to the specified node.
+    /// This updates their canUnlock state when a prerequisite is unlocked.
+    /// </summary>
+    private void RefreshConnectedNodes(string unlockedNodeId)
+    {
+        if (skillTreeDataProvider == null)
+            return;
+        
+        // Get all child nodes (nodes that have the unlocked node as a parent)
+        var childNodes = skillTreeDataProvider.GetChildNodes(unlockedNodeId);
+        
+        Debug.Log($"SkillTreeTab: Refreshing {childNodes.Count} child nodes after unlocking '{unlockedNodeId}'");
+        
+        foreach (var childNode in childNodes)
+        {
+            if (nodeUIElements.TryGetValue(childNode.nodeId, out SkillTreeNodeUI nodeUI))
+            {
+                // Update the child node's visual state
+                nodeUI.UpdateState(childNode);
+                Debug.Log($"SkillTreeTab: Updated child node '{childNode.nodeName}' - canUnlock={childNode.canUnlock}");
+            }
         }
     }
     

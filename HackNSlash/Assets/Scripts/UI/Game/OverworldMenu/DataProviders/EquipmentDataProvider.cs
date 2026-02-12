@@ -67,21 +67,21 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <summary>
     /// Gets the currently equipped accessory at the specified slot.
     /// </summary>
-    public Extensions.UI.EquippedItemDisplayData GetEquippedAccessory(int slotIndex)
+    public EquippedItemDisplayData GetEquippedAccessory(int slotIndex)
     {
         if (runtimePlayerStatus == null || runtimePlayerStatus.CurrentLoadout == null)
-            return Extensions.UI.EquippedItemDisplayData.Empty();
+            return EquippedItemDisplayData.Empty();
         
         if (runtimePlayerStatus.CurrentLoadout.equippedAccessories == null ||
             slotIndex < 0 || slotIndex >= runtimePlayerStatus.CurrentLoadout.equippedAccessories.Length)
-            return Extensions.UI.EquippedItemDisplayData.Empty();
+            return EquippedItemDisplayData.Empty();
         
         Accessory accessory = runtimePlayerStatus.CurrentLoadout.equippedAccessories[slotIndex];
         
         if (accessory == null)
-            return Extensions.UI.EquippedItemDisplayData.Empty();
+            return EquippedItemDisplayData.Empty();
         
-        return new Extensions.UI.EquippedItemDisplayData
+        return new EquippedItemDisplayData
         {
             icon = accessory.itemIcon,
             itemName = accessory.itemName,
@@ -94,10 +94,10 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <summary>
     /// Gets the currently equipped passive at the specified slot.
     /// </summary>
-    public Extensions.UI.EquippedItemDisplayData GetEquippedPassive(int slotIndex)
+    public EquippedItemDisplayData GetEquippedPassive(int slotIndex)
     {
         // TODO: Implement passive skill system
-        return Extensions.UI.EquippedItemDisplayData.Empty();
+        return EquippedItemDisplayData.Empty();
     }
     
     /// <summary>

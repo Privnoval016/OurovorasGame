@@ -16,10 +16,8 @@ namespace Extensions.UI
         [Header("Visual Settings")]
         [SerializeField] private Image borderImage;
         [SerializeField] private Image backgroundImage;
-        [SerializeField] private Color normalColor = Color.white;
-        [SerializeField] private Color selectedColor = Color.yellow;
-        [SerializeField] private float selectedScale = 1.1f;
-        [SerializeField] private float animationDuration = 0.2f;
+        
+        private UIAnimationManager animationManager;
         
         [Header("Events")]
         public UnityEvent onClick = new UnityEvent();
@@ -29,32 +27,23 @@ namespace Extensions.UI
         protected override void Awake()
         {
             originalScale = transform.localScale;
+            animationManager = UIAnimationManager.Instance;
         }
         
         public override void OnSelect(BaseEventData eventData)
         {
-            // Scale up
-            Tween.Scale(transform, originalScale * selectedScale, animationDuration, Ease.OutBack, useUnscaledTime: true);
+            borderImage.color = animationManager.GetSelectedColor();
             
-            // Change color
-            if (borderImage != null)
-                Tween.Color(borderImage, selectedColor, animationDuration, useUnscaledTime: true);
-            if (backgroundImage != null)
-                Tween.Color(backgroundImage, selectedColor * 0.3f, animationDuration, useUnscaledTime: true);
+            animationManager.CreateBuilder(borderImage.transform).AnimateSelection();
             
             UIAudio.PlayHover();
         }
         
         public override void OnDeselect(BaseEventData eventData)
         {
-            // Scale down
-            Tween.Scale(transform, originalScale, animationDuration, Ease.OutQuad, useUnscaledTime: true);
+            borderImage.color = animationManager.GetNormalColor();
             
-            // Reset color
-            if (borderImage != null)
-                Tween.Color(borderImage, normalColor, animationDuration, useUnscaledTime: true);
-            if (backgroundImage != null)
-                Tween.Color(backgroundImage, normalColor * 0.1f, animationDuration, useUnscaledTime: true);
+            animationManager.CreateBuilder(borderImage.transform).AnimateDeselection();
         }
         
         public void OnSubmit(BaseEventData eventData)

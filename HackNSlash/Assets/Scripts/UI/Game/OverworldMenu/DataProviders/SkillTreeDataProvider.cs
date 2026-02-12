@@ -166,6 +166,27 @@ public class SkillTreeDataProvider : MonoBehaviour, ISkillTreeDataProvider
     }
     
     /// <summary>
+    /// Gets all nodes that have the specified node as a parent (child nodes).
+    /// </summary>
+    public List<SkillNodeDisplayData> GetChildNodes(string parentNodeId)
+    {
+        if (skillTreeData == null || skillTreeData.skillTree == null)
+            return new List<SkillNodeDisplayData>();
+        
+        List<SkillNodeDisplayData> childNodes = new List<SkillNodeDisplayData>();
+        
+        foreach (var node in skillTreeData.skillTree.nodes)
+        {
+            if (node.parentNodeIds.Contains(parentNodeId))
+            {
+                childNodes.Add(ConvertToDisplayData(node));
+            }
+        }
+        
+        return childNodes;
+    }
+    
+    /// <summary>
     /// Converts a SkillTreeNode to display data.
     /// </summary>
     private SkillNodeDisplayData ConvertToDisplayData(SkillTreeNode node)

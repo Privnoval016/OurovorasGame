@@ -18,8 +18,13 @@ MonoBehaviour:
   emptyColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   lockedColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   equippedColor: {r: 0, g: 1, b: 0, a: 1}
-  normalTextColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedTextColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  commonColor: {r: 0, g: 0, b: 0, a: 1}
+  uncommonColor: {r: 0, g: 1, b: 0, a: 1}
+  rareColor: {r: 0, g: 0, b: 1, a: 1}
+  epicColor: {r: 1, g: 0, b: 1, a: 1}
+  legendaryColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  normalTextColor: {r: 0.09433961, g: 0.09433961, b: 0.09433961, a: 1}
+  selectedTextColor: {r: 0, g: 0, b: 0, a: 1}
   emptyTextColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   colorTransitionDuration: 0.15
   scaleAnimationDuration: 0.15

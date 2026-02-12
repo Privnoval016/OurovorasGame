@@ -143,7 +143,7 @@ namespace Extensions.UI
         
         public void OnSubmit(BaseEventData eventData)
         {
-            // Handle controller A button press - ONLY call callback on Submit, not Select
+            animationManager.CreateBuilder(borderImage.transform).AnimatePunch();
             UIAudio.PlaySelect();
             onSlotSelected?.Invoke(slotIndex);
         }
