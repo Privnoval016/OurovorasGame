@@ -20,15 +20,11 @@ namespace Extensions.UI
         [SerializeField] private Image borderImage;
         [SerializeField] private TextMeshProUGUI nameText;
         
-        [Header("Visual Settings")]
-        [SerializeField] private Color normalColor = Color.white;
-        [SerializeField] private Color selectedColor = Color.yellow;
-        [SerializeField] private float selectedScale = 1.1f;
-        [SerializeField] private float animationDuration = 0.2f;
-        
         [Header("Events")]
         [SerializeField] private UnityEvent<int> onElementSelected;
         [SerializeField] private UnityEvent<int> onElementHovered; // NEW: For updating UI without transitioning
+        
+        private UIAnimationManager animationManager;
         
         private ElementEffect element;
         private int elementIndex;
@@ -39,6 +35,8 @@ namespace Extensions.UI
         {
             base.Awake();
             originalScale = transform.localScale;
+            
+            animationManager = UIAnimationManager.Instance;
         }
         
         /// <summary>
@@ -69,8 +67,7 @@ namespace Extensions.UI
             isSelected = true;
             UpdateVisuals();
             
-            // Scale up animation
-            Tween.Scale(transform, originalScale * selectedScale, animationDuration, Ease.OutBack, useUnscaledTime: true);
+            animationManager.CreateBuilder(borderImage.transform).AnimateSelection();
             
             // Fire hover event to update UI without transitioning
             onElementHovered?.Invoke(elementIndex);
@@ -86,8 +83,7 @@ namespace Extensions.UI
             isSelected = false;
             UpdateVisuals();
             
-            // Scale down animation
-            Tween.Scale(transform, originalScale, animationDuration, Ease.OutQuad, useUnscaledTime: true);
+            animationManager.CreateBuilder(borderImage.transform).AnimateDeselection();
         }
         
         /// <summary>
@@ -95,19 +91,21 @@ namespace Extensions.UI
         /// </summary>
         public void OnSubmit(BaseEventData eventData)
         {
+            animationManager.CreateBuilder(borderImage.transform).AnimatePunch();
             onElementSelected?.Invoke(elementIndex);
             UIAudio.PlaySelect();
         }
         
         private void UpdateVisuals()
         {
-            Color targetColor = isSelected ? selectedColor : normalColor;
+            Color targetColor = isSelected ? animationManager.GetSelectedColor() : animationManager.GetNormalColor();
+            Color nameColor = isSelected ? animationManager.GetSelectedTextColor() : animationManager.GetNormalTextColor();
             
             if (borderImage != null)
-                Tween.Color(borderImage, targetColor, animationDuration, useUnscaledTime: true);
+                borderImage.color = targetColor;
             
             if (nameText != null)
-                Tween.Color(nameText, targetColor, animationDuration, useUnscaledTime: true);
+                nameText.color = nameColor;
         }
         
         /// <summary>

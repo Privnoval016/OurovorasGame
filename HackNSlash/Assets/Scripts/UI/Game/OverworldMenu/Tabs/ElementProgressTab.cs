@@ -315,18 +315,33 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         // Get available attacks list to find indices
         var availableAttacks = elementDataProvider.GetAvailableAttacks(currentElement);
         
-        // Convert attacks to indices (-1 if null/not found)
-        int indexA = attackA != null ? availableAttacks.IndexOf(attackA) : -1;
-        int indexB = attackB != null ? availableAttacks.IndexOf(attackB) : -1;
+        // CRITICAL: Use GUID comparison to find indices, not reference equality
+        int indexA = -1;
+        int indexB = -1;
+        
+        if (attackA != null && !string.IsNullOrEmpty(attackA.guid))
+        {
+            indexA = availableAttacks.FindIndex(a => a != null && a.guid == attackA.guid);
+        }
+        
+        if (attackB != null && !string.IsNullOrEmpty(attackB.guid))
+        {
+            indexB = availableAttacks.FindIndex(a => a != null && a.guid == attackB.guid);
+        }
+        
+        Debug.Log($"ElementProgressTab: SwapAttacks - buttonA={buttonA} indexA={indexA}, buttonB={buttonB} indexB={indexB}");
         
         // Perform swap via data provider using indices
         // Note: Passing -1 for index will unassign that slot
-        if (elementDataProvider.AssignAttack(currentElement, buttonA, indexB) && 
-            elementDataProvider.AssignAttack(currentElement, buttonB, indexA))
+        bool assignedA = elementDataProvider.AssignAttack(currentElement, buttonA, indexB);
+        bool assignedB = elementDataProvider.AssignAttack(currentElement, buttonB, indexA);
+        
+        if (assignedA && assignedB)
         {
             return true;
         }
         
+        Debug.LogWarning($"ElementProgressTab: Swap failed - assignedA={assignedA}, assignedB={assignedB}");
         return false;
     }
     
@@ -820,11 +835,6 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
     {
         Debug.Log("ElementProgressTab: ExitUnlockGrid called");
         
-        if (unlockGridContainer != null)
-        {
-            unlockGridContainer.SetActive(false);
-        }
-        
         // Re-enable Layer 2 navigation (attack buttons + unlock grid button)
         SetLayerTwoInteractable(true);
         
@@ -835,10 +845,7 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         if (unlockGridButton != null)
         {
             Debug.Log("ElementProgressTab: Selecting unlock grid button");
-            if (eventSystem != null)
-            {
-                eventSystem.SetSelectedGameObject(unlockGridButton.gameObject);
-            }
+            unlockGridButton.Select();
         }
         else
         {

@@ -66,7 +66,7 @@ namespace Extensions.UI
                 if (attack == null || string.IsNullOrEmpty(attack.attackName))
                 {
                     attackNameText.text = "Unassigned";
-                    attackNameText.color = Color.gray;
+                    attackNameText.color = animationManager.GetEmptyColor();
                 }
                 else
                 {
@@ -86,7 +86,7 @@ namespace Extensions.UI
             if (attackNameText != null)
             {
                 attackNameText.text = "Unassigned";
-                attackNameText.color = Color.gray;
+                attackNameText.color = animationManager.GetEmptyColor();
             }
         }
         
@@ -152,9 +152,13 @@ namespace Extensions.UI
             }
             
             Color targetColor = isHovered ? animationManager.GetSelectedColor() : animationManager.GetNormalColor();
+            Color textColor = currentAttack == null ? animationManager.GetSelectedTextColor() : animationManager.GetNormalTextColor();
             
             if (borderImage != null)
                 borderImage.color = targetColor;
+            
+            if (attackNameText != null)
+                attackNameText.color = textColor;
         }
         
         /// <summary>

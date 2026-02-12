@@ -39,7 +39,7 @@ public class SkillTreeNodeUI : MonoBehaviour
         {
             holdProgressRing.value = 0f;
             holdProgressRingImage.color = progressRingColor;
-            holdProgressRing.gameObject.SetActive(false);
+            holdProgressRing.gameObject.SetActive(true);
         }
         
         UpdateVisuals();
@@ -131,7 +131,7 @@ public class SkillTreeNodeUI : MonoBehaviour
         holdProgressRingImage.gameObject.SetActive(true);
         
         // Animate the ring appearance
-        if (true && progress > 0f)
+        if (progress > 0f)
         {
             // Optional: Pulse effect as it fills
             float scale = 1f + (progress * 0.1f);
