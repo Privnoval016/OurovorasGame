@@ -42,6 +42,21 @@ public interface IEquipmentDataProvider
     /// <param name="item">The item UI info of the passive to equip</param>
     /// <returns>True if equipped successfully</returns>
     bool EquipPassive(int slotIndex, ItemUIInfo item);
+    
+    /// <summary>
+    /// Unequips the accessory from the specified slot.
+    /// </summary>
+    /// <param name="slotIndex">The slot to unequip from (0-2)</param>
+    /// <returns>True if unequipped successfully</returns>
+    bool UnequipAccessory(int slotIndex);
+    
+    
+    /// <summary>
+    /// Unequips the passive skill from the specified slot.
+    /// </summary>
+    /// <param name="slotIndex">The slot to unequip from (0-2)</param>
+    /// <returns>True if unequipped successfully</returns> 
+    bool UnequipPassive(int slotIndex);
 }
 
 

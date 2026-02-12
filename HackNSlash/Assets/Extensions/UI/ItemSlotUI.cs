@@ -21,6 +21,7 @@ namespace Extensions.UI
         [SerializeField] private Image borderImage;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private GameObject emptyIndicator;
+        [SerializeField] private Image equippedIndicator; // Shows when item is equipped elsewhere
         
         [Header("Visual Settings")]
         [SerializeField] private Color normalColor = Color.white;
@@ -50,7 +51,10 @@ namespace Extensions.UI
         public void Initialize(int index)
         {
             slotIndex = index;
-            SetEmpty();
+            
+            // Hide equipped indicator by default
+            if (equippedIndicator != null)
+                equippedIndicator.gameObject.SetActive(false);
         }
         
         /// <summary>
@@ -102,6 +106,16 @@ namespace Extensions.UI
                 emptyIndicator.SetActive(true);
             
             UpdateVisuals();
+        }
+        
+        /// <summary>
+        /// Sets the equipped indicator visibility.
+        /// </summary>
+        /// <param name="isEquipped">Whether the item is equipped elsewhere.</param>
+        public void SetEquippedIndicator(bool isEquipped)
+        {
+            if (equippedIndicator != null)
+                equippedIndicator.gameObject.SetActive(isEquipped);
         }
         
         /// <summary>

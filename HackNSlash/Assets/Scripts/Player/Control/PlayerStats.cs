@@ -39,6 +39,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     #endregion
     
+    private EventBinding<PlayerStatsChangedEvent> statsChangedBinding;
+
     #region MonoBehaviour Callbacks
 
     private void Awake()
@@ -49,6 +51,22 @@ public class PlayerStats : MonoBehaviour, IDamageable
     private void Start()
     {
         InitializeStats();
+    }
+
+    private void OnEnable()
+    {
+        // Subscribe to stat change events
+        statsChangedBinding = new EventBinding<PlayerStatsChangedEvent>(OnStatsChanged);
+        EventBus<PlayerStatsChangedEvent>.Register(statsChangedBinding);
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from events
+        if (statsChangedBinding != null)
+        {
+            EventBus<PlayerStatsChangedEvent>.Deregister(statsChangedBinding);
+        }
     }
 
     private void Update()
@@ -70,15 +88,57 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     #region Stat Methods
 
+    /// <summary>
+    /// Called when any system raises a PlayerStatsChangedEvent.
+    /// Triggers a complete stat recalculation.
+    /// </summary>
+    private void OnStatsChanged(PlayerStatsChangedEvent evt)
+    {
+        Debug.Log($"PlayerStats: Stats changed from {evt.Source}, refreshing stats...");
+        RefreshStats();
+    }
+
+    /// <summary>
+    /// Refreshes all player stats by reinitializing the evaluation system.
+    /// Recreates EvaluatedStats and reapplies all modifiers from equipment, elements, and skills.
+    /// </summary>
+    public void RefreshStats()
+    {
+        if (pc == null || pc.rps == null)
+        {
+            Debug.LogWarning("PlayerStats: Cannot refresh stats - player data not available!");
+            return;
+        }
+
+        // Recreate EvaluatedStats with fresh mediators
+        // NOTE: this will reset all status effects and temporary modifiers, which is intentional for now to avoid stale data issues.
+        // In the future, we may want to preserve certain temporary effects through a more sophisticated refresh process.
+        EvaluatedStats = new EvaluatedStats(baseStats, () => pc.rps.Level);
+
+        // Reapply equipment modifiers
+        ApplyEquipmentModifiers();
+
+        // Reapply element unlock modifiers
+        ApplyElementUnlockModifiers();
+
+        // Reapply skill tree modifiers (future)
+        ApplySkillTreeModifiers();
+
+        Debug.Log("PlayerStats: Stats refreshed successfully");
+    }
+
     private void InitializeStats()
     {
         EvaluatedStats = new EvaluatedStats(baseStats, () => pc.rps.Level);
 
-        foreach (var item in pc.rps.elementUnlocks)
-        {
-            item.Initialize(Stats);
-        }
+        // Apply element unlocks
+        ApplyElementUnlockModifiers();
+
+        // Apply equipment
+        ApplyEquipmentModifiers();
         
+        // Apply skill tree nodes
+        ApplySkillTreeModifiers();
         
         CurrentHealth = 0f;
         CurrentElementCharge = 0f;
@@ -87,6 +147,59 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         SetHealth(GetStat(InnateStat.MaxHealth));
         SetCharge(GetStat(InnateStat.MaxCharge));
+    }
+
+    /// <summary>
+    /// Applies stat modifiers from equipped items.
+    /// </summary>
+    private void ApplyEquipmentModifiers()
+    {
+        if (pc == null || pc.rps == null || pc.rps.CurrentLoadout == null)
+            return;
+
+        var loadout = pc.rps.CurrentLoadout;
+
+        // Apply modifiers from equipped accessories
+        if (loadout.equippedAccessories != null)
+        {
+            foreach (var accessory in loadout.equippedAccessories)
+            {
+                if (accessory != null)
+                {
+                    // Use the existing InitializeEffects method
+                    accessory.InitializeEffects(EvaluatedStats);
+                }
+            }
+        }
+
+        // TODO: Add passive modifiers when passive system is implemented
+    }
+
+    /// <summary>
+    /// Applies stat modifiers from unlocked element levels.
+    /// </summary>
+    private void ApplyElementUnlockModifiers()
+    {
+        if (pc == null || pc.rps == null || pc.rps.elementUnlocks == null)
+            return;
+
+        foreach (var elementUnlock in pc.rps.elementUnlocks)
+        {
+            if (elementUnlock != null)
+            {
+                // Use the existing Initialize method
+                elementUnlock.Initialize(EvaluatedStats);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies stat modifiers from activated skill tree nodes.
+    /// </summary>
+    private void ApplySkillTreeModifiers()
+    {
+        // TODO: Implement when skill tree nodes have stat bonuses
+        // For now, skill nodes only unlock attacks, no stat modifiers
     }
 
     public float GetStat(InnateStat innateStat)
@@ -99,7 +212,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         float maxStat = GetStat(innateStat);
         return maxStat > 0 ? value / maxStat : 0f;
     }
-
+    
     private void ChangeHealth(float amount) => SetHealth(CurrentHealth + amount);
     
     public void SetHealth(float value)
