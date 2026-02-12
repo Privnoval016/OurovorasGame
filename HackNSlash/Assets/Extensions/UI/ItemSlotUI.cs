@@ -155,75 +155,75 @@ namespace Extensions.UI
         
         #endregion
         
-    #region Selection
-    
-    private void Select()
-    {
-        isSelected = true;
-        UpdateVisuals();
+        #region Selection
         
-        // Animate selection with PrimeTween (unscaled time for menu)
-        if (borderImage != null)
+        private void Select()
         {
-            Tween.Scale(borderImage.transform, 1.05f, duration: 0.15f, 
-                ease: Ease.OutBack, useUnscaledTime: true);
+            isSelected = true;
+            UpdateVisuals();
+            
+            // Animate selection with PrimeTween (unscaled time for menu)
+            if (borderImage != null)
+            {
+                Tween.Scale(borderImage.transform, 1.05f, duration: 0.15f, 
+                    ease: Ease.OutBack, useUnscaledTime: true);
+            }
+            
+            // Play hover sound via EventBus
+            UIAudio.PlayHover();
+            
+            // NOTE: Do NOT invoke onSlotSelected here - only on Submit (A button press)
+            // Just selecting/hovering over a slot should not open the scroll menu
         }
         
-        // Play hover sound via EventBus
-        UIAudio.PlayHover();
-        
-        // NOTE: Do NOT invoke onSlotSelected here - only on Submit (A button press)
-        // Just selecting/hovering over a slot should not open the scroll menu
-    }
-    
-    private void Deselect()
-    {
-        isSelected = false;
-        UpdateVisuals();
-        
-        // Animate deselection
-        if (borderImage != null)
+        private void Deselect()
         {
-            Tween.Scale(borderImage.transform, 1f, duration: 0.15f, 
-                ease: Ease.OutQuad, useUnscaledTime: true);
+            isSelected = false;
+            UpdateVisuals();
+            
+            // Animate deselection
+            if (borderImage != null)
+            {
+                Tween.Scale(borderImage.transform, 1f, duration: 0.15f, 
+                    ease: Ease.OutQuad, useUnscaledTime: true);
+            }
+            
+            // NOTE: Removed onSlotDeselected callback to prevent circular dependency
+            // Scroll menu should only close via Cancel (B button), not when slot is deselected
         }
-        
-        // NOTE: Removed onSlotDeselected callback to prevent circular dependency
-        // Scroll menu should only close via Cancel (B button), not when slot is deselected
-    }
-        
-    private void UpdateVisuals()
-    {
-        Color targetBorderColor = normalColor;
-        Color targetTextColor = normalTextColor;
-        
-        if (isSelected)
+            
+        private void UpdateVisuals()
         {
-            targetBorderColor = selectedColor;
-            targetTextColor = selectedTextColor;
+            Color targetBorderColor = normalColor;
+            Color targetTextColor = normalTextColor;
+            
+            if (isSelected)
+            {
+                targetBorderColor = selectedColor;
+                targetTextColor = selectedTextColor;
+            }
+            else if (isEmpty)
+            {
+                targetBorderColor = emptyColor;
+                targetTextColor = emptyTextColor;
+            }
+            
+            // Update border
+            if (borderImage != null)
+                borderImage.color = targetBorderColor;
+            
+            // Update background
+            if (backgroundImage != null)
+            {
+                Color bgColor = isEmpty ? emptyColor : normalColor;
+                bgColor.a = backgroundImage.color.a; // Preserve alpha
+                backgroundImage.color = bgColor;
+            }
+            
+            // CRITICAL: Update text color for visibility
+            if (nameText != null)
+                nameText.color = targetTextColor;
         }
-        else if (isEmpty)
-        {
-            targetBorderColor = emptyColor;
-            targetTextColor = emptyTextColor;
-        }
-        
-        // Update border
-        if (borderImage != null)
-            borderImage.color = targetBorderColor;
-        
-        // Update background
-        if (backgroundImage != null)
-        {
-            Color bgColor = isEmpty ? emptyColor : normalColor;
-            bgColor.a = backgroundImage.color.a; // Preserve alpha
-            backgroundImage.color = bgColor;
-        }
-        
-        // CRITICAL: Update text color for visibility
-        if (nameText != null)
-            nameText.color = targetTextColor;
-    }
         
         #endregion
     }

@@ -11,7 +11,6 @@ namespace Extensions.UI
     /// Scales and changes color when selected.
     /// Add this to the unlock grid button GameObject.
     /// </summary>
-    [RequireComponent(typeof(Selectable))]
     public class UnlockGridButtonVisual : Selectable, ISubmitHandler
     {
         [Header("Visual Settings")]
