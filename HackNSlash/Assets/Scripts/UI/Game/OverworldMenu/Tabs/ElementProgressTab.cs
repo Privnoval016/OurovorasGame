@@ -25,16 +25,15 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
     
     [Header("Progress Display (Top Center)")]
     [SerializeField] private TextMeshProUGUI elementNameText;
-    [SerializeField] private UnlockSlotUI[] levelDisplays; // 10 level indicators in horizontal row
-    [SerializeField] private GameObject unlockGridContainer; // The 3x3 grid that appears when navigating up
-    [SerializeField] private UnlockGridButtonVisual unlockGridButton; // Single button that represents the unlock grid (navigable in Layer 2)
+    [SerializeField] private UnlockSlotUI[] levelDisplays;
+    [SerializeField] private GameObject unlockGridContainer;
+    [SerializeField] private UnlockGridButtonVisual unlockGridButton;
     
     [Header("Attack Assignment (Bottom Center)")]
     [SerializeField] private AttackButtonSlotUI[] attackButtons; // 3 buttons (X, Y, A)
     [SerializeField] private GameObject attackButtonsContainer;
     [SerializeField] private ScrollMenu attackScrollMenu;
     [SerializeField] private GameObject scrollMenuContainer;
-    [SerializeField] private SelectableContainer scrollMenuSelectable; // Needed to receive input in scroll menu
     
     [Header("Description Display (Under Video)")]
     [SerializeField] private DescriptionDisplay descriptionDisplay;
@@ -275,18 +274,18 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
     /// </summary>
     private int FindButtonWithAttack(AttackDisplayData attack)
     {
-        if (attackButtons == null || attack == null || attack.attackReference == null) return -1;
+        if (attackButtons == null || attack == null || string.IsNullOrEmpty(attack.guid)) return -1;
         
-        // CRITICAL: Compare by object reference, not name!
+        // CRITICAL: Compare by GUID, not reference!
         for (int i = 0; i < attackButtons.Length; i++)
         {
             if (attackButtons[i] != null)
             {
                 AttackDisplayData buttonAttack = attackButtons[i].GetCurrentAttack();
-                if (buttonAttack != null && buttonAttack.attackReference != null)
+                if (buttonAttack != null && !string.IsNullOrEmpty(buttonAttack.guid))
                 {
-                    // Use bijective reference comparison
-                    if (buttonAttack.attackReference == attack.attackReference)
+                    // Use GUID comparison for reliable identification
+                    if (buttonAttack.guid == attack.guid)
                     {
                         return i;
                     }
@@ -594,9 +593,11 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         
         var availableAttacks = elementDataProvider.GetAvailableAttacks(currentElement);
         
+        Debug.Log($"ElementProgressTab: Got {availableAttacks?.Count ?? 0} available attacks for {currentElement}");
+        
         if (availableAttacks == null || availableAttacks.Count == 0)
         {
-            Debug.LogWarning("No available attacks for element!");
+            Debug.LogWarning("ElementProgressTab: No available attacks for element!");
             return;
         }
         
@@ -607,8 +608,30 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         var attackInfoList = new List<ItemUIInfo<AttacksByWeapon>>();
         foreach (var attack in availableAttacks)
         {
+            // Skip attacks with null references or missing GUID
+            if (attack == null)
+            {
+                Debug.LogWarning("ElementProgressTab: Skipping null attack");
+                continue;
+            }
+            
+            if (attack.attackReference == null)
+            {
+                Debug.LogWarning($"ElementProgressTab: Skipping attack '{attack.attackName}' with null attackReference");
+                continue;
+            }
+            
+            if (string.IsNullOrEmpty(attack.guid))
+            {
+                Debug.LogWarning($"ElementProgressTab: Skipping attack '{attack.attackName}' with empty GUID");
+                continue;
+            }
+            
+            Debug.Log($"ElementProgressTab: Adding attack '{attack.attackName}' with GUID '{attack.guid}'");
+            
             attackInfoList.Add(new ItemUIInfo<AttacksByWeapon>
             {
+                guid = attack.guid, // CRITICAL: Copy GUID from AttackDisplayData
                 itemReference = attack.attackReference, // CRITICAL: Store reference for bijective identification
                 itemName = attack.attackName,
                 itemDescription = attack.description,
@@ -618,6 +641,14 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
                 amount = 1,
                 category = "Attack"
             });
+        }
+        
+        Debug.Log($"ElementProgressTab: Created {attackInfoList.Count} valid attack ItemUIInfo objects");
+        
+        if (attackInfoList.Count == 0)
+        {
+            Debug.LogWarning("ElementProgressTab: No valid attacks to display after filtering!");
+            return;
         }
         
         // CRITICAL: Disable all attack buttons and unlock grid button so they can't be navigated to
@@ -633,28 +664,6 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         if (attackScrollMenu != null)
         {
             attackScrollMenu.OnItemConfirmed += OnScrollMenuItemConfirmed;
-        }
-        
-        // CRITICAL: Select the SelectableContainer so it can receive A/B button input
-        if (scrollMenuSelectable != null)
-        {
-            scrollMenuSelectable.SelectThis();
-        }
-        else
-        {
-            // If no SelectableContainer, try to get it at runtime from the container
-            if (scrollMenuContainer != null)
-            {
-                var selectable = scrollMenuContainer.GetComponent<SelectableContainer>();
-                if (selectable != null)
-                {
-                    selectable.SelectThis();
-                }
-                else
-                {
-                    Debug.LogWarning("ElementProgressTab: No SelectableContainer found! Scroll menu won't receive input.");
-                }
-            }
         }
         
         currentState = NavigationState.ScrollMenu;
@@ -816,6 +825,9 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
             unlockGridContainer.SetActive(false);
         }
         
+        // Re-enable Layer 2 navigation (attack buttons + unlock grid button)
+        SetLayerTwoInteractable(true);
+        
         // Return to attack buttons layer
         currentState = NavigationState.AttackButtons;
         
@@ -832,6 +844,8 @@ public class ElementProgressTab : TabSelection, IScrollMenuAuthority
         {
             Debug.LogWarning("ElementProgressTab: Cannot select unlock grid button - it's null!");
         }
+        
+        UIAudio.PlayBack();
     }
     
     /// <summary>

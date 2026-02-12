@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Extensions.UI;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -46,8 +47,9 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     
     private string currentCategory = "All";
     private bool isScrollMenuActive;
+    private bool isScrollMenuFocused; // CRITICAL: Tracks if user has entered scroll menu (not just visible)
     private bool isActionMenuActive;
-    private ItemUIInfo<InventoryItem> currentSelectedItem;
+    private ItemUIInfo<InventoryStack> currentSelectedItem;
     private InventorySortMethod currentSortMethod = InventorySortMethod.NameAscending;
     
     #region MonoBehaviour Callbacks
@@ -180,10 +182,20 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     
     /// <summary>
     /// Selects a category and updates the item display.
+    /// If the same category is selected again, focus the scroll menu.
     /// </summary>
     /// <param name="category">The category to display.</param>
     public void SelectCategory(string category)
     {
+        // If selecting the same category again, enter scroll menu focus
+        if (currentCategory == category && isScrollMenuActive && !isScrollMenuFocused)
+        {
+            Debug.Log($"InventoryTab: Category '{category}' already selected, entering scroll menu focus");
+            isScrollMenuFocused = true;
+            UIAudio.PlayHover();
+            return;
+        }
+        
         currentCategory = category;
         UpdateCategoryButtonVisuals();
         UpdateItemDisplay();
@@ -224,7 +236,7 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         if (itemScrollMenu == null || inventoryDataProvider == null)
             return;
         
-        List<ItemUIInfo<InventoryItem>> items;
+        List<ItemUIInfo<InventoryStack>> items;
         
         if (currentCategory == "All")
             items = inventoryDataProvider.GetAllItems();
@@ -235,8 +247,14 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         {
             Debug.LogWarning($"InventoryTab: No items in category '{currentCategory}'");
             
+            // Hide scroll menu container when no items
+            if (scrollMenuContainer != null)
+                scrollMenuContainer.SetActive(false);
+            
             // Clear item info display
             ClearItemInfo();
+            
+            isScrollMenuActive = false;
             return;
         }
         
@@ -249,9 +267,10 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         itemScrollMenu.Activate(items, 0, this);
         
         // Set equipped check callback so scroll panels show equipped indicator
-        itemScrollMenu.SetEquippedCheckCallback(obj => IsItemEquipped(obj as ItemUIInfo<InventoryItem>));
+        itemScrollMenu.SetEquippedCheckCallback(obj => IsItemEquipped(obj as ItemUIInfo<InventoryStack>));
         
         isScrollMenuActive = true;
+        isScrollMenuFocused = false; // CRITICAL: Not focused until user presses A to enter
         
         // Display first item info
         UpdateSelectedItemInfo(items[0]);
@@ -263,9 +282,10 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
             itemScrollMenu.Deactivate();
         
         isScrollMenuActive = false;
+        isScrollMenuFocused = false;
     }
     
-    private void UpdateSelectedItemInfo(ItemUIInfo<InventoryItem> itemInfo)
+    private void UpdateSelectedItemInfo(ItemUIInfo<InventoryStack> itemInfo)
     {
         if (itemInfo == null)
         {
@@ -323,14 +343,20 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         if (isActionMenuActive)
             return;
         
-        // If scroll menu is active, open action menu
-        if (isScrollMenuActive && itemScrollMenu != null)
+        // If scroll menu is active and focused, open action menu
+        if (isScrollMenuActive && isScrollMenuFocused && itemScrollMenu != null)
         {
-            currentSelectedItem = itemScrollMenu.GetSelectedItem<InventoryItem>();
+            currentSelectedItem = itemScrollMenu.GetSelectedItem<InventoryStack>();
             if (currentSelectedItem != null)
             {
                 OpenActionMenu();
             }
+        }
+        // If scroll menu is active but NOT focused, entering it now
+        else if (isScrollMenuActive && !isScrollMenuFocused)
+        {
+            isScrollMenuFocused = true;
+            UIAudio.PlayHover();
         }
     }
     
@@ -339,10 +365,24 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         if (!context.performed)
             return;
         
-        // Close action menu if open
+        // Priority 1: Close action menu if open
         if (isActionMenuActive)
         {
             CloseActionMenu();
+            return;
+        }
+        
+        // Priority 2: Exit scroll menu if focused
+        if (isScrollMenuFocused && isScrollMenuActive)
+        {
+            isScrollMenuFocused = false;
+            UIAudio.PlayBack();
+            
+            // Optionally refocus on default button (category button)
+            if (defaultButton != null)
+            {
+                defaultButton.Select();
+            }
         }
     }
     
@@ -408,12 +448,12 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     /// <summary>
     /// Sorts a list of items based on current sort method.
     /// </summary>
-    private List<ItemUIInfo<InventoryItem>> SortItems(List<ItemUIInfo<InventoryItem>> items)
+    private List<ItemUIInfo<InventoryStack>> SortItems(List<ItemUIInfo<InventoryStack>> items)
     {
         if (items == null || items.Count == 0)
             return items;
         
-        var sortedItems = new List<ItemUIInfo<InventoryItem>>(items);
+        var sortedItems = new List<ItemUIInfo<InventoryStack>>(items);
         
         if (sortedItems.Count <= 1)
             return sortedItems; // No need to sort
@@ -579,8 +619,8 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         
         if (isEquipped)
         {
-            // Unequip item first using itemReference
-            UnequipItem(currentSelectedItem.itemReference);
+            // Unequip item first using GUID
+            UnequipItem(currentSelectedItem.guid);
         }
         
         // Discard item
@@ -603,35 +643,49 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     
     /// <summary>
     /// Checks if an item is currently equipped.
+    /// Uses GUID comparison for reliable identification.
     /// </summary>
-    private bool IsItemEquipped(ItemUIInfo<InventoryItem> itemUIInfo)
+    private bool IsItemEquipped(ItemUIInfo<InventoryStack> itemUIInfo)
     {
-        if (equipmentDataProvider == null || itemUIInfo == null || itemUIInfo.itemReference == null)
+        if (equipmentDataProvider == null || itemUIInfo == null || string.IsNullOrEmpty(itemUIInfo.guid))
             return false;
         
-        // CRITICAL: Compare by object reference, not name!
+        // CRITICAL: Compare by GUID, not reference!
         // Check accessories
-        for (int i = 0; i < 3; i++)
+        var accessories = equipmentDataProvider.GetAccessories();
+        foreach (var accessory in accessories)
         {
-            var equippedItem = equipmentDataProvider.GetEquippedAccessory(i);
-            if (equippedItem != null && equippedItem.itemName == itemUIInfo.itemReference.itemName)
+            if (accessory != null && accessory.guid == itemUIInfo.guid)
             {
-                // Double-check it's actually the same object reference
-                var accessoryStacks = equipmentDataProvider.GetAccessories();
-                var matchingStack = accessoryStacks.Find(a => a.itemReference == itemUIInfo.itemReference);
-                if (matchingStack != null) return true;
+                // This item is in inventory - check if it's equipped
+                for (int i = 0; i < 3; i++)
+                {
+                    var equippedItem = equipmentDataProvider.GetEquippedAccessory(i);
+                    if (equippedItem != null && !equippedItem.isEmpty)
+                    {
+                        // Match by name (EquippedItemDisplayData doesn't have GUID yet)
+                        if (equippedItem.itemName == itemUIInfo.itemName)
+                            return true;
+                    }
+                }
             }
         }
         
         // Check passives
-        for (int i = 0; i < 3; i++)
+        var passives = equipmentDataProvider.GetPassives();
+        foreach (var passive in passives)
         {
-            var equippedItem = equipmentDataProvider.GetEquippedPassive(i);
-            if (equippedItem != null && equippedItem.itemName == itemUIInfo.itemReference.itemName)
+            if (passive != null && passive.guid == itemUIInfo.guid)
             {
-                var passiveStacks = equipmentDataProvider.GetPassives();
-                var matchingStack = passiveStacks.Find(p => p.itemReference == itemUIInfo.itemReference);
-                if (matchingStack != null) return true;
+                for (int i = 0; i < 3; i++)
+                {
+                    var equippedItem = equipmentDataProvider.GetEquippedPassive(i);
+                    if (equippedItem != null && !equippedItem.isEmpty)
+                    {
+                        if (equippedItem.itemName == itemUIInfo.itemName)
+                            return true;
+                    }
+                }
             }
         }
         
@@ -640,22 +694,23 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     
     /// <summary>
     /// Unequips an item from all slots.
+    /// Uses GUID to identify which item to unequip.
     /// </summary>
-    private void UnequipItem(InventoryItem itemReference)
+    private void UnequipItem(string itemGuid)
     {
-        if (equipmentDataProvider == null || itemReference == null)
+        if (equipmentDataProvider == null || string.IsNullOrEmpty(itemGuid))
             return;
         
-        // CRITICAL: Use object reference comparison, not name
+        // CRITICAL: Use GUID comparison
         // Check and unequip from accessories
+        var accessories = equipmentDataProvider.GetAccessories();
         for (int i = 0; i < 3; i++)
         {
             var equippedItem = equipmentDataProvider.GetEquippedAccessory(i);
-            if (equippedItem != null)
+            if (equippedItem != null && !equippedItem.isEmpty)
             {
-                // Get the accessory list and find matching reference
-                var accessories = equipmentDataProvider.GetAccessories();
-                var matchingAccessory = accessories.Find(a => a.itemReference == itemReference);
+                // Find matching GUID in accessories list
+                var matchingAccessory = accessories.Find(a => a != null && a.guid == itemGuid);
                 if (matchingAccessory != null && matchingAccessory.itemName == equippedItem.itemName)
                 {
                     equipmentDataProvider.UnequipAccessory(i);
@@ -664,13 +719,13 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
         }
         
         // Check and unequip from passives
+        var passives = equipmentDataProvider.GetPassives();
         for (int i = 0; i < 3; i++)
         {
             var equippedItem = equipmentDataProvider.GetEquippedPassive(i);
-            if (equippedItem != null)
+            if (equippedItem != null && !equippedItem.isEmpty)
             {
-                var passives = equipmentDataProvider.GetPassives();
-                var matchingPassive = passives.Find(p => p.itemReference == itemReference);
+                var matchingPassive = passives.Find(p => p != null && p.guid == itemGuid);
                 if (matchingPassive != null && matchingPassive.itemName == equippedItem.itemName)
                 {
                     equipmentDataProvider.UnequipPassive(i);
@@ -685,7 +740,9 @@ public class InventoryTab : TabSelection, IScrollMenuAuthority
     
     private void ScrollDelegate(InputAction.CallbackContext context)
     {
-        if (!isScrollMenuActive || itemScrollMenu == null)
+        // CRITICAL: Only forward scroll input when scroll menu is FOCUSED (user has entered it)
+        // Not just when it's visible (active)
+        if (!isScrollMenuActive || !isScrollMenuFocused || itemScrollMenu == null || isActionMenuActive)
             return;
         
         Vector2 scrollInput = context.ReadValue<Vector2>();

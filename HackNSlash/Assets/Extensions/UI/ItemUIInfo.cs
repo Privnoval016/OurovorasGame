@@ -5,13 +5,19 @@ namespace Extensions.UI
 {
     /// <summary>
     /// Data container for inventory item display.
-    /// Includes reference to actual item for proper bijective identification.
+    /// Uses GUID for unique identification to avoid reference equality issues.
     /// </summary>
     public class ItemUIInfo<T>
     {
         /// <summary>
-        /// Reference to the actual InventoryItem object (for unique identification).
-        /// CRITICAL: Use this instead of itemName for comparisons!
+        /// Unique identifier for this item instance.
+        /// CRITICAL: Use this for comparisons instead of reference equality!
+        /// </summary>
+        public string guid;
+        
+        /// <summary>
+        /// Reference to the actual object (for data access).
+        /// DO NOT use for equality comparisons - use guid instead!
         /// </summary>
         public T itemReference;
         

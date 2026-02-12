@@ -10,12 +10,12 @@ public interface IEquipmentDataProvider
     /// <summary>
     /// Gets all available accessories from inventory.
     /// </summary>
-    List<ItemUIInfo<InventoryItem>> GetAccessories();
+    List<ItemUIInfo<InventoryStack>> GetAccessories();
     
     /// <summary>
     /// Gets all available passive skills from inventory.
     /// </summary>
-    List<ItemUIInfo<InventoryItem>> GetPassives();
+    List<ItemUIInfo<InventoryStack>> GetPassives();
     
     /// <summary>
     /// Gets the currently equipped accessory at the specified slot.
@@ -33,7 +33,7 @@ public interface IEquipmentDataProvider
     /// <param name="slotIndex">The slot to equip to (0-2)</param>
     /// <param name="item">The item UI info of the accessory to equip</param>
     /// <returns>True if equipped successfully</returns>
-    bool EquipAccessory(int slotIndex, ItemUIInfo<InventoryItem> item);
+    bool EquipAccessory(int slotIndex, ItemUIInfo<InventoryStack> item);
     
     /// <summary>
     /// Equips a passive skill to the specified slot.
@@ -41,7 +41,7 @@ public interface IEquipmentDataProvider
     /// <param name="slotIndex">The slot to equip to (0-2)</param>
     /// <param name="item">The item UI info of the passive to equip</param>
     /// <returns>True if equipped successfully</returns>
-    bool EquipPassive(int slotIndex, ItemUIInfo<InventoryItem> item);
+    bool EquipPassive(int slotIndex, ItemUIInfo<InventoryStack> item);
     
     /// <summary>
     /// Unequips the accessory from the specified slot.

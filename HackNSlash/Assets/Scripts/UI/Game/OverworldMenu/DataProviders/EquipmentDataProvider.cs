@@ -41,12 +41,12 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <summary>
     /// Gets all accessories in the inventory.
     /// </summary>
-    public List<ItemUIInfo<InventoryItem>> GetAccessories()
+    public List<ItemUIInfo<InventoryStack>> GetAccessories()
     {
         if (inventoryInfo == null)
         {
             Debug.LogWarning("EquipmentDataProvider: InventoryInfo not available!");
-            return new List<ItemUIInfo<InventoryItem>>();
+            return new List<ItemUIInfo<InventoryStack>>();
         }
         
         var accessoryStacks = inventoryInfo.GetStacksOfType<Accessory>();
@@ -57,11 +57,11 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <summary>
     /// Gets all passive skills in the inventory.
     /// </summary>
-    public List<ItemUIInfo<InventoryItem>> GetPassives()
+    public List<ItemUIInfo<InventoryStack>> GetPassives()
     {
         // TODO: Implement passive skill system
         Debug.LogWarning("EquipmentDataProvider: Passive system not yet implemented!");
-        return new List<ItemUIInfo<InventoryItem>>();
+        return new List<ItemUIInfo<InventoryStack>>();
     }
     
     /// <summary>
@@ -106,7 +106,7 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <param name="slotIndex">The slot index (0-2)</param>
     /// <param name="item">The item UI info</param>
     /// <returns>True if successfully equipped</returns>
-    public bool EquipAccessory(int slotIndex, ItemUIInfo<InventoryItem> item)
+    public bool EquipAccessory(int slotIndex, ItemUIInfo<InventoryStack> item)
     {
         if (runtimePlayerStatus == null || runtimePlayerStatus.CurrentLoadout == null || inventoryInfo == null)
         {
@@ -127,7 +127,7 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
             return false;
         }
         
-        Accessory accessory = item.itemReference as Accessory;
+        Accessory accessory = item.itemReference.item as Accessory;
         if (accessory == null)
         {
             Debug.LogWarning($"EquipmentDataProvider: Item is not an Accessory!");
@@ -150,7 +150,7 @@ public class EquipmentDataProvider : MonoBehaviour, IEquipmentDataProvider
     /// <param name="slotIndex">The slot index (0-2)</param>
     /// <param name="item">The item UI info</param>
     /// <returns>True if successfully equipped</returns>
-    public bool EquipPassive(int slotIndex, ItemUIInfo<InventoryItem> item)
+    public bool EquipPassive(int slotIndex, ItemUIInfo<InventoryStack> item)
     {
         // TODO: Implement passive skill system
         Debug.LogWarning("EquipmentDataProvider: Passive system not yet implemented!");

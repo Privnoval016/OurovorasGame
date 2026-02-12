@@ -20176,7 +20176,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Navigation.m_SelectOnDown
       value: 
-      objectReference: {fileID: 1640250413}
+      objectReference: {fileID: 1346473879}
     - target: {fileID: 824648267641773391, guid: 0b1ea0ffbca564974993e6f55acf29b2,
         type: 3}
       propertyPath: onSlotSelected.m_PersistentCalls.m_Calls.Array.size
@@ -23582,7 +23582,6 @@ MonoBehaviour:
   slotsContainer: {fileID: 73096117}
   equipmentScrollMenu: {fileID: 149144967}
   scrollMenuContainer: {fileID: 1046332006}
-  scrollMenuSelectable: {fileID: 0}
   currentItemNameText: {fileID: 1227499453}
   currentItemDescriptionText: {fileID: 1862845979}
   currentItemIcon: {fileID: 849712163}

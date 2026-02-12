@@ -131,12 +131,12 @@ namespace Extensions.UI
         
         #region Event System Handlers
         
-        public void OnSelect(BaseEventData eventData)
+        public override void OnSelect(BaseEventData eventData)
         {
-            Select();
+            Selected();
         }
         
-        public void OnDeselect(BaseEventData eventData)
+        public override void OnDeselect(BaseEventData eventData)
         {
             Deselect();
         }
@@ -152,7 +152,7 @@ namespace Extensions.UI
         
         #region Selection
         
-        private void Select()
+        private void Selected()
         {
             isSelected = true;
             UpdateVisuals();

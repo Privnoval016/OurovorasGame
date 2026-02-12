@@ -206,12 +206,18 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
             var cached = attackDisplayDataCache[cacheKey];
             // Update name in case entry description changed
             cached.attackName = displayName;
+            // Ensure GUID is set (in case cache was created before GUID system)
+            if (string.IsNullOrEmpty(cached.guid))
+            {
+                cached.guid = GenerateAttackGuid(attack);
+            }
             return cached;
         }
         
         // Create new instance and cache it
         var displayData = new AttackDisplayData
         {
+            guid = GenerateAttackGuid(attack), // CRITICAL: Generate stable GUID
             attackReference = attack, // CRITICAL: Store reference for bijective identification
             attackName = displayName,
             description = entry != null ? entry.description : "Attack description",
@@ -223,6 +229,15 @@ public class ElementProgressDataProvider : MonoBehaviour, IElementProgressDataPr
         
         attackDisplayDataCache[cacheKey] = displayData;
         return displayData;
+    }
+    
+    /// <summary>
+    /// Generates a unique GUID for an attack based on its hash code.
+    /// </summary>
+    private string GenerateAttackGuid(AttacksByWeapon attack)
+    {
+        if (attack == null) return System.Guid.NewGuid().ToString();
+        return $"attack_{attack.GetHashCode()}";
     }
     
 

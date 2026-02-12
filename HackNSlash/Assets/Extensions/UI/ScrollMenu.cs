@@ -178,7 +178,7 @@ namespace Extensions.UI
         /// <summary>
         /// Activates the scroll menu with the provided ItemUIInfo items.
         /// </summary>
-        /// <typeparam name="T">The type of the item reference (e.g., InventoryItem, AttacksByWeapon)</typeparam>
+        /// <typeparam name="T">The type of the item reference (e.g., InventoryStack, AttacksByWeapon)</typeparam>
         public void Activate<T>(List<ItemUIInfo<T>> items, int initialIndex, IScrollMenuAuthority authority) where T : class
         {
             if (items == null || items.Count == 0)
@@ -196,12 +196,55 @@ namespace Extensions.UI
 
             isAnimating = false;
             lastScrollTime = -scrollCooldown; // Allow immediate scroll
+            
+            // CRITICAL: Set the conversion function on all panels
+            // This allows panels to extract display data from ItemUIInfo<T> without knowing T
+            SetDisplayDataExtractorOnPanels<T>();
 
             RefreshAllPanels();
             UpdateFocus();
             
             // CRITICAL: Initialize buffer panels with correct data for first scroll
             InitializeBufferPanels();
+        }
+        
+        /// <summary>
+        /// Sets the display data extractor function on all panels.
+        /// This converts ItemUIInfo<T> to ItemDisplayData for type-safe panel updates.
+        /// </summary>
+        private void SetDisplayDataExtractorOnPanels<T>() where T : class
+        {
+            System.Func<object, ItemDisplayData> extractor = (obj) =>
+            {
+                var itemInfo = obj as ItemUIInfo<T>;
+                if (itemInfo == null)
+                    return default;
+                
+                return new ItemDisplayData
+                {
+                    guid = itemInfo.guid,
+                    itemName = itemInfo.itemName,
+                    itemDescription = itemInfo.itemDescription,
+                    icon = itemInfo.icon,
+                    rarity = itemInfo.rarity,
+                    amount = itemInfo.amount,
+                    isStackable = itemInfo.isStackable,
+                    category = itemInfo.category
+                };
+            };
+            
+            // Set extractor on all panels
+            foreach (var panel in panels)
+            {
+                if (panel != null)
+                    panel.SetDisplayDataExtractor(extractor);
+            }
+            
+            // Set on buffer panels too
+            if (topBufferPanel != null)
+                topBufferPanel.SetDisplayDataExtractor(extractor);
+            if (bottomBufferPanel != null)
+                bottomBufferPanel.SetDisplayDataExtractor(extractor);
         }
         
         /// <summary>

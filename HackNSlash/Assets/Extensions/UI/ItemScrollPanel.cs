@@ -31,7 +31,8 @@ public class ItemScrollPanel : ScrollUIPanel
     [SerializeField] private Image borderImage;
     [SerializeField] private GameObject emptyIndicator;
     
-    private ItemUIInfo<InventoryItem> currentInfo;
+    private ItemDisplayData currentDisplayData;
+    
     private UIAnimationManager animationManager;
     
     private void Awake()
@@ -54,10 +55,10 @@ public class ItemScrollPanel : ScrollUIPanel
             borderImage.color = animationManager.GetSelectedColor();
         
         // Show description for selected item
-        if (descriptionText != null && currentInfo != null)
+        if (descriptionText != null && !string.IsNullOrEmpty(currentDisplayData.itemDescription))
         {
             descriptionText.gameObject.SetActive(true);
-            descriptionText.text = currentInfo.itemDescription;
+            descriptionText.text = currentDisplayData.itemDescription;
         }
         
         // Play hover sound via EventBus
@@ -83,23 +84,40 @@ public class ItemScrollPanel : ScrollUIPanel
     
     /// <summary>
     /// Called to update this panel with new item data.
-    /// This happens when the panel is recycled during scrolling.
+    /// Uses the conversion function to extract display data from any ItemUIInfo<T>.
     /// </summary>
-    /// <param name="info">The item information to display (ItemUIInfo<InventoryItem> boxed as object), or null for empty panel.</param>
     public override void Refresh(object info)
     {
-        // Unbox to ItemUIInfo<InventoryItem>
-        currentInfo = info as ItemUIInfo<InventoryItem>;
-        
         if (animationManager == null)
             animationManager = UIAnimationManager.Instance;
         
-        if (currentInfo == null)
+        if (info == null)
         {
-            // Hide the entire panel when empty (items < panels)
             HidePanel();
             return;
         }
+        
+        // Use the conversion function to extract display data
+        if (extractDisplayData == null)
+        {
+            Debug.LogWarning("ItemScrollPanel: extractDisplayData is null! Call SetDisplayDataExtractor first.");
+            HidePanel();
+            return;
+        }
+        
+        ItemDisplayData displayData = extractDisplayData(info);
+        
+        // Cache current data for use in OnSelected/OnDeselected
+        currentDisplayData = new ItemDisplayData(
+            displayData.guid,
+            displayData.itemName,
+            displayData.itemDescription,
+            displayData.icon,
+            displayData.rarity,
+            displayData.amount,
+            displayData.isStackable,
+            displayData.category
+        );
         
         // Show the panel
         ShowPanel();
@@ -107,26 +125,26 @@ public class ItemScrollPanel : ScrollUIPanel
         // Update icon
         if (icon != null)
         {
-            icon.sprite = currentInfo.icon;
-            icon.enabled = currentInfo.icon != null;
-            icon.color = currentInfo.icon != null ? Color.white : 
+            icon.sprite = currentDisplayData.icon;
+            icon.enabled = currentDisplayData.icon != null;
+            icon.color = currentDisplayData.icon != null ? Color.white : 
                 (animationManager != null ? animationManager.GetEmptyColor() : Color.gray);
         }
         
         // Update name
         if (nameText != null)
         {
-            nameText.text = currentInfo.itemName;
+            nameText.text = currentDisplayData.itemName;
             nameText.color = animationManager != null ? 
-                animationManager.GetRarityColor(currentInfo.rarity) : Color.white;
+                animationManager.GetRarityColor(currentDisplayData.rarity) : Color.white;
         }
         
         // Update amount (only show for stackable items)
         if (amountText != null)
         {
-            if (currentInfo.isStackable && currentInfo.amount > 1)
+            if (currentDisplayData.isStackable && currentDisplayData.amount > 1)
             {
-                amountText.text = $"x{currentInfo.amount}";
+                amountText.text = $"x{currentDisplayData.amount}";
                 amountText.gameObject.SetActive(true);
             }
             else
@@ -137,7 +155,7 @@ public class ItemScrollPanel : ScrollUIPanel
         
         // Description handled in OnSelected/OnDeselected
         if (descriptionText != null)
-            descriptionText.text = currentInfo.itemDescription;
+            descriptionText.text = currentDisplayData.itemDescription;
         
         // Hide empty indicator
         if (emptyIndicator != null)

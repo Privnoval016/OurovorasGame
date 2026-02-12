@@ -137,14 +137,14 @@ namespace Extensions.UI
         /// Gets all items in the inventory.
         /// </summary>
         /// <returns>List of all inventory items.</returns>
-        List<ItemUIInfo<InventoryItem>> GetAllItems();
+        List<ItemUIInfo<InventoryStack>> GetAllItems();
         
         /// <summary>
         /// Gets items filtered by category.
         /// </summary>
         /// <param name="category">The category name (e.g., "Accessories", "Consumables").</param>
         /// <returns>List of items in the specified category.</returns>
-        List<ItemUIInfo<InventoryItem>> GetItemsByCategory(string category);
+        List<ItemUIInfo<InventoryStack>> GetItemsByCategory(string category);
         
         /// <summary>
         /// Gets all available item categories.

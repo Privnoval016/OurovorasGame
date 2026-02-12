@@ -11,14 +11,15 @@ public class InventoryStack
     public InventoryItem item; // only one type per stack
     public int amount;
 
-    public ItemUIInfo<InventoryItem> GetItemUIInfo()
+    public ItemUIInfo<InventoryStack> GetItemUIInfo()
     {
         if (item == null)
             return null;
 
-        return new ItemUIInfo<InventoryItem>
+        return new ItemUIInfo<InventoryStack>
         {
-            itemReference = item, // CRITICAL: Store reference for bijective identification
+            guid = GenerateGuid(), // CRITICAL: Unique identifier for this stack
+            itemReference = this, // Store stack reference for data access
             itemName = item.itemName,
             itemDescription = item.itemDescription,
             amount = amount,
@@ -27,6 +28,19 @@ public class InventoryStack
             icon = item.itemIcon,
             category = GetItemCategory(item)
         };
+    }
+    
+    /// <summary>
+    /// Generates a unique GUID for this stack based on the item's instance ID.
+    /// This ensures each unique item has a consistent identifier.
+    /// </summary>
+    private string GenerateGuid()
+    {
+        if (item == null) return Guid.NewGuid().ToString();
+        
+        // Use item's GetInstanceID() for Unity objects, or generate new GUID
+        // This creates a stable identifier as long as the item reference exists
+        return $"item_{item.GetInstanceID()}_{amount}";
     }
     
     private string GetItemCategory(InventoryItem inventoryItem)
