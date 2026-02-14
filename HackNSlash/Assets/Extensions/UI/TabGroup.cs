@@ -106,9 +106,12 @@ namespace Extensions.UI
     
     private void SwitchTabs(int oldIndex, int newIndex, bool force = false)
     {
+        
         if (oldIndex == newIndex && !force) return; // No change
         
         OnTabSwitched(oldIndex, newIndex);
+        
+        if (oldIndex == newIndex) return; // No change
         
         bool swipingRight = newIndex > oldIndex;
         TabButton oldTab = tabButtons[oldIndex];
