@@ -105,11 +105,11 @@ namespace Extensions.UI
             {
                 if (canUse && useButton != null)
                 {
-                    eventSystem.SetSelectedGameObject(useButton.gameObject);
+                    useButton.Select();
                 }
                 else if (discardButton != null)
                 {
-                    eventSystem.SetSelectedGameObject(discardButton.gameObject);
+                    discardButton.Select();
                 }
             }
         }

@@ -532,8 +532,6 @@ namespace Extensions.UI
                         bottomBufferPanel.rectTransform.localPosition = originalBottomBufferPosition;
                     
                     // Refresh all panel data for new selectedIndex
-                    RefreshAllPanels();
-                    UpdateFocus();
                     
                     isAnimating = false;
                 });
@@ -542,6 +540,9 @@ namespace Extensions.UI
             {
                 isAnimating = false;
             }
+            
+            RefreshAllPanels();
+            UpdateFocus();
         }
         
         /// <summary>
