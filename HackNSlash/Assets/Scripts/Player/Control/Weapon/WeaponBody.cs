@@ -107,7 +107,7 @@ public class WeaponBody : KinematicBehaviour, IContactDetector
     
     public void UpdateTrail()
     {
-        if (trailTransforms == null || trailTransforms.Length == 0)
+        if (trailTransforms == null || trailTransforms.Length == 0 || weaponController == null)
         {
             return;
         }

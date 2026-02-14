@@ -1,3 +1,4 @@
+using System;
 using Extensions.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -34,8 +35,8 @@ public class OverworldMenuUI : MonoBehaviour, IService
     [SerializeField] private CompendiumTab compendiumTab;
     [SerializeField] private SettingsTab settingsTab;
     
-    // References for external access (backwards compatibility)
-    [HideInInspector] public PlayerInventory playerInventory;
+    [Header("Render Texture Controller")]
+    [SerializeField] private SharedRenderTextureController renderTextureController;
     
     #region MonoBehaviour Callbacks
     
@@ -56,21 +57,27 @@ public class OverworldMenuUI : MonoBehaviour, IService
     
     private void Start()
     {
-        // Get player inventory reference for backwards compatibility
-        var playerController = Services.Get<PlayerController>();
-        if (playerController != null)
-            playerInventory = playerController.pi;
-        
         // Start with menu closed
         CloseMenu();
     }
+
+    private void OnEnable()
+    {
+        tabGroup.OnTabSwitched += OnTabSwitched;
+    }
     
+    private void OnDisable()
+    {
+        tabGroup.OnTabSwitched -= OnTabSwitched;
+    }
+
     #endregion
     
     #region Initialization
     
     private void InitializeDataProviders()
     {
+        
         // Find or create data providers
         if (playerDataProvider == null)
             playerDataProvider = GetComponentInChildren<PlayerDataProvider>(true);
@@ -142,10 +149,12 @@ public class OverworldMenuUI : MonoBehaviour, IService
         if (compendiumTab != null) compendiumTab.gameObject.SetActive(false);
         if (settingsTab != null) settingsTab.gameObject.SetActive(false);
         
+        renderTextureController.Activate();
+        
         // CRITICAL: Reset to first tab when opening menu
         if (tabGroup != null)
         {
-            tabGroup.SelectTabByIndex(0);
+            tabGroup.SelectTabByIndex(0, force: true);
             tabGroup.tabActive = true;
         }
         
@@ -182,6 +191,8 @@ public class OverworldMenuUI : MonoBehaviour, IService
     {
         gameObject.SetActive(false);
         
+        renderTextureController.Deactivate();
+        
         if (tabGroup != null)
             tabGroup.tabActive = false;
         
@@ -190,6 +201,11 @@ public class OverworldMenuUI : MonoBehaviour, IService
             eventSystem.SetSelectedGameObject(null);
         
         Debug.Log("OverworldMenuUI: Menu closed and reset");
+    }
+    
+    private void OnTabSwitched(int oldIndex, int newIndex)
+    {
+        renderTextureController.MoveToTab(newIndex, true);
     }
     
     private System.Collections.IEnumerator SelectFirstElementNextFrame()
