@@ -1,3 +1,5 @@
+using System;
+using Animancer;
 using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +16,8 @@ namespace Extensions.UI
         [Header("Render Texture Configuration")]
         [SerializeField] private Camera renderCamera;
         [SerializeField] private RenderTexture renderTexture;
+        [SerializeField] private Transform playerModel;
+        [SerializeField] private AnimancerComponent animancer;
         [SerializeField] private RawImage targetImage;
         [SerializeField] private LayerMask cullingMask = -1;
         
@@ -21,11 +25,11 @@ namespace Extensions.UI
         [SerializeField] private float transitionDuration = 0.4f;
         [SerializeField] private Ease transitionEase = Ease.OutCubic;
         [SerializeField] private float scaleOvershoot = 1.05f;
+
+        [Header("Position Presets")] 
+        [SerializeField] private Vector3 playerScale;
+        [SerializeField] private TabPositionInfo[] tabPositions; // Assign position transforms for each tab
         
-        [Header("Position Presets")]
-        [SerializeField] private RectTransform[] tabPositions; // Assign position transforms for each tab
-        
-        private RectTransform rectTransform;
         private int currentTabIndex = -1;
         private Tween currentTween;
         
@@ -33,12 +37,8 @@ namespace Extensions.UI
         
         private void Awake()
         {
-            rectTransform = GetComponent<RectTransform>();
-            
-            if (targetImage == null)
-                targetImage = GetComponent<RawImage>();
-            
             ApplyConfiguration();
+            SetCullingMask(cullingMask);
         }
         
         #endregion
@@ -49,7 +49,8 @@ namespace Extensions.UI
         /// Moves the render texture to the specified tab position with smooth animation.
         /// </summary>
         /// <param name="tabIndex">The index of the tab to move to.</param>
-        public void MoveToTab(int tabIndex)
+        /// <param name="force">If true, forces the move even if already at the target tab.</param>
+        public void MoveToTab(int tabIndex, bool force = false)
         {
             if (tabIndex < 0 || tabIndex >= tabPositions.Length)
             {
@@ -57,11 +58,19 @@ namespace Extensions.UI
                 return;
             }
             
-            if (tabIndex == currentTabIndex)
+            if (tabIndex == currentTabIndex && !force)
                 return; // Already at this position
             
+            if (!tabPositions[tabIndex].enableRenderTexture)
+            {
+                Hide();
+                return;
+            }
+
+            Show();
+            
             currentTabIndex = tabIndex;
-            RectTransform targetPosition = tabPositions[tabIndex];
+            RectTransform targetPosition = tabPositions[tabIndex].uiPosition;
             
             if (targetPosition == null)
             {
@@ -72,21 +81,18 @@ namespace Extensions.UI
             // Cancel any ongoing animation
             currentTween.Stop();
             
-            // Animate position with slight overshoot for snappy feel
-            Sequence.Create()
-                .Group(Tween.Position(rectTransform, targetPosition.position, 
-                    duration: transitionDuration, ease: transitionEase, useUnscaledTime: true))
-                .Group(Tween.Scale(rectTransform, scaleOvershoot, 
-                    duration: transitionDuration * 0.3f, ease: Ease.OutQuad, useUnscaledTime: true))
-                .Chain(Tween.Scale(rectTransform, 1f, 
-                    duration: transitionDuration * 0.2f, ease: Ease.InQuad, useUnscaledTime: true));
+            animancer.Play(tabPositions[tabIndex].animationClip);
             
-            // Match size if needed (instant, as PrimeTween doesn't have direct sizeDelta animation)
-            // Position and scale animations provide enough visual feedback
-            if (rectTransform.sizeDelta != targetPosition.sizeDelta)
-            {
-                rectTransform.sizeDelta = targetPosition.sizeDelta;
-            }
+            //Animate all properties together for a smooth transition
+            Sequence.Create(useUnscaledTime: true)
+                .Group(Tween.Position(targetImage.rectTransform, targetPosition.position, transitionDuration, transitionEase))
+                .Group(Tween.Position(playerModel, tabPositions[tabIndex].playerPosition.position,
+                    transitionDuration, transitionEase))
+                .Group(Tween.Rotation(playerModel, tabPositions[tabIndex].playerPosition.rotation,
+                    transitionDuration, transitionEase))
+                .Group(Tween.Scale(targetImage.rectTransform, targetPosition.localScale * scaleOvershoot, transitionDuration * 0.5f,
+                    Ease.OutQuad))
+                .Chain(Tween.Scale(targetImage.rectTransform, targetPosition.localScale, transitionDuration * 0.5f, Ease.InQuad));
             
             // Activate camera if not already active
             if (renderCamera != null && !renderCamera.enabled)
@@ -131,7 +137,7 @@ namespace Extensions.UI
         /// </summary>
         public void Hide()
         {
-            if (targetImage != null)
+            if (targetImage != null && targetImage.color.a > 0f)
             {
                 Tween.Alpha(targetImage, 0f, duration: 0.2f, 
                     ease: Ease.OutQuad, useUnscaledTime: true);
@@ -143,7 +149,7 @@ namespace Extensions.UI
         /// </summary>
         public void Show()
         {
-            if (targetImage != null)
+            if (targetImage != null && targetImage.color.a < 1f)
             {
                 Tween.Alpha(targetImage, 1f, duration: 0.3f, 
                     ease: Ease.OutQuad, useUnscaledTime: true);
@@ -167,9 +173,25 @@ namespace Extensions.UI
                 renderCamera.cullingMask = cullingMask;
                 renderCamera.enabled = false; // Start disabled
             }
+            
+            playerModel.localScale = playerScale;
         }
         
         #endregion
+    }
+
+    [Serializable]
+    public class TabPositionInfo
+    {
+        public bool enableRenderTexture = true;
+        [Header("UI")]
+        public RectTransform uiPosition;
+        
+        [Header("Camera")]
+        public Transform playerPosition;
+        
+        [Header("Animation")]
+        public AnimationClip animationClip;
     }
 }
 

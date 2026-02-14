@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using PrimeTween;  // Used for tab swipe animations
 using UnityEngine;
@@ -23,6 +24,8 @@ namespace Extensions.UI
     [SerializeField] private float swipeDistance = 1920f;
     [SerializeField] private float swipeDuration = 0.3f;
     [SerializeField] private float fadeDuration = 0.25f;
+    
+    public Action<int, int> OnTabSwitched = delegate { }; // (oldIndex, newIndex)
 
         #region MonoBehaviour Callbacks
 
@@ -51,24 +54,26 @@ namespace Extensions.UI
         /// Called by TabButton when clicked or by external code.
         /// </summary>
         /// <param name="tab">The tab button to select.</param>
-        public void SelectTab(TabButton tab)
+        /// <param name="force">If true, forces the selection even if already on that tab.</param>
+        public void SelectTab(TabButton tab, bool force = false)
         {
             if (tab == null || !tabButtons.Contains(tab)) return;
             
             int oldIndex = selectedTab != null ? tabButtons.IndexOf(selectedTab) : 0;
             int newIndex = tabButtons.IndexOf(tab);
-            
-            SwitchTabs(oldIndex, newIndex);
+
+            SwitchTabs(oldIndex, newIndex, force);
         }
         
         /// <summary>
         /// Programmatically selects a tab by index.
         /// </summary>
         /// <param name="index">The tab index (0-based).</param>
-        public void SelectTabByIndex(int index)
+        /// <param name="force">If true, forces the selection even if already on that tab.</param>
+        public void SelectTabByIndex(int index, bool force = false)
         {
             if (index < 0 || index >= tabButtons.Count) return;
-            SelectTab(tabButtons[index]);
+            SelectTab(tabButtons[index], force);
         }
         
         #endregion
@@ -99,9 +104,11 @@ namespace Extensions.UI
         SwitchTabs(oldIndex, newIndex);
     }
     
-    private void SwitchTabs(int oldIndex, int newIndex)
+    private void SwitchTabs(int oldIndex, int newIndex, bool force = false)
     {
-        if (oldIndex == newIndex) return;
+        if (oldIndex == newIndex && !force) return; // No change
+        
+        OnTabSwitched(oldIndex, newIndex);
         
         bool swipingRight = newIndex > oldIndex;
         TabButton oldTab = tabButtons[oldIndex];
@@ -168,9 +175,9 @@ namespace Extensions.UI
         }
         
         // Update selection
-        selectedTab.Deselect();
+        selectedTab?.Deselect();
         selectedTab = newTab;
-        selectedTab.Select();
+        selectedTab?.Select();
         
         UIAudio.PlayTabSwitch();
     }
