@@ -155,14 +155,6 @@ namespace Extensions.UI
             {
                 gridNav.ConfigureNavigation();
             }
-            
-            // Find and configure DrillDownNavigators
-            DrillDownNavigator[] drillDownNavigators = tabButton.contentPanel.GetComponentsInChildren<DrillDownNavigator>(true);
-            foreach (var drillNav in drillDownNavigators)
-            {
-                // DrillDownNavigators set up themselves, but we can ensure they're ready
-                Debug.Log($"MenuNavigationConfigurator: Found DrillDownNavigator on {drillNav.gameObject.name}");
-            }
         }
         
         /// <summary>
