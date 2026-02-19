@@ -11,16 +11,50 @@ namespace Extensions.CutsceneEngine
         
         private void Awake()
         {
-            adapter = new CutsceneActionAdapter(this);
+            InitializeAdapter();
         }
+        
+        private void InitializeAdapter()
+        {
+            if (adapter == null)
+            {
+                adapter = new CutsceneActionAdapter(this);
+            }
+        }
+        
+        [CutsceneAction("WaveHello")]
+        public void WaveHello()
+        {
+            Debug.Log($"Hello from CutsceneActorProxy: {name}!");
+        }
+        
+        [CutsceneAction("SaySomething")]
+        public void SaySomething(string message)
+        {
+            Debug.Log($"CutsceneActorProxy {name} says: {message}");
+        }
+        
+        #region ICutsceneActor implementation
 
         public Transform GetTransform() => transform;
 
-        public CutsceneActionAdapter GetCutsceneAdapter() => adapter;
+        public CutsceneActionAdapter GetCutsceneAdapter()
+        {
+            InitializeAdapter();
+            return adapter;
+        }
 
-        public void OnCutsceneEnter() { }
+        public void OnCutsceneEnter()
+        {
+            Debug.Log($"Entered CutsceneActorProxy: {name}!");
+        }
 
-        public void OnCutsceneExit() { }
+        public void OnCutsceneExit()
+        {
+            Debug.Log($"Exited CutsceneActorProxy: {name}!");
+        }
+        
+        #endregion
     }
 
 }

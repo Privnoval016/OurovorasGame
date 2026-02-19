@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.Playables;
 
 namespace Extensions.CutsceneEngine
@@ -5,9 +6,8 @@ namespace Extensions.CutsceneEngine
     /**
      * <summary>
      * The CutscenePlayableBehaviour class is a custom PlayableBehaviour used in Unity's Playable system to execute cutscene actions.
-     * It contains references to a CutsceneAction, an optional explicit actor, and the CutsceneContext.
-     * The ProcessFrame method is overridden to execute the specified cutscene action on the target actor when the playable is played.
-     * This class allows for the integration of cutscene actions into Unity's timeline and playable system, enabling more complex and dynamic cutscenes.
+     * It properly supports Timeline scrubbing, clip duration, and continuous actions by calling OnEnter/OnUpdate/OnExit
+     * on the action based on the clip's playback state.
      * </summary>
      */
     public class CutscenePlayableBehaviour : PlayableBehaviour
@@ -15,27 +15,79 @@ namespace Extensions.CutsceneEngine
         public CutsceneActionReference actionReference;
         public ICutsceneActor explicitActor;
 
-        private bool executed;
+        private bool firstFrame = true;
+        private float lastTime;
+        private ICutsceneActor cachedActor; // Cache actor for OnExit
+
+        public override void OnBehaviourPlay(Playable playable, FrameData info)
+        {
+            // Reset state when clip starts
+            firstFrame = true;
+            lastTime = 0f;
+        }
 
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
-            if (executed) return;
+            var context = GetContext(playable);
+            var actor = explicitActor ?? playerData as ICutsceneActor;
+            
+            // In edit mode, context will be null - that's okay for basic scrubbing
+            // Only require actor and action
+            if (actor == null || actionReference?.Action == null)
+            {
+                return;
+            }
 
-            var resolver = playable.GetGraph().GetResolver();
-            if (resolver is not PlayableDirector director) return;
+            // Cache actor for OnExit
+            cachedActor = actor;
 
-            var wrapper = director.GetComponent<CutsceneDirector>();
-            if (wrapper == null) return;
+            // Call OnEnter on first frame
+            if (firstFrame)
+            {
+                actionReference.Action.OnEnter(actor, context); // context can be null in edit mode
+                firstFrame = false;
+            }
 
-            var context = wrapper.Context;
+            // Calculate normalized time (0.0 to 1.0 through the clip)
+            double clipDuration = playable.GetDuration();
+            double clipTime = playable.GetTime();
+            float normalizedTime = clipDuration > 0 ? (float)(clipTime / clipDuration) : 0f;
+            
+            // Calculate delta time since last frame
+            float currentTime = (float)clipTime;
+            float deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
 
-            ICutsceneActor actor = explicitActor ?? playerData as ICutsceneActor;
-            if (actor == null) return;
-
-            actionReference.Action.Execute(actor, context);
-
-            executed = true;
+            // Call update every frame for continuous actions and scrubbing support
+            actionReference.Action.OnUpdate(actor, context, normalizedTime, deltaTime);
         }
 
+        public override void OnBehaviourPause(Playable playable, FrameData info)
+        {
+            // Called when clip stops playing (end of clip or Timeline stopped)
+            if (!firstFrame) // Only call OnExit if OnEnter was called
+            {
+                var context = GetContext(playable);
+                // Use cached actor from ProcessFrame
+                if (context != null && cachedActor != null && actionReference?.Action != null)
+                {
+                    actionReference.Action.OnExit(cachedActor, context);
+                }
+                
+                firstFrame = true;
+                lastTime = 0f;
+                cachedActor = null;
+            }
+        }
+
+        private CutsceneContext GetContext(Playable playable)
+        {
+            var resolver = playable.GetGraph().GetResolver();
+            if (resolver is not PlayableDirector director) return null;
+
+            var wrapper = director.GetComponent<CutsceneDirector>();
+            return wrapper?.Context;
+        }
     }
 }
+

@@ -4,21 +4,42 @@ namespace Extensions.CutsceneEngine
 {
     /**
      * <summary>
-     * The RotateActorAction class represents a cutscene action that rotates an actor by a specified Euler rotation over a given duration.
-     * It implements the ICutsceneAction interface, allowing it to be executed as part of a cutscene sequence.
-     * The Execute method uses the CutsceneContext's Motion system to apply the rotation to the actor smoothly over the specified duration.
-     * This action can be used to create dynamic and visually engaging cutscenes by rotating actors in response to events or triggers within the cutscene.
+     * Rotates an actor from their current rotation to a target rotation over the clip duration.
+     * Supports Timeline scrubbing - dragging the playhead will update actor rotation in real-time.
      * </summary>
      */
     [System.Serializable]
-    public class RotateActorAction : ICutsceneAction
+    public class RotateActorAction : CutsceneActionBase
     {
         public Vector3 EulerRotation;
-        public float Duration = 1f;
 
-        public void Execute(ICutsceneActor actor, CutsceneContext context)
+        private Quaternion startRotation;
+
+        public override void OnEnter(ICutsceneActor actor, CutsceneContext context)
         {
-            context.Motion.Rotate(actor, Quaternion.Euler(EulerRotation), Duration);
+            // Cache start rotation for interpolation
+            startRotation = actor.GetTransform().rotation;
+        }
+
+        public override void OnUpdate(ICutsceneActor actor, CutsceneContext context, float normalizedTime, float deltaTime)
+        {
+            // If normalizedTime is 1 or greater, ensure we set the final rotation and exit early
+            if (normalizedTime >= 1f)            
+            {
+                actor.GetTransform().rotation = Quaternion.Euler(EulerRotation);
+                return;
+            }
+            
+            // Slerp rotation based on normalized time (supports scrubbing)
+            Quaternion targetRot = Quaternion.Euler(EulerRotation);
+            actor.GetTransform().rotation = Quaternion.Slerp(startRotation, targetRot, normalizedTime);
+        }
+
+        public override void OnExit(ICutsceneActor actor, CutsceneContext context)
+        {
+            // Ensure actor reaches exact target rotation
+            actor.GetTransform().rotation = Quaternion.Euler(EulerRotation);
         }
     }
 }
+
