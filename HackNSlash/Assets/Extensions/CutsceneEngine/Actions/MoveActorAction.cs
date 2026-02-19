@@ -4,25 +4,73 @@ namespace Extensions.CutsceneEngine
 {
     /**
      * <summary>
-     * The MoveActorAction class represents a cutscene action that moves an actor to a specified position over a given duration.
-     * This class implements the ICutsceneAction interface, allowing it to be executed as part of a cutscene sequence.
-     * When executed, it uses the MotionSystem from the CutsceneContext to move the actor to the target position smoothly over the specified duration.
-     * This action can be used to create dynamic and engaging cutscenes where actors need to move to specific locations as part of the narrative.
+     * Moves an actor from their current position to a target position over the clip duration.
+     * Supports Timeline scrubbing - dragging the playhead will update actor position in real-time.
      * </summary>
      */
     [System.Serializable]
-    public class MoveActorAction : ICutsceneAction
+    public class MoveActorAction : CutsceneActionBase
     {
         public Vector3 Target;
-        public float Duration = 1f;
         public bool PlayWalkAnimation = true;
 
-        public void Execute(ICutsceneActor actor, CutsceneContext context)
-        {
-            if (PlayWalkAnimation)
-                context.Animation.PlayAnimation(actor, "Walk"); // TODO: This should be more flexible
+        [System.NonSerialized]
+        private Vector3 startPosition;
+        [System.NonSerialized]
+        private bool hasInitialized;
+        [System.NonSerialized]
+        private bool animationStarted;
 
-            context.Motion.Move(actor, Target, Duration);
+        public override void OnEnter(ICutsceneActor actor, CutsceneContext context)
+        {
+            // Cache start position for interpolation
+            startPosition = actor.GetTransform().position;
+            hasInitialized = true;
+            animationStarted = false;
+
+            // Start walk animation if requested
+            if (PlayWalkAnimation && context?.Animation != null)
+            {
+                context.Animation.PlayAnimation(actor, "Walk");
+                animationStarted = true;
+            }
+        }
+
+        public override void OnUpdate(ICutsceneActor actor, CutsceneContext context, float normalizedTime, float deltaTime)
+        {
+            // Ensure we have a start position (in case OnEnter wasn't called due to scrubbing)
+            if (!hasInitialized)
+            {
+                startPosition = actor.GetTransform().position;
+                hasInitialized = true;
+            }
+            
+            // If normalizedTime is 1 or greater, ensure we set the final position and exit early
+            if (normalizedTime >= 1f)
+            {
+                actor.GetTransform().position = Target;
+                return;
+            }
+            
+            // Lerp position based on normalized time (supports scrubbing)
+            Vector3 targetPos = Vector3.Lerp(startPosition, Target, normalizedTime);
+            actor.GetTransform().position = targetPos;
+        }
+
+        public override void OnExit(ICutsceneActor actor, CutsceneContext context)
+        {
+            // Ensure actor reaches exact target position
+            actor.GetTransform().position = Target;
+
+            // Stop walk animation if we started it
+            if (animationStarted && context?.Animation != null)
+            {
+                context.Animation.PlayAnimation(actor, "Idle"); // TODO: Make this configurable
+            }
+            
+            // Reset for next time
+            hasInitialized = false;
         }
     }
 }
+
