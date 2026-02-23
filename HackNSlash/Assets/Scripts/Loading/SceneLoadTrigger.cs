@@ -16,7 +16,6 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class SceneLoadTrigger : MonoBehaviour
 {
-    // ─────────────────────────────────────────────────────────────────────────────
     #region Inspector Fields
 
     [Header("Load Settings")]
@@ -37,11 +36,8 @@ public class SceneLoadTrigger : MonoBehaviour
              "groupToUnload for groupToLoad.  If false, loads/unloads independently.")]
     [SerializeField] private bool useTransition = false;
 
-    [Tooltip("Tag used to identify the player object that activates this trigger.")]
-    [SerializeField] private string playerTag = "Player";
-
     #endregion
-    // ─────────────────────────────────────────────────────────────────────────────
+
     #region Trigger Callbacks
 
     private void OnTriggerEnter(Collider other)
@@ -73,7 +69,7 @@ public class SceneLoadTrigger : MonoBehaviour
     }
 
     #endregion
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Overridable
 
     /**
@@ -85,7 +81,7 @@ public class SceneLoadTrigger : MonoBehaviour
      * <param name="other">The collider that entered or exited this trigger volume.</param>
      */
     protected virtual bool IsValidTriggerTarget(Collider other) =>
-        other.CompareTag(playerTag);
+        other.TryGetComponent(out PlayerController playerController);
 
     #endregion
 }

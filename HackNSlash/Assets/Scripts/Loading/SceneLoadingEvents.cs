@@ -30,7 +30,7 @@ public static class SceneLoadingEvents
     /**
      * <summary>
      * Fired after a scene (or scene group) finishes loading and all scenes are active.
-     * Use this to initialise content in the newly loaded scene.
+     * Use this to initialize content in the newly loaded scene.
      * </summary>
      */
     public struct OnSceneLoadCompleted : IEvent

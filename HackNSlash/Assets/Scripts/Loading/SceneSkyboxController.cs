@@ -26,7 +26,7 @@ using UnityEditor.SceneManagement;
  */
 public class SceneSkyboxController : MonoBehaviour
 {
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Inspector Fields
 
     [Header("Skybox")]
@@ -40,7 +40,7 @@ public class SceneSkyboxController : MonoBehaviour
     [SerializeField] private int priority;
 
     #endregion
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Properties
 
     /** <summary>The skybox material this scene contributes. May be null.</summary> */
@@ -55,7 +55,7 @@ public class SceneSkyboxController : MonoBehaviour
     public int Priority => priority;
 
     #endregion
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Unity Lifecycle
 
     private void OnEnable()
@@ -72,7 +72,7 @@ public class SceneSkyboxController : MonoBehaviour
     }
 
     #endregion
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Editor Preview
 
 #if UNITY_EDITOR

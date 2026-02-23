@@ -34,7 +34,7 @@ using UnityEngine.SceneManagement;
  */
 public class SkyboxManager : PersistentSingleton<SkyboxManager>
 {
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Private State
 
     /**
@@ -54,7 +54,7 @@ public class SkyboxManager : PersistentSingleton<SkyboxManager>
     private readonly HashSet<int> _excludedBuildIndices = new();
 
     #endregion
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Exclusion API
 
     /**
@@ -122,7 +122,7 @@ public class SkyboxManager : PersistentSingleton<SkyboxManager>
     public bool IsExcluded(int buildIndex) => _excludedBuildIndices.Contains(buildIndex);
 
     #endregion
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Registration
 
     /**
@@ -162,7 +162,7 @@ public class SkyboxManager : PersistentSingleton<SkyboxManager>
     }
 
     #endregion
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Reconciliation
 
     /**
@@ -217,7 +217,7 @@ public class SkyboxManager : PersistentSingleton<SkyboxManager>
     }
 
     #endregion
-    // ─────────────────────────────────────────────────────────────────────────────
+    
     #region Private Helpers
 
     private static void Apply(Material skybox)
