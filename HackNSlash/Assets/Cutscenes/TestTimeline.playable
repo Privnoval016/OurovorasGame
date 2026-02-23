@@ -53,7 +53,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: WaveHello
+    m_DisplayName: Moving
   - m_Version: 1
     m_Start: 6.483333333333333
     m_ClipIn: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
     m_Start: 0
     m_ClipIn: 0
     m_Asset: {fileID: 3522960582748153444}
-    m_Duration: 0.5
+    m_Duration: 0.35
     m_TimeScale: 1
     m_ParentTrack: {fileID: -2863678104807638919}
     m_EaseInDuration: 0
@@ -158,16 +158,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   action:
     Action:
-      rid: 364838072360895336
+      rid: 364838072360895479
   explicitTarget: {fileID: 0}
   references:
     version: 2
     RefIds:
-    - rid: 364838072360895336
-      type: {class: MoveActorAction, ns: Extensions.CutsceneEngine, asm: Assembly-CSharp}
+    - rid: 364838072360895479
+      type: {class: ActorMethodAction, ns: Extensions.CutsceneEngine, asm: Assembly-CSharp}
       data:
-        Target: {x: 0, y: 0, z: 0}
-        PlayWalkAnimation: 1
+        MethodName: SaySomething
+        Parameters:
+        - type: 3
+          intValue: 0
+          floatValue: 0
+          boolValue: 0
+          stringValue: cooked
+          vector3Value: {x: 0, y: 0, z: 0}
+          gameObjectValue: {fileID: 0}
 --- !u!114 &2714740623737308979
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -351,8 +358,9 @@ MonoBehaviour:
     - rid: 364838072360895432
       type: {class: MoveActorAction, ns: Extensions.CutsceneEngine, asm: Assembly-CSharp}
       data:
+        StartPosition: {x: 10, y: 0, z: 0}
+        UseStartPositionFromActor: 0
         Target: {x: 10, y: 0, z: 0}
-        PlayWalkAnimation: 1
 --- !u!114 &4541828542146852636
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -399,8 +407,9 @@ MonoBehaviour:
     - rid: 364838072360895385
       type: {class: MoveActorAction, ns: Extensions.CutsceneEngine, asm: Assembly-CSharp}
       data:
+        StartPosition: {x: 10, y: 0, z: 0}
+        UseStartPositionFromActor: 0
         Target: {x: 0, y: 0, z: 0}
-        PlayWalkAnimation: 1
 --- !u!114 &5424409460764863035
 MonoBehaviour:
   m_ObjectHideFlags: 1

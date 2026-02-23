@@ -18,10 +18,10 @@ MonoBehaviour:
     m_Value: 1
   threshold:
     m_OverrideState: 1
-    m_Value: 1.04
+    m_Value: 1.16
   intensity:
     m_OverrideState: 1
-    m_Value: 1.67
+    m_Value: 0.41
   scatter:
     m_OverrideState: 0
     m_Value: 0.7
@@ -90,13 +90,13 @@ MonoBehaviour:
   active: 1
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 0.9034358, z: 0.9905024, w: 0.016122468}
+    m_Value: {x: 0.99844277, y: 0.9470603, z: 1, w: -0.12799999}
   midtones:
     m_OverrideState: 1
-    m_Value: {x: 0.8082428, y: 0.8806426, z: 1, w: -0.09673517}
+    m_Value: {x: 0.97611886, y: 0.9804139, z: 1, w: 0.16}
   highlights:
     m_OverrideState: 1
-    m_Value: {x: 0.95878845, y: 0.89148426, z: 1, w: 0}
+    m_Value: {x: 0.9754053, y: 0.94488764, z: 1, w: 0}
   shadowsStart:
     m_OverrideState: 0
     m_Value: 0
@@ -109,6 +109,34 @@ MonoBehaviour:
   highlightsEnd:
     m_OverrideState: 0
     m_Value: 1
+--- !u!114 &-1573733146988308387
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66f335fb1ffd8684294ad653bf1c7564, type: 3}
+  m_Name: ColorAdjustments
+  m_EditorClassIdentifier: 
+  active: 1
+  postExposure:
+    m_OverrideState: 0
+    m_Value: 0
+  contrast:
+    m_OverrideState: 1
+    m_Value: 24.3
+  colorFilter:
+    m_OverrideState: 0
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
+  hueShift:
+    m_OverrideState: 0
+    m_Value: 0
+  saturation:
+    m_OverrideState: 1
+    m_Value: 11.7
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,7 +154,8 @@ MonoBehaviour:
   - {fileID: -7893295128165547882}
   - {fileID: -7011558710299706105}
   - {fileID: -2064230797183581516}
-  - {fileID: 2066898962889407075}
+  - {fileID: 4026904156433059528}
+  - {fileID: -1573733146988308387}
 --- !u!114 &849379129802519247
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -167,7 +196,7 @@ MonoBehaviour:
   maxNits:
     m_OverrideState: 0
     m_Value: 1000
---- !u!114 &2066898962889407075
+--- !u!114 &4026904156433059528
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -176,16 +205,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70afe9e12c7a7ed47911bb608a23a8ff, type: 3}
-  m_Name: SplitToning
+  m_Script: {fileID: 11500000, guid: 29fa0085f50d5e54f8144f766051a691, type: 3}
+  m_Name: FilmGrain
   m_EditorClassIdentifier: 
   active: 1
-  shadows:
+  type:
     m_OverrideState: 1
-    m_Value: {r: 0.37106913, g: 0.37106913, b: 0.37106913, a: 1}
-  highlights:
+    m_Value: 0
+  intensity:
     m_OverrideState: 1
-    m_Value: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
-  balance:
-    m_OverrideState: 1
-    m_Value: -9.3
+    m_Value: 0.112
+  response:
+    m_OverrideState: 0
+    m_Value: 0.8
+  texture:
+    m_OverrideState: 0
+    m_Value: {fileID: 0}

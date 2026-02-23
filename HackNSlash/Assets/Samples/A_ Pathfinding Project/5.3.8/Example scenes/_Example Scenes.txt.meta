@@ -4,6 +4,7 @@ AssetOrigin:
   serializedVersion: 1
   productId: 87744
   packageName: A* Pathfinding Project Pro
-  packageVersion: 5.3.8
-  assetPath: Packages/com.arongranberg.astar/ExampleScenes~/_Example Scenes.txt
-  uploadId: 764484
+  packageVersion: 5.4.6
+  assetPath: Assets/Samples/A_ Pathfinding Project/5.3.8/Example scenes/_Example
+    Scenes.txt
+  uploadId: 851410

@@ -136,12 +136,6 @@ namespace Extensions.CutsceneEngine.Editor
         
         private static void ValidateMoveActorAction(MoveActorAction action, ValidationResult result)
         {
-            // Note: Duration is now controlled by Timeline clip length, not the action itself
-            if (action.PlayWalkAnimation)
-            {
-                result.Info.Add("Will play walk animation during movement");
-            }
-            
             result.Info.Add($"Moving to {action.Target} (duration controlled by Timeline clip)");
         }
         

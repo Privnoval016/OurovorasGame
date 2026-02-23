@@ -11,29 +11,27 @@ namespace Extensions.CutsceneEngine
     [System.Serializable]
     public class MoveActorAction : CutsceneActionBase
     {
+        public Vector3 StartPosition = Vector3.zero;
+        public bool UseStartPositionFromActor = true; // If true, will ignore StartPosition and use actor's current position at OnEnter
         public Vector3 Target;
-        public bool PlayWalkAnimation = true;
 
         [System.NonSerialized]
         private Vector3 startPosition;
         [System.NonSerialized]
         private bool hasInitialized;
-        [System.NonSerialized]
-        private bool animationStarted;
 
         public override void OnEnter(ICutsceneActor actor, CutsceneContext context)
         {
             // Cache start position for interpolation
-            startPosition = actor.GetTransform().position;
-            hasInitialized = true;
-            animationStarted = false;
+            startPosition = UseStartPositionFromActor ? actor.GetTransform().position : StartPosition;
 
-            // Start walk animation if requested
-            if (PlayWalkAnimation && context?.Animation != null)
+            if (UseStartPositionFromActor)
             {
-                context.Animation.PlayAnimation(actor, "Walk");
-                animationStarted = true;
+                // If we're using the actor's current position, we need to set the actor to that position at the start of the clip
+                actor.GetTransform().position = startPosition;
             }
+            
+            hasInitialized = true;
         }
 
         public override void OnUpdate(ICutsceneActor actor, CutsceneContext context, float normalizedTime, float deltaTime)
@@ -41,7 +39,14 @@ namespace Extensions.CutsceneEngine
             // Ensure we have a start position (in case OnEnter wasn't called due to scrubbing)
             if (!hasInitialized)
             {
-                startPosition = actor.GetTransform().position;
+                startPosition = UseStartPositionFromActor ? actor.GetTransform().position : StartPosition;
+                
+                if (UseStartPositionFromActor)
+                {
+                    // If we're using the actor's current position, we need to set the actor to that position at the start of the clip
+                    actor.GetTransform().position = startPosition;
+                }
+                
                 hasInitialized = true;
             }
             
@@ -61,12 +66,6 @@ namespace Extensions.CutsceneEngine
         {
             // Ensure actor reaches exact target position
             actor.GetTransform().position = Target;
-
-            // Stop walk animation if we started it
-            if (animationStarted && context?.Animation != null)
-            {
-                context.Animation.PlayAnimation(actor, "Idle"); // TODO: Make this configurable
-            }
             
             // Reset for next time
             hasInitialized = false;
