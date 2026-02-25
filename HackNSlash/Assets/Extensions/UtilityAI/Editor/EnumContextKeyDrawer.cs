@@ -107,10 +107,11 @@ namespace Extensions.UtilityAI.Editor
             // ── Type popup ──────────────────────────────────────────────────────────
             string currentTypeName = typeProp.stringValue;
             int currentTypeIdx = Array.IndexOf(_cachedTypeFullNames, currentTypeName);
-            if (currentTypeIdx < 0) currentTypeIdx = 0;
 
             string[] displayNames = PrependNone(_cachedTypeNames);
-            int popupIdx = currentTypeIdx + 1; // offset for "(none)" entry
+            // currentTypeIdx is -1 when not set → show (none) at popup index 0.
+            // Otherwise offset by 1 to account for the prepended (none) entry.
+            int popupIdx = currentTypeIdx < 0 ? 0 : currentTypeIdx + 1;
 
             EditorGUI.BeginChangeCheck();
             int newPopupIdx = EditorGUI.Popup(typeRect, popupIdx, displayNames);
@@ -119,12 +120,12 @@ namespace Extensions.UtilityAI.Editor
                 if (newPopupIdx == 0)
                 {
                     typeProp.stringValue = string.Empty;
-                    valueProp.intValue   = 0;
+                    valueProp.intValue = 0;
                 }
                 else
                 {
                     typeProp.stringValue = _cachedTypeFullNames[newPopupIdx - 1];
-                    valueProp.intValue   = 0;
+                    valueProp.intValue = 0;
                 }
             }
 
