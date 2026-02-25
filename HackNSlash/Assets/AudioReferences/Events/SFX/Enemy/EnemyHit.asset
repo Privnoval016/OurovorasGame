@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a321c55d47c243999f50ccd5eb795ee7, type: 3}
+  m_Name: EnemyHit
+  m_EditorClassIdentifier: 
+  eventReference:
+    Guid:
+      Data1: -119695021
+      Data2: 1117161669
+      Data3: 489628040
+      Data4: -346439205
+    Path: event:/SFX/Enemies/EnemyHit
+  description: 
+  poolSize: 10
+  defaultParameters: []

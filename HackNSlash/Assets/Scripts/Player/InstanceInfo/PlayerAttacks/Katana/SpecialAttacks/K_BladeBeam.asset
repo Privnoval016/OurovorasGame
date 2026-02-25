@@ -1,0 +1,141 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
+  m_Name: K_BladeBeam
+  m_EditorClassIdentifier: 
+  updateLinkedAttack: 0
+  linkedAttack: {fileID: 11400000, guid: a1b3d8615ef9e124888778393ae8767f, type: 2}
+  isEnabled: 1
+  attackType: 4
+  element: 1
+  stats:
+    damage: 30
+    statusEffectStacks: 2
+    statusEffectDuration: 6
+    restoreCharge: 1
+    charge: 15
+    ultimateCharge: 8
+    baseStyleGain: 10
+  isLockedOn: 0
+  requireElementTrigger: 0
+  triggerCoolDown: 0
+  keyBinds: 02000000
+  inputDirection: {x: 0, y: 1}
+  comboDirection: {x: 0, y: 0}
+  applyTargetDirection: 1
+  isMidair: 2
+  maxUses: 0
+  hitInfo:
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587369
+    - hitAction:
+        rid: 2944900481171587370
+    hitDetection: 0
+    lateralRadius: 3
+    verticalRadius: 3
+    hitRegisterAngle: 120
+    numTargets: 3
+    attackCoolDown: 0.1
+    hitCoolDown: 0.1
+  vfxInstantSpawns: 
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 1.3
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
+  - vfxAttack: {fileID: 11400000, guid: e5f06a8d488e30c4e937bd901063d266, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 0.3
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0.1305262, w: 0.9914449}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
+  - vfxAttack: {fileID: 11400000, guid: e5f06a8d488e30c4e937bd901063d266, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 0.3
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0.50000006, w: -0.8660254}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
+  - vfxAttack: {fileID: 11400000, guid: 5957a9ba827010741ab8a2b01ffbe45c, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 1.3
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
+  hitStopProfiles:
+  - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587277
+  applyRootMotion: 1
+  moveCameraWithAttack: 0
+  attackTransitions: []
+  attackClips:
+  - {fileID: 7400000, guid: 78debf97b4acd68468da7282ea963b91, type: 2}
+  - {fileID: 7400000, guid: d07d176e372bb6c4fa27b8b4e3d53b0b, type: 2}
+  - {fileID: 7400000, guid: fb8320f9831a94346bcee9ad74b4b164, type: 2}
+  animDelay: 0
+  animFade: 0.2
+  clipsToPlay: 1
+  useNormalGravity: 0
+  exitCondition: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587277
+      type: {class: BladeBeamAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        bladeBeamHoldTime: 0.2
+        bladeBeamInterval: 0.3
+        crossSlashDuration: 0.3
+        numTargets: 3
+    - rid: 2944900481171587369
+      type: {class: ForwardKnockbackHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0
+        hitForce: 12
+        hitDirection: {x: 0, y: 0, z: 1}
+    - rid: 2944900481171587370
+      type: {class: CrossSlashHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        crossSlashHitboxDelay: 0.4
+        crossSlashHitStrength: 10

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f75735a569a6edd4b8cc92add4f965bb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/Animations/MoveAnims/Combat/Sprint/Run_Combat_F_0_Start.anim
+  uploadId: 630545

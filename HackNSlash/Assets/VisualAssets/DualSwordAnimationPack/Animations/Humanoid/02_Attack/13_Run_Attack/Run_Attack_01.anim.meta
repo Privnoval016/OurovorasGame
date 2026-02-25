@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 57565a70fd563474190d89c0c0ebbbc3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/02_Attack/13_Run_Attack/Run_Attack_01.anim
+  uploadId: 630545

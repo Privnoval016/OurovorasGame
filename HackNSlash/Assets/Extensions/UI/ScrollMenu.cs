@@ -1,0 +1,733 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using PrimeTween;
+
+namespace Extensions.UI
+{
+    /// <summary>
+    /// Defines the axis of movement for the scroll menu.
+    /// </summary>
+    public enum MovementAxis { Horizontal, Vertical }
+
+    /// <summary>
+    /// Defines how the menu behaves at boundaries.
+    /// </summary>
+    public enum CycleMode
+    {
+        CircularStop,   // Circular wrapping only when items >= panels, otherwise stop at edges
+        CircularPure,   // True circular carousel - items wrap visually in a continuous loop
+        Restart,        // Stop at edges, but jump back to start when going past the end
+        Stop           // Stop at first/last item, no wrapping or jumping
+    }
+    
+    public class ScrollMenu : MonoBehaviour
+    {
+        #region Inspector
+
+        [Header("Scroll Settings")]
+        [SerializeField] private MovementAxis axis = MovementAxis.Vertical;
+        [SerializeField] private CycleMode cycleMode = CycleMode.Stop;
+
+        [Tooltip("Whether to visually focus the center panel.")]
+        [SerializeField] private bool focusCenterPanel = true;
+
+        [Tooltip("Number of panels visible at once (e.g., 5 for a 5-item scroll menu).")]
+        [SerializeField] private int visiblePanelCount = 5;
+        
+        [Tooltip("Index of the center/focused panel (usually visiblePanelCount/2).")]
+        [SerializeField] private int centerPanelIndex = 2;
+
+        [Header("Timing")]
+        [SerializeField] private float scrollCooldown = 0.2f;
+        [SerializeField] private float scrollDuration = 0.15f;
+        
+        [Header("Visuals")]
+        [SerializeField] private Vector3 normalScale = Vector3.one;
+        [SerializeField] private Vector3 focusedScale = Vector3.one * 1.15f;
+        [SerializeField] private float scaleDuration = 0.1f;
+
+        [Header("UI")]
+        [SerializeField] private Transform scrollItemContainer;
+
+        #endregion
+
+        private List<ScrollUIPanel> panels = new List<ScrollUIPanel>();
+        private ScrollUIPanel topBufferPanel;
+        private ScrollUIPanel bottomBufferPanel;
+        private Vector3 slotDelta;
+        
+        // Store original positions to restore after animation
+        private List<Vector3> originalPanelPositions = new List<Vector3>();
+        private Vector3 originalTopBufferPosition;
+        private Vector3 originalBottomBufferPosition;
+
+        private IList inventoryItems;
+        private Func<object, object> getItemInfoFunc; // Returns ItemUIInfo<T> boxed as object
+        private Func<object, bool> isItemEquippedFunc; // Takes ItemUIInfo<T> boxed as object
+
+        private IScrollMenuAuthority authority;
+
+        private int selectedIndex;
+        private bool isAnimating;
+        private float lastScrollTime;
+        
+        /// <summary>
+        /// Event raised when user presses A button to confirm selection.
+        /// Passes the selected item's data index.
+        /// </summary>
+        public Action<int> OnItemConfirmed;
+        
+        /// <summary>
+        /// Gets the currently selected item's data.
+        /// </summary>
+        public ItemUIInfo<TItem> GetSelectedItem<TItem>() where TItem : class
+        {
+            if (inventoryItems == null || selectedIndex < 0 || selectedIndex >= inventoryItems.Count)
+                return null;
+            
+            var obj = getItemInfoFunc(inventoryItems[selectedIndex]);
+            return obj as ItemUIInfo<TItem>;
+        }
+        
+        /// <summary>
+        /// Gets the currently selected index.
+        /// </summary>
+        public int GetSelectedIndex() => selectedIndex;
+
+        #region MonoBehaviour Callbacks
+
+        private void Awake()
+        {
+            panels = scrollItemContainer.GetComponentsInChildren<ScrollUIPanel>(true).ToList();
+
+            if (panels.Count >= 1)
+            {
+                originalPanelPositions.Clear();
+                foreach (var panel in panels)
+                {
+                    originalPanelPositions.Add(panel.rectTransform.localPosition);
+                }
+                
+                RectTransform rt = panels[0].rectTransform;
+                // For vertical: panels go TOP to BOTTOM, so next panel is at LOWER Y (negative)
+                // For horizontal: panels go LEFT to RIGHT, so next panel is at HIGHER X (positive)
+                slotDelta = axis == MovementAxis.Horizontal
+                    ? new Vector3(rt.rect.width, 0f, 0f)
+                    : new Vector3(0f, -rt.rect.height, 0f);
+                
+                CreateBufferPanels();
+            }
+
+            lastScrollTime = -scrollCooldown;
+        }
+        
+        /// <summary>
+        /// Creates buffer panels at top and bottom for seamless scroll animation.
+        /// These panels move off-screen to create the illusion of infinite scroll.
+        /// </summary>
+        private void CreateBufferPanels()
+        {
+            if (panels.Count == 0)
+            {
+                Debug.LogError("ScrollMenu: Cannot create buffer panels - no panels found!");
+                return;
+            }
+            
+            // Get the first panel as template
+            ScrollUIPanel templatePanel = panels[0];
+            
+            // Create top buffer panel
+            GameObject topBufferObj = GameObject.Instantiate(templatePanel.gameObject, scrollItemContainer);
+            topBufferObj.name = "BufferPanel_Top";
+            topBufferPanel = topBufferObj.GetComponent<ScrollUIPanel>();
+            
+            if (topBufferPanel == null)
+            {
+                Debug.LogError("ScrollMenu: Top buffer GameObject doesn't have ScrollUIPanel component!");
+            }
+            
+            // Position above first panel (for vertical: panel[0] is at top, buffer should be ABOVE it)
+            // Since slotDelta is negative for vertical, to go UP we SUBTRACT slotDelta (which adds positive Y)
+            Vector3 topPos = panels[0].rectTransform.localPosition - slotDelta;
+            topBufferPanel.rectTransform.localPosition = topPos;
+            originalTopBufferPosition = topPos;
+            
+            // Create bottom buffer panel
+            GameObject bottomBufferObj = GameObject.Instantiate(templatePanel.gameObject, scrollItemContainer);
+            bottomBufferObj.name = "BufferPanel_Bottom";
+            bottomBufferPanel = bottomBufferObj.GetComponent<ScrollUIPanel>();
+            
+            if (bottomBufferPanel == null)
+            {
+                Debug.LogError("ScrollMenu: Bottom buffer GameObject doesn't have ScrollUIPanel component!");
+            }
+            
+            // Position below last panel (for vertical: to go DOWN we ADD slotDelta which is negative Y)
+            Vector3 bottomPos = panels[^1].rectTransform.localPosition + slotDelta;
+            bottomBufferPanel.rectTransform.localPosition = bottomPos;
+            originalBottomBufferPosition = bottomPos;
+        }
+
+        #endregion
+
+        #region Activation
+
+        /// <summary>
+        /// Activates the scroll menu with the provided ItemUIInfo items.
+        /// </summary>
+        /// <typeparam name="T">The type of the item reference (e.g., InventoryStack, AttacksByWeapon)</typeparam>
+        public void Activate<T>(List<ItemUIInfo<T>> items, int initialIndex, IScrollMenuAuthority authority) where T : class
+        {
+            if (items == null || items.Count == 0)
+            {
+                Debug.LogWarning("ScrollMenu: Cannot activate with null or empty items list.");
+                return;
+            }
+
+            inventoryItems = items;
+            getItemInfoFunc = obj => obj; // Items ARE already ItemUIInfo, just return as object
+            selectedIndex = Mathf.Clamp(initialIndex, 0, items.Count - 1);
+            
+            this.authority = authority;
+            this.authority?.SubscribeToScroll(this);
+
+            isAnimating = false;
+            lastScrollTime = -scrollCooldown; // Allow immediate scroll
+            
+            // CRITICAL: Set the conversion function on all panels
+            // This allows panels to extract display data from ItemUIInfo<T> without knowing T
+            SetDisplayDataExtractorOnPanels<T>();
+
+            RefreshAllPanels();
+            UpdateFocus();
+            
+            // CRITICAL: Initialize buffer panels with correct data for first scroll
+            InitializeBufferPanels();
+        }
+        
+        /// <summary>
+        /// Sets the display data extractor function on all panels.
+        /// This converts ItemUIInfo<T> to ItemDisplayData for type-safe panel updates.
+        /// </summary>
+        private void SetDisplayDataExtractorOnPanels<T>() where T : class
+        {
+            System.Func<object, ItemDisplayData> extractor = (obj) =>
+            {
+                var itemInfo = obj as ItemUIInfo<T>;
+                if (itemInfo == null)
+                    return default;
+                
+                return new ItemDisplayData
+                {
+                    guid = itemInfo.guid,
+                    itemName = itemInfo.itemName,
+                    itemDescription = itemInfo.itemDescription,
+                    icon = itemInfo.icon,
+                    rarity = itemInfo.rarity,
+                    amount = itemInfo.amount,
+                    isStackable = itemInfo.isStackable,
+                    category = itemInfo.category
+                };
+            };
+            
+            // Set extractor on all panels
+            foreach (var panel in panels)
+            {
+                if (panel != null)
+                    panel.SetDisplayDataExtractor(extractor);
+            }
+            
+            // Set on buffer panels too
+            if (topBufferPanel != null)
+                topBufferPanel.SetDisplayDataExtractor(extractor);
+            if (bottomBufferPanel != null)
+                bottomBufferPanel.SetDisplayDataExtractor(extractor);
+        }
+        
+        /// <summary>
+        /// Sets the callback function to check if an item is equipped.
+        /// This is optional - if not set, equipped indicators won't show.
+        /// </summary>
+        /// <param name="checkFunc">Function that takes ItemUIInfo<T> (as object) and returns true if equipped.</param>
+        public void SetEquippedCheckCallback(Func<object, bool> checkFunc)
+        {
+            isItemEquippedFunc = checkFunc;
+        }
+
+        /// <summary>
+        /// Deactivates the scroll menu and cleans up subscriptions.
+        /// </summary>
+        public void Deactivate()
+        {
+            authority?.UnsubscribeFromScroll(this);
+            authority = null;
+            
+            inventoryItems = null;
+            getItemInfoFunc = null;
+            isAnimating = false;
+        }
+
+        /// <summary>
+        /// Initializes buffer panels with correct data when menu is first activated.
+        /// This ensures the first scroll in any direction works perfectly.
+        /// </summary>
+        private void InitializeBufferPanels()
+        {
+            if (topBufferPanel == null || bottomBufferPanel == null)
+                return;
+            
+            int actualFocusIndex = GetActualFocusIndex();
+            
+            // Top buffer shows item that would be at panel[0] if user scrolls down (to next item)
+            // That would be: (selectedIndex + 1) - actualFocusIndex
+            int topDataIndex = (selectedIndex + 1) - actualFocusIndex;
+            RefreshSinglePanel(topBufferPanel, topDataIndex);
+            
+            // Bottom buffer shows item that would be at panel[last] if user scrolls up (to prev item)
+            // That would be: (selectedIndex - 1) + (panels.Count - 1 - actualFocusIndex)
+            int bottomDataIndex = (selectedIndex - 1) + (panels.Count - 1 - actualFocusIndex);
+            RefreshSinglePanel(bottomBufferPanel, bottomDataIndex);
+        }
+
+        #endregion
+
+        #region Input Callbacks
+
+        /// <summary>
+        /// Handles scroll input from the input system.
+        /// Uses simple time-based cooldown instead of timer system.
+        /// </summary>
+        public void OnScrollPerformed(Vector2 scrollDelta)
+        {
+            // Simple cooldown check using Time.unscaledTime
+            float timeSinceLastScroll = Time.unscaledTime - lastScrollTime;
+            if (timeSinceLastScroll < scrollCooldown)
+            {
+                return; // Still in cooldown
+            }
+
+            if (isAnimating || inventoryItems == null || inventoryItems.Count == 0)
+            {
+                return;
+            }
+
+            // Determine scroll direction based on axis
+            float delta = axis == MovementAxis.Horizontal ? scrollDelta.x : scrollDelta.y;
+
+            if (Mathf.Abs(delta) < 0.1f) // Deadzone
+            {
+                return;
+            }
+
+            // Update cooldown timer
+            lastScrollTime = Time.unscaledTime;
+            
+            int direction;
+            if (axis == MovementAxis.Vertical)
+            {
+                // Vertical: positive stick = up = previous item (lower index)
+                direction = delta > 0 ? -1 : 1;
+            }
+            else
+            {
+                // Horizontal: positive stick = right = next item (higher index)
+                direction = delta > 0 ? 1 : -1;
+            }
+            
+            Scroll(direction);
+        }
+
+        #endregion
+
+        #region Scrolling
+
+        /// <summary>
+        /// Scrolls the menu in the specified direction.
+        /// Uses buffer panels for smooth animation even in Stop mode.
+        /// </summary>
+        private void Scroll(int direction)
+        {
+            int oldIndex = selectedIndex;
+            int newIndex = GetNextIndex(direction);
+
+            if (newIndex == oldIndex)
+            {
+                Debug.Log($"ScrollMenu: At boundary, cannot scroll further");
+                return; // Can't scroll further
+            }
+
+            selectedIndex = newIndex;
+            
+            Debug.Log($"ScrollMenu: Scrolled from {oldIndex} to {selectedIndex}");
+
+            // Check if we should animate or just update focus
+            // In Stop mode, if focus would move to edge, just refresh without animation
+            if (cycleMode == CycleMode.Stop)
+            {
+                int itemCount = inventoryItems.Count;
+                int oldFocus = GetActualFocusIndexForIndex(oldIndex);
+                int newFocus = GetActualFocusIndex();
+                
+                // If focus index changed (moved to edge), just refresh without animation
+                if (oldFocus != newFocus)
+                {
+                    Debug.Log($"ScrollMenu: Focus moved from {oldFocus} to {newFocus}, refreshing without animation");
+                    RefreshAllPanels();
+                    UpdateFocus();
+                    return;
+                }
+            }
+
+            // Use smooth animation with buffer panels
+            AnimateScrollWithBuffers(direction);
+        }
+        
+        /// <summary>
+        /// Gets what the focus index would be for a given selectedIndex.
+        /// Used to detect if focus changes during scroll.
+        /// </summary>
+        private int GetActualFocusIndexForIndex(int checkIndex)
+        {
+            if (cycleMode == CycleMode.Stop)
+            {
+                int itemCount = inventoryItems.Count;
+                
+                if (itemCount <= panels.Count)
+                {
+                    return checkIndex;
+                }
+                
+                if (checkIndex < centerPanelIndex)
+                {
+                    return checkIndex;
+                }
+                
+                int distanceFromEnd = itemCount - 1 - checkIndex;
+                int maxOffset = panels.Count - 1 - centerPanelIndex;
+                if (distanceFromEnd < maxOffset)
+                {
+                    return panels.Count - 1 - distanceFromEnd;
+                }
+            }
+            
+            return centerPanelIndex;
+        }
+
+        private int GetNextIndex(int direction)
+        {
+            int next = selectedIndex + direction;
+            int itemCount = inventoryItems.Count;
+
+            switch (cycleMode)
+            {
+                case CycleMode.Stop:
+                    // Stop at boundaries - can't go past first or last
+                    return Mathf.Clamp(next, 0, itemCount - 1);
+
+                case CycleMode.Restart:
+                    // Wrap to opposite end when reaching boundary
+                    if (next < 0) return itemCount - 1;
+                    if (next >= itemCount) return 0;
+                    return next;
+
+                case CycleMode.CircularPure:
+                    // Always wrap - infinite circular scroll
+                    return (next % itemCount + itemCount) % itemCount;
+
+                case CycleMode.CircularStop:
+                    // Only wrap if we have more items than panels
+                    if (itemCount >= panels.Count)
+                        return (next % itemCount + itemCount) % itemCount;
+                    else
+                        return Mathf.Clamp(next, 0, itemCount - 1);
+            }
+
+            return selectedIndex;
+        }
+
+        #endregion
+
+        #region Animation
+
+
+        private void AnimateScrollWithBuffers(int direction)
+        {
+            isAnimating = true;
+
+            int actualFocusIndex = GetActualFocusIndex();
+            
+            //Calculate what data will be shown after scroll completes
+            // panel[0] = selectedIndex - actualFocusIndex
+            // panel[1] = selectedIndex - actualFocusIndex + 1
+            // ...
+            // panel[actualFocusIndex] = selectedIndex (focused)
+            // ...
+            // panel[last] = selectedIndex + (panels.Count - 1 - actualFocusIndex)
+            
+            //Update the buffer that will slide into view
+            if (direction > 0)
+            {
+                // Scrolling to next item - panels slide UP - top buffer comes into view
+                // Top buffer will end up at panel[0]'s position, showing item at (selectedIndex - actualFocusIndex)
+                int topDataIndex = selectedIndex - actualFocusIndex;
+                RefreshSinglePanel(topBufferPanel, topDataIndex);
+            }
+            else
+            {
+                // Scrolling to prev item - panels slide DOWN - bottom buffer comes into view  
+                // Bottom buffer will end up at panel[last]'s position, showing item at (selectedIndex + (panels.Count - 1 - actualFocusIndex))
+                int bottomDataIndex = selectedIndex + (panels.Count - 1 - actualFocusIndex);
+                RefreshSinglePanel(bottomBufferPanel, bottomDataIndex);
+            }
+
+            //Animate all panels (including buffers) by slideOffset
+            // For vertical top-to-bottom layout with slotDelta = -height:
+            //   direction=1 (next): want panels to slide UP (+Y), so offset = -slotDelta * direction = +height
+            //   direction=-1 (prev): want panels to slide DOWN (-Y), so offset = -slotDelta * direction = -height
+            Vector3 slideOffset = -slotDelta * direction;
+            
+            int tweenCount = 0;
+            
+            // Animate main panels
+            foreach (var panel in panels)
+            {
+                if (panel == null || panel.rectTransform == null) continue;
+                Vector3 endPos = panel.rectTransform.localPosition + slideOffset;
+                Tween.LocalPosition(panel.rectTransform, endPos, scrollDuration, Ease.OutQuad, useUnscaledTime: true);
+                tweenCount++;
+            }
+            
+            // Animate buffers
+            if (topBufferPanel != null && topBufferPanel.rectTransform != null)
+            {
+                Vector3 endPos = topBufferPanel.rectTransform.localPosition + slideOffset;
+                Tween.LocalPosition(topBufferPanel.rectTransform, endPos, scrollDuration, Ease.OutQuad, useUnscaledTime: true);
+                tweenCount++;
+            }
+            if (bottomBufferPanel != null && bottomBufferPanel.rectTransform != null)
+            {
+                Vector3 endPos = bottomBufferPanel.rectTransform.localPosition + slideOffset;
+                Tween.LocalPosition(bottomBufferPanel.rectTransform, endPos, scrollDuration, Ease.OutQuad, useUnscaledTime: true);
+                tweenCount++;
+            }
+
+            //On complete - snap back positions and refresh all data
+            if (tweenCount > 0)
+            {
+                // Use delay to wait for animation to complete
+                Tween.Delay(scrollDuration, useUnscaledTime: true).OnComplete(() =>
+                {
+                    // Reset all positions to their original positions
+                    for (int i = 0; i < panels.Count; i++)
+                    {
+                        if (panels[i] != null && panels[i].rectTransform != null && i < originalPanelPositions.Count)
+                            panels[i].rectTransform.localPosition = originalPanelPositions[i];
+                    }
+                    if (topBufferPanel != null && topBufferPanel.rectTransform != null)
+                        topBufferPanel.rectTransform.localPosition = originalTopBufferPosition;
+                    if (bottomBufferPanel != null && bottomBufferPanel.rectTransform != null)
+                        bottomBufferPanel.rectTransform.localPosition = originalBottomBufferPosition;
+                    
+                    // Refresh all panel data for new selectedIndex
+                    
+                    isAnimating = false;
+                });
+            }
+            else
+            {
+                isAnimating = false;
+            }
+            
+            RefreshAllPanels();
+            UpdateFocus();
+        }
+        
+        /// <summary>
+        /// Refreshes a single panel with data at the given index.
+        /// </summary>
+        private void RefreshSinglePanel(ScrollUIPanel panel, int dataIndex)
+        {
+            if (panel == null) return;
+            
+            // Handle wrapping for circular modes
+            if (cycleMode == CycleMode.CircularPure || 
+                (cycleMode == CycleMode.CircularStop && inventoryItems.Count >= panels.Count))
+            {
+                dataIndex = (dataIndex % inventoryItems.Count + inventoryItems.Count) % inventoryItems.Count;
+            }
+
+            if (dataIndex >= 0 && dataIndex < inventoryItems.Count)
+            {
+                object info = getItemInfoFunc(inventoryItems[dataIndex]);
+                panel.Refresh(info);
+                
+                // Update equipped indicator if callback is set
+                if (isItemEquippedFunc != null && info != null)
+                {
+                    bool isEquipped = isItemEquippedFunc(info);
+                    panel.SetEquippedIndicator(isEquipped);
+                }
+            }
+            else
+            {
+                panel.Refresh(null);
+                panel.SetEquippedIndicator(false);
+            }
+        }
+
+
+        #endregion
+
+        #region Panel Management
+
+        private void RefreshAllPanels()
+        {
+            // Calculate the actual focus position based on mode and boundaries
+            int actualFocusIndex = GetActualFocusIndex();
+            
+            for (int i = 0; i < panels.Count; i++)
+            {
+                // Calculate data index relative to the actual focus position
+                int offset = i - actualFocusIndex;
+                int dataIndex = selectedIndex + offset;
+                
+                RefreshPanel(panels[i], dataIndex);
+            }
+        }
+        
+        /// <summary>
+        /// Gets the actual focus index based on cycle mode and boundaries.
+        /// For Stop mode: Focus moves to edges when near start/end of list.
+        /// For other modes: Focus stays at centerPanelIndex.
+        /// </summary>
+        private int GetActualFocusIndex()
+        {
+            if (cycleMode == CycleMode.Stop)
+            {
+                int itemCount = inventoryItems.Count;
+                
+                // If we have fewer items than panels, focus the actual item position
+                if (itemCount <= panels.Count)
+                {
+                    return selectedIndex;
+                }
+                
+                // Near the start: focus moves down from center
+                if (selectedIndex < centerPanelIndex)
+                {
+                    return selectedIndex;
+                }
+                
+                // Near the end: focus moves up from center
+                int distanceFromEnd = itemCount - 1 - selectedIndex;
+                int maxOffset = panels.Count - 1 - centerPanelIndex;
+                if (distanceFromEnd < maxOffset)
+                {
+                    return panels.Count - 1 - distanceFromEnd;
+                }
+                
+                // In the middle: focus stays at center
+                return centerPanelIndex;
+            }
+            
+            // For all other modes, focus always stays at center
+            return centerPanelIndex;
+        }
+
+        private void RefreshPanel(ScrollUIPanel panel, int dataIndex)
+        {
+            // Handle wrapping for circular modes
+            if (cycleMode == CycleMode.CircularPure || 
+                (cycleMode == CycleMode.CircularStop && inventoryItems.Count >= panels.Count))
+            {
+                dataIndex = (dataIndex % inventoryItems.Count + inventoryItems.Count) % inventoryItems.Count;
+            }
+
+            if (dataIndex >= 0 && dataIndex < inventoryItems.Count)
+            {
+                object info = getItemInfoFunc(inventoryItems[dataIndex]);
+                panel.Refresh(info);
+                
+                // Update equipped indicator if callback is set
+                if (isItemEquippedFunc != null && info != null)
+                {
+                    bool isEquipped = isItemEquippedFunc(info);
+                    panel.SetEquippedIndicator(isEquipped);
+                }
+            }
+            else
+            {
+                // Only show as null/empty if we're in Stop mode and out of bounds
+                panel.Refresh(null);
+                panel.SetEquippedIndicator(false);
+            }
+        }
+
+        private void UpdateFocus()
+        {
+            if (!focusCenterPanel)
+            {
+                Debug.Log("ScrollMenu: Focus disabled");
+                return;
+            }
+
+            int actualFocusIndex = GetActualFocusIndex();
+            
+            for (int i = 0; i < panels.Count; i++)
+            {
+                ScrollUIPanel panel = panels[i];
+                
+                if (panel == null || panel.rectTransform == null)
+                {
+                    Debug.LogWarning($"ScrollMenu: Panel {i} or its rectTransform is null!");
+                    continue;
+                }
+                
+                RectTransform rt = panel.rectTransform;
+
+                if (i == actualFocusIndex)
+                {
+                    panel.OnSelected();
+                    Tween.Scale(
+                        target: rt,
+                        endValue: focusedScale,
+                        duration: scaleDuration,
+                        ease: Ease.OutQuad,
+                        cycles: 1,
+                        cycleMode: PrimeTween.CycleMode.Restart,
+                        startDelay: 0f,
+                        endDelay: 0f,
+                        useUnscaledTime: true
+                    );
+                }
+                else
+                {
+                    panel.OnDeselected();
+                    Tween.Scale(
+                        target: rt,
+                        endValue: normalScale,
+                        duration: scaleDuration,
+                        ease: Ease.OutQuad,
+                        cycles: 1,
+                        cycleMode: PrimeTween.CycleMode.Restart,
+                        startDelay: 0f,
+                        endDelay: 0f,
+                        useUnscaledTime: true
+                    );
+                }
+            }
+        }
+
+        #endregion
+    }
+    
+    public interface IScrollMenuAuthority
+    {
+
+        public void SubscribeToScroll(ScrollMenu menu);
+        public void UnsubscribeFromScroll(ScrollMenu menu);
+    }
+}

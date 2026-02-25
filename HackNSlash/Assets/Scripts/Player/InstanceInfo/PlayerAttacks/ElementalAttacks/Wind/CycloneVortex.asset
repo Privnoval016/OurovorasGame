@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1542f359f9b8a914ca82ab2756ce8de7, type: 3}
+  m_Name: CycloneVortex
+  m_EditorClassIdentifier: 
+  updateLinkedAttack: 0
+  linkedAttack: {fileID: 0}
+  isEnabled: 1
+  attackType: 6
+  element: 6
+  stats:
+    damage: 10
+    statusEffectStacks: 2
+    statusEffectDuration: 7
+    restoreCharge: 0
+    charge: 40
+    ultimateCharge: 8
+    baseStyleGain: 10
+  isLockedOn: 0
+  requireElementTrigger: 1
+  triggerCoolDown: 0
+  keyBinds: 01000000
+  inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
+  applyTargetDirection: 1
+  isMidair: 2
+  maxUses: 0
+  hitInfo:
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587343
+    hitDetection: 1
+    lateralRadius: 19
+    verticalRadius: 3
+    hitRegisterAngle: 0
+    numTargets: 1
+    attackCoolDown: 0.5
+    hitCoolDown: 0.5
+  vfxInstantSpawns: 00000000
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: ea6753ba02c8fcf40b2c6c33799ffb2e, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 3.5
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 2
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 2, z: 10}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 2, y: 2, z: 2}
+    applyParentPoseToPosition: 1
+  hitStopProfiles:
+  - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
+  onSpiritMovement: 0
+  spiritActions:
+  - spiritAction:
+      rid: 2944900481171587265
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587265
+      type: {class: SpawnVFXSpiritAction, ns: , asm: Assembly-CSharp}
+      data:
+        vfxInstantSpawns: 00000000
+    - rid: 2944900481171587343
+      type: {class: PushUntilDistanceHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0.2
+        hitDirection: {x: 0, y: 0, z: 0}
+        pushDistance: 19
+        pushTime: 0.2
+        pushAway: 0

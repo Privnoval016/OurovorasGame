@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3ba21a1f376394341a7b59861f7c817a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/Animations/MoveAnims/Combat/Walk/End/Walk_Combat_End_F_R_90.anim
+  uploadId: 630545

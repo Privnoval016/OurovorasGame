@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f03650aa63d3d1a46a8fa1bea9195186
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/03_Walk/03_Walk_Block/10_Walk_Block_B_R_90/Walk_Block_End_B_R_90.anim
+  uploadId: 630545

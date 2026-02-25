@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
+  m_Name: K_Updraft
+  m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: b87e221c14bfba848a56141b6d428114, type: 2}
+  isEnabled: 1
+  attackType: 7
+  element: 6
+  stats:
+    damage: 3
+    statusEffectStacks: 2
+    statusEffectDuration: 6
+    restoreCharge: 0
+    charge: 40
+    ultimateCharge: 8
+    baseStyleGain: 10
+  isLockedOn: 0
+  requireElementTrigger: 1
+  triggerCoolDown: 0
+  keyBinds: 02000000
+  inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
+  applyTargetDirection: 1
+  isMidair: 2
+  maxUses: 0
+  hitInfo:
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587346
+    hitDetection: 4
+    lateralRadius: 3
+    verticalRadius: 3
+    hitRegisterAngle: 0
+    numTargets: 1
+    attackCoolDown: 1.5
+    hitCoolDown: 1.5
+  vfxInstantSpawns: 00000000
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: df19065a9f3abf44e84e635c5a1e1329, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 1
+    spawnDelay: 0.3
+    actionDelay: 0
+    spawnTarget: 1
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: -2, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 3, y: 3, z: 3}
+    applyParentPoseToPosition: 0
+  hitStopProfiles:
+  - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587269
+  - attackAction:
+      rid: 2944900481171587270
+  applyRootMotion: 0
+  moveCameraWithAttack: 1
+  attackTransitions: []
+  attackClips:
+  - {fileID: 7400000, guid: b824af25dbced8544ad796c2903a9cd2, type: 2}
+  - {fileID: 7400000, guid: 1eb8abc8ce486974d8aebbb124035aa1, type: 2}
+  animDelay: 0
+  animFade: 0.2
+  clipsToPlay: 1
+  useNormalGravity: 1
+  exitCondition: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587269
+      type: {class: SpawnVFXAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        vfxIndices: 00000000
+    - rid: 2944900481171587270
+      type: {class: LaunchUpAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        launchUpHeight: 15
+        launchUpTime: 0.3
+        launchUpHoldTime: 0.25
+        delayLaunchUp: 0
+    - rid: 2944900481171587346
+      type: {class: LaunchUpHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0.1
+        launchUpHeight: 15
+        launchUpTime: 0.3

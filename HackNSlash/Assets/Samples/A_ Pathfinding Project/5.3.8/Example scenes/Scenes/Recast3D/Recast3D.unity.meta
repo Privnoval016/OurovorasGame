@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 56d469a698b9e48b99e215ce630fd527
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 87744
+  packageName: A* Pathfinding Project Pro
+  packageVersion: 5.4.6
+  assetPath: Assets/Samples/A_ Pathfinding Project/5.3.8/Example scenes/Scenes/Recast3D/Recast3D.unity
+  uploadId: 851410

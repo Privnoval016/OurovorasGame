@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7c76109c981e5984497a0a318bf82ee0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/06_Dodge/06_Dodge_Combat_to_Run/Dodge_to_Run_Fast_Combat_F_0.anim
+  uploadId: 630545

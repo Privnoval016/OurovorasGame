@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b070fa04c5d41009b0b379670dd136d, type: 3}
+  m_Name: SSRank
+  m_EditorClassIdentifier: 
+  level: 5
+  threshold: 500
+  decayRate: 16
+  penaltyRate: 2
+  meterBackground: {fileID: 21300000, guid: a12bd64748c89c14d9cab159d3742760, type: 3}
+  meterOutline: {fileID: 21300000, guid: 59fd275b195b61e4ea0567d5a76d181f, type: 3}
+  meterFill: {fileID: 21300000, guid: a12bd64748c89c14d9cab159d3742760, type: 3}
+  meterScale: {x: 0.76, y: 0.76, z: 0.76}
+  meterUsageIndex: 0100000002000000

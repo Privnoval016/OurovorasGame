@@ -1,0 +1,127 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
+  m_Name: D_Grapple
+  m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: 80aef43054668d74b83255a26517cee2, type: 2}
+  isEnabled: 1
+  attackType: 4
+  element: 1
+  stats:
+    damage: 20
+    statusEffectStacks: 1
+    statusEffectDuration: 5
+    restoreCharge: 0
+    charge: 20
+    ultimateCharge: 8
+    baseStyleGain: 10
+  isLockedOn: 1
+  requireElementTrigger: 0
+  triggerCoolDown: 0
+  keyBinds: 02000000
+  inputDirection: {x: 0, y: -1}
+  comboDirection: {x: 0, y: 0}
+  applyTargetDirection: 1
+  isMidair: 2
+  maxUses: 1
+  hitInfo:
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587326
+    - hitAction:
+        rid: 2944900481171587327
+    hitDetection: 1
+    lateralRadius: 3
+    verticalRadius: 3
+    hitRegisterAngle: 360
+    numTargets: 1
+    attackCoolDown: 0.1
+    hitCoolDown: 0.1
+  vfxInstantSpawns: 
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 0.3
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
+  - vfxAttack: {fileID: 11400000, guid: ed3fa491292b57b4fa609a54714bb85a, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 0.6
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 2
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
+  - vfxAttack: {fileID: 11400000, guid: 14697be9e967fdc40af0f7af8fa03a6f, type: 2}
+    vfxPlayerActionIndex: 1
+    vfxEnemyActionIndex: 0
+    duration: 1
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 1
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 1.5}
+      Rotation: {x: 0, y: 0, z: 0, w: 1}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 1
+  hitStopProfiles:
+  - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
+  audioProfiles:
+  - audioEvent: {fileID: 11400000, guid: d8dfa04527f9a4f3aa34344b2886ff8d, type: 2}
+    parameters: []
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587236
+  applyRootMotion: 0
+  moveCameraWithAttack: 1
+  attackTransitions: []
+  attackClips:
+  - {fileID: 7400000, guid: 1c2bd72f5ae99944299a642337d24634, type: 2}
+  - {fileID: 7400000, guid: cce8a3034751cff48981004291b5e511, type: 2}
+  - {fileID: 7400000, guid: 160d9e13235c41242850e22be7057628, type: 2}
+  animDelay: 0
+  animFade: 0.1
+  clipsToPlay: 1
+  useNormalGravity: 0
+  exitCondition: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587236
+      type: {class: GrappleAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        grappleMaxTime: 0.2
+    - rid: 2944900481171587326
+      type: {class: GrappleHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        grappleSpeed: 150
+    - rid: 2944900481171587327
+      type: {class: LaunchUpHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0.1
+        launchUpHeight: 15
+        launchUpTime: 0.3

@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa59ac9af9d9d89449df450acd3eadde, type: 3}
+  m_Name: A_Tree
+  m_EditorClassIdentifier: 
+  treeName: 
+  startNodeId: 59e83239-afd1-4529-8262-77b55dfd198c
+  nodes:
+  - nodeId: ba4c2962-93a4-4fe0-9b00-c0cac77cab8e
+    nodeName: Enemy Step
+    description: 
+    icon: {fileID: 0}
+    demonstrationVideo: {fileID: 0}
+    cost: 1
+    parentNodeIds:
+    - 59e83239-afd1-4529-8262-77b55dfd198c
+    unlockedAttacks:
+    - {fileID: 11400000, guid: ad44dd1239c408440a970d6f204734b6, type: 2}
+    - {fileID: 11400000, guid: e53371ef873d6f34bbe79795ccd54c92, type: 2}
+    displayedAttackIndex: 0
+    uiPosition: {x: 0.5, y: 0.35}
+  - nodeId: 59e83239-afd1-4529-8262-77b55dfd198c
+    nodeName: Double Jump
+    description: 
+    icon: {fileID: 0}
+    demonstrationVideo: {fileID: 0}
+    cost: 1
+    parentNodeIds: []
+    unlockedAttacks: []
+    displayedAttackIndex: 0
+    uiPosition: {x: 0.5, y: 0.5}
+  - nodeId: a4a34d3d-535f-427b-8e6d-4c8ee86ab715
+    nodeName: Dodge
+    description: 
+    icon: {fileID: 0}
+    demonstrationVideo: {fileID: 0}
+    cost: 1
+    parentNodeIds:
+    - 59e83239-afd1-4529-8262-77b55dfd198c
+    unlockedAttacks:
+    - {fileID: 11400000, guid: 6afab0c4d1daf4f97b63e7c2254ef2a7, type: 2}
+    - {fileID: 11400000, guid: 18dd024e407772a4e95419f02f3d3165, type: 2}
+    displayedAttackIndex: 0
+    uiPosition: {x: 0.35, y: 0.5}
+  - nodeId: 2f392dc3-647a-4c58-b115-5beb89a8af2e
+    nodeName: Ground Dash
+    description: 
+    icon: {fileID: 0}
+    demonstrationVideo: {fileID: 0}
+    cost: 1
+    parentNodeIds:
+    - 59e83239-afd1-4529-8262-77b55dfd198c
+    unlockedAttacks:
+    - {fileID: 11400000, guid: e066ee6eb132d4e799f3c6c2d178323b, type: 2}
+    - {fileID: 11400000, guid: cbde3890a7b6d0c4aa9557842c8efed9, type: 2}
+    displayedAttackIndex: 0
+    uiPosition: {x: 0.5, y: 0.65000004}
+  - nodeId: 108003e9-0f9a-473e-bf42-782d6cf987b6
+    nodeName: Air Dash
+    description: 
+    icon: {fileID: 0}
+    demonstrationVideo: {fileID: 0}
+    cost: 1
+    parentNodeIds:
+    - 2f392dc3-647a-4c58-b115-5beb89a8af2e
+    unlockedAttacks:
+    - {fileID: 11400000, guid: ad565a90574fe4c05b00d0eda6d89b63, type: 2}
+    - {fileID: 11400000, guid: 03ec20722e27ae448a120c1dd88487e1, type: 2}
+    displayedAttackIndex: 0
+    uiPosition: {x: 0.5, y: 0.8}

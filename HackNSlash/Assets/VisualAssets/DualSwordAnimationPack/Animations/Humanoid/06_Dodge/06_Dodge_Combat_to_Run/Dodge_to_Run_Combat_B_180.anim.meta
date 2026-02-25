@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 98c8df05746109b44bb094531e979a30
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/06_Dodge/06_Dodge_Combat_to_Run/Dodge_to_Run_Combat_B_180.anim
+  uploadId: 630545

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e855a4a32fc204115b1e15ca91877d37
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 87744
+  packageName: A* Pathfinding Project Pro
+  packageVersion: 5.4.6
+  assetPath: Assets/Samples/A_ Pathfinding Project/5.3.8/Example scenes/Scenes/PathTypes/PathTypesDemo.cs
+  uploadId: 851410

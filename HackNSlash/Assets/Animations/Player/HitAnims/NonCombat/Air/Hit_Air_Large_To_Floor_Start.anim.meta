@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e51215089ba52214c93a7b482f60655b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/08_Hit/09_Hit_Air_Large_To_Floor/Hit_Air_Large_To_Floor_Start.anim
+  uploadId: 630545

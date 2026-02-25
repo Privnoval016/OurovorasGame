@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 455c73abc9e8c254199b3441a358c116
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/04_Run/02_Run_Combat/11_Run_Combat_Fast/Run_Combat_Fast_Lean_R_Loop.anim
+  uploadId: 630545

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb111e3fbd3c8a34496e456df7c86e62, type: 3}
+  m_Name: SpinningBlades
+  m_EditorClassIdentifier: 
+  vfxHitBox: {fileID: 3712180620774419834, guid: 9ec4a55d0ee537f45a968279cc81e79e,
+    type: 3}
+  vfxDatas:
+  - vfxType: 0
+    effect: {fileID: 289161321636050785, guid: 0f042605d5c6f4542a2235a44f0b8979, type: 3}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1, y: 1, z: 1}
+    durationScale: 1
+    delayScale: 0
+  maxVFXAlive: 1
+  vfxAction: 2
+  vfxEasing: 1
+  vfxSpeed: 500
+  canCollide: 1
+  audioProfiles:
+  - audioEvent: {fileID: 11400000, guid: 7cdfe117c41564deeb5ee9d59292f499, type: 2}
+    parameters:
+    - parameter: {fileID: 11400000, guid: d9c00335d53404468baf0a96dcaa82af, type: 2}
+      value: 0

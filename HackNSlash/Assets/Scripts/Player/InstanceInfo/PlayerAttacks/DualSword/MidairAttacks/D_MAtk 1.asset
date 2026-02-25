@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
+  m_Name: D_MAtk 1
+  m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: 6393b264a7a2b5e4da6d7d1a8cf8cfe0, type: 2}
+  isEnabled: 1
+  attackType: 2
+  element: 0
+  stats:
+    damage: 10
+    statusEffectStacks: 1
+    statusEffectDuration: 5
+    restoreCharge: 1
+    charge: 10
+    ultimateCharge: 8
+    baseStyleGain: 10
+  isLockedOn: 0
+  requireElementTrigger: 0
+  triggerCoolDown: 0
+  keyBinds: 01000000
+  inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
+  applyTargetDirection: 0
+  isMidair: 1
+  maxUses: 0
+  hitInfo:
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587316
+    hitDetection: 0
+    lateralRadius: 3
+    verticalRadius: 1
+    hitRegisterAngle: 120
+    numTargets: 1
+    attackCoolDown: 0.2
+    hitCoolDown: 0.2
+  vfxInstantSpawns: 
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 0.6
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 0, y: 0, z: 0}
+    applyParentPoseToPosition: 0
+  hitStopProfiles:
+  - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
+  audioProfiles:
+  - audioEvent: {fileID: 11400000, guid: d8dfa04527f9a4f3aa34344b2886ff8d, type: 2}
+    parameters: []
+    playTime: 0
+  attackActions: []
+  applyRootMotion: 0
+  moveCameraWithAttack: 1
+  attackTransitions: []
+  attackClips:
+  - {fileID: 7400000, guid: 09764a204cdba644ab878277bed70833, type: 2}
+  animDelay: 0
+  animFade: 0.2
+  clipsToPlay: 1
+  useNormalGravity: 0
+  exitCondition: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587316
+      type: {class: BasicKnockbackHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0
+        hitForce: 1
+        hitDirection: {x: 0, y: 0, z: 0}

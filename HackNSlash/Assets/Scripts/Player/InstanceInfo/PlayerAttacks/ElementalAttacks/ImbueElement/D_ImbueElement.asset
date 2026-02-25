@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eee4d31b1dd4955a797fcd4f335db2, type: 3}
+  m_Name: D_ImbueElement
+  m_EditorClassIdentifier: 
+  updateLinkedAttack: 1
+  linkedAttack: {fileID: 11400000, guid: 364519e535acef949a9a6c5c40b48f6f, type: 2}
+  isEnabled: 1
+  attackType: 7
+  element: 1
+  stats:
+    restoreCharge: 0
+    charge: 40
+    ultimateCharge: 8
+    damage: 0
+  isLockedOn: 0
+  requireElementTrigger: 1
+  triggerCoolDown: 0
+  keyBinds: 02000000
+  inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
+  applyTargetDirection: 1
+  isMidair: 2
+  maxUses: 0
+  hitInfo:
+    onHitActions: 00000000
+    hitDetection: 0
+    lateralRadius: 3
+    verticalRadius: 3
+    hitRegisterAngle: 120
+    numTargets: 1
+    attackCoolDown: 0.3
+    hitCoolDown: 0.3
+    hitForce: 0
+    hitDelay: 0
+    hitDirection: {x: 0, y: 0, z: 0}
+    elasticCollision: 0
+  vfxInstantSpawns: 
+  vfxInfos: []
+  hitStopProfiles:
+  - {fileID: 11400000, guid: 8b214393a0f39a94d99f571488c6b690, type: 2}
+  onAttackAction: 11
+  attackActions:
+  - attackAction:
+      rid: 2944900481171587260
+  attackEventIndex: 0
+  applyRootMotion: 0
+  moveCameraWithAttack: 1
+  attackTransitions: []
+  attackClips:
+  - {fileID: 7400000, guid: 1eb8abc8ce486974d8aebbb124035aa1, type: 2}
+  - {fileID: 7400000, guid: eee7561e76113674b8450c050b8e81f7, type: 2}
+  animDelay: 0
+  animFade: 0.2
+  clipsToPlay: 0
+  useNormalGravity: 0
+  exitCondition: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587260
+      type: {class: ImbueElementAttackAction, ns: , asm: Assembly-CSharp}
+      data:
+        imbueElementDuration: 10

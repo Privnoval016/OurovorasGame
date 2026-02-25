@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9511eb3e05fd744dd8935cc182356346, type: 3}
+  m_Name: Standard
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects:
+    - {fileID: 11400000, guid: 7f611990a4c07f443bd778e7c12d1f65, type: 2}
+    - {fileID: 11400000, guid: 9578dd07a764770449c52140c54b27ae, type: 2}
+    - {fileID: 11400000, guid: cca959ef9f66dff40971bae6e0bb23dc, type: 2}
+    - {fileID: 11400000, guid: e066ee6eb132d4e799f3c6c2d178323b, type: 2}
+    - {fileID: 11400000, guid: ad565a90574fe4c05b00d0eda6d89b63, type: 2}
+    - {fileID: 11400000, guid: 8ddd1452f470cf84e9fd02dd3e112c6d, type: 2}
+    - {fileID: 11400000, guid: 1ca78521a5c1693429e77d7d6b46b7db, type: 2}
+    - {fileID: 11400000, guid: 1b1cda7d87478d34a9791ab168e9bd1c, type: 2}
+    - {fileID: 11400000, guid: a1b3d8615ef9e124888778393ae8767f, type: 2}
+    - {fileID: 11400000, guid: fbc1eb932e528b74dab98c04c9168b3c, type: 2}
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: allAttacks
+      Entry: 7
+      Data: 0|System.Collections.Generic.HashSet`1[[Attack, Assembly-CSharp]], System.Core
+    - Name: 
+      Entry: 12
+      Data: 10
+    - Name: 
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 2
+    - Name: 
+      Entry: 10
+      Data: 3
+    - Name: 
+      Entry: 10
+      Data: 4
+    - Name: 
+      Entry: 10
+      Data: 5
+    - Name: 
+      Entry: 10
+      Data: 6
+    - Name: 
+      Entry: 10
+      Data: 7
+    - Name: 
+      Entry: 10
+      Data: 8
+    - Name: 
+      Entry: 10
+      Data: 9
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  movingState: 1
+  doubleJumpEnabled: 1
+  dodgeCoolDown: 0.2
+  comboResetTime: 0.7
+  comboAttacks:
+  - {fileID: 11400000, guid: 4ff47c5a0c7d2489a978e61c0270db94, type: 2}
+  - {fileID: 11400000, guid: 5c917d7b06cf845188e688a22289d979, type: 2}
+  - {fileID: 11400000, guid: 6cd504e762f13430a81179e567c363bd, type: 2}
+  - {fileID: 11400000, guid: 3ad68ae9a13f04ec9bc169304594d31e, type: 2}
+  - {fileID: 11400000, guid: 80ec4b1196baa488ab52b5df8ffd08ba, type: 2}
+  - {fileID: 11400000, guid: 3d0e36f85019a448e8e9a3c853f119a2, type: 2}
+  - {fileID: 11400000, guid: 5d83ce304d4ba8d4d966ae6c283f9eb4, type: 2}
+  - {fileID: 11400000, guid: 41564f242aba048ef9ae587a66aa7d85, type: 2}
+  moveInterruptBuffer: 0.3
+  lightComboAttacks:
+  - {fileID: 11400000, guid: 7f611990a4c07f443bd778e7c12d1f65, type: 2}
+  heavyComboAttacks:
+  - {fileID: 11400000, guid: 9578dd07a764770449c52140c54b27ae, type: 2}
+  midairAttacks:
+  - {fileID: 11400000, guid: cca959ef9f66dff40971bae6e0bb23dc, type: 2}
+  dodgeAttacks:
+  - {fileID: 11400000, guid: 6afab0c4d1daf4f97b63e7c2254ef2a7, type: 2}
+  - {fileID: 11400000, guid: 2695718b17df94f01906f8ee765fe2be, type: 2}
+  - {fileID: 11400000, guid: eb47360b75031404fa51ae4caa159828, type: 2}
+  - {fileID: 11400000, guid: b1c98ab3bacab4aa4bd3102275f5b66e, type: 2}
+  enemyStepAttacks:
+  - {fileID: 11400000, guid: ad44dd1239c408440a970d6f204734b6, type: 2}
+  specialAttacks:
+  - {fileID: 11400000, guid: e066ee6eb132d4e799f3c6c2d178323b, type: 2}
+  - {fileID: 11400000, guid: ad565a90574fe4c05b00d0eda6d89b63, type: 2}
+  - {fileID: 11400000, guid: 8ddd1452f470cf84e9fd02dd3e112c6d, type: 2}
+  - {fileID: 11400000, guid: 1ca78521a5c1693429e77d7d6b46b7db, type: 2}
+  - {fileID: 11400000, guid: 1b1cda7d87478d34a9791ab168e9bd1c, type: 2}
+  - {fileID: 11400000, guid: a1b3d8615ef9e124888778393ae8767f, type: 2}
+  - {fileID: 11400000, guid: fbc1eb932e528b74dab98c04c9168b3c, type: 2}
+  parryAttack: {fileID: 11400000, guid: fa9140f2cf8463a49ba206a9ad08f3ae, type: 2}
+  projectileParryAttack: {fileID: 11400000, guid: 8510e9e7bf7e55349be4f7f8efe6eab0,
+    type: 2}

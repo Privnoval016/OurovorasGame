@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb111e3fbd3c8a34496e456df7c86e62, type: 3}
+  m_Name: CombustionMarkBoom
+  m_EditorClassIdentifier: 
+  vfxHitBox: {fileID: 3712180620774419834, guid: cbbc786836a81d049b1e6b880a0a408e,
+    type: 3}
+  vfxDatas:
+  - vfxType: 0
+    effect: {fileID: 289161321636050785, guid: 65e1cc32cc4a8de4daea530fd97bcaa4, type: 3}
+    localTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1, y: 1, z: 1}
+    durationScale: 0.8
+    delayScale: 0
+  maxVFXAlive: 0
+  vfxAction: 3
+  vfxEasing: 1
+  vfxSpeed: 50
+  canCollide: 0
+  audioProfiles:
+  - audioEvent: {fileID: 11400000, guid: 7cdfe117c41564deeb5ee9d59292f499, type: 2}
+    parameters:
+    - parameter: {fileID: 11400000, guid: d9c00335d53404468baf0a96dcaa82af, type: 2}
+      value: 1

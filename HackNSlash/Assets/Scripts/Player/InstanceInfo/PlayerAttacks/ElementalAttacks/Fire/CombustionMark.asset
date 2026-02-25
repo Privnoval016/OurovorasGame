@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1542f359f9b8a914ca82ab2756ce8de7, type: 3}
+  m_Name: CombustionMark
+  m_EditorClassIdentifier: 
+  updateLinkedAttack: 0
+  linkedAttack: {fileID: 0}
+  isEnabled: 1
+  attackType: 6
+  element: 2
+  stats:
+    damage: 20
+    statusEffectStacks: 5
+    statusEffectDuration: 10
+    restoreCharge: 0
+    charge: 60
+    ultimateCharge: 8
+    baseStyleGain: 10
+  isLockedOn: 0
+  requireElementTrigger: 1
+  triggerCoolDown: 0
+  keyBinds: 02000000
+  inputDirection: {x: 0, y: 0}
+  comboDirection: {x: 0, y: 0}
+  applyTargetDirection: 1
+  isMidair: 2
+  maxUses: 0
+  hitInfo:
+    hitActionInfos:
+    - hitAction:
+        rid: 2944900481171587338
+    - hitAction:
+        rid: 2944900481171587339
+    hitDetection: 1
+    lateralRadius: 10
+    verticalRadius: 3
+    hitRegisterAngle: 0
+    numTargets: 1
+    attackCoolDown: 0.6
+    hitCoolDown: 0.6
+  vfxInstantSpawns: 00000000
+  vfxInfos:
+  - vfxAttack: {fileID: 11400000, guid: a65c568422969cb41afe0c5e19139e44, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 2
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 1
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 1, z: -5}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 8, y: 3, z: 8}
+    applyParentPoseToPosition: 1
+  - vfxAttack: {fileID: 11400000, guid: 9d363aaeabeaf0245b1a6e7c4dd9fcca, type: 2}
+    vfxPlayerActionIndex: 1
+    vfxEnemyActionIndex: 0
+    duration: 4
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 0
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: 0, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 3, y: 3, z: 3}
+    applyParentPoseToPosition: 0
+  hitStopProfiles:
+  - {fileID: 11400000, guid: a9326acaebcf676418cdb8e46639c64d, type: 2}
+  onSpiritMovement: 0
+  spiritActions:
+  - spiritAction:
+      rid: 2944900481171587258
+  references:
+    version: 2
+    RefIds:
+    - rid: 2944900481171587258
+      type: {class: SpawnVFXSpiritAction, ns: , asm: Assembly-CSharp}
+      data:
+        vfxInstantSpawns: 00000000
+    - rid: 2944900481171587338
+      type: {class: MarkedHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        markedType: 0
+    - rid: 2944900481171587339
+      type: {class: BasicKnockbackHitAction, ns: , asm: Assembly-CSharp}
+      data:
+        hitDelay: 0
+        hitForce: 10
+        hitDirection: {x: 0, y: 0.5, z: 1}

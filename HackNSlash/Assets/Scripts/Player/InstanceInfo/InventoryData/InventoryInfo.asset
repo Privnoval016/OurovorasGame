@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1bad3d577494694d9808c6e082280f1, type: 3}
+  m_Name: InventoryInfo
+  m_EditorClassIdentifier: 
+  categories:
+  - rid: 6772710401733820539
+  - rid: 6772710401733820540
+  - rid: 6772710401733820541
+  - rid: 6772710401733820542
+  references:
+    version: 2
+    RefIds:
+    - rid: 6772710401733820539
+      type: {class: AccessoryCategory, ns: , asm: Assembly-CSharp}
+      data:
+        stacks:
+        - item: {fileID: 11400000, guid: 450e847951e5647909a66a7f7021984f, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: d66d4cb613e6e46a880989438e0237d0, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: daaffd68ee01a4dd89bd5542dc318835, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: b554526be74dd42c7bf351df66fa9096, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: 8cf8d6d63d94d47c783d078aea16897d, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: 450e847951e5647909a66a7f7021984f, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: 450e847951e5647909a66a7f7021984f, type: 2}
+          amount: 1
+        - item: {fileID: 11400000, guid: 450e847951e5647909a66a7f7021984f, type: 2}
+          amount: 1
+    - rid: 6772710401733820540
+      type: {class: ConsumableCategory, ns: , asm: Assembly-CSharp}
+      data:
+        stacks:
+        - item: {fileID: 0}
+          amount: 0
+    - rid: 6772710401733820541
+      type: {class: KeyItemCategory, ns: , asm: Assembly-CSharp}
+      data:
+        stacks:
+        - item: {fileID: 0}
+          amount: 0
+    - rid: 6772710401733820542
+      type: {class: ResourceCategory, ns: , asm: Assembly-CSharp}
+      data:
+        stacks:
+        - item: {fileID: 0}
+          amount: 0

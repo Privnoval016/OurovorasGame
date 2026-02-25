@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 045add144269f984a9d1ea9c3ba932b9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/03_Walk/03_Walk_Block/09_Walk_Block_B_L_90/Walk_Block_Loop_B_L_90.anim
+  uploadId: 630545

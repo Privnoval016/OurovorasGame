@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4ee19f9ffe7bfac4eaeb915a39c8892d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/Animations/MoveAnims/Combat/Jump/Jump_Combat_Start_L_90.anim
+  uploadId: 630545

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d10be8516ea1f764eb7ec00869a4a4f0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 271403
+  packageName: Dual Sword Animation Pack
+  packageVersion: 1.0
+  assetPath: Assets/DualSwordAnimationPack/Animations/Humanoid/08_Hit/13_Knock_Down_Combat/Knock_Down_Combat_Start.anim
+  uploadId: 630545

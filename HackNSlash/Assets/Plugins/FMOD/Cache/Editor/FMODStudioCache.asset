@@ -1,0 +1,506 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8603005273542746754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/Enemies/EnemyHit
+  m_EditorClassIdentifier: 
+  Path: event:/SFX/Enemies/EnemyHit
+  Guid:
+    Data1: -119695021
+    Data2: 1117161669
+    Data3: 489628040
+    Data4: -346439205
+  Banks:
+  - {fileID: -4465862459565583231}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters:
+  - {fileID: 3528263164194218828}
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &-5129963372576168653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Music.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/HackNSlash/Build/Desktop/Music.bank
+  Name: Music
+  StudioPath: bank:/Music
+  lastModified: 639050552556890209
+  FileSizes: []
+  Exists: 1
+--- !u!114 &-4465862459565583231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/SFX.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/HackNSlash/Build/Desktop/SFX.bank
+  Name: SFX
+  StudioPath: bank:/SFX
+  lastModified: 639050666212077172
+  FileSizes: []
+  Exists: 1
+--- !u!114 &-2876638785520208707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/Player/SwordSlash
+  m_EditorClassIdentifier: 
+  Path: event:/SFX/Player/SwordSlash
+  Guid:
+    Data1: -1175137241
+    Data2: 1305760534
+    Data3: 292457090
+    Data4: -841660424
+  Banks:
+  - {fileID: -4465862459565583231}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 500
+--- !u!114 &-2658309552449895779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Ambience.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/HackNSlash/Build/Desktop/Ambience.bank
+  Name: Ambience
+  StudioPath: bank:/Ambience
+  lastModified: 639048675354189288
+  FileSizes: []
+  Exists: 1
+--- !u!114 &-1239575083438349422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Dialogue.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/HackNSlash/Build/Desktop/Dialogue.bank
+  Name: Dialogue
+  StudioPath: bank:/Dialogue
+  lastModified: 639048675354206665
+  FileSizes: []
+  Exists: 1
+--- !u!114 &-878153131351957432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/Footstep/Surface
+  m_EditorClassIdentifier: 
+  Name: Surface
+  StudioPath: 
+  Min: 0
+  Max: 15
+  Default: 13
+  ID:
+    data1: 3523059675
+    data2: 693805081
+  Type: 2
+  IsGlobal: 0
+  Labels:
+  - Linoleum
+  - Dirt
+  - MetalFloor
+  - Glass
+  - Ice
+  - MetalHollow
+  - Mud
+  - Hardwood
+  - Pavement
+  - Plastic
+  - Rubber
+  - Snow
+  - Grass
+  - Tiled
+  - Water
+  - Marsh
+  Exists: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d32cf7c32a3ed8347bac48ef5ed56d82, type: 3}
+  m_Name: FMODStudioCache
+  m_EditorClassIdentifier: 
+  EditorBanks:
+  - {fileID: 5870138789013942014}
+  - {fileID: -2658309552449895779}
+  - {fileID: 7035638800199298596}
+  - {fileID: -1239575083438349422}
+  - {fileID: 5667700000838599861}
+  - {fileID: -5129963372576168653}
+  - {fileID: -4465862459565583231}
+  - {fileID: 3993364927842814250}
+  - {fileID: 7492637304665409341}
+  EditorEvents:
+  - {fileID: 5369551673459953907}
+  - {fileID: 210396065489801464}
+  - {fileID: -2876638785520208707}
+  - {fileID: 4102841911134144687}
+  - {fileID: -8603005273542746754}
+  - {fileID: 5855865389922099453}
+  EditorParameters: []
+  MasterBanks:
+  - {fileID: 5667700000838599861}
+  StringsBanks:
+  - {fileID: 5870138789013942014}
+  cacheVersion: 131858
+  cacheTime: 639051543261546641
+  SerializableEventsDict:
+  - key: event:/Music/Exploration/Outside
+    index: 0
+  - key: event:/Music/Hub/MercenaryGuild
+    index: 1
+  - key: event:/SFX/Player/SwordSlash
+    index: 2
+  - key: event:/SFX/Player/Footstep
+    index: 3
+  - key: event:/SFX/Enemies/EnemyHit
+    index: 4
+  - key: event:/SFX/Player/ElementalAttack
+    index: 5
+--- !u!114 &210396065489801464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Music/Hub/MercenaryGuild
+  m_EditorClassIdentifier: 
+  Path: event:/Music/Hub/MercenaryGuild
+  Guid:
+    Data1: -629225772
+    Data2: 1189481677
+    Data3: 2124039813
+    Data4: -1843941020
+  Banks:
+  - {fileID: -5129963372576168653}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &1301179837578266576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/ElementalAttack/Intensity
+  m_EditorClassIdentifier: 
+  Name: Intensity
+  StudioPath: 
+  Min: 0
+  Max: 2
+  Default: 0
+  ID:
+    data1: 931576864
+    data2: 1586756477
+  Type: 2
+  IsGlobal: 0
+  Labels:
+  - Light
+  - Medium
+  - Heavy
+  Exists: 1
+--- !u!114 &2943480723562372571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/ElementalAttack/Element
+  m_EditorClassIdentifier: 
+  Name: Element
+  StudioPath: 
+  Min: 0
+  Max: 6
+  Default: 1
+  ID:
+    data1: 2133969327
+    data2: 3517893467
+  Type: 2
+  IsGlobal: 0
+  Labels:
+  - None
+  - Wind
+  - Fire
+  - Earth
+  - Thunder
+  - Ice
+  - Aether
+  Exists: 1
+--- !u!114 &3528263164194218828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: parameter:/EnemyHit/EnemyType
+  m_EditorClassIdentifier: 
+  Name: EnemyType
+  StudioPath: 
+  Min: 0
+  Max: 2
+  Default: 0
+  ID:
+    data1: 2905552092
+    data2: 1345845434
+  Type: 2
+  IsGlobal: 0
+  Labels:
+  - Humanoid
+  - Beast
+  - Mechanical
+  Exists: 1
+--- !u!114 &3993364927842814250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Snapshots.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/HackNSlash/Build/Desktop/Snapshots.bank
+  Name: Snapshots
+  StudioPath: bank:/Snapshots
+  lastModified: 639048675371634862
+  FileSizes: []
+  Exists: 1
+--- !u!114 &4102841911134144687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/Player/Footstep
+  m_EditorClassIdentifier: 
+  Path: event:/SFX/Player/Footstep
+  Guid:
+    Data1: 502022232
+    Data2: 1289826477
+    Data3: -1873955158
+    Data4: 1134961761
+  Banks:
+  - {fileID: -4465862459565583231}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters:
+  - {fileID: -878153131351957432}
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &5369551673459953907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/Music/Exploration/Outside
+  m_EditorClassIdentifier: 
+  Path: event:/Music/Exploration/Outside
+  Guid:
+    Data1: 396549707
+    Data2: 1307265990
+    Data3: -309100383
+    Data4: -1722462859
+  Banks:
+  - {fileID: -5129963372576168653}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 0
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 206576
+--- !u!114 &5667700000838599861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/HackNSlash/Build/Desktop/Master.bank
+  Name: Master
+  StudioPath: bank:/Master
+  lastModified: 639051543261541336
+  FileSizes: []
+  Exists: 1
+--- !u!114 &5855865389922099453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/SFX/Player/ElementalAttack
+  m_EditorClassIdentifier: 
+  Path: event:/SFX/Player/ElementalAttack
+  Guid:
+    Data1: -1114833621
+    Data2: 1298045452
+    Data3: -1511148617
+    Data4: 121219580
+  Banks:
+  - {fileID: -4465862459565583231}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters:
+  - {fileID: 2943480723562372571}
+  - {fileID: 1301179837578266576}
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 0
+--- !u!114 &5870138789013942014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Master.strings.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/HackNSlash/Build/Desktop/Master.strings.bank
+  Name: Master.strings
+  StudioPath: bank:/Master.strings
+  lastModified: 639051543261546641
+  FileSizes:
+  - Name: 
+    Value: 1962
+  Exists: 1
+--- !u!114 &7035638800199298596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/Cutscenes.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/HackNSlash/Build/Desktop/Cutscenes.bank
+  Name: Cutscenes
+  StudioPath: bank:/Cutscenes
+  lastModified: 639048675354200748
+  FileSizes: []
+  Exists: 1
+--- !u!114 &7492637304665409341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: bank:/UI.bank
+  m_EditorClassIdentifier: 
+  Path: FMOD/HackNSlash/Build/Desktop/UI.bank
+  Name: UI
+  StudioPath: bank:/UI
+  lastModified: 639048675371637842
+  FileSizes: []
+  Exists: 1
