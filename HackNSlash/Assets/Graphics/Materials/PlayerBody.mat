@@ -21,7 +21,6 @@ Material:
   - _FOG_ON
   - _GREYSCALESTAGE_BEFORELIGHTING
   - _HEIGHTGRADIENTPOSITIONSPACE_LOCAL
-  - _LIGHTMAP_COLOR_CORRECTION_ON
   - _LIGHTMODEL_TOON
   - _MATCAPBLENDMODE_MULTIPLY
   - _METALLIC_MAP_ON
@@ -259,7 +258,7 @@ Material:
     - _IntersectionFadeOn: 0
     - _IntersectionGlowOn: 0
     - _LightModel: 2
-    - _LightmapColorCorrection: 1
+    - _LightmapColorCorrection: 0
     - _Matcap: 0
     - _MatcapBlend: 1
     - _MatcapBlendMode: 0
