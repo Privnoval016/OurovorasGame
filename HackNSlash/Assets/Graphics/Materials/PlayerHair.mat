@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PlayerHair
-  m_Shader: {fileID: 4800000, guid: 0dde7f0097aeb2541aea684ca0ad0e3c, type: 3}
+  m_Shader: {fileID: 4800000, guid: a4c8f68acf7c9844e97a36914026acb1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -26,7 +26,7 @@ Material:
   - _MATCAPBLENDMODE_MULTIPLY
   - _METALLIC_MAP_ON
   - _NORMAL_MAP_ON
-  - _OUTLINETYPE_NONE
+  - _OUTLINETYPE_FADEWITHDISTANCE
   - _RECEIVEDSHADOWSTYPE_STYLIZED
   - _RECEIVE_SHADOWS_ON
   - _REFLECTIONS_CLASSIC
@@ -51,7 +51,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2000
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -281,8 +281,8 @@ Material:
     - _NormalMapEnabled: 1
     - _NormalStrength: 1.65
     - _OutlineMode: 6
-    - _OutlineThickness: 28.9
-    - _OutlineType: 0
+    - _OutlineThickness: 0.0005
+    - _OutlineType: 3
     - _Pixelate: 0
     - _PixelateSize: 32
     - _Posterize: 0

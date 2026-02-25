@@ -1,5 +1,6 @@
 using System;
 using Extensions.EventBus;
+using Extensions.UtilityAI;
 using Extensions.UtilityAI.ConsiderationBases;
 using UnityEngine;
 
@@ -28,6 +29,7 @@ public class OnEnemyEvents : MonoBehaviour
 * Keys used to define the target of an enemy action.
 * </summary>
 */
+[AIContextKey]
 public enum EnemyAIContextKey
 {
     [InspectorName("Player (Target)")] Player,

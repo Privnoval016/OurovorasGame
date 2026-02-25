@@ -107,9 +107,10 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
     }
 
     public override List<AIAction<EnemyAIContextKey>> GetActions() => actions;
-    
     public override Sensor<EnemyAIContextKey> GetSensor() => sensor;
-
+    public override AIBrain<EnemyAIContextKey> GetBrain() => AIBrain;
+    public override string CurrentActionName => currentAction != null ? currentAction.name : null;
+    
     public override void ExecuteNewAction(AIAction<EnemyAIContextKey> action, Context<EnemyAIContextKey> context, float highestUtility)
     {
         Debug.Log($"Enemy {ts.name} executing action {action.name} with utility {highestUtility}");

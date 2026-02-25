@@ -50,6 +50,20 @@ namespace Extensions.UtilityAI
         {
             return AIBrain.User.transform;
         }
+
+        /**
+         * <summary>
+         * Returns a human-readable snapshot of all context data entries as (keyName, valueString) pairs.
+         * Used by editor tooling to display live context values without knowing the concrete TKey type.
+         * </summary>
+         */
+        public IReadOnlyList<(string key, string value)> GetSnapshot()
+        {
+            var result = new List<(string, string)>(data.Count);
+            foreach (var kvp in data)
+                result.Add((kvp.Key.ToString(), kvp.Value?.ToString() ?? "null"));
+            return result;
+        }
     }
 
     /**
