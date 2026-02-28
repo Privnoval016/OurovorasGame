@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Extensions.EntityComponent;
 using Extensions.EventBus;
 using Extensions.Modifiers;
 using Extensions.Patterns;
@@ -46,6 +47,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
     private void Awake()
     {
         pc = GetComponent<PlayerController>();
+        
+        HealthComponent.AddComponent(new ElementComponent(() => pc.pcc.currentElementEffect));
     }
 
     private void Start()
@@ -371,8 +374,12 @@ public class PlayerStats : MonoBehaviour, IDamageable
     }
 
     public int NumHealthBars => 1; // Player has a single health bar
+    
+    public float CurrentShieldPercentage => 0f; // Player does not have shields like enemies do
 
     public EvaluatedStats Stats => EvaluatedStats;
+
+    public Entity<IDamageableComponent> HealthComponent { get; } = new Entity<IDamageableComponent>();
 
     public IEnumerable<IDamageRule> DamageEvalRules
         => pc.rps.CurrentLoadout?.equippedAccessories?.SelectMany(acc => acc?.ContributeRules() ?? Enumerable.Empty<IDamageRule>()) 

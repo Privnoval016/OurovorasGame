@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Extensions.EntityComponent;
 using Extensions.EventBus;
 using Extensions.Modifiers;
 using Extensions.Patterns;
@@ -18,7 +19,14 @@ public class EnemyStats : MonoBehaviour, IDamageable
 
     public EvaluatedStats EvaluatedStats;
     [field: SerializeField] public float CurrentHealth { get; private set; }
-    
+
+    [Header("Shield")]
+    [SerializeField] private float maxShield = 100f;
+    [SerializeField] private float currentShield = 0f;
+    public float CurrentShieldPercentage => maxShield > 0 ? currentShield / maxShield : 0f;
+
+    public Entity<IDamageableComponent> HealthComponent { get; } = new Entity<IDamageableComponent>();
+
     public ElementEffect currentElementEffect = ElementEffect.None;
 
     #region MonoBehaviour Callbacks
@@ -29,6 +37,10 @@ public class EnemyStats : MonoBehaviour, IDamageable
         CurrentHealth = EvaluatedStats.GetInnateStat(InnateStat.MaxHealth);
 
         NumHealthBars = MaxHealthBars;
+        
+        currentShield = maxShield;
+        HealthComponent.AddComponent(new ShieldComponent(() => CurrentShieldPercentage));
+        HealthComponent.AddComponent(new ElementComponent(() => currentElementEffect));
     }
 
     private void Update()
@@ -84,6 +96,12 @@ public class EnemyStats : MonoBehaviour, IDamageable
             CurrentHealth = Mathf.Clamp(CurrentHealth, 0, EvaluatedStats.GetInnateStat(InnateStat.MaxHealth));
         }
     }
+    
+    public void ChangeShield(float amount)
+    {
+        currentShield += amount;
+        currentShield = Mathf.Clamp(currentShield, 0, maxShield);
+    }
 
     #endregion
 
@@ -105,6 +123,7 @@ public class EnemyStats : MonoBehaviour, IDamageable
         Debug.Log($"{gameObject.name} took {damageAmount} damage of element {element}");
         
         ChangeHealth(-damageAmount);
+        ChangeShield(-damageEvent.BaseShieldDamage);
 
         PlayHitAudio();
     }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Extensions.EntityComponent;
 using Extensions.Modifiers;
 
 /**
@@ -9,6 +11,8 @@ using Extensions.Modifiers;
  */
 public interface IDamageable
 {
+    public Entity<IDamageableComponent> HealthComponent { get; }
+    
     public float CurrentHealth { get; }
     public int Level { get; }
     public int NumHealthBars { get; }
@@ -22,4 +26,26 @@ public interface IDamageable
     EvaluatedStats Stats { get; }
     
     IEnumerable<IDamageRule> DamageEvalRules { get; }
+}
+
+public interface IDamageableComponent : IComponent { }
+
+public class ShieldComponent : IDamageableComponent
+{
+    public WrappedField<float> CurrentShieldPercentage { get; private set; }
+    
+    public ShieldComponent(Func<float> onShieldChange)
+    {
+        CurrentShieldPercentage = new WrappedField<float>(onShieldChange);
+    }
+}
+
+public class ElementComponent : IDamageableComponent
+{
+    public WrappedField<ElementEffect> CurrentElementEffect { get; private set; }
+    
+    public ElementComponent(Func<ElementEffect> onElementChange)
+    {
+        CurrentElementEffect = new WrappedField<ElementEffect>(onElementChange);
+    }
 }

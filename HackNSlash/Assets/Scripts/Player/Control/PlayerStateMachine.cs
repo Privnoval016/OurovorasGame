@@ -188,7 +188,7 @@ public class PlayerStateMachine : MonoBehaviour
                 force = new Vector3(15, 0),
                 horizontalDirection = -TruePlayerForward.ToVector2(),
                 element = ElementEffect.None,
-                enemyAttack = new AttackStats(10),
+                enemyAttack = new AttackStats(10, 10),
                 damageInfo = new EnemyAttackDamageInfo()
             });
         }

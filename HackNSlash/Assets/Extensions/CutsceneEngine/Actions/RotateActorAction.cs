@@ -13,6 +13,7 @@ namespace Extensions.CutsceneEngine
     {
         public Vector3 EulerRotation;
 
+        [System.NonSerialized]
         private Quaternion startRotation;
 
         public override void OnEnter(ICutsceneActor actor, CutsceneContext context)

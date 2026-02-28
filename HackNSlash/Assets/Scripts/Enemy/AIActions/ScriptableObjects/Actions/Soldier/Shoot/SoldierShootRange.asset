@@ -15,7 +15,8 @@ MonoBehaviour:
   maxDistance: 20
   maxAngle: 360
   targetKey:
-    rid: 278943961285918830
+    enumTypeName: EnemyAIContextKey
+    enumValue: 0
   curve:
     serializedVersion: 2
     m_Curve:
@@ -29,8 +30,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.14643593
-      value: 0.91537285
+      time: 0.07560463
+      value: 0.9129925
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -49,10 +50,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  legacyTargetKey:
+    rid: -2
   references:
     version: 2
     RefIds:
-    - rid: 278943961285918830
-      type: {class: EnemyConsiderationKey, ns: , asm: Assembly-CSharp}
-      data:
-        AIContextKey: 0
+    - rid: -2
+      type: {class: , ns: , asm: }

@@ -13,42 +13,56 @@ namespace Extensions.CutsceneEngine
      */
     public class CinemachineCameraSystem : ICameraSystem
     {
-        MonoBehaviour runner;
-        CinemachineCamera cam;
+        private readonly MonoBehaviour _runner;
+        private readonly CinemachineCamera _cam;
+        private CinemachineImpulseSource _impulseSource;
+
+        /** <summary>The transform of the Cinemachine virtual camera. Used by MoveCameraAction.</summary> */
+        public Transform CameraTransform => _cam?.transform;
 
         public CinemachineCameraSystem(MonoBehaviour coroutineRunner, CinemachineCamera camera)
         {
-            runner = coroutineRunner;
-            cam = camera;
+            _runner = coroutineRunner;
+            _cam = camera;
+
+            if (_cam != null)
+                _impulseSource = _cam.GetComponent<CinemachineImpulseSource>()
+                                 ?? _cam.gameObject.AddComponent<CinemachineImpulseSource>();
         }
 
         public void FocusOn(Transform target)
         {
-            cam.Follow = target;
-            cam.LookAt = target;
+            if (_cam == null) return;
+            _cam.Follow = target;
+            _cam.LookAt = target;
         }
 
         public void MoveTo(Vector3 position, float duration)
         {
-            runner.StartCoroutine(MoveRoutine(position, duration));
-        }
-
-        IEnumerator MoveRoutine(Vector3 target, float duration)
-        {
-            var start = cam.transform.position;
-            float time = 0f;
-
-            while (time < duration)
-            {
-                time += Time.deltaTime;
-                cam.transform.position = Vector3.Lerp(start, target, time / duration);
-                yield return null;
-            }
+            if (_cam == null) return;
+            _runner.StartCoroutine(MoveRoutine(position, duration));
         }
 
         public void Shake(float intensity, float duration)
         {
-            // TODO: idk how to screen shake rofl
+            if (_impulseSource == null) return;
+            // Scale the default impulse definition by the requested intensity.
+            _impulseSource.DefaultVelocity = Vector3.one * intensity;
+            _impulseSource.GenerateImpulse(duration);
+        }
+
+        private IEnumerator MoveRoutine(Vector3 target, float duration)
+        {
+            if (_cam == null) yield break;
+            Vector3 start = _cam.transform.position;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                _cam.transform.position = Vector3.Lerp(start, target, Mathf.Clamp01(elapsed / duration));
+                yield return null;
+            }
+            _cam.transform.position = target;
         }
     }
 }

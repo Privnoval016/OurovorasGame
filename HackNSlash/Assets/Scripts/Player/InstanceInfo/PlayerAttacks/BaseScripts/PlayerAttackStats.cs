@@ -5,6 +5,8 @@ using UnityEngine.Serialization;
 [Serializable]
 public class PlayerAttackStats : AttackStats
 {
+    [Header("Shield Damage")] 
+    public float shieldDamage = 10f;
     [Header("Charge Stats")]
     public bool restoreCharge = true;
     [FormerlySerializedAs("chargeRequired")] public float charge = 0f;
@@ -14,9 +16,10 @@ public class PlayerAttackStats : AttackStats
     
     public float baseStyleGain = 10f;
     
-    public PlayerAttackStats(float damage, int statusEffectStacks = 0, float statusEffectDuration = 0) 
+    public PlayerAttackStats(float damage, float shieldDamage, int statusEffectStacks = 0, float statusEffectDuration = 0) 
         : base(damage, statusEffectStacks, statusEffectDuration)
     {
+        this.shieldDamage = shieldDamage;
     }
     
     public PlayerAttackStats() : base(0f, 0, 0f)

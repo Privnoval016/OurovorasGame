@@ -3,6 +3,7 @@ using Extensions.Patterns;
 public interface IDamageEvent
 {
     float BasePower { get; }
+    float BaseShieldDamage { get; }
     IRule<IDamageEvent, DamageContext, DamageResult> GetFirstRule();
 }
 
@@ -14,10 +15,12 @@ public interface IDamageEvent
 public struct PlayerDamageEvent : IDamageEvent
 {
     public float BasePower { get; }
+    public float BaseShieldDamage { get; }
     
     public PlayerDamageEvent(Attack attack)
     {
         BasePower = attack.stats.damage;
+        BaseShieldDamage = attack.stats.shieldDamage;
     }
     
     public IRule<IDamageEvent, DamageContext, DamageResult> GetFirstRule()
@@ -34,7 +37,8 @@ public struct PlayerDamageEvent : IDamageEvent
 public struct EnemyDamageEvent : IDamageEvent
 {
     public float BasePower { get; }
-    
+    public float BaseShieldDamage => 0f; // Enemies don't deal shield damage
+
     public EnemyDamageEvent(HitInstance hitInstance)
     {
         BasePower = hitInstance.Damage;
@@ -54,10 +58,12 @@ public struct EnemyDamageEvent : IDamageEvent
 public struct DynamicDamageEvent : IDamageEvent
 {
     public float BasePower { get; }
+    public float BaseShieldDamage { get; }
     
-    public DynamicDamageEvent(float damage)
+    public DynamicDamageEvent(float baseDamage, float baseShieldDamage = 0)
     {
-        BasePower = damage;
+        BasePower = baseDamage;
+        BaseShieldDamage = baseShieldDamage;
     }
     
     public IRule<IDamageEvent, DamageContext, DamageResult> GetFirstRule()

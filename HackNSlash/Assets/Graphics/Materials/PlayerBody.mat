@@ -178,10 +178,10 @@ Material:
     - _ColorMask: 15
     - _ColorRampBlend: 1
     - _ColorRampLightingStage: 1
-    - _ColorRampLuminosity: 0
+    - _ColorRampLuminosity: 0.142
     - _ColorRampOn: 0
-    - _ColorRampScrollSpeed: 0
-    - _ColorRampTiling: 1
+    - _ColorRampScrollSpeed: -0.26
+    - _ColorRampTiling: 1.18
     - _Contrast: 1
     - _ContrastBrightnessOn: 0
     - _ContrastLM: 1

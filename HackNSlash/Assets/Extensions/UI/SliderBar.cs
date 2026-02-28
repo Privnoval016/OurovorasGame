@@ -160,5 +160,45 @@ namespace Extensions.UI
                 borderImage.sprite = sprite;
             }
         }
+        
+        public void SetMainSliderColor(Color color)
+        {
+            if (mainSliderFillImage != null)
+            {
+                mainSliderFillImage.color = color;
+            }
+        }
+        
+        public void SetRefillSliderColor(Color color)
+        {
+            if (useRefillSlider && refillSliderFillImage != null)
+            {
+                refillSliderFillImage.color = color;
+            }
+        }
+        
+        public void SetDrainSliderColor(Color color)
+        {
+            if (useDrainSlider && drainSliderFillImage != null)
+            {
+                drainSliderFillImage.color = color;
+            }
+        }
+        
+        public void SetBackgroundColor(Color color)
+        {
+            if (backgroundImage != null)
+            {
+                backgroundImage.color = color;
+            }
+        }
+
+        public void SetBorderColor(Color color)
+        {
+            if (borderImage != null)
+            {
+                borderImage.color = color;
+            }
+        }
     }
 }

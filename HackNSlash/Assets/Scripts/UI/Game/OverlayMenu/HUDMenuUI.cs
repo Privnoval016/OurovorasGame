@@ -70,6 +70,7 @@ public class HUDMenuUI : MonoBehaviour, IService
     [SerializeField] private TMP_Text enemyNameText;
     [SerializeField] private TMP_Text enemyLevelText;
     [SerializeField] private SliderBar enemyHealthSliderBar;
+    [SerializeField] private SliderBar enemyShieldSliderBar;
     [SerializeField] private TMP_Text enemyHealthBarCountText;
     [SerializeField] private EffectTileUI enemyEffectTileUI;
     
@@ -444,6 +445,16 @@ public class HUDMenuUI : MonoBehaviour, IService
                 currentLockOnTarget.damageable.Stats.GetInnateStat(InnateStat.MaxHealth) : 0f;
             
             enemyHealthSliderBar.SetSliderValueInstant(healthPercentage);
+
+            float shieldPercentage = currentLockOnTarget.damageable.HealthComponent.TryGetComponent<ShieldComponent>(out var shield) 
+                ? shield.CurrentShieldPercentage : 0f;
+            
+            enemyShieldSliderBar.SetSliderValueInstant(shieldPercentage);
+            
+            ElementEffect currentElement = currentLockOnTarget.damageable.HealthComponent.TryGetComponent<ElementComponent>(out var elementComponent) 
+                ? elementComponent.CurrentElementEffect : ElementEffect.None;
+            
+            enemyShieldSliderBar.SetMainSliderColor(Services.Get<ElementSystem>().GetElementData(currentElement).elementColor);
             
             if (Mathf.Approximately(enemyUIGroup.alpha, 1f)) return;
             Tween.Alpha(enemyUIGroup, 1f, 0.2f);

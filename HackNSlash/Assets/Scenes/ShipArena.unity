@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: d9dca9ae1786c394f9e79c637aa9a7bf, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 3e5399bd195de7649b874f58c1b9f8a3, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000002, guid: 473ce81301c354a2a843604e4a9991c3,
+  m_LightingDataAsset: {fileID: 112000002, guid: d62ce510ab900475a86ba6fca7160daa,
     type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
@@ -293,6 +293,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 236799556}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 02c43ecd1644d429882e3d0fb6d4e360,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 236799559}
   m_SourcePrefab: {fileID: 100100000, guid: 02c43ecd1644d429882e3d0fb6d4e360, type: 3}
 --- !u!4 &236799554 stripped
 Transform:
@@ -328,6 +332,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 6896341240165269591, guid: 02c43ecd1644d429882e3d0fb6d4e360, type: 3}
+--- !u!114 &236799559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 236799555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e4f1fd9863844c1a062a737b37132ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  instanceParam: {fileID: 11400000, guid: 4395caeeb8a9c4483aaa2ad233558301, type: 2}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -583,6 +600,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 446281290}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 96cade2c851cd40198a6135e310025ec,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 446281293}
   m_SourcePrefab: {fileID: 100100000, guid: 96cade2c851cd40198a6135e310025ec, type: 3}
 --- !u!4 &446281288 stripped
 Transform:
@@ -618,6 +639,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 6083489540813079729, guid: 96cade2c851cd40198a6135e310025ec, type: 3}
+--- !u!114 &446281293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 446281289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e4f1fd9863844c1a062a737b37132ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  instanceParam: {fileID: 11400000, guid: 4395caeeb8a9c4483aaa2ad233558301, type: 2}
 --- !u!1 &553510985
 GameObject:
   m_ObjectHideFlags: 0
@@ -1626,7 +1660,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1073741824
   data:
-    dataString: UEsDBBQAAAgIAACYn+shIHnjTQIAALkEAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQGVU8tu2zAQ/BVD5zbwMw56rO2mhzgpLAMNUvSwIlcSYYp0ScqOE+Tfu0tJttL20pOg2Z19zA5fE1GCAxHQbUCq2iefBsOr2YdBIqwJtnZreF45Zx3hY0ZR61S9YEwbc94R9A4yjV9RFWVo0zpwoVWVETa6Gl0TXMFzqu2e2ZNh87+SBd6hKULJ1Agqs8FCWdP2mRCGUgXrtkpjC47GNwSHFnj8C3k6I7VH5vFiwdVIyB7dHZzQra1UuRIQqBeHf/ykoFQVGk8IRblRsuyAyTKheAZiVzhbG7l1cEDnIVNahROnfm+35jyHGg9gwq2DfZnWLgeB55L23oYN/qqVi7nCao2Cx0gxBGUKnua1B3fEOLZnyr48eSV8KtBwxNRa/4GOlxdcx3XB77juIDmArpl1PR28sWZQtLGogANPbiANF9RfSW54lu4cW6Mvo6Y5aP8uskXnQJl/cLYO+2cITWLjmwr2S3s0Hqq9JgG+kCOj5yatPDzHpiu0xABK84Upas2i0ek8Ei/Nezkb4m2bpZ/ZsoSe2u8Lf+P+uXUC5We+qV+goR7/w2gN2eaPhh1j2lEIiiRf2iPP+FAHWhEvQnDgni68sMY09+4L29FaD11oBsGhDyl9RPlg9OnxqUdDw068h0NF3EUdbXXhFrWS772QjGfjbDa/yYfT+UyCEB8nOB+J6TzDYS6FzLMkbqGMCgr0N6qvQ6cMPenewQ1UseIGBV1sEF8Ae1Y6ON6ql8r2TKBMblNBxjAPTY3z2nRp0KStXMW333sZyetb8vYbUEsDBBQAAAgIAACYn+tpHTmNbgAAAHkAAAAJACQAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0Bq1YqSy0qzszPU7JSMNUz1rPQUVBKL0osyCgGChiCOKWZKSB2tJKRqVGSqblFmoGJuWlKYnKyrnGquWGyiXlSqkFaSnJKWpJSLFB9SWVBql9ibipET0BiSUZaZl5KZl66XlBqcmJxiTvIcKXYWgBQSwECLQAUAAAICAAAmJ/rISB5400CAAC5BAAACwAkAAAAAAAAAAAAAAAAAAAAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFQSwECLQAUAAAICAAAmJ/raR05jW4AAAB5AAAACQAkAAAAAAAAAAAAAACaAgAAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsFBgAAAAACAAIAuAAAAFMDAAAAAA==
+    dataString: UEsDBBQAAAgIAACYn+v2wQ34YwIAAOgEAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQGFVNtu2zAM/ZXAz2uQOLd2j0uy7qGXIQmwosMeaIm2hcpSJslJ06L/PlJ2EncX7EnwIQ9FHh75NRElOBAB3Qqkqn3ysTfoTz70EmFNsLW7heelc9YRnjKKWq/VC8a0lPP2oJ8g0/gFVVGGNu0IzrWqMsKG/eGU4Aqe19pumT0aNN9LWeANmiKUTI2gMisslDXtPSPCUKpg3UZpbMFheklwaIGHP5DHE1J7ZB4PFlyNhGzR3cAB3a2VKlcCAt3F4e8/muAGnQNl/p0jVYXGE0JRbiZZHIHRIqF4BuKpcLY2cuNgh85DprQKB0791irDeQ417sCEawfbcl27HASeSto7G1b4s1Yu5gqrNQpuY40hKFNwN68d+EiMbXumbMuDV8KvBRqOmFrr39B0ccZ1HBf8E9ftJTvQNbOm494b6wpFG4sKOPDkGNJ5TvcryRee5D3FbtGXUfcctH8XaRX+C2fjsLuq0CQ23qpgu7B746HaahLgM7k2+nLUysN9rI6FFhhAaXYBRa2ZNzqdWuKheS5nQ9xtM/Qz25rQQ3u+8Bnnz60TKD/xTv0cDd1xZlyks/7Vf1mtcVvOcJj2xy1nTA/usuVNp/2rWeT60u653fs60LR41oQDd7TsuTWmWX1X4yOttdOZZhAc+rCmQ5T3Rh8eHjs0NGzKO9hVxJ3X0WFnblEr+d4WSTpJs8nsMh+MZxMJQlyMcDYU41mGg1wKmWdJnEIZFRTor1Rfh6NA9Afo7N5AFSuuUNDyevExsH2lg/21eqlsxw/K5HYtyCPmvqlxGpuWDpoklsv4q+g8kuT1LXn7BVBLAwQUAAAICAAAmJ/rPvgqbW4AAAB5AAAACQAkAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAatWKkstKs7Mz1OyUjDVM9Ez01FQSi9KLMgoBgoYgjilmSkgdrSSkalRkqm5RZqBiblpSmJysq5xqrlhsol5UqpBWkpySlqSUixQfUllQapfYm4qRE9AYklGWmZeSmZeul5QanJicYk7yHCl2FoAUEsBAi0AFAAACAgAAJif6/bBDfhjAgAA6AQAAAsAJAAAAAAAAAAAAAAAAAAAAGdyYXBoMC5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsBAi0AFAAACAgAAJif6z74Km1uAAAAeQAAAAkAJAAAAAAAAAAAAAAAsAIAAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAVBLBQYAAAAAAgACALgAAABpAwAAAAA=
     file_cachedStartup: {fileID: 0}
     cacheStartup: 0
   showNavGraphs: 1
@@ -1655,7 +1689,7 @@ MonoBehaviour:
   heuristic: 2
   heuristicScale: 1
   threadCount: 1
-  maxFrameTime: 1
+  maxFrameTime: 10
   batchGraphUpdates: 0
   graphUpdateBatchingInterval: 0.2
   navmeshUpdates:

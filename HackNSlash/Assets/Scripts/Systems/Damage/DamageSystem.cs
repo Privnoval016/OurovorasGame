@@ -6,6 +6,7 @@ using UnityEngine;
 public class DamageSystem : MonoBehaviour, IService
 {
     [Header("Damage Settings")]
+    [SerializeField] private float shieldDamageReductionPercent = 0.5f;
     
     private readonly RuleSystem<DamageContext, DamageResult> _baseRuleSystem = new RuleSystem<DamageContext, DamageResult>();
     private IDamageRule _finalizeDamageRule = new FinalizeDamageRule();
@@ -22,6 +23,7 @@ public class DamageSystem : MonoBehaviour, IService
         // Add other base rules as needed
         _baseRuleSystem.AddRule(new StatusEffectDamageDealtRule());
         _baseRuleSystem.AddRule(new StatusEffectDamageTakenRule());
+        _baseRuleSystem.AddRule(new ShieldDamageReductionRule(shieldDamageReductionPercent));
         
         // Finalize damage rule should be the last rule applied
         _finalizeDamageRule = new FinalizeDamageRule();

@@ -21,25 +21,26 @@ namespace Extensions.CutsceneEngine
         [Tooltip("Target object to move camera to (used when Use Target Object is true)")]
         public GameObject TargetObject;
 
-        private Vector3 startPosition;
-        private Transform cameraTransform;
+        [System.NonSerialized] private Vector3 startPosition;
+        [System.NonSerialized] private Transform cameraTransform;
 
         public override void OnEnter(ICutsceneActor actor, CutsceneContext context)
         {
             if (context?.Camera == null)
             {
-                Debug.LogWarning("MoveCameraAction: No camera system available in context");
+                UnityEngine.Debug.LogWarning("MoveCameraAction: No camera system available in context.");
                 return;
             }
 
-            // Cache start position for interpolation
-            // Note: This assumes the camera system exposes a way to get the camera transform
-            // For now, we'll use a simple approach
-            cameraTransform = Camera.main?.transform;
+            // Resolve camera transform via context — avoids relying on Camera.main
+            if (context.Camera is CinemachineCameraSystem cinemachineSystem)
+                cameraTransform = cinemachineSystem.CameraTransform;
+
+            if (cameraTransform == null)
+                cameraTransform = UnityEngine.Camera.main?.transform;
+
             if (cameraTransform != null)
-            {
                 startPosition = cameraTransform.position;
-            }
         }
 
         public override void OnUpdate(ICutsceneActor actor, CutsceneContext context, float normalizedTime, float deltaTime)

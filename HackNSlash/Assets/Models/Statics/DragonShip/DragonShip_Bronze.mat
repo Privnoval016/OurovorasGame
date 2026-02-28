@@ -21,6 +21,7 @@ Material:
   - _FADEUVSET_UV1
   - _GREYSCALESTAGE_BEFORELIGHTING
   - _HEIGHTGRADIENTPOSITIONSPACE_LOCAL
+  - _LIGHTMAP_COLOR_CORRECTION_ON
   - _LIGHTMODEL_TOON
   - _MATCAPBLENDMODE_MULTIPLY
   - _METALLIC_MAP_ON
@@ -317,7 +318,7 @@ Material:
     - _IntersectionFadeOn: 0
     - _IntersectionGlowOn: 0
     - _LightModel: 2
-    - _LightmapColorCorrection: 0
+    - _LightmapColorCorrection: 1
     - _Matcap: 0
     - _MatcapBlend: 1
     - _MatcapBlendMode: 0
@@ -328,7 +329,7 @@ Material:
     - _MaxGradientHeight: 0.75
     - _MaxInflate: 0.2
     - _MaxRim: 0.63
-    - _Metallic: 0
+    - _Metallic: 0.605
     - _MetallicMapOn: 1
     - _MinDistanceToFade: 0
     - _MinGradientHeight: 0
@@ -372,7 +373,7 @@ Material:
     - _ShakeBlend: 1
     - _ShakeSpeedMult: 1
     - _Shininess: 16
-    - _Smoothness: 0.5
+    - _Smoothness: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularAtten: 0.5
     - _SpecularHighlights: 1
