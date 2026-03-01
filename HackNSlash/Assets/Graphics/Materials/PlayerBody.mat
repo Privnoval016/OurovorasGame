@@ -33,7 +33,6 @@ Material:
   - _RIM_LIGHTING_ON
   - _SHADINGMODEL_PBR
   - _SPECULARMODEL_TOON
-  - _SUBSURFACE_SCATTERING_ON
   - _TEXTUREBLENDINGMODE_RGB
   - _TEXTUREBLENDINGSOURCE_VERTEXCOLOR
   - _TRIPLANARNORMALSPACE_WORLD
@@ -321,7 +320,7 @@ Material:
     - _StochasticSampling: 0
     - _StochasticScale: 3.464
     - _StochasticSkew: 0.57735026
-    - _SubsurfaceScattering: 1
+    - _SubsurfaceScattering: 0
     - _TextureBlending: 0
     - _TextureBlendingMode: 0
     - _TextureBlendingSource: 0
