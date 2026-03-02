@@ -1,34 +1,33 @@
 using Extensions.UtilityAI;
 using UnityEngine;
 
+/** <summary>
+ * Moves the enemy toward the nearest detected player using A* path planning.
+ * Calls <see cref="EnemyStateMachine.MoveToDestination"/> each Update tick.
+ * The action is considered complete once the enemy arrives within
+ * <see cref="Extensions.Navigation.NavConfig.arrivalRadius"/> or the action is interrupted.
+ * </summary>
+ */
 [CreateAssetMenu(fileName = "EnemyMoveAIAction", menuName = "Enemy/AIActions/EnemyMoveAIAction", order = 0)]
 public class EnemyMoveAIAction : EnemyAIActionBase
 {
-    private Transform target;
+    [Tooltip("Speed multiplier applied to NavMotor.maxSpeed while chasing.")]
+    [Range(0.1f, 2f)] public float speedMultiplier = 1f;
 
-    protected override void OnEnemyEnter(Context<EnemyAIContextKey> enemyContext, EnemyStateMachine esm)
+    private Transform _target;
+
+    protected override void OnEnemyEnter(EnemyContext context, EnemyStateMachine esm)
     {
-        target = enemyContext.Sensor.GetNearestDetectedObject(actionKey);
+        _target = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
         esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.walkCycle);
     }
 
-    protected override void OnEnemyUpdate(Context<EnemyAIContextKey> enemyContext, EnemyStateMachine esm)
+    protected override void OnEnemyUpdate(EnemyContext context, EnemyStateMachine esm)
     {
-        if (target == null) return;
-        
-        MoveTowardsTarget(esm);
+        if (_target != null) esm.MoveToDestination(_target.position, speedMultiplier);
     }
-    
-    protected override void OnEnemyExit(Context<EnemyAIContextKey> enemyContext, EnemyStateMachine esm)
-    {
-        
-    }
-    
-    private void MoveTowardsTarget(EnemyStateMachine esm)
-    {
-        if (target == null) return;
-        
-        esm.MoveInDirection(esm.ts.nav.CalculateDirectionToTarget(target.position), esm.MoveSpeed);
-    }
+
+    protected override void OnEnemyExit(EnemyContext context, EnemyStateMachine esm)
+        => esm.Brake();
 }

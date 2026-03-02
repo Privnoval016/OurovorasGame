@@ -45,14 +45,14 @@ namespace Extensions.UtilityAI.Editor
 
         #region Colours
 
-        private static readonly Color ColWinner = new Color(0.25f, 0.9f, 0.35f);
-        private static readonly Color ColBar = new Color(0.3f, 0.6f, 1f);
-        private static readonly Color ColBarWin = new Color(0.2f, 0.85f, 0.3f);
-        private static readonly Color ColBarBg = new Color(0.15f, 0.15f, 0.15f);
-        private static readonly Color ColHeader = new Color(0.12f, 0.12f, 0.12f);
-        private static readonly Color ColSelected = new Color(0.24f, 0.42f, 0.7f);
-        private static readonly Color ColRowAlt = new Color(0.2f, 0.2f, 0.2f);
-        private static readonly Color ColRowBase = new Color(0.22f, 0.22f, 0.22f);
+        private static readonly Color ColWinner   = new(0.25f, 0.9f,  0.35f);
+        private static readonly Color ColBar      = new(0.3f,  0.6f,  1f);
+        private static readonly Color ColBarWin   = new(0.2f,  0.85f, 0.3f);
+        private static readonly Color ColBarBg    = new(0.15f, 0.15f, 0.15f);
+        private static readonly Color ColHeader   = new(0.12f, 0.12f, 0.12f);
+        private static readonly Color ColSelected = new(0.24f, 0.42f, 0.7f);
+        private static readonly Color ColRowAlt   = new(0.2f,  0.2f,  0.2f);
+        private static readonly Color ColRowBase  = new(0.22f, 0.22f, 0.22f);
 
         #endregion
 
@@ -60,9 +60,29 @@ namespace Extensions.UtilityAI.Editor
 
         private void OnEnable()
         {
-            titleContent = new GUIContent("Brain Debugger", EditorGUIUtility.IconContent("d_UnityEditor.ProfilerWindow").image);
+            titleContent = new GUIContent("Brain Debugger",
+                EditorGUIUtility.IconContent("d_UnityEditor.ProfilerWindow").image);
             minSize = new Vector2(520, 400);
             _stylesReady = false;
+            EditorApplication.update += ThrottledRepaint;
+        }
+
+        private void OnDisable()
+        {
+            EditorApplication.update -= ThrottledRepaint;
+        }
+
+        private double _lastRepaintTime;
+        private const double RepaintInterval = 0.1; // ~10 fps max for live view
+
+        private void ThrottledRepaint()
+        {
+            // Only drive repaints while playing and a brain is actively selected.
+            if (!Application.isPlaying || _brain == null) return;
+            double now = EditorApplication.timeSinceStartup;
+            if (now - _lastRepaintTime < RepaintInterval) return;
+            _lastRepaintTime = now;
+            Repaint();
         }
 
         private void OnSelectionChange()
@@ -84,19 +104,13 @@ namespace Extensions.UtilityAI.Editor
             Repaint();
         }
 
-        private void Update()
-        {
-            if (Application.isPlaying && _brain != null)
-                Repaint();
-        }
-
         #endregion
 
         #region OnGUI
 
         private void OnGUI()
         {
-            // Re-fetch interface ref after domain reload (_selectedGo survives but interface ref doesn't).
+            // Re-fetch interface ref after domain reload (_selectedGo survives, interface ref doesn't).
             if (_selectedGo != null && _brain == null)
             {
                 var acc = _selectedGo.GetComponent<IAIBrainAccessor>();
@@ -123,10 +137,11 @@ namespace Extensions.UtilityAI.Editor
             GUILayout.Label("Brain Debugger", EditorStyles.boldLabel);
             GUILayout.FlexibleSpace();
             if (_selectedGo != null && _brain != null)
-                GUILayout.Label($"{_selectedGo.name}  [{_brain.KeyTypeName}]", EditorStyles.miniLabel);
+                GUILayout.Label(_selectedGo.name, EditorStyles.miniLabel);
             Color prev = GUI.color;
             GUI.color = Application.isPlaying ? Color.green : new Color(1f, 0.85f, 0.3f);
-            GUILayout.Label(Application.isPlaying ? "● LIVE" : "◉ SIMULATE", EditorStyles.boldLabel, GUILayout.Width(90));
+            GUILayout.Label(Application.isPlaying ? "● LIVE" : "◉ SIMULATE",
+                EditorStyles.boldLabel, GUILayout.Width(90));
             GUI.color = prev;
             EditorGUILayout.EndHorizontal();
         }
@@ -137,7 +152,8 @@ namespace Extensions.UtilityAI.Editor
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.FlexibleSpace();
-                GUILayout.Label("Select a GameObject with an AIBrainUser component.", EditorStyles.centeredGreyMiniLabel);
+                GUILayout.Label("Select a GameObject with an AIBrainUser component.",
+                    EditorStyles.centeredGreyMiniLabel);
                 GUILayout.FlexibleSpace();
             }
             GUILayout.FlexibleSpace();
@@ -159,13 +175,15 @@ namespace Extensions.UtilityAI.Editor
             // Left column: actions + context
             EditorGUILayout.BeginVertical(GUILayout.Width(lw));
             Header("Actions");
-            _actionListScroll = EditorGUILayout.BeginScrollView(_actionListScroll, GUILayout.Height(h * 0.55f));
+            _actionListScroll = EditorGUILayout.BeginScrollView(_actionListScroll,
+                GUILayout.Height(h * 0.55f));
             for (int i = 0; i < infos.Count; i++)
                 DrawActionRow(infos[i], lw - 20, i);
             EditorGUILayout.EndScrollView();
             GUILayout.Space(4);
             Header("Live Context");
-            _contextScroll = EditorGUILayout.BeginScrollView(_contextScroll, GUILayout.Height(h * 0.35f));
+            _contextScroll = EditorGUILayout.BeginScrollView(_contextScroll,
+                GUILayout.Height(h * 0.35f));
             DrawContextTable(_brain.GetContextSnapshot());
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
@@ -174,7 +192,9 @@ namespace Extensions.UtilityAI.Editor
 
             // Right column: consideration tree
             EditorGUILayout.BeginVertical(GUILayout.Width(rw));
-            Header(_selectedAction.HasValue ? $"Considerations — {_selectedAction.Value.ActionName}" : "Considerations");
+            Header(_selectedAction.HasValue
+                ? $"Considerations — {_selectedAction.Value.ActionName}"
+                : "Considerations");
             if (_selectedAction.HasValue)
             {
                 _showConsiderationTree = EditorGUILayout.Foldout(_showConsiderationTree, "Tree", true);
@@ -187,7 +207,8 @@ namespace Extensions.UtilityAI.Editor
                 }
             }
             else
-                EditorGUILayout.HelpBox("Click an action on the left to inspect its consideration tree.", MessageType.Info);
+                EditorGUILayout.HelpBox("Click an action on the left to inspect its consideration tree.",
+                    MessageType.Info);
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndHorizontal();
@@ -195,29 +216,41 @@ namespace Extensions.UtilityAI.Editor
 
         private void DrawActionRow(ActionDebugInfo info, float w, int rowIndex)
         {
-            bool selected = _selectedAction.HasValue && _selectedAction.Value.ActionName == info.ActionName;
+            bool selected = _selectedAction.HasValue &&
+                            _selectedAction.Value.ActionName == info.ActionName;
             bool winner = info.IsChosen;
 
             Rect r = EditorGUILayout.GetControlRect(GUILayout.Height(24));
-            Color bg = selected ? ColSelected : (winner ? new Color(0.14f, 0.28f, 0.14f) : (rowIndex % 2 == 0 ? ColRowBase : ColRowAlt));
+            Color bg = selected
+                ? ColSelected
+                : winner
+                    ? new Color(0.14f, 0.28f, 0.14f)
+                    : rowIndex % 2 == 0 ? ColRowBase : ColRowAlt;
             EditorGUI.DrawRect(r, bg);
 
             // utility bar
             float barW = w * 0.3f;
-            Rect bgBar = new Rect(r.xMax - barW - 4, r.y + 4, barW, r.height - 8);
+            Rect bgBar = new(r.xMax - barW - 4, r.y + 4, barW, r.height - 8);
             float filled = info.LastUtility >= 0 ? bgBar.width * Mathf.Clamp01(info.LastUtility) : 0;
             EditorGUI.DrawRect(bgBar, ColBarBg);
-            if (filled > 0) EditorGUI.DrawRect(new Rect(bgBar.x, bgBar.y, filled, bgBar.height), winner ? ColBarWin : ColBar);
+            if (filled > 0)
+                EditorGUI.DrawRect(new Rect(bgBar.x, bgBar.y, filled, bgBar.height),
+                    winner ? ColBarWin : ColBar);
 
             // label + score
-            EditorGUI.LabelField(new Rect(r.x + 6, r.y + 4, bgBar.x - r.x - 10, r.height - 8),
-                (winner ? "★ " : "  ") + info.ActionName, winner ? _winnerStyle : _normalStyle);
+            EditorGUI.LabelField(
+                new Rect(r.x + 6, r.y + 4, bgBar.x - r.x - 10, r.height - 8),
+                (winner ? "★ " : "  ") + info.ActionName,
+                winner ? _winnerStyle : _normalStyle);
+
             string scoreStr = info.LastUtility >= 0 ? info.LastUtility.ToString("F3") : "--";
-            EditorGUI.LabelField(new Rect(bgBar.x, bgBar.y, bgBar.width, bgBar.height),
-                new GUIContent(scoreStr), EditorStyles.centeredGreyMiniLabel);
+            EditorGUI.LabelField(
+                new Rect(bgBar.x, bgBar.y, bgBar.width, bgBar.height),
+                scoreStr, EditorStyles.centeredGreyMiniLabel);
 
             // click to select
-            if (Event.current.type == EventType.MouseDown && r.Contains(Event.current.mousePosition))
+            if (Event.current.type == EventType.MouseDown &&
+                r.Contains(Event.current.mousePosition))
             {
                 _selectedAction = info;
                 Event.current.Use();
@@ -245,7 +278,8 @@ namespace Extensions.UtilityAI.Editor
         #region Consideration Tree
 
         // Draws one consideration node with live or simulated score bar, recursing into composites.
-        private void DrawConsiderationNode(Consideration c, int depth, bool liveMode, IContextBase simCtx = null)
+        private void DrawConsiderationNode(Consideration c, int depth, bool liveMode,
+            IContextBase simCtx = null)
         {
             if (c == null)
             {
@@ -257,7 +291,11 @@ namespace Extensions.UtilityAI.Editor
             float score = -1f;
             if (liveMode)
             {
-                try { score = Mathf.Clamp01(c.Evaluate(new SnapshotContext(_brain.GetContextSnapshot(), _brain))); }
+                try
+                {
+                    score = Mathf.Clamp01(
+                        c.Evaluate(new SnapshotContext(_brain.GetContextSnapshot(), _brain)));
+                }
                 catch (Exception) { score = -1f; }
             }
             else if (simCtx != null)
@@ -274,26 +312,34 @@ namespace Extensions.UtilityAI.Editor
             {
                 EditorGUI.DrawRect(new Rect(r.x, r.y, r.width, r.height), ColBarBg);
                 float bw = r.width * score;
-                EditorGUI.DrawRect(new Rect(r.x, r.y, bw, r.height), score > 0.66f ? ColBarWin : (score > 0.33f ? ColBar : new Color(0.7f, 0.35f, 0.15f)));
+                EditorGUI.DrawRect(new Rect(r.x, r.y, bw, r.height),
+                    score > 0.66f ? ColBarWin
+                    : score > 0.33f ? ColBar
+                    : new Color(0.7f, 0.35f, 0.15f));
             }
 
             float indent = depth * 16f;
-            string label = $"{c.name}  ({c.GetType().Name})" + (score >= 0 ? $"  →  {score:F3}" : "");
-            EditorGUI.LabelField(new Rect(r.x + indent, r.y, r.width - indent - 60, r.height), label, score >= 0 ? _winnerStyle : _normalStyle);
-
-            // ping button
-            if (GUI.Button(new Rect(r.xMax - 56, r.y + 2, 54, r.height - 4), "Select", EditorStyles.miniButton))
-                Selection.activeObject = c;
+            string typeName = c.GetType().Name.Replace("Consideration", "");
+            string label = typeName + (score >= 0 ? $"  →  {score:F3}" : "");
+            EditorGUI.LabelField(
+                new Rect(r.x + indent, r.y, r.width - indent, r.height),
+                label, score >= 0 ? _winnerStyle : _normalStyle);
 
             // recurse composites
             if (c is CompositeConsideration comp)
             {
-                DrawConsiderationNode(comp.firstConsideration, depth + 1, liveMode, simCtx);
-                foreach (var op in comp.considerations)
+                DrawConsiderationNode(comp.first, depth + 1, liveMode, simCtx);
+                if (comp.rest != null)
                 {
-                    EditorGUI.indentLevel = depth + 1;
-                    EditorGUILayout.LabelField($"  {op.operation}", _dimStyle);
-                    DrawConsiderationNode(op.consideration, depth + 2, liveMode, simCtx);
+                    for (int i = 0; i < comp.rest.Length; i++)
+                    {
+                        if (comp.rest[i] == null) continue;
+                        string opLabel = i < comp.operations.Length
+                            ? comp.operations[i].ToString() : "?";
+                        EditorGUI.indentLevel = depth + 1;
+                        EditorGUILayout.LabelField($"  {opLabel}", _dimStyle);
+                        DrawConsiderationNode(comp.rest[i], depth + 2, liveMode, simCtx);
+                    }
                 }
             }
         }
@@ -337,12 +383,19 @@ namespace Extensions.UtilityAI.Editor
                     var (aName, u) = _simResults[i];
                     bool win = aName == _simWinner;
                     Rect r = EditorGUILayout.GetControlRect(GUILayout.Height(22));
-                    EditorGUI.DrawRect(r, win ? new Color(0.14f, 0.28f, 0.14f) : (i % 2 == 0 ? ColRowBase : ColRowAlt));
+                    EditorGUI.DrawRect(r,
+                        win ? new Color(0.14f, 0.28f, 0.14f)
+                        : i % 2 == 0 ? ColRowBase : ColRowAlt);
                     float bw = (r.width - 60) * Mathf.Clamp01(u);
-                    EditorGUI.DrawRect(new Rect(r.x, r.y, bw, r.height), win ? new Color(0.2f, 0.6f, 0.2f, 0.4f) : new Color(0.3f, 0.5f, 0.8f, 0.3f));
-                    EditorGUI.LabelField(new Rect(r.x + 4, r.y + 3, r.width - 64, r.height - 6),
-                        (win ? "★ " : "  ") + aName, win ? _winnerStyle : _normalStyle);
-                    EditorGUI.LabelField(new Rect(r.xMax - 58, r.y + 3, 56, r.height - 6),
+                    EditorGUI.DrawRect(new Rect(r.x, r.y, bw, r.height),
+                        win ? new Color(0.2f, 0.6f, 0.2f, 0.4f)
+                            : new Color(0.3f, 0.5f, 0.8f, 0.3f));
+                    EditorGUI.LabelField(
+                        new Rect(r.x + 4, r.y + 3, r.width - 64, r.height - 6),
+                        (win ? "★ " : "  ") + aName,
+                        win ? _winnerStyle : _normalStyle);
+                    EditorGUI.LabelField(
+                        new Rect(r.xMax - 58, r.y + 3, 56, r.height - 6),
                         u.ToString("F4"), EditorStyles.centeredGreyMiniLabel);
                 }
             }
@@ -352,7 +405,9 @@ namespace Extensions.UtilityAI.Editor
 
             // Right: consideration tree for selected/winning action
             EditorGUILayout.BeginVertical(GUILayout.Width(rw));
-            Header(_selectedAction.HasValue ? $"Tree — {_selectedAction.Value.ActionName}" : "Consideration Tree");
+            Header(_selectedAction.HasValue
+                ? $"Tree — {_selectedAction.Value.ActionName}"
+                : "Consideration Tree");
             if (_selectedAction.HasValue)
             {
                 _considerationScroll = EditorGUILayout.BeginScrollView(_considerationScroll);
@@ -361,7 +416,9 @@ namespace Extensions.UtilityAI.Editor
                 EditorGUILayout.EndScrollView();
             }
             else
-                EditorGUILayout.HelpBox("Run Simulation to populate results. The winning action's tree will appear here.", MessageType.Info);
+                EditorGUILayout.HelpBox(
+                    "Run Simulation to populate results. The winning action's tree will appear here.",
+                    MessageType.Info);
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndHorizontal();
@@ -378,9 +435,12 @@ namespace Extensions.UtilityAI.Editor
             foreach (var key in _simulatedContext.Keys.ToList())
             {
                 Rect r = EditorGUILayout.GetControlRect(GUILayout.Height(18));
-                EditorGUI.LabelField(new Rect(r.x, r.y, Mathf.Max(r.width * 0.6f, 160), r.height), key, _monoStyle);
+                float labelW = Mathf.Max(r.width * 0.6f, 160);
+                EditorGUI.LabelField(new Rect(r.x, r.y, labelW, r.height), key, _monoStyle);
                 EditorGUI.BeginChangeCheck();
-                float newVal = EditorGUI.FloatField(new Rect(r.x + Mathf.Max(r.width * 0.6f, 160) + 4, r.y, r.width - Mathf.Max(r.width * 0.6f, 160) - 4, r.height), _simulatedContext[key]);
+                float newVal = EditorGUI.FloatField(
+                    new Rect(r.x + labelW + 4, r.y, r.width - labelW - 4, r.height),
+                    _simulatedContext[key]);
                 if (EditorGUI.EndChangeCheck())
                     _simulatedContext[key] = Mathf.Clamp01(newVal);
             }
@@ -426,14 +486,9 @@ namespace Extensions.UtilityAI.Editor
             _simWinner = null;
             if (_brain == null) return;
 
-            // Seed every member of the TKey enum so the user can always tweak all keys,
-            // regardless of whether the consideration assets have their keys configured.
-            Type keyType = FindEnumType(_brain.KeyTypeName);
-            if (keyType != null)
-            {
-                foreach (var name in Enum.GetNames(keyType))
-                    _simulatedContext.TryAdd(name, 0.5f);
-            }
+            // Seed from all discovered ContextKey fields so the user can tweak every key.
+            foreach (var (key, _, _) in ContextKeyField.GetAllKeys())
+                _simulatedContext.TryAdd(key.InternalId, 0.5f);
 
             // Also seed from the live context snapshot when in play mode.
             if (Application.isPlaying)
@@ -442,58 +497,34 @@ namespace Extensions.UtilityAI.Editor
                     _simulatedContext.TryAdd(k, 0.5f);
             }
 
-            // Walk consideration fields as a supplementary pass (handles non-TKey enum keys on composites etc.)
+            // Walk consideration fields to pick up any keys not in the global list.
             foreach (var info in _brain.GetActionDebugInfos())
                 HarvestKeys(info.Consideration);
         }
 
-        // Finds an enum Type by its short name, only among enums tagged [AIContextKey].
-        private static Type FindEnumType(string shortName)
-        {
-            if (string.IsNullOrEmpty(shortName)) return null;
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                string asmName = asm.GetName().Name;
-                if (asmName.StartsWith("Unity") || asmName.StartsWith("System") ||
-                    asmName.StartsWith("mscorlib") || asmName.StartsWith("netstandard") ||
-                    asmName.StartsWith("Mono.") || asmName.StartsWith("Microsoft."))
-                    continue;
-                try
-                {
-                    var t = asm.GetTypes().FirstOrDefault(x =>
-                        x.IsEnum && x.IsPublic &&
-                        x.IsDefined(typeof(Extensions.UtilityAI.AIContextKeyAttribute), false) &&
-                        (x.Name == shortName || x.FullName == shortName));
-                    if (t != null) return t;
-                }
-                catch { /* skip */ }
-            }
-            return null;
-        }
-
+        // Harvests ContextKeyField values from a Consideration's fields for sim seeding.
         private void HarvestKeys(Consideration c)
         {
             if (c == null) return;
-            foreach (var field in c.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            foreach (var field in c.GetType()
+                .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
-                if (field.FieldType != typeof(EnumContextKey)) continue;
-                var eck = (EnumContextKey)field.GetValue(c);
-                Type t = eck.ResolveType();
-                if (t == null) continue;
-                // Use the short member name as key, matching what Context<TKey>.GetSnapshot() returns.
-                string memberName = Enum.GetName(t, eck.enumValue);
-                if (!string.IsNullOrEmpty(memberName))
-                    _simulatedContext.TryAdd(memberName, 0.5f);
+                if (field.FieldType == typeof(ContextKeyField))
+                {
+                    var ckf = (ContextKeyField)field.GetValue(c);
+                    string id = ckf.ResolveId();
+                    if (!string.IsNullOrEmpty(id))
+                        _simulatedContext.TryAdd(id, 0.5f);
+                }
             }
             if (c is CompositeConsideration comp)
             {
-                HarvestKeys(comp.firstConsideration);
-                foreach (var op in comp.considerations)
-                    HarvestKeys(op.consideration);
+                HarvestKeys(comp.first);
+                if (comp.rest != null)
+                    foreach (var child in comp.rest) HarvestKeys(child);
             }
         }
 
-        // DictContext looks up by the raw enum member name, matching what Context<TKey> serialises.
         private IContextBase MakeSimCtx() => new DictContext(_simulatedContext, _brain);
 
         private void Header(string text)
@@ -507,11 +538,14 @@ namespace Extensions.UtilityAI.Editor
         {
             if (_stylesReady) return;
             if (EditorStyles.label == null) return;
-            _winnerStyle = new GUIStyle(EditorStyles.label) { normal = { textColor = ColWinner }, fontStyle = FontStyle.Bold, fontSize = 11 };
+            _winnerStyle = new GUIStyle(EditorStyles.label)
+                { normal = { textColor = ColWinner }, fontStyle = FontStyle.Bold, fontSize = 11 };
             _normalStyle = new GUIStyle(EditorStyles.label) { fontSize = 11 };
-            _headerStyle = new GUIStyle(EditorStyles.boldLabel) { fontSize = 11, normal = { textColor = Color.white } };
+            _headerStyle = new GUIStyle(EditorStyles.boldLabel)
+                { fontSize = 11, normal = { textColor = Color.white } };
             _monoStyle = new GUIStyle(EditorStyles.label) { fontSize = 10 };
-            _dimStyle = new GUIStyle(EditorStyles.miniLabel) { normal = { textColor = new Color(0.55f, 0.55f, 0.55f) } };
+            _dimStyle = new GUIStyle(EditorStyles.miniLabel)
+                { normal = { textColor = new Color(0.55f, 0.55f, 0.55f) } };
             _stylesReady = true;
         }
 
@@ -519,28 +553,30 @@ namespace Extensions.UtilityAI.Editor
 
         #region Lightweight Context Implementations
 
-        // Backed by a snapshot of the live context. Enum keys map to their short member name.
+        // Backed by a snapshot of the live context keyed by ContextKey.InternalId.
         private class SnapshotContext : IContextBase
         {
-            private readonly Dictionary<string, float> _data = new();
+            private readonly Dictionary<string, string> _raw = new();
             private readonly IAIBrainAccessor _acc;
 
-            public SnapshotContext(IReadOnlyList<(string key, string value)> snapshot, IAIBrainAccessor acc)
+            public SnapshotContext(IReadOnlyList<(string key, string value)> snapshot,
+                IAIBrainAccessor acc)
             {
                 _acc = acc;
                 foreach (var (k, v) in snapshot)
-                    if (float.TryParse(v, System.Globalization.NumberStyles.Float,
-                        System.Globalization.CultureInfo.InvariantCulture, out float f))
-                        _data[k] = f;
+                    _raw[k] = v;
             }
 
             public TValue GetData<TValue>(object key)
             {
-                if (key == null) return default;
-                string k = key is Enum e ? e.ToString() : key.ToString();
-                if (typeof(TValue) == typeof(float) && _data.TryGetValue(k, out float f))
-                    return (TValue)(object)f;
-                return default;
+                string id = key is ContextKey ck ? ck.InternalId : key?.ToString();
+                if (id == null || !_raw.TryGetValue(id, out string raw)) return default;
+                try
+                {
+                    return (TValue)Convert.ChangeType(raw, typeof(TValue),
+                        System.Globalization.CultureInfo.InvariantCulture);
+                }
+                catch { return default; }
             }
 
             public bool SetData<TValue>(object key, TValue value) => false;
@@ -548,21 +584,25 @@ namespace Extensions.UtilityAI.Editor
             public Transform GetBrainTransform() => (_acc as Component)?.transform;
         }
 
-        // Backed by the edit-mode float dictionary. Keys are short enum member names.
+        // Backed by the edit-mode float dictionary keyed by ContextKey.InternalId.
         private class DictContext : IContextBase
         {
             private readonly Dictionary<string, float> _data;
             private readonly IAIBrainAccessor _acc;
 
-            public DictContext(Dictionary<string, float> data, IAIBrainAccessor acc) { _data = data; _acc = acc; }
+            public DictContext(Dictionary<string, float> data, IAIBrainAccessor acc)
+            {
+                _data = data;
+                _acc = acc;
+            }
 
             public TValue GetData<TValue>(object key)
             {
-                if (key == null) return default;
-                // Accept both the short name ("SelfHealth") and the full enum.ToString() ("SelfHealth")
-                string k = key is Enum e ? e.ToString() : key.ToString();
-                if (typeof(TValue) == typeof(float) && _data.TryGetValue(k, out float f))
-                    return (TValue)(object)f;
+                string id = key is ContextKey ck ? ck.InternalId : key?.ToString();
+                if (id == null || !_data.TryGetValue(id, out float f)) return default;
+                if (typeof(TValue) == typeof(float)) return (TValue)(object)f;
+                if (typeof(TValue) == typeof(bool)) return (TValue)(object)(f > 0.5f);
+                if (typeof(TValue) == typeof(int)) return (TValue)(object)(int)f;
                 return default;
             }
 
@@ -575,5 +615,4 @@ namespace Extensions.UtilityAI.Editor
     }
 }
 #endif
-
 

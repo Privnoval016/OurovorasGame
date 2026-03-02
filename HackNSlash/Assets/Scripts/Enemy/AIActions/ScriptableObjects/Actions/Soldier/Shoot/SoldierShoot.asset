@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c188fc340d84d73b4f509ea57d0fae6, type: 3}
   m_Name: SoldierShoot
   m_EditorClassIdentifier: 
-  actionKey: 0
-  consideration: {fileID: 11400000, guid: 1aa351aebcc4d4f5caa3174ec2d64bdc, type: 2}
+  consideration:
+    rid: 6781614059416191296
+  <AggroedAction>k__BackingField: 1
   attack:
     isEnabled: 1
     element: 1
@@ -54,6 +55,7 @@ MonoBehaviour:
     damage: 20
     statusEffectStacks: 0
     statusEffectDuration: 0
+    shieldDamage: 10
     restoreCharge: 1
     charge: 0
     ultimateCharge: 8
@@ -65,3 +67,45 @@ MonoBehaviour:
       type: {class: SpawnVFXEnemyAttackStrategy, ns: , asm: Assembly-CSharp}
       data:
         VFXSpawnIndex: 0
+    - rid: 6781614059416191296
+      type: {class: InRangeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        targetKey:
+          internalId: target.player
+          displayName: Player
+        maxDistance: 20
+        maxAngle: 360
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: -0.004166667
+            value: 0.95000005
+            inSlope: -0.00000044703486
+            outSlope: -0.00000044703486
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.6530612
+          - serializedVersion: 3
+            time: 0.2
+            value: 0.9983368
+            inSlope: -0.007618905
+            outSlope: -0.007618905
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.27083337
+            outWeight: 0.15624999
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0.00207901
+            outSlope: 0.00207901
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4

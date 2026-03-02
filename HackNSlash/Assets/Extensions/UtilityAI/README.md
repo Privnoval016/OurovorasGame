@@ -2,238 +2,187 @@
 
 ## Overview
 
-The Utility AI system selects the best action for an AI agent each tick by scoring every candidate action with a **utility value** (a float in `[0, 1]`), then executing the one with the highest score. Unlike finite state machines, which jump between hard-coded transitions, or behaviour trees, which rely on explicit priority ordering, Utility AI produces emergent, contextually sensitive behaviour by continuously weighing competing factors (health, distance, angle, randomness, etc.) against each other.
+The Utility AI system selects the best action for an AI agent each tick by scoring every candidate action with a **utility value** (a float in `[0, 1]`), then executing the one with the highest score. Unlike FSMs or behaviour trees, Utility AI produces emergent, contextually sensitive behaviour by continuously weighing competing factors against each other.
 
 ---
 
 ## Architecture
 
 ```
-AIBrainUser<TKey>  (MonoBehaviour — your enemy class)
+AIBrainUser              (MonoBehaviour — your enemy class)
 │
-├── AIBrain<TKey>          — orchestrates update + selection
-│   └── Context<TKey>      — key/value store updated each tick
-│       └── Sensor<TKey>   — physics overlap sphere for targets
+├── AIBrain              — orchestrates context updates and action selection
+│   └── EnemyContext     — key/value store updated each tick
+│       └── Sensor       — physics overlap sphere for tracking nearby targets
 │
-└── List<AIAction<TKey>>   — ScriptableObject actions, each with a Consideration
-    └── Consideration      — ScriptableObject that scores [0,1]
+└── List<AIActionBase>   — ScriptableObject actions, each with a Consideration
+    └── Consideration    — ScriptableObject that scores [0,1]
         ├── ConstantConsideration
         ├── RandomConsideration
-        ├── CurveConsideration      ← reads a float from Context
+        ├── CurveConsideration      ← reads a float from EnemyContext
         ├── InRangeConsideration    ← reads a sensor target + distance
         └── CompositeConsideration  ← combines any of the above
 ```
 
-### `AIBrain<TKey>`
-Pure C# class (not a MonoBehaviour). Owns the `Context` and drives two operations:
-- **`UpdateContext()`** — calls `AIBrainUser.OnContextUpdate()` and writes the returned payloads into the context dictionary.
-- **`CalculateBestAction()`** — evaluates every action, caches per-action utility scores in `LastUtilityScores`, then calls `AIBrainUser.ExecuteNewAction()` with the winner.
+### `AIBrain`
+Pure C# class (not a MonoBehaviour). Owns the `EnemyContext` and drives two operations:
+- **`UpdateContext()`** — calls `AIBrainUser.OnContextUpdate()` and writes returned payloads into the context.
+- **`CalculateBestAction()`** — evaluates every action, caches scores in `LastUtilityScores`, calls `ExecuteNewAction()` with the winner.
 
-### `AIBrainUser<TKey>`
-Abstract `MonoBehaviour` your enemy class inherits. You must implement:
-| Method | Responsibility |
+### `AIBrainUser`
+Abstract `MonoBehaviour` your enemy class inherits. Implement these members:
+
+| Member | Responsibility |
 |---|---|
-| `GetActions()` | Return the list of `AIAction<TKey>` assigned in the Inspector |
-| `GetSensor()` | Return the `Sensor<TKey>` component |
-| `GetBrain()` | Return the `AIBrain<TKey>` instance |
-| `OnContextUpdate()` | Return `ContextPayload<TKey>[]` with the data the brain needs this tick |
+| `GetActions()` | Return `List<AIActionBase>` assigned in the Inspector |
+| `GetSensor()` | Return the `ISensor` component |
+| `GetBrain()` | Return the live `AIBrain` instance |
+| `OnContextUpdate()` | Return `ContextPayload[]` with all data for this tick |
 | `ExecuteNewAction(...)` | React to the chosen action (e.g. change state) |
-| `CurrentActionName` | Return the name of the currently executing action |
+| `CurrentActionName` | Name of the currently executing action |
 
-Also implements `IAIBrainAccessor` — a non-generic interface used by editor tooling to read brain state without knowing `TKey`.
+### `EnemyContext`
+The runtime data store. Keyed by `ContextKey` object identity — no strings, no enums in the lookup path.
 
-### `Context<TKey>`
-Dictionary of `TKey → object`. Considerations read values with `GetData<TValue>(key)` and the sensor with `GetSensorTarget(key)`. The context is updated every brain tick by `UpdateContext()`. Call `GetSnapshot()` to get all entries as `(string key, string value)` pairs (used by the Brain Debugger window).
+Preferred API:
+```csharp
+float hp         = context.Get(EnemyContextKeys.SelfHealthNorm);
+bool aggro       = context.Get(EnemyContextKeys.IsAggro);
+Transform player = context.GetTarget(EnemyContextKeys.Player);
+context.Set(EnemyContextKeys.SelfHealthNorm, 0.8f);
+```
 
-### `Sensor<TKey>`
-Abstract `MonoBehaviour`. Uses a `SphereCollider` trigger to maintain a `HashSet<Transform>` of nearby objects. Override `HasDetectionTag(T actionKey, Collider other)` to define what constitutes a valid detection for each key value (e.g. `EnemyAIContextKey.Player` → check `CompareTag("Player")`). `GetNearestDetectedObject(T key)` returns the closest matching transform.
+### `Sensor`
+Abstract `MonoBehaviour`. Uses a trigger `SphereCollider` to maintain a set of nearby transforms. Override `IsValidTarget` and `HasDetectionTag` to define what counts as a detection for each key.
 
 ---
 
-## Context Keys
+## Context Keys — `ContextKey<TValue>`
 
-Context keys identify both data values (floats written by `OnContextUpdate`) and sensor targets (transforms looked up from the sensor). Every `ConsiderationKey` field in considerations and the `actionKey` field on each action uses the same enum.
-
-### `EnumContextKey` — the new way
-A serialisable struct that stores any enum value without requiring a concrete wrapper subclass per enum type. In the Inspector it renders as a two-column popup: first choose the enum type (auto-discovered from all project assemblies), then choose the member.
+Context keys are **strongly-typed object references**. The dictionary in `EnemyContext` uses reference equality on `ContextKey` objects — no string comparisons happen at runtime.
 
 ```csharp
-// In CurveConsideration
-public EnumContextKey contextKey;  // pick EnemyAIContextKey.SelfHealth in Inspector
+[AIContextKey]
+public static class EnemyContextKeys
+{
+    public static readonly ContextKey<float> SelfHealthNorm =
+        new("float.self_health_norm", "Self Health (norm)", "Float");
 
-// At runtime
-float hp = context.GetData<float>(contextKey.GetKey());
+    public static readonly ContextKey<Transform> Player =
+        new("target.player", "Player", "Target");
+}
 ```
 
-### Adding a new key
-1. Add a member to your `TKey` enum (e.g. `EnemyAIContextKey`).
-2. In `OnContextUpdate()` return a `ContextPayload` for it.
-3. In the consideration's `EnumContextKey` field, pick the new member from the dropdown.
+- `ContextKey` — non-generic base, the actual dictionary key.
+- `ContextKey<TValue>` — typed subclass, enforces the value type at compile time.
+- `ContextKeyRefComparer` — reference-equality comparer used by `EnemyContext`'s dictionary.
+- `[AIContextKey]` — tag your static key class with this; the inspector drawer will discover all its keys automatically.
+
+### `ContextKeyField` — inspector picker for Considerations
+
+A serialisable struct used inside Consideration ScriptableObjects. Shows a grouped dropdown of all discovered keys. Stores only the `InternalId` for serialisation, resolves to the live `ContextKey` object at runtime.
+
+```csharp
+public ContextKeyField contextKey;
+
+// In Evaluate():
+float v = context.GetData<float>(contextKey.ResolveId());
+```
+
+---
+
+## Enemy Context Keys (`EnemyContextKeys`)
+
+| Key | Type | Description |
+|---|---|---|
+| `Player` | `Transform` | Nearest detected player |
+| `OtherEnemy` | `Transform` | Nearest other enemy |
+| `Self` | `Transform` | This enemy's own transform |
+| `SelfHealthNorm` | `float` | Current HP / max HP |
+| `DistanceToPlayerNorm` | `float` | XZ distance to player / sensor detection radius |
+| `AngleToPlayerNorm` | `float` | 0 = facing player, 1 = player is behind |
+| `TimeSinceLastActionNorm` | `float` | Time since last action / `actionCooldownWindow` |
+| `SameActionStreakNorm` | `float` | Consecutive repeat count / `streakCap` |
+| `IsShielded` | `bool` | Whether the enemy has a shield active |
+| `PlayerIsAirborne` | `bool` | Player is jumping or falling |
+| `IsStaggered` | `bool` | Enemy is in the stagger state |
+| `IsAggro` | `bool` | Enemy is marked as aware by `EntityManager` |
+| `PlayerIsAttacking` | `bool` | Player's `canAttack` is false (mid-attack) |
+| `PlayerIsDodging` | `bool` | Player's `DodgeTimer` is still running |
+| `LastActionName` | `string` | Asset name of the last completed action |
+| `SecondLastActionName` | `string` | Asset name of the action before that |
+| `SameActionStreak` | `int` | Raw consecutive repeat count |
 
 ---
 
 ## Considerations
 
-Each `Consideration` is a `ScriptableObject` that evaluates the context and returns a `[0, 1]` score. Create them via `Assets → Create → UtilityAI → Considerations → ...`.
+Create via `Assets > Create > UtilityAI > Considerations`.
 
-| Type | What it scores |
+| Type | Use case |
 |---|---|
-| `ConstantConsideration` | Always returns `value`. Useful as a base priority. |
-| `RandomConsideration` | Returns `Random.Range(minMax.x, minMax.y)` each evaluation. |
-| `CurveConsideration` | Reads a float from context via `contextKey`, feeds it through an `AnimationCurve`. |
-| `InRangeConsideration` | Reads the nearest sensor target for `targetKey`. Returns 0 if not in range/angle, otherwise maps normalised distance through a curve. |
-| `CompositeConsideration` | Chains any number of considerations using arithmetic operations (Average, Multiply, Add, Subtract, Divide, Max, Min). Enable `allMustBeNonZero` to short-circuit to 0 if any child scores 0. |
+| `ConstantConsideration` | Always returns a fixed score. Use as a default fallback. |
+| `RandomConsideration` | Returns a random value each tick. Adds unpredictability. |
+| `CurveConsideration` | Maps a float context value through an `AnimationCurve`. |
+| `InRangeConsideration` | Scores based on XZ distance to a sensor target, with optional angle cone. |
+| `CompositeConsideration` | Combines multiple considerations: Multiply, Average, Min, Max. |
+
+All considerations pick their input key via a `ContextKeyField` grouped dropdown — no raw strings.
 
 ---
 
-## Actions
+## Built-in Enemy Actions
 
-Each `AIAction<TKey>` is a `ScriptableObject` with:
-- `actionKey` — which context key this action "belongs to" (used e.g. to look up the sensor target in `EnemyAttackAIAction`).
-- `consideration` — the `Consideration` that scores this action.
-- `CalculateUtility(context)` — calls `consideration.Evaluate(context)` and clamps to `[0, 1]`. If no consideration is assigned, returns 1 (always eligible).
-
-### Enemy actions
-All inherit `EnemyAIActionBase` which wraps three lifecycle hooks:
-
-| Method | When called |
+| Action | Description |
 |---|---|
-| `OnEnter(context, esm)` | Once when this action is selected and `EnemyActing` state is entered |
-| `OnUpdate(context, esm)` | Every frame while `EnemyActing` is the current state |
-| `OnExit(context, esm)` | Once when a new action pre-empts this one (hitboxes auto-deactivated after) |
+| `EnemyIdleAIAction` | Plays idle animation. Use as a low-utility fallback. |
+| `EnemyMoveAIAction` | Chases nearest player. Exposes `speedMultiplier`. |
+| `EnemyAttackAIAction` | Triggers an `EnemyAttack` via `OnEnemyEvents`. Faces target while attacking. |
 
-Concrete actions: `EnemyIdleAIAction`, `EnemyMoveAIAction`, `EnemyAttackAIAction`.
+### Adding a new action
 
----
-
-## How `EnemyStateMachine` uses the brain
-
-```
-Awake  → AIBrain = new AIBrain<EnemyAIContextKey>(this)
-Start  → AIBrain.Initialize()   (creates Context + attaches Sensor)
-         TickTimer.OnTick += PerformBestAction   (fires every 0.1 s by default)
-
-PerformBestAction():
-  1. AIBrain.UpdateContext()     → payloads written (e.g. SelfHealth)
-  2. AIBrain.CalculateBestAction()
-       → each action.CalculateUtility(context) called
-       → winner: sc.ChangeState(new EnemyActing(actionClone, context))
-
-When attacking:
-  SetIsAttacking(true) → ThinkTimer.Pause()   (brain stops selecting new actions)
-  SetIsAttacking(false) → ThinkTimer.Resume()
-```
-
-The action ScriptableObject is **cloned** before being passed to `EnemyActing` so that per-instance mutable state (e.g. a cached target position) does not bleed between evaluations.
+1. Create a class inheriting `EnemyAIActionBase`.
+2. Implement `OnEnemyEnter`, `OnEnemyUpdate`, `OnEnemyExit` — receive `EnemyContext` and `EnemyStateMachine`.
+3. Add `[CreateAssetMenu]`.
+4. Read context: `context.Get(EnemyContextKeys.X)`, `context.GetTarget(EnemyContextKeys.Player)`.
+5. Drive movement via `EnemyStateMachine` methods: `MoveToDestination`, `TurnToPosition`, `Brake`.
 
 ---
 
-## Editor Tooling
+## Action History & Combo Anti-Repeat
 
-### Brain Debugger Window (`Window → UtilityAI → Brain Debugger`)
+`EnemyStateMachine` automatically tracks action history:
+- `_lastActionName` / `_secondLastActionName` — asset names of the last two completed actions.
+- `_sameActionStreak` — how many times the same action has fired consecutively.
+- `_timeSinceLastAction` — time elapsed since the last action completed.
 
-Select any GameObject with an `AIBrainUser` component. The window has two modes:
-
-**Runtime mode (Play Mode):**
-- Left panel — live utility bar per action. Green star = current winner. Click a row to inspect its consideration tree.
-- Right panel — recursive consideration tree. Each node shows a coloured score bar (green = high, orange = low). Click *Select* to ping the ScriptableObject.
-- Bottom-left — live context key/value table updated every frame.
-
-**Simulation mode (Edit Mode):**
-- All `EnumContextKey` fields across every assigned consideration are auto-discovered and listed as editable float sliders (clamped 0–1).
-- Click **▶ Run Simulation** to score every action against those values. Results are ranked with a green winner row and score bars.
-- The winning action's consideration tree renders on the right with per-node simulated scores.
-- Context values persist while you tweak and re-run — no play mode required.
-
-### Consideration ScriptableObject Inspectors
-
-Each consideration type has a custom editor that makes it immediately readable:
-
-| Type | What the editor shows |
-|---|---|
-| `CurveConsideration` | Context key picker, the AnimationCurve field at full size, and a coloured gradient bar previewing the curve across [0,1]. |
-| `InRangeConsideration` | Target key picker, max distance/angle fields, the distance→score curve, and the same gradient preview bar. |
-| `ConstantConsideration` | A large slider for the fixed value [0,1] with a live coloured fill bar. |
-| `RandomConsideration` | A min/max range slider with a visual strip showing the active range. |
-| `CompositeConsideration` | A numbered chain of child considerations with inline operation dropdowns and a `+ Add Operation` button. |
-
-### AIAction ScriptableObject Inspector
-
-Every `AIAction` subclass gets a unified inspector that:
-- Draws all fields normally except `consideration`.
-- Shows `consideration` as a named asset reference with the resolved type name and direct links to both inspect the consideration and open the Brain Debugger.
-- In play mode, searches the scene for any brain that owns this action and renders a live utility score bar.
-
-### `EnumContextKey` property drawer
-
-Any `EnumContextKey` field renders as a two-column inline popup: left selects the enum type (auto-discovered from all user assemblies on domain reload), right selects the member. No `[SerializeReference]` or concrete wrapper subclass needed.
+These are written to context each tick. Use a `CurveConsideration` on `SameActionStreakNorm` with a descending curve to naturally penalise repeated actions and produce combo variety.
 
 ---
 
-## Adding a New Enemy Brain
+## Brain Debugger (Editor Window)
 
-1. **Define your context key enum** (or reuse `EnemyAIContextKey`):
-   ```csharp
-   public enum MyEnemyKey { Player, SelfHealth }
-   ```
+Open via **Window → UtilityAI → Brain Debugger**.
 
-2. **Create a sensor** inheriting `Sensor<MyEnemyKey>`:
-   ```csharp
-   public class MyEnemySensor : Sensor<MyEnemyKey>
-   {
-       protected override bool HasDetectionTag(MyEnemyKey key, Collider other)
-       {
-           return key == MyEnemyKey.Player && other.CompareTag("Player");
-       }
-   }
-   ```
+**Live mode (play mode):**
+- Select a GameObject with an `EnemyStateMachine` (or any `AIBrainUser`) in the Inspector.
+- See real-time utility score bars for every action, colour-coded green for the winner.
+- See the full live context snapshot (all key/value pairs).
+- Click an action row to inspect its consideration in detail.
 
-3. **Create action ScriptableObjects** inheriting `AIAction<MyEnemyKey>` (or a game-specific base):
-   ```csharp
-   [CreateAssetMenu(...)]
-   public class MyAttackAction : AIAction<MyEnemyKey>
-   {
-       // assign consideration in Inspector
-   }
-   ```
-
-4. **Create your brain user** inheriting `AIBrainUser<MyEnemyKey>`:
-   ```csharp
-   public class MyEnemy : AIBrainUser<MyEnemyKey>
-   {
-       public AIBrain<MyEnemyKey> brain;
-       public List<AIAction<MyEnemyKey>> actions;
-       public MyEnemySensor sensor;
-
-       void Awake() { brain = new AIBrain<MyEnemyKey>(this); }
-       void Start()  { brain.Initialize(); }
-
-       public override AIBrain<MyEnemyKey>      GetBrain()     => brain;
-       public override List<AIAction<MyEnemyKey>> GetActions() => actions;
-       public override Sensor<MyEnemyKey>        GetSensor()   => sensor;
-       public override string CurrentActionName                 => /* your current action name */;
-
-       public override ContextPayload<MyEnemyKey>[] OnContextUpdate() => new[]
-       {
-           (MyEnemyKey.SelfHealth, (object)(hp / maxHp))
-       };
-
-       public override void ExecuteNewAction(AIAction<MyEnemyKey> action,
-                                              Context<MyEnemyKey> context, float utility)
-       {
-           // e.g. enter a new state, play animation, etc.
-       }
-   }
-   ```
-
-5. In the Inspector: assign the `Sensor`, add `AIAction` assets to the `actions` list, and set up each action's `Consideration`.
+**Simulate mode (edit mode):**
+- Select the same GameObject outside play mode.
+- All `ContextKey` fields across all discovered `[AIContextKey]` classes are listed as editable float sliders.
+- Click **Run Simulation** to score all actions against your manually set values and preview the winner.
 
 ---
 
-## Known Issues / Design Notes
+## Setup Checklist
 
-- **`distanceToTarget` bug (fixed):** The old `InRangeConsideration` computed `directionToTarget.ZeroVector3Axis().magnitude` on an already-normalised vector, giving a value near 1 always. It now computes distance from the raw offset before normalisation.
-- **`ConsiderationKey` (obsolete):** The old `[SerializeReference] ConsiderationKey` pattern with per-enum concrete subclasses (`EnemyConsiderationKey`) is marked `[Obsolete]`. Existing assets continue to work during migration. New considerations should use `EnumContextKey` directly. Once `EnemyConsiderationKey` is removed from your code the `ConsiderationKey` base class and its shim can be deleted.
-- **Action cloning:** `ExecuteNewAction` on `EnemyStateMachine` calls `Instantiate(action)` to clone the ScriptableObject. This is intentional — it prevents cached per-execution state (target positions, timers) from persisting across selections. The clone is discarded when `EnemyActing` exits.
-- **Timer tick rate:** The `TickTimer` in `EnemyStateMachine` fires at 0.1 s (10 Hz). Adjust this to trade responsiveness against CPU cost.
-
+1. Add `EnemyStateMachine` to the enemy root GameObject.
+2. Add `EnemySensor` to the same root. Set `detectionRadius`. A `SphereCollider` (trigger) is added automatically.
+3. Create action ScriptableObjects: `Assets > Create > Enemy > AIActions > ...`. Assign a `Consideration` to each.
+4. Assign all action assets to the `Actions` list on `EnemyStateMachine` in the Inspector.
+5. Set `actionCooldownWindow` (seconds) and `streakCap` on `EnemyStateMachine`.
+6. Assign the `EnemySensor` reference on `EnemyStateMachine`.
+7. Ensure an `AstarPath` component with a baked navmesh graph is present in the scene for movement actions.

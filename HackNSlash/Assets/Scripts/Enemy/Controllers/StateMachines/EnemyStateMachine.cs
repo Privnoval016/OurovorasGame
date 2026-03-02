@@ -1,36 +1,36 @@
-using System;
 using System.Collections.Generic;
 using Extensions.StateMachine;
 using Extensions.Timers;
 using Extensions.UtilityAI;
-using Extensions.Utils;
 using UnityEngine;
 
-
 [RequireComponent(typeof(StateController<EnemyState>))]
-public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
+public class EnemyStateMachine : AIBrainUser
 {
     #region AI Components
 
     [HideInInspector] public StateController<EnemyState> sc;
-    public AIBrain<EnemyAIContextKey> AIBrain;
+    public AIBrain AIBrain;
 
     [Header("Attack AI")]
-    public List<AIAction<EnemyAIContextKey>> actions = new();
+    public List<AIActionBase> actions = new();
 
     public EnemySensor sensor;
-
     public TickTimer ThinkTimer;
-    
     public EnemyAIActionBase currentAction;
+
+    [Header("Context Settings")]
+    [Tooltip("Normalise TimeSinceLastAction against this window (seconds).")]
+    public float actionCooldownWindow = 5f;
+    [Tooltip("Normalise SameActionStreak against this cap.")]
+    public int streakCap = 4;
+
     #endregion
 
     #region Inspector Components
 
     [Header("Enemy Components")]
-
     [HideInInspector] public EnemyController ts;
-
     [SerializeField] private EnemyData enemyData;
     public EnemyAnimData enemyAnimData;
 
@@ -39,9 +39,7 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
     #region Movement Properties
 
     [Header("Movement")]
-
     [HideInInspector] public Vector3 moveDirection;
-
     public Transform[] wanderPoints;
     [HideInInspector] public Vector3 currentWanderPoint;
     [HideInInspector] public int wanderIndex = 0;
@@ -53,73 +51,99 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
 
     #endregion
 
-    #region Attack Properties
+    #region Attack / History
 
     public bool IsAttacking;
 
+    private string _lastActionName = string.Empty;
+    private string _secondLastActionName = string.Empty;
+    private int _sameActionStreak = 0;
+    private float _timeSinceLastAction = 0f;
+
     #endregion
 
-    #region MonoBehaviour Callbacks
+    #region MonoBehaviour
 
     private void Awake()
     {
         sc = new StateController<EnemyState>(this);
         ts = GetComponent<EnemyController>();
-        
-        AIBrain = new AIBrain<EnemyAIContextKey>(this);
-        
+        AIBrain = new AIBrain(this);
         ThinkTimer = new TickTimer(0.1f);
     }
 
-
-    private void Start() 
+    private void Start()
     {
         AIBrain.Initialize();
-    
         sc.ChangeState(new EnemyInitialState());
-    
         ts.pe.onHit += HitStateAction;
         ts.pe.onStagger += StaggerStateAction;
-        
         ThinkTimer.Reset();
         ThinkTimer.OnTick += PerformBestAction;
-
         ThinkTimer.Start();
     }
 
     private void Update()
     {
-        //sc.PrintStates();
+        _timeSinceLastAction += Time.deltaTime;
     }
 
     #endregion
 
-    #region AI Callbacks
+    #region AIBrainUser overrides
 
-    public override ContextPayload<EnemyAIContextKey>[] OnContextUpdate()
+    public override ContextPayload[] OnContextUpdate()
     {
-        ContextPayload<EnemyAIContextKey>[] payloads =
+        float maxHealth = ts.stats.GetStat(InnateStat.MaxHealth);
+        Transform playerTransform = sensor?.GetNearestTarget(EnemyContextKeys.Player);
+
+        float distNorm = 0f, angleNorm = 0f;
+        bool playerAirborne = false, playerAttacking = false, playerDodging = false;
+
+        if (playerTransform != null)
         {
-            (EnemyAIContextKey.SelfHealth, ts.stats.CurrentHealth / ts.stats.GetStat(InnateStat.MaxHealth)),
+            Vector3 toPlayer = playerTransform.position - transform.position;
+            float radius = sensor != null ? sensor.detectionRadius : 20f;
+            distNorm = Mathf.Clamp01(new Vector3(toPlayer.x, 0f, toPlayer.z).magnitude / radius);
+            float dot = Vector3.Dot(transform.forward, toPlayer.normalized);
+            angleNorm = Mathf.Clamp01(1f - (dot + 1f) * 0.5f);
+
+            if (playerTransform.TryGetComponent(out PlayerController pc))
+            {
+                playerAirborne  = pc.psm.isJumping || pc.psm.isJumpFalling;
+                playerAttacking = pc.psm.canAttack == false; // canAttack is false while mid-attack
+                playerDodging   = !pc.psm.DodgeTimer.IsFinished;
+            }
+        }
+
+        return new ContextPayload[]
+        {
+            (EnemyContextKeys.SelfHealthNorm,          ts.stats.CurrentHealth / Mathf.Max(maxHealth, 1f)),
+            (EnemyContextKeys.DistanceToPlayerNorm,    distNorm),
+            (EnemyContextKeys.AngleToPlayerNorm,       angleNorm),
+            (EnemyContextKeys.TimeSinceLastActionNorm, Mathf.Clamp01(_timeSinceLastAction / Mathf.Max(actionCooldownWindow, 0.1f))),
+            (EnemyContextKeys.SameActionStreakNorm,    Mathf.Clamp01((float)_sameActionStreak / Mathf.Max(streakCap, 1))),
+            (EnemyContextKeys.IsShielded,              false),
+            (EnemyContextKeys.PlayerIsAirborne,        playerAirborne),
+            (EnemyContextKeys.IsStaggered,             sc.IsState<EnemyStagger>()),
+            (EnemyContextKeys.IsAggro,                 IsAttacking),
+            (EnemyContextKeys.PlayerIsAttacking,       playerAttacking),
+            (EnemyContextKeys.PlayerIsDodging,         playerDodging),
+            (EnemyContextKeys.LastActionName,          _lastActionName),
+            (EnemyContextKeys.SecondLastActionName,    _secondLastActionName),
+            (EnemyContextKeys.SameActionStreak,        _sameActionStreak),
         };
-    
-        return payloads;
     }
 
-    public override List<AIAction<EnemyAIContextKey>> GetActions() => actions;
-    public override Sensor<EnemyAIContextKey> GetSensor() => sensor;
-    public override AIBrain<EnemyAIContextKey> GetBrain() => AIBrain;
+    public override List<AIActionBase> GetActions() => actions;
+    public override ISensor GetSensor() => sensor;
+    public override AIBrain GetBrain() => AIBrain;
     public override string CurrentActionName => currentAction != null ? currentAction.name : null;
-    
-    public override void ExecuteNewAction(AIAction<EnemyAIContextKey> action, Context<EnemyAIContextKey> context, float highestUtility)
+
+    public override void ExecuteNewAction(AIActionBase action, EnemyContext context, float utility)
     {
-        Debug.Log($"Enemy {ts.name} executing action {action.name} with utility {highestUtility}");
-        
         if (action is EnemyAIActionBase enemyAction)
-        {
-            var actionClone = Instantiate(enemyAction); // Clone to avoid modifying the original ScriptableObject
-            sc.ChangeState(new EnemyActing(actionClone, context));
-        }
+            sc.ChangeState(new EnemyActing(Instantiate(enemyAction), context));
     }
 
     #endregion
@@ -191,45 +215,97 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
 
     #region Movement Methods
 
-    public void MoveInDirection(Vector3 direction, float lerpAmount = 1)
+    /** <summary>
+     * Move the enemy in <paramref name="direction"/> at the evaluated move speed.
+     * Safe to call every frame.
+     * </summary>
+     */
+    public void MoveInDirection(Vector3 direction, float speedMultiplier = 1f)
     {
         if (Services.Get<CombatSystem>().EntitiesStopped) return;
-    
         if (!CanMove) return;
-    
+
         moveDirection = direction;
-    
-        Vector3 targetSpeed = direction * enemyData.speed;
-        targetSpeed = Vector3.Lerp(ts.pe.rb.linearVelocity, targetSpeed, lerpAmount);
-
-
-        float accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? enemyData.runAccelAmount : enemyData.runDecelAmount;
-	
-        Vector3 speedDiff = targetSpeed - ts.pe.rb.linearVelocity.ZeroVector3Axis();
-        Vector3 movementForce = speedDiff * accelRate;
-
-        ts.pe.rb.AddForce(movementForce, ForceMode.Acceleration);
-
-        TurnToLook();
+        ts.motor.Move(direction, speedMultiplier);
     }
+
+    /** <summary>Move toward a world-space <paramref name="destination"/> using A* path steering.</summary> */
+    public void MoveToDestination(Vector3 destination, float speedMultiplier = 1f)
+    {
+        if (Services.Get<CombatSystem>().EntitiesStopped) return;
+        if (!CanMove) return;
+
+        ts.nav.SetDestination(destination);
+        Vector3 dir = ts.nav.GetSteeringDirection();
+        moveDirection = dir;
+        ts.motor.Move(dir, speedMultiplier);
+    }
+
+    /** <summary>Strafe perpendicular to <paramref name="pivot"/> while facing it.</summary> */
+    public void StrafeAround(Vector3 pivot, float sign = 1f, float speedMultiplier = 1f)
+    {
+        if (!CanMove) return;
+        ts.motor.Strafe(pivot, sign, speedMultiplier);
+        moveDirection = ts.motor.CurrentMoveDirection;
+    }
+
+    /** <summary>Orbit <paramref name="center"/> at the configured circle radius.</summary> */
+    public void OrbitAround(Vector3 center, float angularSpeed = 60f)
+    {
+        if (!CanMove) return;
+        ts.motor.Orbit(center, angularSpeed);
+        moveDirection = ts.motor.CurrentMoveDirection;
+    }
+
+    /** <summary>Launch the enemy backward away from <paramref name="threatPosition"/>.</summary> */
+    public void BackJump(Vector3 threatPosition)
+    {
+        if (!CanMove) return;
+        ts.motor.BackJump(threatPosition);
+    }
+
+    /** <summary>Move directly away from <paramref name="threatPosition"/>.</summary> */
+    public void RetreatFrom(Vector3 threatPosition, float speedMultiplier = 1f)
+    {
+        if (!CanMove) return;
+        ts.motor.RetreatFrom(threatPosition, speedMultiplier);
+        moveDirection = ts.motor.CurrentMoveDirection;
+    }
+
+    /** <summary>Charge straight toward <paramref name="target"/> ignoring pathfinding.</summary> */
+    public void ChargeToward(Vector3 target, float speedMultiplier = 1f)
+    {
+        if (!CanMove) return;
+        ts.motor.ChargeToward(target, speedMultiplier);
+        moveDirection = ts.motor.CurrentMoveDirection;
+    }
+
+    /** <summary>Pick a random nearby position and move toward it. Returns the wander direction.</summary> */
+    public Vector3 Wander()
+    {
+        if (!CanMove) return Vector3.zero;
+        Vector3 dir = ts.motor.TickWander();
+        if (dir != Vector3.zero) MoveInDirection(dir);
+        return dir;
+    }
+
+    /** <summary>Decelerate smoothly to a stop.</summary> */
+    public void Brake() => ts.motor.Brake();
+
+    /** <summary>Hard-stop all horizontal movement.</summary> */
+    public void StopMovement() => ts.motor.Stop();
 
     public void TurnToLook()
     {
-        if (moveDirection.magnitude == 0) return;
-
-        transform.rotation =
-            EaseUtil.DampQuaternion(transform.rotation, Quaternion.LookRotation(moveDirection.ZeroVector3Axis()), 5f, 0.1f);
-    
+        if (moveDirection.sqrMagnitude < 0.0001f) return;
+        ts.motor.RotateToward(moveDirection);
     }
 
     public void TurnToPosition(Vector3 position)
     {
-        Vector3 lookDirection = (position - transform.position).ZeroVector3Axis();
-        if (lookDirection.magnitude == 0) return;
-
-        transform.rotation =
-            EaseUtil.DampQuaternion(transform.rotation, Quaternion.LookRotation(lookDirection), 5f, 0.1f);
+        ts.motor.FacePosition(position);
     }
+
     #endregion
 
     #region Check Methods
@@ -268,7 +344,17 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
     
     public void SetIsAttacking(bool value)
     {
-        if (!value) currentAction = null;
+        if (!value && currentAction != null)
+        {
+            // Record action history for combo variety.
+            string finishing = currentAction.name;
+            _secondLastActionName = _lastActionName;
+            _sameActionStreak = finishing == _lastActionName ? _sameActionStreak + 1 : 1;
+            _lastActionName = finishing;
+            _timeSinceLastAction = 0f;
+            currentAction = null;
+        }
+
         IsAttacking = value;
         PauseUtilityAITimer(value);
     }

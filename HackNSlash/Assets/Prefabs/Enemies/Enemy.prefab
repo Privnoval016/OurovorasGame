@@ -19,11 +19,12 @@ GameObject:
   - component: {fileID: 7294702437504627312}
   - component: {fileID: 1078203055275763964}
   - component: {fileID: 6148380647150353776}
-  - component: {fileID: 2748738518074058332}
   - component: {fileID: 231912121654878464}
   - component: {fileID: 3999939093438644116}
   - component: {fileID: 7067694403718357953}
   - component: {fileID: 3152096520863319247}
+  - component: {fileID: 4618841477546511580}
+  - component: {fileID: 4377380509565782987}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -165,7 +166,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pe: {fileID: 0}
-  nav: {fileID: 2748738518074058332}
+  nav: {fileID: 0}
+  motor: {fileID: 0}
   ea: {fileID: 0}
   esm: {fileID: 0}
   stats: {fileID: 0}
@@ -194,8 +196,8 @@ MonoBehaviour:
   radius: 3
   col: {fileID: 4195198538565625314}
   gravityData: {fileID: 11400000, guid: 5de1e4539ea37ee49aba6ea1c3c40f96, type: 2}
-  physicsBody: {fileID: 0}
-  physicsConfig: {fileID: 0}
+  physicsBody: {fileID: 3152096520863319247}
+  physicsConfig: {fileID: 11400000, guid: 8604fc848112d4c28a1307268f310dce, type: 2}
   knockbackImmune: 0
   physicsInteract: 1
   lockOnAimPoint: {fileID: 3220672375738357397}
@@ -277,21 +279,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ts: {fileID: 0}
---- !u!114 &2748738518074058332
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 84900140109158182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a82c8b0de7c46342af7991403b98719, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nextWaypointDistance: 3
-  repathRate: 0.5
-  reachedEndOfPath: 0
 --- !u!114 &231912121654878464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -405,13 +392,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf9ccc4c5b1b4960950d05a4f82e3554, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  active: 1
   radiusMultiplier: 1.15
   enableSlopeDetection: 0
   groundMask:
     serializedVersion: 2
     m_Bits: 64
   probeOriginOffset: {x: 0, y: 0.9, z: 0}
+  maxSlopeAngle: 40
+  slopeSlideForce: 12
+  probeRadius: 0.3
+  probeDistance: 0.35
+--- !u!114 &4618841477546511580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 84900140109158182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180cd132578cf4a5483799838f7ffb65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  config: {fileID: 11400000, guid: 914270cbd14d040019183aa2d3754afe, type: 2}
+--- !u!114 &4377380509565782987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 84900140109158182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bbc429d31bb48d6951ea3ce0a430dd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  config: {fileID: 11400000, guid: 914270cbd14d040019183aa2d3754afe, type: 2}
 --- !u!1 &152315032083472850
 GameObject:
   m_ObjectHideFlags: 0

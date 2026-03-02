@@ -1,37 +1,27 @@
-
-using Extensions.EventBus;
 using Extensions.UtilityAI;
-using Unity.VisualScripting;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EnemyAttackAIAction", menuName = "Enemy/AIActions/EnemyAttackAIAction", order = 0)]
+[CreateAssetMenu(fileName = "EnemyAttackAIAction", menuName = "Enemy/AIActions/EnemyAttackAIAction")]
 public class EnemyAttackAIAction : EnemyAIActionBase
 {
-    [Header("Enemy Attack AI Action Settings")]
+    [Header("Attack Settings")]
     public EnemyAttack attack;
-    
     public EnemyAttackDamageInfo damageInfo;
-
     public PlayerAttackStats stats;
-    
-    private Vector3 targetPosition;
-    
-    protected override void OnEnemyEnter(Context<EnemyAIContextKey> enemyContext, EnemyStateMachine esm)
+
+    private Vector3 _targetPosition;
+
+    protected override void OnEnemyEnter(EnemyContext context, EnemyStateMachine esm)
     {
-        Debug.Log($"Enemy {esm.ts.name} is attacking with {name}");
-        
-        targetPosition = enemyContext.Sensor.GetNearestDetectedObject(actionKey).position;
-        
+        Transform target = context.GetTarget(EnemyContextKeys.Player);
+        _targetPosition = target != null ? target.position : esm.transform.position;
         esm.ts.onEnemyEvents.TriggerOnEnemyAction(this);
     }
-    
-    protected override void OnEnemyUpdate(Context<EnemyAIContextKey> enemyContext, EnemyStateMachine esm)
+
+    protected override void OnEnemyUpdate(EnemyContext context, EnemyStateMachine esm)
     {
-        if (targetPosition != default) esm.TurnToPosition(targetPosition);
+        if (_targetPosition != default) esm.TurnToPosition(_targetPosition);
     }
-    
-    protected override void OnEnemyExit(Context<EnemyAIContextKey> enemyContext, EnemyStateMachine esm)
-    {
-        
-    }
+
+    protected override void OnEnemyExit(EnemyContext context, EnemyStateMachine esm) { }
 }

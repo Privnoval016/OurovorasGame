@@ -1,17 +1,23 @@
-
 using Extensions.UtilityAI;
 using UnityEngine;
 
-public class EnemySensor : Sensor<EnemyAIContextKey>
+/** <summary>
+ * Detects players, other enemies, and self within a radius.
+ * Maps each <see cref="ContextKey{Transform}"/> from <see cref="EnemyContextKeys"/>
+ * to a concrete component check — no strings involved.
+ * </summary>
+ */
+public class EnemySensor : Sensor
 {
-    protected override bool HasDetectionTag(EnemyAIContextKey aiContextKey, Collider other)
+    protected override bool IsValidTarget(Collider other)
+        => other.TryGetComponent(out PlayerController _)
+        || other.TryGetComponent(out EnemyController _);
+
+    protected override bool HasDetectionTag(ContextKey<Transform> key, Collider other)
     {
-        return aiContextKey switch
-        {
-            EnemyAIContextKey.Player => other.TryGetComponent(out PlayerController _),
-            EnemyAIContextKey.OtherEnemy => other.TryGetComponent(out EnemyController _),
-            EnemyAIContextKey.Self => other.gameObject == gameObject,
-            _ => false
-        };
+        if (key == EnemyContextKeys.Player)   return other.TryGetComponent(out PlayerController _);
+        if (key == EnemyContextKeys.OtherEnemy) return other.TryGetComponent(out EnemyController _) && other.gameObject != gameObject;
+        if (key == EnemyContextKeys.Self)       return other.gameObject == gameObject;
+        return false;
     }
 }

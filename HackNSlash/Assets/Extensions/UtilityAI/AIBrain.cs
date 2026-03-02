@@ -4,71 +4,123 @@ using UnityEngine;
 
 namespace Extensions.UtilityAI
 {
-    /** <summary>Orchestrates context updates and best-action selection for a single AI agent.</summary> */
-    public class AIBrain<TKey>
+    /** <summary>Sensor interface — decouples <see cref="EnemyContext"/> from the concrete sensor type.</summary> */
+    public interface ISensor
     {
-        public Context<TKey> Context;
-        public AIBrainUser<TKey> User;
+        Transform GetNearestTarget(ContextKey<Transform> key);
+    }
+
+    /** <summary>
+     * Detects nearby objects using a trigger sphere. Override <see cref="HasDetectionTag"/>
+     * to map each <see cref="ContextKey{Transform}"/> to a concrete detection condition.
+     * </summary>
+     */
+    public abstract class Sensor : MonoBehaviour, ISensor
+    {
+        public float detectionRadius = 10f;
+
+        private readonly HashSet<Transform> _detected = new(10);
+        private SphereCollider _col;
+
+        private static readonly Collider[] OverlapBuffer = new Collider[64];
+
+        protected virtual void Awake()
+        {
+            if (!TryGetComponent(out _col))
+                _col = gameObject.AddComponent<SphereCollider>();
+            _col.isTrigger = true;
+            _col.radius = detectionRadius;
+
+            int count = Physics.OverlapSphereNonAlloc(transform.position, detectionRadius, OverlapBuffer);
+            for (int i = 0; i < count; i++)
+                TryAdd(OverlapBuffer[i]);
+        }
+
+        private void OnTriggerEnter(Collider other) => TryAdd(other);
+        private void OnTriggerExit(Collider other) => _detected.Remove(other.transform);
+
+        private void TryAdd(Collider other)
+        {
+            if (IsValidTarget(other))
+                _detected.Add(other.transform);
+        }
+
+        /** <summary>Returns true if <paramref name="other"/> should be tracked by this sensor at all.</summary> */
+        protected abstract bool IsValidTarget(Collider other);
+
+        /** <summary>Returns true if <paramref name="other"/> matches the given context key.</summary> */
+        protected abstract bool HasDetectionTag(ContextKey<Transform> key, Collider other);
+
+        public Transform GetNearestTarget(ContextKey<Transform> key)
+        {
+            Transform nearest = null;
+            float nearestSqr = float.MaxValue;
+            Vector3 pos = transform.position;
+
+            foreach (var t in _detected)
+            {
+                if (t == null) continue;
+                if (!t.TryGetComponent(out Collider col)) continue;
+                if (!HasDetectionTag(key, col)) continue;
+                float sqr = (t.position - pos).sqrMagnitude;
+                if (sqr < nearestSqr) { nearestSqr = sqr; nearest = t; }
+            }
+            return nearest;
+        }
+    }
+
+    /** <summary>Orchestrates context updates and best-action selection for a single AI agent.</summary> */
+    public class AIBrain
+    {
+        public EnemyContext Context;
+        public AIBrainUser User;
 
         public string LastChosenActionName { get; private set; }
         public float LastChosenUtility { get; private set; }
-
-        // Cached per-action utility scores from the last evaluation tick, used by editor tooling.
         public readonly Dictionary<string, float> LastUtilityScores = new();
 
-        public AIBrain(AIBrainUser<TKey> user)
-        {
-            User = user;
-        }
+        public AIBrain(AIBrainUser user) { User = user; }
 
         public void Initialize()
         {
-            Context = new Context<TKey>(this);
+            Context = new EnemyContext(this);
         }
 
         public void UpdateContext()
         {
-            ContextPayload<TKey>[] payloads = User.OnContextUpdate();
-            foreach (var payload in payloads)
+            foreach (var payload in User.OnContextUpdate())
                 Context.SetData(payload.Key, payload.Value);
         }
 
         public void CalculateBestAction()
         {
-            AIAction<TKey> bestAction = null;
-            float highestUtility = float.MinValue;
-
+            AIActionBase bestAction = null;
+            float highest = float.MinValue;
             LastUtilityScores.Clear();
 
             foreach (var action in User.GetActions())
             {
-                float utility = action.CalculateUtility(Context);
-                LastUtilityScores[action.name] = utility;
-                if (utility > highestUtility)
-                {
-                    highestUtility = utility;
-                    bestAction = action;
-                }
+                float u = action.CalculateUtility(Context);
+                LastUtilityScores[action.name] = u;
+                if (u > highest) { highest = u; bestAction = action; }
             }
 
             if (bestAction != null)
             {
                 LastChosenActionName = bestAction.name;
-                LastChosenUtility = highestUtility;
-                User.ExecuteNewAction(bestAction, Context, highestUtility);
+                LastChosenUtility = highest;
+                User.ExecuteNewAction(bestAction, Context, highest);
             }
         }
     }
 
-    /**
-     * <summary>
-     * Non-generic interface exposing brain state to editor tooling without needing to know the concrete <c>TKey</c> type.
-     * Automatically implemented by <see cref="AIBrainUser{TKey}"/>.
+    /** <summary>
+     * Non-generic interface exposing brain state to editor tooling.
+     * Implemented automatically by <see cref="AIBrainUser"/>.
      * </summary>
      */
     public interface IAIBrainAccessor
     {
-        string KeyTypeName { get; }
         string CurrentActionName { get; }
         string LastChosenActionName { get; }
         float LastChosenUtility { get; }
@@ -76,7 +128,7 @@ namespace Extensions.UtilityAI
         IReadOnlyList<(string key, string value)> GetContextSnapshot();
     }
 
-    /** <summary>Snapshot of a single action's state, consumed by editor tooling.</summary> */
+    /** <summary>Snapshot of a single action used by editor tooling.</summary> */
     public struct ActionDebugInfo
     {
         public string ActionName;
@@ -86,28 +138,41 @@ namespace Extensions.UtilityAI
         public bool IsChosen;
     }
 
-    /**
-     * <summary>
-     * Abstract <see cref="MonoBehaviour"/> that owns an <see cref="AIBrain{TKey}"/> and drives its lifecycle.
-     * Also implements <see cref="IAIBrainAccessor"/> so the editor window can inspect any brain generically.
+    /** <summary>
+     * Abstract MonoBehaviour that owns an <see cref="AIBrain"/> and drives its lifecycle.
      * </summary>
      */
-    public abstract class AIBrainUser<TKey> : MonoBehaviour, IAIBrainAccessor
+    public abstract class AIBrainUser : MonoBehaviour, IAIBrainAccessor
     {
-        public abstract List<AIAction<TKey>> GetActions();
-        public abstract Sensor<TKey> GetSensor();
-        public abstract ContextPayload<TKey>[] OnContextUpdate();
-        public abstract void ExecuteNewAction(AIAction<TKey> action, Context<TKey> context, float highestUtility);
+        #region Static Registry
 
-        /** <summary>Must return the live <see cref="AIBrain{TKey}"/> instance owned by this component.</summary> */
-        public abstract AIBrain<TKey> GetBrain();
+        /** <summary>All currently active <see cref="AIBrainUser"/> instances in the scene.</summary> */
+        public static IReadOnlyList<AIBrainUser> All => _registry;
+        private static readonly List<AIBrainUser> _registry = new();
 
-        /** <summary>Name of the action currently executing, or null if idle. Used by editor tooling.</summary> */
+        /** <summary>Fired when any <see cref="AIBrainUser"/> is enabled or disabled.</summary> */
+        public static event Action RegistryChanged;
+
+        protected virtual void OnEnable()
+        {
+            _registry.Add(this);
+            RegistryChanged?.Invoke();
+        }
+
+        protected virtual void OnDisable()
+        {
+            _registry.Remove(this);
+            RegistryChanged?.Invoke();
+        }
+
+        #endregion
+        public abstract List<AIActionBase> GetActions();
+        public abstract ISensor GetSensor();
+        public abstract ContextPayload[] OnContextUpdate();
+        public abstract void ExecuteNewAction(AIActionBase action, EnemyContext context, float utility);
+        public abstract AIBrain GetBrain();
         public abstract string CurrentActionName { get; }
 
-        #region IAIBrainAccessor
-
-        public string KeyTypeName => typeof(TKey).Name;
         public string LastChosenActionName => GetBrain()?.LastChosenActionName;
         public float LastChosenUtility => GetBrain()?.LastChosenUtility ?? 0f;
 
@@ -117,14 +182,14 @@ namespace Extensions.UtilityAI
             var result = new List<ActionDebugInfo>();
             foreach (var action in GetActions())
             {
-                float utility = 0f;
-                brain?.LastUtilityScores.TryGetValue(action.name, out utility);
+                float u = 0f;
+                brain?.LastUtilityScores.TryGetValue(action.name, out u);
                 result.Add(new ActionDebugInfo
                 {
                     ActionName = action.name,
                     ActionTypeName = action.GetType().Name,
                     Consideration = action.consideration,
-                    LastUtility = brain != null ? utility : -1f,
+                    LastUtility = brain != null ? u : -1f,
                     IsChosen = action.name == LastChosenActionName
                 });
             }
@@ -137,24 +202,39 @@ namespace Extensions.UtilityAI
             if (brain?.Context == null) return Array.Empty<(string, string)>();
             return brain.Context.GetSnapshot();
         }
-
-        #endregion
     }
 
-    public struct ContextPayload<TKey>
+    /** <summary>Base for all AI actions. Non-generic — keyed by <see cref="ContextKey"/> identity.</summary> */
+    public abstract class AIActionBase : ScriptableObject
     {
-        public TKey Key;
-        public object Value;
+        [Header("General Settings")]
+        [SerializeReference]
+        public ConsiderationBases.Consideration consideration;
 
-        public ContextPayload(TKey key, object value)
+        public float CalculateUtility(IContextBase context)
         {
-            Key = key;
-            Value = value;
+            if (consideration == null) return 1f;
+            return Mathf.Clamp01(consideration.Evaluate(context));
         }
+    }
 
-        public static implicit operator ContextPayload<TKey>((TKey key, object value) tuple)
-        {
-            return new ContextPayload<TKey>(tuple.key, tuple.value);
-        }
+    /** <summary>
+     * Payload carrying one context write. Use <see cref="ContextPayload.From{TValue}"/> to construct.
+     * </summary>
+     */
+    public readonly struct ContextPayload
+    {
+        public readonly ContextKey Key;
+        public readonly object Value;
+
+        private ContextPayload(ContextKey key, object value) { Key = key; Value = value; }
+
+        /** <summary>Create a typed payload with compile-time value type enforcement.</summary> */
+        public static ContextPayload From<TValue>(ContextKey<TValue> key, TValue value)
+            => new ContextPayload(key, value);
+
+        /** <summary>Implicit from tuple for concise array literals in <c>OnContextUpdate</c>.</summary> */
+        public static implicit operator ContextPayload((ContextKey key, object value) t)
+            => new ContextPayload(t.key, t.value);
     }
 }

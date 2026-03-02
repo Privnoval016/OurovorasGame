@@ -3,82 +3,104 @@ using UnityEngine;
 
 namespace Extensions.UtilityAI
 {
-    /**
-     * <summary>
-     * Context class for storing and retrieving data using a generic key type.
-     * This class is used to provide context to AI actions and considerations.
+    /** <summary>
+     * Stores all runtime context values for one AI agent.
+     * The dictionary is keyed by <see cref="ContextKey"/> object identity —
+     * no strings, no enums, no casting.
      * </summary>
-     *
-     * <typeparam name="TKey">The type used as a key to identify context data.</typeparam>
+     * <remarks>
+     * Typed API (preferred):
+     * <code>
+     * float hp     = context.Get(EnemyContextKeys.SelfHealthNorm);
+     * bool aggro   = context.Get(EnemyContextKeys.IsAggro);
+     * Transform p  = context.GetTarget(EnemyContextKeys.Player);
+     * context.Set(EnemyContextKeys.SelfHealthNorm, 0.8f);
+     * </code>
+     * </remarks>
      */
-    public class Context<TKey> : IContextBase
+    public class EnemyContext : IContextBase
     {
-        public AIBrain<TKey> AIBrain;
-        public Sensor<TKey> Sensor;
-        
-        private readonly Dictionary<TKey, object> data = new();
-        
-        public Context(AIBrain<TKey> aiBrain)
+        public AIBrain Brain;
+        public ISensor Sensor;
+
+        private readonly Dictionary<ContextKey, object> _data = new(ContextKeyRefComparer.Instance);
+
+        public EnemyContext(AIBrain brain)
         {
-            AIBrain = aiBrain;
-            Sensor = aiBrain.User.GetSensor();
+            Brain = brain;
+            Sensor = brain.User.GetSensor();
         }
+
+        #region Typed API
+
+        /** <summary>Read a strongly-typed value. Returns <c>default</c> if the key has not been written.</summary> */
+        public TValue Get<TValue>(ContextKey<TValue> key)
+        {
+            if (key == null) return default;
+            return _data.TryGetValue(key, out object raw) && raw is TValue v ? v : default;
+        }
+
+        /** <summary>Write a strongly-typed value.</summary> */
+        public void Set<TValue>(ContextKey<TValue> key, TValue value)
+        {
+            if (key != null) _data[key] = value;
+        }
+
+        /** <summary>Look up a sensor target Transform by a <see cref="ContextKey{Transform}"/>.</summary> */
+        public Transform GetTarget(ContextKey<Transform> key)
+        {
+            if (key == null || Sensor == null) return null;
+            return Sensor.GetNearestTarget(key);
+        }
+
+        #endregion
+
+        #region IContextBase (used by Consideration infrastructure)
 
         public TValue GetData<TValue>(object key)
         {
-            if (key is not TKey keyEnum) return default;
-            
-            return data.GetValueOrDefault(keyEnum) is TValue value ? value : default;
+            if (key is not ContextKey k) return default;
+            return _data.TryGetValue(k, out object raw) && raw is TValue v ? v : default;
         }
 
         public bool SetData<TValue>(object key, TValue value)
         {
-            if (key is not TKey keyEnum) return false;
-            
-            data[keyEnum] = value;
+            if (key is not ContextKey k) return false;
+            _data[k] = value;
             return true;
         }
-        
+
         public Transform GetSensorTarget(object key)
         {
-            if (key is not TKey keyEnum) return null;
-
-            return Sensor.GetNearestDetectedObject(keyEnum);
-        }
-        
-        public Transform GetBrainTransform()
-        {
-            return AIBrain.User.transform;
+            if (key is not ContextKey<Transform> k || Sensor == null) return null;
+            return Sensor.GetNearestTarget(k);
         }
 
-        /**
-         * <summary>
-         * Returns a human-readable snapshot of all context data entries as (keyName, valueString) pairs.
-         * Used by editor tooling to display live context values without knowing the concrete TKey type.
-         * </summary>
-         */
+        public Transform GetBrainTransform() => Brain?.User.transform;
+
+        #endregion
+
+        /** <summary>Editor snapshot — all live context values as (displayName, valueString) pairs.</summary> */
         public IReadOnlyList<(string key, string value)> GetSnapshot()
         {
-            var result = new List<(string, string)>(data.Count);
-            foreach (var kvp in data)
-                result.Add((kvp.Key.ToString(), kvp.Value?.ToString() ?? "null"));
+            var result = new List<(string, string)>(_data.Count);
+            foreach (var kvp in _data)
+                result.Add((kvp.Key?.ToString() ?? "(null)", kvp.Value?.ToString() ?? "null"));
             return result;
         }
     }
 
-    /**
-     * <summary>
-     * Interface for context classes to get and set data using generic keys.
-     * Allows for flexible and type-safe access to context information.
+    /** <summary>
+     * Non-generic interface used by <see cref="ConsiderationBases.Consideration"/> subclasses
+     * which cannot know the concrete key type at compile time.
      * </summary>
      */
     public interface IContextBase
     {
-        public TValue GetData<TValue>(object key);
-        public bool SetData<TValue>(object key, TValue value);
-
-        public Transform GetSensorTarget(object key);
-
-        public Transform GetBrainTransform();
+        TValue GetData<TValue>(object key);
+        bool SetData<TValue>(object key, TValue value);
+        // Accepts either a ContextKey<Transform> or a string InternalId.
+        Transform GetSensorTarget(object key);
+        Transform GetBrainTransform();
     }
 }

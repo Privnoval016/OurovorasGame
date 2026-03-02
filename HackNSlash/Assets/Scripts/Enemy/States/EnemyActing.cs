@@ -1,43 +1,30 @@
-
-using Extensions.Timers;
 using Extensions.UtilityAI;
 using Unity.Entities;
 
 public class EnemyActing : EnemyState
 {
-    private EnemyAIActionBase action;
-    private Context<EnemyAIContextKey> context;
-    
-    public EnemyActing(EnemyAIActionBase action, Context<EnemyAIContextKey> context)
+    private readonly EnemyAIActionBase _action;
+    private readonly EnemyContext _context;
+
+    public EnemyActing(EnemyAIActionBase action, EnemyContext context)
     {
-        this.action = action;
-        this.context = context;
-    }
-    
-    public override void OnEnter()
-    {
-        esm.currentAction = action;
-        
-        if (action.AggroedAction)
-        {
-            EntityManager.Instance.MarkEnemyAware(esm.ts);
-        }
-        else
-        {
-            EntityManager.Instance.MarkEnemyUnaware(esm.ts);
-        }
-        
-        action.OnEnter(context, esm);
+        _action = action;
+        _context = context;
     }
 
-    public override void OnUpdate()
+    public override void OnEnter()
     {
-        action.OnUpdate(context, esm);
+        esm.currentAction = _action;
+        if (_action.AggroedAction) EntityManager.Instance.MarkEnemyAware(esm.ts);
+        else EntityManager.Instance.MarkEnemyUnaware(esm.ts);
+        _action.OnEnter(_context, esm);
     }
-    
+
+    public override void OnUpdate() => _action.OnUpdate(_context, esm);
+
     public override void OnExit()
     {
-        action.OnExit(context, esm);
+        _action.OnExit(_context, esm);
         esm.AllHitboxesDeactivate();
         esm.ParryWindowDeactivate();
     }

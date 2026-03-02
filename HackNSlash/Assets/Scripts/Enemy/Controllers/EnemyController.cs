@@ -1,5 +1,6 @@
 using System;
 using Extensions.EventBus;
+using Extensions.Pathfinding;
 using Unity.Entities;
 using UnityEngine;
 
@@ -9,7 +10,11 @@ public class EnemyController : MonoBehaviour
 
     [HideInInspector] public PhysicsEnemy pe;
 
-    public PhysicsNavigator nav;
+    /** <summary>Path planner — computes A* paths and provides steering direction.</summary> */
+    [HideInInspector] public NavPathPlanner nav;
+
+    /** <summary>Movement motor — executes all physical locomotion primitives.</summary> */
+    [HideInInspector] public NavMotor motor;
 
     [HideInInspector] public EnemyAnimator ea;
     
@@ -34,7 +39,8 @@ public class EnemyController : MonoBehaviour
 
     private void Awake()
     {
-        nav = GetComponent<PhysicsNavigator>();
+        nav = GetComponent<NavPathPlanner>();
+        motor = GetComponent<NavMotor>();
         ea = GetComponent<EnemyAnimator>();
         pe = GetComponent<PhysicsEnemy>();
         onEnemyEvents = GetComponent<OnEnemyEvents>();

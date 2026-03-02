@@ -12,6 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1311999d64340a5a8f5e13175b8cfd7, type: 3}
   m_Name: SoldierIdle
   m_EditorClassIdentifier: 
-  actionKey: 0
-  consideration: {fileID: 11400000, guid: 559e08ad99ad94b37a72f22e2c15ddfa, type: 2}
+  consideration:
+    rid: 6781614059416191298
   <AggroedAction>k__BackingField: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 6781614059416191298
+      type: {class: ConstantConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        value: 0.05

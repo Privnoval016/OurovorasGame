@@ -20,7 +20,7 @@ public abstract class IEnemyAttackStrategy
         ts = oee.ts;
         a = attack;
 
-        ts.esm.sensor.GetNearestDetectedObject(EnemyAIContextKey.Player).TryGetComponent(out pc);
+        ts.esm.sensor.GetNearestTarget(EnemyContextKeys.Player)?.TryGetComponent(out pc);
 
         Debug.Log("Executing Enemy Strategy");
         
