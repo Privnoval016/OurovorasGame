@@ -57,6 +57,10 @@ public class CharacterPhysicsBody : MonoBehaviour
     // All non-trigger colliders on every character, for IgnoreCollision.
     private readonly List<Collider> _myColliders = new();
 
+    // Bodies that EnforceSeparation will skip — mirrors Physics.IgnoreCollision
+    // so dash-through and follow-velocity attacks work correctly.
+    private readonly HashSet<CharacterPhysicsBody> _separationIgnored = new();
+
     #endregion
 
     #region MonoBehaviour
@@ -110,6 +114,7 @@ public class CharacterPhysicsBody : MonoBehaviour
         {
             CharacterPhysicsBody other = Registry[i];
             if (other == this || other.Rb == null) continue;
+            if (_separationIgnored.Contains(other)) continue;  // skip while ignored
 
             Vector3 meToOther = other.Rb.position - Rb.position;
             meToOther.y = 0f;
@@ -218,6 +223,28 @@ public class CharacterPhysicsBody : MonoBehaviour
                 if (mine != null && theirs != null)
                     Physics.IgnoreCollision(mine, theirs, ignore);
     }
+
+    /** <summary>
+     * Add or remove <paramref name="other"/> from this body's separation ignore set.
+     * While ignored, <see cref="EnforceSeparation"/> will not push this character
+     * away from <paramref name="other"/> and will not zero velocity toward it.
+     * Call symmetrically on both bodies so neither blocks the other.
+     * </summary>
+     */
+    public void SetSeparationIgnored(CharacterPhysicsBody other, bool ignore)
+    {
+        if (other == null || other == this) return;
+        if (ignore) _separationIgnored.Add(other);
+        else _separationIgnored.Remove(other);
+    }
+
+    /** <summary>
+     * Returns the <see cref="CharacterPhysicsBody"/> on <paramref name="go"/>'s
+     * hierarchy, or null if none exists.
+     * </summary>
+     */
+    public static CharacterPhysicsBody GetFromGameObject(GameObject go)
+        => go != null ? go.GetComponentInParent<CharacterPhysicsBody>() : null;
 
     #endregion
 

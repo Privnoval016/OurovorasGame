@@ -124,14 +124,30 @@ public class PlayerController : KinematicBehaviour, IService
     public bool IgnoreAllCollisionsWithLayer(int? layer, bool ignore)
     {
         if (layer == null) return false;
-        
-        int layerValue = (int) layer;
-        
+
+        int layerValue = (int)layer;
         if (layerValue < 0 || layerValue > 31) return false;
+
+        // PhysX layer collision toggle (existing behaviour).
         foreach (CapsuleCollider c in allCols)
-        {
             Physics.IgnoreLayerCollision(c.gameObject.layer, layerValue, ignore);
+
+        // Also toggle separation in CharacterPhysicsBody so dash-through and
+        // follow-velocity attacks are not blocked by the position-correction system.
+        CharacterPhysicsBody myBody = GetComponent<CharacterPhysicsBody>();
+        if (myBody != null)
+        {
+            foreach (CharacterPhysicsBody other in CharacterPhysicsBody.Registry)
+            {
+                if (other == myBody) continue;
+                if (other.gameObject.layer != layerValue) continue;
+
+                // Symmetric: neither body should push the other while ignored.
+                myBody.SetSeparationIgnored(other, ignore);
+                other.SetSeparationIgnored(myBody, ignore);
+            }
         }
+
         return true;
     }
     
