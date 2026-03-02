@@ -220,8 +220,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 756ebd88748ad456e97fea4372fc292b, type: 2}
   - {fileID: 11400000, guid: a87d4445694e649aab2d7ddf6bfb9352, type: 2}
   - {fileID: 11400000, guid: 3167ec802c51c4ffd8d30ce0d5cdbde9, type: 2}
+  - {fileID: 11400000, guid: 127769fa215fb40d2a50eed7bb8bc1c5, type: 2}
   sensor: {fileID: 6229334532059045415}
   currentAction: {fileID: 0}
+  actionCooldownWindow: 5
+  streakCap: 4
   ts: {fileID: 0}
   enemyData: {fileID: 11400000, guid: 804d841287a3129418fb486e342113ec, type: 2}
   enemyAnimData: {fileID: 11400000, guid: ada0f4797b4204a70926b611ca95a6b5, type: 2}
@@ -245,14 +248,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d4823b5b94eb2c48a6aa207e7c6b500, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Level>k__BackingField: 5
+  <Level>k__BackingField: 50
   <NumHealthBars>k__BackingField: 1
   <MaxHealthBars>k__BackingField: 3
   baseStats: {fileID: 11400000, guid: bd4885e4017024a16980a234e23d4cf8, type: 2}
   <CurrentHealth>k__BackingField: 0
   maxShield: 100
   currentShield: 0
-  currentElementEffect: 0
+  currentElementEffect: 2
 --- !u!114 &1078203055275763964
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -693,7 +696,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   detectionRadius: 60
-  detectionTags: 0000000001000000
 --- !u!1 &6954728515997759122
 GameObject:
   m_ObjectHideFlags: 0
