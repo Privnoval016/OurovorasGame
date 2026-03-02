@@ -88,8 +88,8 @@ public class BasicFinisherAttackAction : IAttackAction
         
         pc.psm.SwapToUltimate();
         
-        pc.cam.SwitchState(PlayerCamStates.Free);
-        pc.cam.FinisherTarget = null;
+        // ForceExitToDefault restores invincibility and clears FinisherTarget safely.
+        pc.cam.ForceExitToDefault();
         
         oae.RunSegmentCoroutine(ResumeMoving(a.hitInfo.attackCoolDown));
         

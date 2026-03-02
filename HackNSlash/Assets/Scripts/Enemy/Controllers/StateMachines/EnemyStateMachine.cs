@@ -152,18 +152,18 @@ public class EnemyStateMachine : AIBrainUser
 
     protected virtual void HitStateAction(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
-        Debug.Log("Enemy Hit by " + a.name);
-    
-        if (!ts.pe.knockbackImmune)
+        if (ts.pe.knockbackImmune) return;
+        if (sc.IsState<EnemyHit>())
         {
-            ts.animListener.DeactivateAllHitboxes();
+            // Re-entering hit while already in hit (e.g. combo hit): restart the state.
             sc.ChangeState(new EnemyHit());
+            return;
         }
+        sc.ChangeState(new EnemyHit());
     }
 
     protected virtual void StaggerStateAction(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
-        Debug.Log("Enemy Staggered by " + a.name);
 
         ts.animListener.DeactivateAllHitboxes();
         sc.ChangeState(new EnemyStagger());
