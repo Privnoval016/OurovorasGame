@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Heavy
   m_EditorClassIdentifier: 
   hitStopDuration: 0.15
-  hitStopTimescale: 0
+  hitStopTimescale: 0.1
   hitStopDelay: 0
   screenShakeMagnitude: 2
   hitStopVFX:
