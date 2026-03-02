@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94b8f4066f6756c408634da8b864caea, type: 3}
   m_Name: Heavy
   m_EditorClassIdentifier: 
-  hitStopDuration: 0.1
+  hitStopDuration: 0.15
   hitStopTimescale: 0
   hitStopDelay: 0
   screenShakeMagnitude: 2

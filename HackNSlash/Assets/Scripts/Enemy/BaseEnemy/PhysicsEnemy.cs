@@ -14,7 +14,18 @@ public class PhysicsEnemy : LockOnTarget
     [Header("Physics Parameters")]
     
     public EnemyGravity gravityData;
-    public CollisionListener collisionListener;
+
+    /** <summary>Unified physics body for separation and slope constraints.</summary> */
+    public CharacterPhysicsBody physicsBody;
+
+    /** <summary>
+     * Optional shared config asset.  When assigned, knockback velocities are clamped to
+     * <see cref="PhysicsConfig.maxEnemyKnockbackSpeedH"/> / <see cref="PhysicsConfig.maxEnemyKnockbackSpeedV"/>
+     * so dash-into-enemy events cannot send enemies flying.
+     * </summary>
+     */
+    [Tooltip("Optional. When assigned, knockback velocity is clamped via config values.")]
+    public PhysicsConfig physicsConfig;
 
     private float gravityScale;
     private bool pauseGravity;
@@ -58,6 +69,9 @@ public class PhysicsEnemy : LockOnTarget
         col = GetComponent<Collider>();
         rb.useGravity = false;
         knockbackImmune = false;
+
+        if (physicsBody == null)
+            physicsBody = GetComponent<CharacterPhysicsBody>();
     }
 
     public override void OnUpdate()
@@ -78,14 +92,7 @@ public class PhysicsEnemy : LockOnTarget
 
     private void AvoidColliderClipping()
     {
-        if (!TakeKnockback) return;
-        if (collisionListener == null || !collisionListener.activeMover) return;
-
-        Vector3 direction = collisionListener.GetCombinedDirection();
-        if (direction != Vector3.zero)
-        {
-            rb.AddForce(direction * gravityData.colliderBuffer, ForceMode.VelocityChange);
-        }
+        // Body separation is handled globally by CharacterSeparationSystem.
     }
 
     #region Gravity Methods
@@ -162,6 +169,7 @@ public class PhysicsEnemy : LockOnTarget
 
         ResetMovement();
         rb.AddForce(force, mode);
+        ClampKnockbackVelocity();
         return true;
     }
 
@@ -182,6 +190,7 @@ public class PhysicsEnemy : LockOnTarget
 
         ResetMovement();
         rb.linearVelocity = velocity;
+        ClampKnockbackVelocity();
         return true;
     }
     
@@ -202,6 +211,28 @@ public class PhysicsEnemy : LockOnTarget
         
         physicsInteract = false;
         physicsLockTime = duration;
+    }
+
+    /** <summary>
+     * Clamps the rigidbody's velocity after a knockback is applied so that no
+     * single event can send the enemy flying across the level.
+     * Only active when a <see cref="PhysicsConfig"/> asset is assigned.
+     * </summary>
+     */
+    private void ClampKnockbackVelocity()
+    {
+        if (physicsConfig == null) return;
+
+        Vector3 v = rb.linearVelocity;
+        Vector3 horizontal = new Vector3(v.x, 0f, v.z);
+        float maxH = physicsConfig.maxEnemyKnockbackSpeedH;
+        float maxV = physicsConfig.maxEnemyKnockbackSpeedV;
+
+        if (horizontal.magnitude > maxH)
+            horizontal = horizontal.normalized * maxH;
+
+        float vy = Mathf.Clamp(v.y, -maxV, maxV);
+        rb.linearVelocity = new Vector3(horizontal.x, vy, horizontal.z);
     }
     
     private void CheckPhysicsLock()

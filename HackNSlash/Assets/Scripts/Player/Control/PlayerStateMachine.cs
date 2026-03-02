@@ -30,7 +30,7 @@ public class PlayerStateMachine : MonoBehaviour
     #region MOVE PARAMETERS
      
     [HideInInspector] public bool pauseMovement;
-    
+
     [HideInInspector] public CountdownTimer LastOnGroundTimer;
     [HideInInspector] public CountdownTimer LastDoubleJumpTimer;
     [HideInInspector] public CountdownTimer LastPressedJumpTimer;

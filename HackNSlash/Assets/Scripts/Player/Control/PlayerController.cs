@@ -18,8 +18,10 @@ public class PlayerController : KinematicBehaviour, IService
     
     public CapsuleCollider mainCol;
     [HideInInspector] public CapsuleCollider[] allCols;
-    [HideInInspector] public CollisionListener cl;
-    
+
+    /** <summary>Physics body for separation and slope handling.</summary> */
+    [HideInInspector] public CharacterPhysicsBody physicsBody;
+
     [HideInInspector] public CameraController cam;
     
     [HideInInspector] public WeaponController wc;
@@ -53,7 +55,7 @@ public class PlayerController : KinematicBehaviour, IService
         psm = GetComponent<PlayerStateMachine>();
         pi = GetComponent<PlayerInventory>();
         pcc = GetComponent<PlayerCombatControl>();
-        cl = GetComponentInChildren<CollisionListener>();
+        physicsBody = GetComponent<CharacterPhysicsBody>();
         oae = GetComponent<OnAttackEvents>();
         ohe = GetComponent<OnHitEvents>();
         ps = GetComponent<PlayerStats>();
@@ -115,16 +117,8 @@ public class PlayerController : KinematicBehaviour, IService
     
     public void AvoidColliderClipping()
     {
-        if (cl == null || !cl.activeMover) return;
-        if (!psm.canAttack && !psm.pauseMovement) return;
-        if (rb.linearVelocity.y > 0) return; //Avoid applying pushback when jumping
-        
-        Vector3 direction = cl.GetCombinedDirection();
-        
-        if (direction != Vector3.zero)
-        {
-            //rb.AddForce(direction * psm.playerData.pushbackForce, ForceMode.VelocityChange);
-        }
+        // Body separation is handled by CharacterSeparationSystem.
+        // Slope correction is handled by SlopeHandler (both self-tick in FixedUpdate).
     }
     
     public bool IgnoreAllCollisionsWithLayer(int? layer, bool ignore)

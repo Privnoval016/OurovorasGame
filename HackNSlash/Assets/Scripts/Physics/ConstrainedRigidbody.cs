@@ -6,4 +6,4 @@ using UnityEngine;
  * </summary>
  */
 [System.Obsolete("Use CharacterPhysicsBody instead.")]
-public class CollisionListener : MonoBehaviour { }
+public class ConstrainedRigidbody : MonoBehaviour { }

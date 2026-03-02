@@ -138,14 +138,12 @@ public class PlayerMoving : PlayerState
     
     private void Run(float lerpAmount)
     {
-	    
 	    Transform cam = pc.cam.transform;
 	    pc.psm.moveDirection = pc.psm.moveInput.x * cam.right.ZeroVector3Axis().normalized + 
 	                           pc.psm.moveInput.y * cam.forward.ZeroVector3Axis().normalized;
-		
-	    Vector3 targetSpeed = pc.psm.moveDirection * (pc.psm.IsSprinting ? pc.psm.playerData.sprintMaxSpeed : pc.psm.playerData.runMaxSpeed);
-		targetSpeed = Vector3.Lerp(pc.rb.linearVelocity, targetSpeed, lerpAmount);
 
+        Vector3 targetSpeed = pc.psm.moveDirection * (pc.psm.IsSprinting ? pc.psm.playerData.sprintMaxSpeed : pc.psm.playerData.runMaxSpeed);
+		targetSpeed = Vector3.Lerp(pc.rb.linearVelocity, targetSpeed, lerpAmount);
 
 		float accelRate;
 		if (!pc.psm.LastOnGroundTimer.IsFinished)
@@ -154,7 +152,6 @@ public class PlayerMoving : PlayerState
 			accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? pc.psm.playerData.runAccelAmount * pc.psm.playerData.accelInAir : 
 															pc.psm.playerData.runDecelAmount * pc.psm.playerData.decelInAir;
 		
-		
 		if ((pc.psm.isJumping || pc.psm.isJumpFalling) && Mathf.Abs(pc.rb.linearVelocity.y) < pc.psm.playerData.jumpHangSpeedThreshold)
 		{
 			accelRate *= pc.psm.playerData.jumpHangAccelerationMult;
@@ -162,9 +159,8 @@ public class PlayerMoving : PlayerState
 		}
 		
 		Vector3 speedDiff = targetSpeed - pc.rb.linearVelocity.ZeroVector3Axis();
-		
 		Vector3 movementForce = speedDiff * accelRate;
-		
+
 		pc.rb.AddForce(movementForce, ForceMode.Acceleration);
 		
 		pc.psm.TurnToLook();

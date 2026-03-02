@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94b8f4066f6756c408634da8b864caea, type: 3}
   m_Name: Light
   m_EditorClassIdentifier: 
-  hitStopDuration: 0.02
-  hitStopTimescale: 0
+  hitStopDuration: 0.1
+  hitStopTimescale: 0.2
   hitStopDelay: 0
   screenShakeMagnitude: 0.4
   hitStopVFX:
     vfxAttack: {fileID: 11400000, guid: 777dac5c0d77b1844b94f4ed83652c83, type: 2}
-    onHitActionIndex: 0
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
     duration: 0.2
-    delay: 0
+    spawnDelay: 0
+    actionDelay: 0
     spawnTarget: 0
     parentToTarget: 0
     spawnTransform:

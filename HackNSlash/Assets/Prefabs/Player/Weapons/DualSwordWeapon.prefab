@@ -197,7 +197,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7381720024006720341}
-  - component: {fileID: 5962087776424205750}
+  - component: {fileID: 2921459265411644166}
   - component: {fileID: 3166764981621842754}
   m_Layer: 8
   m_Name: DualSwordWeapon
@@ -226,8 +226,8 @@ Transform:
   - {fileID: 8946186826699257362}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &5962087776424205750
-BoxCollider:
+--- !u!136 &2921459265411644166
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -241,12 +241,14 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.51, y: 0.28461298, z: 1.655856}
-  m_Center: {x: 0, y: 0, z: 0.53068787}
+  serializedVersion: 2
+  m_Radius: 0.25
+  m_Height: 1.85
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0.5}
 --- !u!114 &3166764981621842754
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -206,10 +206,10 @@ public class EnemyStateMachine : AIBrainUser<EnemyAIContextKey>
         float accelRate = (Mathf.Abs(targetSpeed.magnitude) > 0.01f) ? enemyData.runAccelAmount : enemyData.runDecelAmount;
 	
         Vector3 speedDiff = targetSpeed - ts.pe.rb.linearVelocity.ZeroVector3Axis();
-	
         Vector3 movementForce = speedDiff * accelRate;
-	
-        ts.pe. rb.AddForce(movementForce, ForceMode.Acceleration);
+
+        ts.pe.rb.AddForce(movementForce, ForceMode.Acceleration);
+
         TurnToLook();
     }
 
