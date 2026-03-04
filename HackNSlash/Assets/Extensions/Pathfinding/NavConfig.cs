@@ -27,6 +27,13 @@ namespace Extensions.Pathfinding
                  "Prevents repathing every frame when the target barely moves.")]
         public float destinationChangeTolerance = 0.25f;
 
+        [Header("Stall Recovery")]
+        [Tooltip("Seconds with less than stallMoveThreshold movement before forcing a fresh repath.")]
+        public float stallTimeout = 1.5f;
+
+        [Tooltip("Minimum XZ movement per stallTimeout window to not be considered stalled.")]
+        public float stallMoveThreshold = 0.15f;
+
         #endregion
 
         #region Movement

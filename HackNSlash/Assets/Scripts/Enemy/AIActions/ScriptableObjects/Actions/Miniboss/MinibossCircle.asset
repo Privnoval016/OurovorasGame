@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 421a7679bd49464a8de916155608ed23, type: 3}
+  m_Name: MinibossCircle
+  m_EditorClassIdentifier: 
+  consideration:
+    rid: -2
+  <AggroedAction>k__BackingField: 1
+  strategy:
+    rid: 6781614068785742201
+  stuckTimeout: 1.2
+  movingSpeedThreshold: 0.3
+  unstuckStepDistance: 1.5
+  unstuckStepDuration: 0.3
+  maxDuration: 6
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6781614068785742201
+      type: {class: OrbitStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        angularSpeed: 60
+        duration: 2

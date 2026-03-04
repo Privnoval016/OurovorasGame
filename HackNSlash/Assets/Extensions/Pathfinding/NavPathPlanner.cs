@@ -57,10 +57,16 @@ namespace Extensions.Pathfinding
         private int _waypointIndex;
         private float _repathTimer;
 
-        // Config fallback values used when config is null.
+        // Stall detection: track if the agent is stuck on a path that exists but isn't working.
+        private Vector3 _lastStallCheckPosition;
+        private float _stallTimer;
+
+        // Config fallbacks.
         private float RepathRate => config != null ? config.repathRate : 0.35f;
         private float WaypointRadius => config != null ? config.waypointAcceptanceRadius : 0.6f;
         private float ArrivalRadius => config != null ? config.arrivalRadius : 0.25f;
+        private float StallTimeout => config != null ? config.stallTimeout : 1.5f;
+        private float StallMoveThreshold => config != null ? config.stallMoveThreshold : 0.15f;
 
         #endregion
 
@@ -79,6 +85,7 @@ namespace Extensions.Pathfinding
         private void Awake()
         {
             _seeker = GetComponent<Seeker>();
+            _lastStallCheckPosition = transform.position;
         }
 
         private void OnDisable()
@@ -97,6 +104,35 @@ namespace Extensions.Pathfinding
             {
                 _repathTimer = 0f;
                 RequestPath(Destination);
+            }
+
+            // Stall detection: if we have a path but are barely moving, force an immediate repath.
+            // This handles cases where the A* path leads into a corner or the agent is wedged.
+            if (CurrentPath != null && !ReachedDestination)
+            {
+                float moved = Vector3.Distance(transform.position, _lastStallCheckPosition);
+                if (moved < StallMoveThreshold)
+                {
+                    _stallTimer += Time.deltaTime;
+                    if (_stallTimer >= StallTimeout && _seeker.IsDone())
+                    {
+                        _stallTimer = 0f;
+                        _lastStallCheckPosition = transform.position;
+                        // Force a fresh path — also resets the waypoint index.
+                        ReleasePath();
+                        RequestPath(Destination);
+                    }
+                }
+                else
+                {
+                    _stallTimer = 0f;
+                    _lastStallCheckPosition = transform.position;
+                }
+            }
+            else
+            {
+                _stallTimer = 0f;
+                _lastStallCheckPosition = transform.position;
             }
         }
 

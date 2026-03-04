@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c188fc340d84d73b4f509ea57d0fae6, type: 3}
+  m_Name: MinibossSwing_A
+  m_EditorClassIdentifier: 
+  consideration:
+    rid: 6781614068785742203
+  <AggroedAction>k__BackingField: 1
+  attack:
+    isEnabled: 0
+    element: 0
+    attackKnockback: {x: 0, y: 0}
+    attackCooldown: 0
+    isParryable: 0
+    enemyAttack:
+      rid: -2
+    attackClips: []
+    animDelay: 0
+    useRootMotion: 0
+    exitConditions: 0
+    vfxInfos: []
+  damageInfo:
+    damageMultiplier: 1
+  stats:
+    damage: 0
+    statusEffectStacks: 0
+    statusEffectDuration: 0
+    shieldDamage: 10
+    restoreCharge: 1
+    charge: 0
+    ultimateCharge: 8
+    baseStyleGain: 10
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6781614068785742203
+      type: {class: StringMatchConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        contextKey:
+          internalId: history.last_action_name
+          displayName: Last Action
+        matchValue: 
+        scoreIfMatch: 0
+        scoreIfNoMatch: 1
