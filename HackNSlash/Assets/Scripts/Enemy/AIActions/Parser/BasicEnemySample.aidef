@@ -1,0 +1,124 @@
+// Enemy AI definition file — sample for BasicEnemy
+// Syntax: action "name" : ActionType { ... }
+// Lines beginning with // or # are comments.
+
+// ─── Fallback idle ────────────────────────────────────────────────────────────
+action "Idle_Fallback" : EnemyIdle {
+  consideration constant { value = 0.05 }
+}
+
+// ─── Wander when not aggro ────────────────────────────────────────────────────
+action "Wander" : EnemyMovement {
+  strategy = Wander
+  duration = 4.0
+
+  consideration bool {
+    key    = "bool.is_aggro"
+    invert = true
+  }
+}
+
+// ─── Chase the player ─────────────────────────────────────────────────────────
+action "ChasePlayer" : EnemyMovement {
+  strategy     = Chase
+  speed        = 1.0
+  stopDistance = 2.2
+
+  consideration composite {
+    allMustBeNonZero = true
+    first targetexists { key = "target.player" }
+    rest [
+      multiply: curve {
+        key    = "float.dist_to_player_norm"
+        points = [[0.0, 0.1], [0.4, 1.0], [1.0, 1.0]]
+      }
+    ]
+  }
+}
+
+// ─── Strafe right when medium range ──────────────────────────────────────────
+action "StrafeRight" : EnemyMovement {
+  strategy   = Strafe
+  strafeSign = 1.0
+  speed      = 0.7
+  duration   = 1.5
+
+  consideration composite {
+    allMustBeNonZero = true
+    first targetexists { key = "target.player" }
+    rest [
+      multiply: curve {
+        key    = "float.dist_to_player_norm"
+        points = [[0.0, 0.0], [0.25, 1.0], [0.55, 1.0], [0.8, 0.0]]
+      },
+      multiply: threshold {
+        key        = "float.time_since_last_action_norm"
+        comparison = greaterthan
+        threshold  = 0.5
+        iftrue     = 1.0
+        iffalse    = 0.0
+      }
+    ]
+  }
+}
+
+// ─── Orbit when circling range ────────────────────────────────────────────────
+action "Orbit" : EnemyMovement {
+  strategy     = Orbit
+  angularSpeed = 55.0
+  duration     = 2.5
+
+  consideration composite {
+    allMustBeNonZero = true
+    first targetexists { key = "target.player" }
+    rest [
+      multiply: curve {
+        key    = "float.dist_to_player_norm"
+        points = [[0.0, 0.0], [0.3, 0.8], [0.6, 0.8], [1.0, 0.0]]
+      }
+    ]
+  }
+}
+
+// ─── Back-jump when player attacks ───────────────────────────────────────────
+action "BackJump" : EnemyMovement {
+  strategy   = BackJump
+  settleTime = 0.15
+
+  consideration composite {
+    allMustBeNonZero = true
+    first bool { key = "bool.player_is_attacking" }
+    rest [
+      multiply: inrange {
+        key     = "target.player"
+        maxdist = 3.5
+        points  = [[0.0, 1.0], [1.0, 0.0]]
+      }
+    ]
+  }
+}
+
+// ─── Melee attack ─────────────────────────────────────────────────────────────
+// Data (damage, hitboxes, animations) is assigned in the Inspector after generation.
+action "MeleeAttack" : EnemyAttack {
+  consideration composite {
+    allMustBeNonZero = true
+    first targetexists { key = "target.player" }
+    rest [
+      multiply: inrange {
+        key      = "target.player"
+        maxdist  = 2.5
+        maxangle = 90.0
+        points   = [[0.0, 1.0], [0.8, 1.0], [1.0, 0.0]]
+      },
+      multiply: threshold {
+        key        = "float.time_since_last_action_norm"
+        comparison = greaterthan
+        threshold  = 0.6
+        iftrue     = 1.0
+        iffalse    = 0.0
+      }
+    ]
+  }
+}
+

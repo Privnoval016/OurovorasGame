@@ -48,7 +48,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         pc = GetComponent<PlayerController>();
         
-        HealthComponent.AddComponent(new ElementComponent(() => pc.pcc.currentElementEffect));
+        DamageableComponents.AddComponent(new ElementComponent(() => pc.pcc.currentElementEffect));
     }
 
     private void Start()
@@ -379,7 +379,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public EvaluatedStats Stats => EvaluatedStats;
 
-    public Entity<IDamageableComponent> HealthComponent { get; } = new Entity<IDamageableComponent>();
+    public Entity<IDamageableComponent> DamageableComponents { get; } = new Entity<IDamageableComponent>();
 
     public IEnumerable<IDamageRule> DamageEvalRules
         => pc.rps.CurrentLoadout?.equippedAccessories?.SelectMany(acc => acc?.ContributeRules() ?? Enumerable.Empty<IDamageRule>()) 

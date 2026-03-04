@@ -26,7 +26,7 @@ public class ShieldDamageReductionRule : IDamageRule
     
     public override DamageResult Apply(IDamageEvent evt, DamageContext ctx)
     {
-        if (ctx.Defender.HealthComponent.TryGetComponent(out ShieldComponent shield) && shield.CurrentShieldPercentage > 0)
+        if (ctx.Defender.DamageableComponents.TryGetComponent(out ShieldComponent shield) && shield.CurrentShieldPercentage > 0)
         {
             ctx.Multiplicative *= _reductionMultiplier;
         }
@@ -35,5 +35,5 @@ public class ShieldDamageReductionRule : IDamageRule
     }
     
     public override bool IsMatch(IDamageEvent eventData, DamageContext context)
-        => context.Defender.HealthComponent.TryGetComponent(out ShieldComponent shield) && shield.CurrentShieldPercentage > 0;
+        => context.Defender.DamageableComponents.TryGetComponent(out ShieldComponent shield) && shield.CurrentShieldPercentage > 0;
 }

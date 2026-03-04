@@ -6,7 +6,7 @@ namespace Extensions.UtilityAI.ConsiderationBases
     [Serializable]
     public class ConstantConsideration : Consideration
     {
-        [Range(0f, 1f)] public float value = 0.5f;
+        [Min(0f)] public float value = 0.5f;
         public override float Evaluate(IContextBase context) => value;
         public override string DisplayName => "Constant";
     }
@@ -205,5 +205,74 @@ namespace Extensions.UtilityAI.ConsiderationBases
 
         public override string DisplayName => asset != null ? $"↗ {asset.name}" : "↗ Linked (empty)";
     }
+
+    /** <summary>
+     * Evaluates a specific <see cref="IDamageableComponent"/> on the owning entity by calling its
+     * <c>Evaluate()</c> method, then passes the result through an optional <see cref="AnimationCurve"/>.
+     *
+     * The component type is selected via the <c>[DamageableComponentType]</c> dropdown in the inspector —
+     * never set <see cref="componentTypeName"/> by hand.
+     *
+     * The brain owner must implement <see cref="IDamageable"/> on its Transform.
+     * </summary>
+     */
+    [Serializable]
+    public class DamageableComponentConsideration : Consideration
+    {
+        /** <summary>
+         * Assembly-qualified type name of the <see cref="IDamageableComponent"/> to query.
+         * Populated by the <c>DamageableComponentTypeAttribute</c> property drawer.
+         * </summary>
+         */
+        [DamageableComponentType]
+        public string componentTypeName;
+
+        /** <summary>Curve applied to the raw [0,1] value from <see cref="IDamageableComponent.Evaluate"/>.</summary> */
+        public AnimationCurve curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+
+        /** <summary>If true, the raw component value is inverted (1 - v) before the curve is applied.</summary> */
+        public bool invert;
+
+        public override float Evaluate(IContextBase context)
+        {
+            var brainTransform = context.GetBrainTransform();
+            if (brainTransform == null) return 0f;
+            if (!brainTransform.TryGetComponent<IDamageable>(out var damageable)) return 0f;
+            if (damageable.DamageableComponents == null) return 0f;
+
+            var compType = System.Type.GetType(componentTypeName);
+            if (compType == null) return 0f;
+
+            IDamageableComponent found = null;
+            foreach (var comp in damageable.DamageableComponents.GetAllComponents())
+            {
+                if (comp.GetType() == compType) { found = comp; break; }
+            }
+            if (found == null) return 0f;
+
+            float raw = found.Evaluate();
+            if (invert) raw = 1f - raw;
+            return curve != null ? Mathf.Clamp01(curve.Evaluate(raw)) : Mathf.Clamp01(raw);
+        }
+
+        public override string DisplayName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(componentTypeName)) return "Component (none)";
+                // Show just the short type name for readability.
+                var t = System.Type.GetType(componentTypeName);
+                return $"Component ({(t != null ? t.Name : componentTypeName)})";
+            }
+        }
+    }
+
+    /** <summary>
+     * Marks a <c>string</c> field as holding an <see cref="IDamageableComponent"/> assembly-qualified type name.
+     * The custom property drawer renders it as a type-picker dropdown.
+     * </summary>
+     */
+    [AttributeUsage(AttributeTargets.Field)]
+    public sealed class DamageableComponentTypeAttribute : System.Attribute { }
 }
 

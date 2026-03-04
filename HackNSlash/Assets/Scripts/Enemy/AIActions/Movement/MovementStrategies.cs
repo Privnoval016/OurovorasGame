@@ -24,11 +24,11 @@ public class ChaseStrategy : IMovementStrategy
 
     public string DisplayName => "Chase";
 
-    public void OnEnter(EnemyContext context, EnemyStateMachine esm)
+    public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _target = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.walkCycle);
+        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -78,12 +78,12 @@ public class StrafeStrategy : IMovementStrategy
 
     public string DisplayName => $"Strafe {(strafeSign >= 0 ? "Right" : "Left")}";
 
-    public void OnEnter(EnemyContext context, EnemyStateMachine esm)
+    public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _elapsed = 0f;
         _target = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.walkCycle);
+        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -117,12 +117,12 @@ public class OrbitStrategy : IMovementStrategy
 
     public string DisplayName => "Orbit";
 
-    public void OnEnter(EnemyContext context, EnemyStateMachine esm)
+    public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _elapsed = 0f;
         _target = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.walkCycle);
+        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
         if (_target != null) esm.ts.motor.ResetOrbitAround(_target.position);
     }
 
@@ -159,12 +159,12 @@ public class RetreatStrategy : IMovementStrategy
 
     public string DisplayName => "Retreat";
 
-    public void OnEnter(EnemyContext context, EnemyStateMachine esm)
+    public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _elapsed = 0f;
         _target = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.walkCycle);
+        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -204,7 +204,7 @@ public class BackJumpStrategy : IMovementStrategy
 
     public string DisplayName => "Back Jump";
 
-    public void OnEnter(EnemyContext context, EnemyStateMachine esm)
+    public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _target = context.GetTarget(EnemyContextKeys.Player);
         _jumpFired = false;
@@ -244,11 +244,11 @@ public class WanderStrategy : IMovementStrategy
 
     public string DisplayName => "Wander";
 
-    public void OnEnter(EnemyContext context, EnemyStateMachine esm)
+    public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _elapsed = 0f;
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.walkCycle);
+        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -280,12 +280,12 @@ public class IdleStrategy : IMovementStrategy
 
     public string DisplayName => "Idle";
 
-    public void OnEnter(EnemyContext context, EnemyStateMachine esm)
+    public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _elapsed = 0f;
         _target = context.GetTarget(EnemyContextKeys.Player);
         esm.Brake();
-        esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.idleClip);
+        esm.ts.ea.PlayEnemyAnimation(animData.idleClip);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -324,12 +324,12 @@ public class ChargeStrategy : IMovementStrategy
 
     public string DisplayName => "Charge";
 
-    public void OnEnter(EnemyContext context, EnemyStateMachine esm)
+    public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _target = context.GetTarget(EnemyContextKeys.Player);
         _elapsed = 0f;
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.walkCycle);
+        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)

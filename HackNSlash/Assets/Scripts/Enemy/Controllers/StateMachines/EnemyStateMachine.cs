@@ -123,7 +123,7 @@ public class EnemyStateMachine : AIBrainUser
             (EnemyContextKeys.AngleToPlayerNorm,       angleNorm),
             (EnemyContextKeys.TimeSinceLastActionNorm, Mathf.Clamp01(_timeSinceLastAction / Mathf.Max(actionCooldownWindow, 0.1f))),
             (EnemyContextKeys.SameActionStreakNorm,    Mathf.Clamp01((float)_sameActionStreak / Mathf.Max(streakCap, 1))),
-            (EnemyContextKeys.IsShielded,              false),
+            (EnemyContextKeys.IsShielded,              ResolveIsShielded()),
             (EnemyContextKeys.PlayerIsAirborne,        playerAirborne),
             (EnemyContextKeys.IsStaggered,             sc.IsState<EnemyStagger>()),
             (EnemyContextKeys.IsAggro,                 IsAttacking),
@@ -133,6 +133,19 @@ public class EnemyStateMachine : AIBrainUser
             (EnemyContextKeys.SecondLastActionName,    _secondLastActionName),
             (EnemyContextKeys.SameActionStreak,        _sameActionStreak),
         };
+    }
+
+    /** <summary>
+     * Returns true when the enemy has a <see cref="ShieldComponent"/> whose current
+     * percentage is greater than zero, i.e. the shield has not been fully broken.
+     * </summary>
+     */
+    private bool ResolveIsShielded()
+    {
+        if (ts.stats == null) return false;
+        var shield = ts.stats.DamageableComponents?.GetComponent<ShieldComponent>();
+        if (shield == null) return false;
+        return shield.CurrentShieldPercentage.Value > 0f;
     }
 
     public override List<AIActionBase> GetActions() => actions;

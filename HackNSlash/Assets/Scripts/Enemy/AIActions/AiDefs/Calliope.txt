@@ -1,0 +1,218 @@
+// Calliope.aidef
+// Prologue miniboss -- Sweeping Striker (first recurring Muse miniboss)
+//
+// Design pillars:
+//   * Teach the player spacing, facing, dodge timing, and enrage escalation.
+//   * 7 actions, all (except Idle fallback and ShieldBreak) gated by IsShielded=true.
+//   * Shield break is an absolute-override stun that wins with score 10.
+//   * Enrage at sub-50% HP is modelled via SelfHealthNorm curve on attacks.
+//   * Anti-spam uses SameActionStreakNorm threshold (> 0.7 -> score 0).
+
+// --- 1. Shield-Break Stun ---
+// Wins with an overwhelming score of 10 any time the shield is broken.
+// All other actions return 0 while IsShielded = false (see their composites).
+// Exits automatically once the shield is restored (see EnemyStunnedAIAction).
+action "CalliopeShieldBreakStunned" : EnemyStunned {
+  exitCondition = ShieldRestored
+
+  consideration composite {
+    allMustBeNonZero = true
+    // Shield is NOT active (invert = true -> value = 1 when shield is broken).
+    first bool {
+      key    = "bool.is_shielded"
+      invert = true
+    }
+    rest [
+      // Constant 10 so this action always wins over everything else.
+      multiply: constant { value = 10 }
+    ]
+  }
+}
+
+// --- 2. Approach Player ---
+// Closes distance when the player is far away.
+// Curve peaks at far range and falls to 0 within melee range.
+action "CalliopeApproachPlayer" : EnemyMovement {
+  strategy     = Chase
+  speed        = 1.0
+  stopDistance = 2.0
+
+  consideration composite {
+    allMustBeNonZero = true
+    // Gate 1: shield must be active.
+    first bool { key = "bool.is_shielded" }
+    rest [
+      // Gate 2: enemy must not be staggered.
+      multiply: bool { key = "bool.is_staggered"  invert = true },
+      // Gate 3: player must exist in sensor.
+      multiply: targetexists { key = "target.player" },
+      // Scoring: high utility at far range, zero at close range.
+      multiply: curve {
+        key    = "float.dist_to_player_norm"
+        points = [[0.0, 0.0], [0.4, 0.0], [0.6, 0.6], [1.0, 1.0]]
+      }
+    ]
+  }
+}
+
+// --- 3. Strafe Reposition ---
+// Lateral motion at mid-range to maintain dynamic pressure.
+// Peaks at ideal melee distance; zero at close and far range.
+action "CalliopeStrafeReposition" : EnemyMovement {
+  strategy   = Strafe
+  strafeSign = 1.0
+  speed      = 0.7
+  duration   = 1.5
+
+  consideration composite {
+    allMustBeNonZero = true
+    first bool { key = "bool.is_shielded" }
+    rest [
+      multiply: bool { key = "bool.is_staggered"  invert = true },
+      multiply: targetexists { key = "target.player" },
+      // Peaks at roughly 25% of sensor radius -- ideal mid-range positioning.
+      multiply: curve {
+        key    = "float.dist_to_player_norm"
+        points = [[0.0, 0.0], [0.25, 1.0], [0.6, 0.2], [1.0, 0.0]]
+      },
+      // Cooldown: wait a little between repositions.
+      multiply: threshold {
+        key        = "float.time_since_last_action_norm"
+        comparison = greaterthan
+        threshold  = 0.3
+        iftrue     = 1.0
+        iffalse    = 0.0
+      }
+    ]
+  }
+}
+
+// --- 4. Sweep Attack (primary) ---
+// Wide horizontal arc -- the most readable attack; clear telegraph.
+// Anti-spam: streak threshold cuts score to 0 if used back-to-back.
+// Enrage: SelfHealthNorm curve boosts score at low HP.
+action "CalliopeSweepAttack" : EnemyAttack {
+  consideration composite {
+    allMustBeNonZero = true
+    first bool { key = "bool.is_shielded" }
+    rest [
+      multiply: bool { key = "bool.is_staggered"  invert = true },
+      multiply: targetexists { key = "target.player" },
+      // Range + facing gate: only in melee range within a wide arc.
+      multiply: inrange {
+        key      = "target.player"
+        maxdist  = 3.5
+        maxangle = 110.0
+        points   = [[0.0, 1.0], [0.8, 1.0], [1.0, 0.0]]
+      },
+      // Cooldown: prefer not immediately after the last action.
+      multiply: threshold {
+        key        = "float.time_since_last_action_norm"
+        comparison = greaterthan
+        threshold  = 0.5
+        iftrue     = 1.0
+        iffalse    = 0.0
+      },
+      // Anti-spam: punish consecutive Sweep uses (streak > 0.7 -> score = 0).
+      multiply: threshold {
+        key        = "float.same_action_streak_norm"
+        comparison = greaterthan
+        threshold  = 0.7
+        iftrue     = 0.0
+        iffalse    = 1.0
+      },
+      // Enrage scaling: score rises as health drops below 50%.
+      // At full health: 0.8.  At 50%: 1.0.  At 20%: 1.2.
+      multiply: curve {
+        key    = "float.self_health_norm"
+        points = [[0.2, 1.2], [0.5, 1.0], [1.0, 0.8]]
+      }
+    ]
+  }
+}
+
+// --- 5. Overhead Strike ---
+// Slower vertical slam -- rewards player for getting directly in front.
+// Narrows the facing arc so it only fires when well-positioned.
+action "CalliopeOverheadStrike" : EnemyAttack {
+  consideration composite {
+    allMustBeNonZero = true
+    first bool { key = "bool.is_shielded" }
+    rest [
+      multiply: bool { key = "bool.is_staggered"  invert = true },
+      multiply: targetexists { key = "target.player" },
+      // Tighter range/angle than Sweep.
+      multiply: inrange {
+        key      = "target.player"
+        maxdist  = 2.8
+        maxangle = 80.0
+        points   = [[0.0, 1.0], [0.8, 1.0], [1.0, 0.0]]
+      },
+      // Facing bonus: higher utility when player is directly in front.
+      multiply: curve {
+        key    = "float.angle_to_player_norm"
+        points = [[0.0, 1.0], [0.5, 0.5], [1.0, 0.0]]
+      },
+      // Longer cooldown than Sweep -- this is a deliberate, punishing move.
+      multiply: threshold {
+        key        = "float.time_since_last_action_norm"
+        comparison = greaterthan
+        threshold  = 0.7
+        iftrue     = 1.0
+        iffalse    = 0.0
+      },
+      // Enrage scaling.
+      multiply: curve {
+        key    = "float.self_health_norm"
+        points = [[0.2, 1.2], [0.5, 1.0], [1.0, 0.8]]
+      }
+    ]
+  }
+}
+
+// --- 6. Forward Lunge ---
+// Gap-closer for when the player retreats.
+// Fires at medium-to-far distance; low utility at point-blank.
+action "CalliopeForwardLunge" : EnemyAttack {
+  consideration composite {
+    allMustBeNonZero = true
+    first bool { key = "bool.is_shielded" }
+    rest [
+      multiply: bool { key = "bool.is_staggered"  invert = true },
+      multiply: targetexists { key = "target.player" },
+      // Scoring: low at close range, peaks at medium-far; zero at extreme range.
+      multiply: curve {
+        key    = "float.dist_to_player_norm"
+        points = [[0.0, 0.0], [0.4, 0.0], [0.6, 0.7], [0.9, 1.0]]
+      },
+      // Cooldown between lunges.
+      multiply: threshold {
+        key        = "float.time_since_last_action_norm"
+        comparison = greaterthan
+        threshold  = 0.6
+        iftrue     = 1.0
+        iffalse    = 0.0
+      },
+      // Anti-spam: punish back-to-back lunge spam.
+      multiply: threshold {
+        key        = "float.same_action_streak_norm"
+        comparison = greaterthan
+        threshold  = 0.7
+        iftrue     = 0.0
+        iffalse    = 1.0
+      },
+      // Enrage scaling.
+      multiply: curve {
+        key    = "float.self_health_norm"
+        points = [[0.2, 1.2], [0.5, 1.0], [1.0, 0.8]]
+      }
+    ]
+  }
+}
+
+// --- 7. Idle Fallback ---
+// Constant low score (0.05) -- ensures the brain never stalls.
+// No gates. Always available.
+action "CalliopeIdleFallback" : EnemyIdle {
+  consideration constant { value = 0.05 }
+}

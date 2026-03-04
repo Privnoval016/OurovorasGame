@@ -54,6 +54,21 @@ namespace Extensions.UtilityAI
         public string ResolveId() => internalId;
 
         /** <summary>
+         * Construct a <see cref="ContextKeyField"/> from a raw internal ID string.
+         * Used by the parser / code-generator to populate fields programmatically.
+         * The displayName is resolved from the cache if the key is registered;
+         * otherwise the id is used as a fallback display name.
+         * </summary>
+         */
+        public static ContextKeyField FromId(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return default;
+            EnsureCache();
+            _resolveCache.TryGetValue(id, out var ck);
+            return new ContextKeyField { internalId = id, displayName = ck?.DisplayName ?? id };
+        }
+
+        /** <summary>
          * Resolves the field to the actual <see cref="ContextKey"/> object via a cached dictionary lookup — O(1).
          * The cache is built once on first call and never rebuilt during a play session.
          * </summary>

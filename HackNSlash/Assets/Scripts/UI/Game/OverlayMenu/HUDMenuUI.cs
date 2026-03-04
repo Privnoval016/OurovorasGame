@@ -446,12 +446,12 @@ public class HUDMenuUI : MonoBehaviour, IService
             
             enemyHealthSliderBar.SetSliderValueInstant(healthPercentage);
 
-            float shieldPercentage = currentLockOnTarget.damageable.HealthComponent.TryGetComponent<ShieldComponent>(out var shield) 
+            float shieldPercentage = currentLockOnTarget.damageable.DamageableComponents.TryGetComponent<ShieldComponent>(out var shield) 
                 ? shield.CurrentShieldPercentage : 0f;
             
             enemyShieldSliderBar.SetSliderValueInstant(shieldPercentage);
             
-            ElementEffect currentElement = currentLockOnTarget.damageable.HealthComponent.TryGetComponent<ElementComponent>(out var elementComponent) 
+            ElementEffect currentElement = currentLockOnTarget.damageable.DamageableComponents.TryGetComponent<ElementComponent>(out var elementComponent) 
                 ? elementComponent.CurrentElementEffect : ElementEffect.None;
             
             enemyShieldSliderBar.SetMainSliderColor(Services.Get<ElementSystem>().GetElementData(currentElement).elementColor);

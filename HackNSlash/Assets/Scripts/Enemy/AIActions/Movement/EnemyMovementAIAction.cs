@@ -27,6 +27,12 @@ public class EnemyMovementAIAction : EnemyAIActionBase
     [Tooltip("Select which motion type to perform and tweak its parameters.")]
     [SerializeReference] public IMovementStrategy strategy;
 
+    [Header("Animation Override")]
+    [Tooltip("Optional: override the EnemyAnimData that this action uses for locomotion animations. " +
+             "When null, the brain's own EnemyAnimData is used. " +
+             "Assign a different asset here to share one action asset across different enemy models.")]
+    public EnemyAnimData animOverride;
+
     [Header("Stuck Detection")]
     [Tooltip("Seconds of not moving before the enemy is considered stuck.")]
     [Min(0.2f)] public float stuckTimeout = 1.2f;
@@ -45,12 +51,20 @@ public class EnemyMovementAIAction : EnemyAIActionBase
              "0 = no cap.")]
     [Min(0f)] public float maxDuration = 6f;
 
+    /** <summary>
+     * Returns the anim data this action should use — the per-action override if set,
+     * otherwise the brain's own EnemyAnimData. Strategies should call this rather than
+     * accessing <c>esm.enemyAnimData</c> directly so the action is portable across models.
+     * </summary>
+     */
+    public EnemyAnimData ResolveAnimData(EnemyStateMachine esm)
+        => animOverride != null ? animOverride : esm.enemyAnimData;
+
     #endregion
 
     #region Runtime State
 
     // Fields are reset in OnEnter so the ScriptableObject clone is clean each execution.
-    private Vector3 _lastPosition;
     private float _elapsed;
     private float _stuckTimer;
     private bool _unstucking;
@@ -67,9 +81,8 @@ public class EnemyMovementAIAction : EnemyAIActionBase
         _stuckTimer = 0f;
         _unstucking = false;
         _unstuckTimer = 0f;
-        _lastPosition = esm.transform.position;
 
-        strategy?.OnEnter(context, esm);
+        strategy?.OnEnter(context, esm, ResolveAnimData(esm));
     }
 
     protected override void OnEnemyUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -99,7 +112,6 @@ public class EnemyMovementAIAction : EnemyAIActionBase
             {
                 _unstucking = false;
                 _stuckTimer = 0f;
-                _lastPosition = esm.transform.position;
             }
             return;
         }
@@ -130,7 +142,6 @@ public class EnemyMovementAIAction : EnemyAIActionBase
         if (moving)
         {
             _stuckTimer = 0f;
-            _lastPosition = esm.transform.position;
             return;
         }
 
