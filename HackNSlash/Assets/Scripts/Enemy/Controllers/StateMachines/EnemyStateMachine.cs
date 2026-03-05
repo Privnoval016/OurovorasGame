@@ -201,7 +201,7 @@ public class EnemyStateMachine : AIBrainUser
 
     protected virtual void HitStateAction(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
-        if (ts.pe.knockbackImmune) return;
+        if (!ts.pe.TakeKnockback) return;
         sc.ChangeState(new EnemyHit());
     }
 

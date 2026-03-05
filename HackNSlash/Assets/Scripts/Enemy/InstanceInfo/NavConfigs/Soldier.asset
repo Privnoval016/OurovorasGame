@@ -15,7 +15,10 @@ MonoBehaviour:
   repathRate: 0.35
   waypointAcceptanceRadius: 0.6
   arrivalRadius: 0.25
-  maxSpeed: 5
+  destinationChangeTolerance: 0.25
+  stallTimeout: 1.5
+  stallMoveThreshold: 0.15
+  maxSpeed: 12
   accelerationForce: 40
   decelerationForce: 40
   rotationSpeed: 360

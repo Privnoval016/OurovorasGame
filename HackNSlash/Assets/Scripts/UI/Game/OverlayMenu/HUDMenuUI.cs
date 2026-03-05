@@ -472,6 +472,11 @@ public class HUDMenuUI : MonoBehaviour, IService
                                 currentLockOnTarget.damageable.Stats.GetInnateStat(InnateStat.MaxHealth) : 0f;
         
         enemyHealthSliderBar.TweenSliderValue(healthPercentage, 0.2f, 1f, 0.02f);
+        
+        float shieldPercentage = currentLockOnTarget.damageable.DamageableComponents.TryGetComponent<ShieldComponent>(out var shield) 
+            ? shield.CurrentShieldPercentage : 0f;
+        
+        enemyShieldSliderBar.TweenSliderValue(shieldPercentage, 0.2f);
     }
     
     #endregion

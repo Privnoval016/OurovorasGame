@@ -8,6 +8,36 @@ using PrimeTween;
 // All enemies that are able to take knockback should inherit from this class
 public class PhysicsEnemy : LockOnTarget
 {
+    /**
+     * <summary>
+     * Defines how this enemy takes knockback from attacks.  Knockback is only applied if <see cref="TakeKnockback"/> is true.
+     * </summary>
+     */
+    public enum KnockbackMode
+    {
+        [Tooltip("This enemy is completely immune to knockback.")]
+        KnockbackImmune,
+        [Tooltip("This enemy is immune to knockback while its shield is active.")]
+        ImmuneWhenShielded,
+        [Tooltip("This enemy always takes knockback from attacks, regardless of shield state.")]
+        AlwaysKnockback
+    }
+
+    /**
+     * <summary>
+     * Defines when this enemy enters hit state.
+     * </summary>
+     */
+    public enum HitReactionMode
+    {
+        [Tooltip("This enemy only enters hit state when staggered (usually on parry).")]
+        StaggerOnly,
+        [Tooltip("This enemy enters hit state on every successful hit, even if not taking knockback.")]
+        AlwaysReact,
+        [Tooltip("This enemy only enters hit state when taking knockback or when staggered.")]
+        ReactAtKnockback,
+    }
+    
     public event Action<ElementEffect, PlayerController, Attack, Transform, int> onHit = delegate { };
     public event Action<ElementEffect, PlayerController, Attack, Transform, int> onStagger = delegate { };
     
@@ -33,8 +63,60 @@ public class PhysicsEnemy : LockOnTarget
     public bool IsGrounded =>
         Physics.CheckBox(groundCheckPoint.position, groundCheckSize, Quaternion.identity, GameManager.Instance.groundLayer);
 
-    public bool knockbackImmune;
-    public bool TakeKnockback => !knockbackImmune && physicsInteract;
+    [Header("Knockback Parameters")]
+    [Tooltip("Determines how this enemy takes knockback from attacks.  Knockback is only applied if TakeKnockback is true.")]
+    public KnockbackMode knockbackMode = KnockbackMode.AlwaysKnockback;
+    
+    [Tooltip("Determines when the enemy enters hit state")]
+    public HitReactionMode hitReactionMode = HitReactionMode.ReactAtKnockback;
+
+    public bool knockbackImmuneOverride = false;
+
+    public bool TakeKnockback
+    {
+        get
+        {
+            bool takeKnockback = physicsInteract && !knockbackImmuneOverride;
+        
+            bool isShielded = damageable.DamageableComponents.TryGetComponent(out ShieldComponent sc) && sc.CurrentShieldPercentage > 0;
+        
+            switch (knockbackMode)
+            {
+                case KnockbackMode.KnockbackImmune:
+                    takeKnockback = false;
+                    break;
+                case KnockbackMode.ImmuneWhenShielded:
+                    takeKnockback = takeKnockback && !isShielded;
+                    break;
+            }
+            return takeKnockback;
+        }
+    }
+
+    /**
+     * <summary>
+     * Determines whether the enemy should enter hit state on a successful hit.
+     * If set to ReactAtKnockback, the enemy only enters hit state when taking knockback or when staggered.
+     * If set to StaggerOnly, the enemy only enters hit state when staggered (usually on parry).
+     * If set to AlwaysReact, the enemy enters hit state on every successful hit, even if not taking knockback.
+     * </summary>
+     *
+     * <param name="isHit">Whether the current hit is a successful hit (true) or a stagger/parry hit (false).</param>
+     */
+    public bool EnterHitState(bool isHit)
+    {
+        switch (hitReactionMode)
+        {
+            case HitReactionMode.StaggerOnly: // Only enter hit state on stagger/parry hits, not regular hits
+                return !isHit;
+            case HitReactionMode.AlwaysReact: // Enter hit state on every successful hit, even if not taking knockback
+                return true;
+            case HitReactionMode.ReactAtKnockback: // Only enter hit state when taking knockback or when staggered
+                return (isHit && TakeKnockback) || !isHit;
+            default:
+                return false;
+        }
+    }
 
     public bool physicsInteract = true;
     private float physicsLockTime;
@@ -68,7 +150,7 @@ public class PhysicsEnemy : LockOnTarget
     {
         col = GetComponent<Collider>();
         rb.useGravity = false;
-        knockbackImmune = false;
+        knockbackImmuneOverride = false;
 
         if (physicsBody == null)
             physicsBody = GetComponent<CharacterPhysicsBody>();
