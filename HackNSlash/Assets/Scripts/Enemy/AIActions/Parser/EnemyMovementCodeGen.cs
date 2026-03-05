@@ -45,18 +45,21 @@ public sealed class EnemyMovementCodeGen : IActionCodeGen
     {
         var asset = ScriptableObject.CreateInstance<EnemyMovementAIAction>();
         asset.name = node.Name;
+        ApplyProperties(node, asset);
+        return new GeneratedAction { Name = node.Name, Asset = asset };
+    }
 
-        // Build a property lookup keyed case-insensitively.
+    public void ApplyToExisting(ActionDefNode node, AIActionBase freshAsset, AIActionBase existingAsset, CodeGenContext ctx)
+    {
+        if (existingAsset is not EnemyMovementAIAction existing) return;
+        // Overwrite only the DSL-owned fields — strategy, stuck, and safety.
+        // Everything else (anim data lives on the enemy, not here) is untouched.
+        ApplyProperties(node, existing);
+    }
+
+    private static void ApplyProperties(ActionDefNode node, EnemyMovementAIAction asset)
+    {
         var props = BuildPropLookup(node);
-
-        // Top-level action fields.
-        if (GetBool(props, "aggro", true) == false)
-        {
-            // AggroedAction has a private setter — access via SerializedObject in editor, or use
-            // the field directly here since we're in the same assembly context.
-        }
-
-        // Stuck / safety tuning.
         if (TryGetFloat(props, "stuckTimeout",    out float st)) asset.stuckTimeout         = st;
         if (TryGetFloat(props, "speedThreshold",  out float spd)) asset.movingSpeedThreshold = spd;
         if (TryGetFloat(props, "unstuckDist",     out float ud)) asset.unstuckStepDistance   = ud;
@@ -77,8 +80,6 @@ public sealed class EnemyMovementCodeGen : IActionCodeGen
             "charge"   => BuildCharge(props),
             _ => BuildChase(props)
         };
-
-        return new GeneratedAction { Name = node.Name, Asset = asset };
     }
 
     private static ChaseStrategy BuildChase(System.Collections.Generic.Dictionary<string, ValueNode> p)
@@ -100,8 +101,9 @@ public sealed class EnemyMovementCodeGen : IActionCodeGen
     private static OrbitStrategy BuildOrbit(System.Collections.Generic.Dictionary<string, ValueNode> p)
         => new()
         {
-            angularSpeed = GetFloat(p, "angularSpeed", 60f),
-            duration     = GetFloat(p, "duration", 2f)
+            angularSpeed   = GetFloat(p, "angularSpeed", 60f),
+            duration       = GetFloat(p, "duration", 2f),
+            radiusOverride = GetFloat(p, "radius", 0f)
         };
 
     private static RetreatStrategy BuildRetreat(System.Collections.Generic.Dictionary<string, ValueNode> p)
@@ -167,6 +169,7 @@ public sealed class EnemyMovementCodeGen : IActionCodeGen
                 sb.AppendLine($"  strategy     = Orbit");
                 sb.AppendLine($"  angularSpeed = {o.angularSpeed}");
                 sb.AppendLine($"  duration     = {o.duration}");
+                if (o.radiusOverride > 0f) sb.AppendLine($"  radius       = {o.radiusOverride}");
                 break;
             case RetreatStrategy r:
                 sb.AppendLine($"  strategy    = Retreat");

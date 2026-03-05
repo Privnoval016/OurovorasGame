@@ -10,13 +10,14 @@ namespace Extensions.UtilityAI.Parser
      * for consumption by <see cref="AiDefParser"/>.
      *
      * Language rules:
-     * - Line comments: <c>// ...</c> and <c># ...</c>
-     * - Block comments: <c>/* ... *&#47;</c>
-     * - Strings: <c>"..."</c> or <c>'...'</c>
-     * - Numbers: integers and decimals, optional leading minus
-     * - Booleans: <c>true</c> / <c>false</c>
-     * - Identifiers: [a-zA-Z_][a-zA-Z0-9_.]*
-     * - All other single-character punctuation maps to its <see cref="TokenKind"/>
+     * <list type="bullet">
+     *   <item>Whitespace (spaces, tabs, newlines) is generally ignored and serves only to separate tokens. Newlines are tokenized separately to allow for line-based error reporting.</item>
+     *   <item>Comments are ignored. Line comments start with // or # and continue to the end of the line. Block comments are enclosed in /* ... *\/ and can span multiple lines.</item>
+     *   <item>Tokens include identifiers (e.g. action names, keywords), string literals (enclosed in single or double quotes), numbers (integers and decimals, optionally negative), and single-character symbols (e.g. { } ( ) [ ] : , = @).</item>
+     *   <item>Identifiers can contain letters, digits, underscores, and dots (e.g. "target.player").</item>
+     *   <item>Boolean literals are the keywords "true" and "false".</item>
+     *   <item>Non-ASCII Unicode characters are treated as whitespace to allow for decorative comments with box-drawing characters, smart quotes, etc.</item>
+     * </list>
      * </summary>
      */
     public sealed class Lexer

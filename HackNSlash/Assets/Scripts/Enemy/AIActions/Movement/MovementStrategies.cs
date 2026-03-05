@@ -28,7 +28,7 @@ public class ChaseStrategy : IMovementStrategy
     {
         _target = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -81,9 +81,9 @@ public class StrafeStrategy : IMovementStrategy
     public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _elapsed = 0f;
-        _target = context.GetTarget(EnemyContextKeys.Player);
+        _target  = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -95,7 +95,6 @@ public class StrafeStrategy : IMovementStrategy
     }
 
     public void OnExit(EnemyContext context, EnemyStateMachine esm) => esm.Brake();
-
     public bool IsComplete(EnemyContext context, EnemyStateMachine esm) => _elapsed >= duration;
 }
 
@@ -112,6 +111,10 @@ public class OrbitStrategy : IMovementStrategy
     [Tooltip("Duration (seconds) before the brain re-evaluates.")]
     [Min(0.1f)] public float duration = 2f;
 
+    [Tooltip("Orbit radius in metres. When > 0 this overrides NavConfig.circleRadius, " +
+             "letting you set a per-action orbit distance without touching the shared config.")]
+    [Min(0f)] public float radiusOverride = 0f;
+
     private float _elapsed;
     private Transform _target;
 
@@ -120,9 +123,9 @@ public class OrbitStrategy : IMovementStrategy
     public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _elapsed = 0f;
-        _target = context.GetTarget(EnemyContextKeys.Player);
+        _target  = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
         if (_target != null) esm.ts.motor.ResetOrbitAround(_target.position);
     }
 
@@ -131,11 +134,14 @@ public class OrbitStrategy : IMovementStrategy
         _elapsed += Time.deltaTime;
         if (_target == null) _target = context.GetTarget(EnemyContextKeys.Player);
         if (_target == null) return;
-        esm.OrbitAround(_target.position, angularSpeed);
+
+        if (radiusOverride > 0f)
+            esm.ts.motor.Orbit(_target.position, angularSpeed, radiusOverride);
+        else
+            esm.OrbitAround(_target.position, angularSpeed);
     }
 
     public void OnExit(EnemyContext context, EnemyStateMachine esm) => esm.Brake();
-
     public bool IsComplete(EnemyContext context, EnemyStateMachine esm) => _elapsed >= duration;
 }
 
@@ -162,9 +168,9 @@ public class RetreatStrategy : IMovementStrategy
     public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _elapsed = 0f;
-        _target = context.GetTarget(EnemyContextKeys.Player);
+        _target  = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -179,8 +185,7 @@ public class RetreatStrategy : IMovementStrategy
 
     public bool IsComplete(EnemyContext context, EnemyStateMachine esm)
     {
-        if (_elapsed >= maxDuration) return true;
-        if (_target == null) return true;
+        if (_elapsed >= maxDuration || _target == null) return true;
         Vector3 delta = _target.position - esm.transform.position;
         delta.y = 0f;
         return delta.sqrMagnitude >= desiredDistance * desiredDistance;
@@ -206,7 +211,7 @@ public class BackJumpStrategy : IMovementStrategy
 
     public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
-        _target = context.GetTarget(EnemyContextKeys.Player);
+        _target    = context.GetTarget(EnemyContextKeys.Player);
         _jumpFired = false;
         _settleTimer = 0f;
     }
@@ -219,13 +224,10 @@ public class BackJumpStrategy : IMovementStrategy
             esm.BackJump(threat);
             _jumpFired = true;
         }
-
-        if (_jumpFired && !esm.ts.motor.IsBackJumping)
-            _settleTimer += Time.deltaTime;
+        if (_jumpFired && !esm.ts.motor.IsBackJumping) _settleTimer += Time.deltaTime;
     }
 
     public void OnExit(EnemyContext context, EnemyStateMachine esm) { }
-
     public bool IsComplete(EnemyContext context, EnemyStateMachine esm)
         => _jumpFired && !esm.ts.motor.IsBackJumping && _settleTimer >= settleTime;
 }
@@ -248,17 +250,11 @@ public class WanderStrategy : IMovementStrategy
     {
         _elapsed = 0f;
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
-    public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
-    {
-        _elapsed += Time.deltaTime;
-        esm.Wander();
-    }
-
+    public void OnUpdate(EnemyContext context, EnemyStateMachine esm) { _elapsed += Time.deltaTime; esm.Wander(); }
     public void OnExit(EnemyContext context, EnemyStateMachine esm) => esm.Brake();
-
     public bool IsComplete(EnemyContext context, EnemyStateMachine esm) => _elapsed >= duration;
 }
 
@@ -283,23 +279,20 @@ public class IdleStrategy : IMovementStrategy
     public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
         _elapsed = 0f;
-        _target = context.GetTarget(EnemyContextKeys.Player);
+        _target  = context.GetTarget(EnemyContextKeys.Player);
         esm.Brake();
-        esm.ts.ea.PlayEnemyAnimation(animData.idleClip);
+        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.idleClip);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
     {
         _elapsed += Time.deltaTime;
-        if (facePlayer)
-        {
-            if (_target == null) _target = context.GetTarget(EnemyContextKeys.Player);
-            if (_target != null) esm.TurnToPosition(_target.position);
-        }
+        if (!facePlayer) return;
+        if (_target == null) _target = context.GetTarget(EnemyContextKeys.Player);
+        if (_target != null) esm.TurnToPosition(_target.position);
     }
 
     public void OnExit(EnemyContext context, EnemyStateMachine esm) { }
-
     public bool IsComplete(EnemyContext context, EnemyStateMachine esm) => _elapsed >= duration;
 }
 
@@ -326,10 +319,10 @@ public class ChargeStrategy : IMovementStrategy
 
     public void OnEnter(EnemyContext context, EnemyStateMachine esm, EnemyAnimData animData)
     {
-        _target = context.GetTarget(EnemyContextKeys.Player);
+        _target  = context.GetTarget(EnemyContextKeys.Player);
         _elapsed = 0f;
         esm.ts.ea.RootMotionEnabled(false);
-        esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -344,8 +337,7 @@ public class ChargeStrategy : IMovementStrategy
 
     public bool IsComplete(EnemyContext context, EnemyStateMachine esm)
     {
-        if (_elapsed >= maxDuration) return true;
-        if (_target == null) return true;
+        if (_elapsed >= maxDuration || _target == null) return true;
         Vector3 delta = _target.position - esm.transform.position;
         delta.y = 0f;
         return delta.sqrMagnitude <= stopDistance * stopDistance;

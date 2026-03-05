@@ -82,6 +82,14 @@ public class PlayerStateMachine : MonoBehaviour
     [Header("Checks")] 
     [SerializeField] public Transform groundCheckPoint;
     [SerializeField] public Vector3 groundCheckSize = new Vector3(0.49f, 0.3f, 0.49f);
+
+    [Header("Slope Probe")]
+    [Tooltip("Height above the player's feet to start the downward ground-normal raycast.")]
+    [SerializeField] public float slopeProbeOriginOffset = 0.3f;
+    [Tooltip("Total downward ray length (originOffset + this = max bump height the probe sees).")]
+    [SerializeField] public float slopeProbeDistance = 0.5f;
+    [Tooltip("Surfaces steeper than this angle are treated as walls; movement direction is not projected onto them.")]
+    [SerializeField] public float slopeProbeMaxAngle = 55f;
     
     #endregion
 

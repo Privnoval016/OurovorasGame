@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 421a7679bd49464a8de916155608ed23, type: 3}
+  m_Name: CalliopeOrbitFar
+  m_EditorClassIdentifier: 
+  consideration:
+    rid: 6781614114428420921
+  <AggroedAction>k__BackingField: 1
+  strategy:
+    rid: 6781614114428420922
+  stuckTimeout: 1.2
+  movingSpeedThreshold: 0.3
+  unstuckStepDistance: 1.5
+  unstuckStepDuration: 0.3
+  maxDuration: 6
+  references:
+    version: 2
+    RefIds:
+    - rid: 6781614114428420921
+      type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        allMustBeNonZero: 1
+        first:
+          rid: 6781614114428420923
+        rest:
+        - rid: 6781614114428420924
+        - rid: 6781614114428420925
+        - rid: 6781614114428420926
+        operations: 000000000000000000000000
+    - rid: 6781614114428420922
+      type: {class: OrbitStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        angularSpeed: 70
+        duration: 1.2
+        radiusOverride: 6
+    - rid: 6781614114428420923
+      type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        contextKey:
+          internalId: bool.is_shielded
+          displayName: Is Shielded
+        invert: 0
+    - rid: 6781614114428420924
+      type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        contextKey:
+          internalId: bool.is_staggered
+          displayName: Is Staggered
+        invert: 1
+    - rid: 6781614114428420925
+      type: {class: TargetExistsConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        targetKey:
+          internalId: target.player
+          displayName: Player
+        invert: 0
+    - rid: 6781614114428420926
+      type: {class: CurveConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        contextKey:
+          internalId: float.dist_to_player_norm
+          displayName: Distance to Player (norm)
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.35
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.5
+            value: 0.35
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.62
+            value: 0.45
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.75
+            value: 0.45
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.88
+            value: 0.1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4

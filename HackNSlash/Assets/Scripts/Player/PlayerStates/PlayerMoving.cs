@@ -142,7 +142,13 @@ public class PlayerMoving : PlayerState
 	    pc.psm.moveDirection = pc.psm.moveInput.x * cam.right.ZeroVector3Axis().normalized + 
 	                           pc.psm.moveInput.y * cam.forward.ZeroVector3Axis().normalized;
 
-        Vector3 targetSpeed = pc.psm.moveDirection * (pc.psm.IsSprinting ? pc.psm.playerData.sprintMaxSpeed : pc.psm.playerData.runMaxSpeed);
+	    // Project the flat move direction along the ground surface so the player rides over small
+	    // bumps and shallow slopes instead of stalling against them. Only applied when grounded.
+	    Vector3 slopeDir = pc.psm.moveDirection;
+	    if (!pc.psm.isJumping && !pc.psm.isJumpFalling)
+	        slopeDir = ProjectOnGround(pc.psm.moveDirection, pc.transform.position, pc.psm);
+
+        Vector3 targetSpeed = slopeDir * (pc.psm.IsSprinting ? pc.psm.playerData.sprintMaxSpeed : pc.psm.playerData.runMaxSpeed);
 		targetSpeed = Vector3.Lerp(pc.rb.linearVelocity, targetSpeed, lerpAmount);
 
 		float accelRate;
@@ -165,6 +171,28 @@ public class PlayerMoving : PlayerState
 		
 		pc.psm.TurnToLook();
 	}
+
+    /** <summary>
+     * Projects <paramref name="flatDir"/> onto the ground surface directly below the player.
+     * Falls back to the original flat direction if no ground is found or the surface is too steep.
+     * </summary>
+     */
+    private static Vector3 ProjectOnGround(Vector3 flatDir, Vector3 playerPos, PlayerStateMachine psm)
+    {
+	    if (flatDir.sqrMagnitude < 0.0001f) return flatDir;
+
+	    Vector3 origin = playerPos + Vector3.up * psm.slopeProbeOriginOffset;
+	    float totalDist = psm.slopeProbeOriginOffset + psm.slopeProbeDistance;
+
+	    if (!Physics.Raycast(origin, Vector3.down, out RaycastHit hit, totalDist, ~0, QueryTriggerInteraction.Ignore))
+		    return flatDir;
+
+	    float angle = Vector3.Angle(hit.normal, Vector3.up);
+	    if (angle > psm.slopeProbeMaxAngle) return flatDir;
+
+	    Vector3 projected = Vector3.ProjectOnPlane(flatDir, hit.normal).normalized;
+	    return projected.sqrMagnitude > 0.01f ? projected : flatDir;
+    }
     
     #endregion
     

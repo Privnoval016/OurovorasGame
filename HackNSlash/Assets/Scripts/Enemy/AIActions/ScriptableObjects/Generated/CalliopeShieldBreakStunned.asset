@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CalliopeShieldBreakStunned
   m_EditorClassIdentifier: 
   consideration:
-    rid: 6781614068785742573
+    rid: 6781614114428420952
   <AggroedAction>k__BackingField: 1
   exitCondition: 1
   duration: 2
@@ -24,22 +24,22 @@ MonoBehaviour:
       _NormalizedTimes: []
       _Callbacks: []
       _Names: []
-    _Clip: {fileID: 0}
+    _Clip: {fileID: 7400000, guid: d0f2c93122c9a436f94f2b16264998b2, type: 2}
     _NormalizedStartTime: NaN
   references:
     version: 2
     RefIds:
-    - rid: 6781614068785742573
+    - rid: 6781614114428420952
       type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
         allMustBeNonZero: 1
         first:
-          rid: 6781614068785742574
+          rid: 6781614114428420953
         rest:
-        - rid: 6781614068785742575
+        - rid: 6781614114428420954
         operations: 00000000
-    - rid: 6781614068785742574
+    - rid: 6781614114428420953
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -47,7 +47,7 @@ MonoBehaviour:
           internalId: bool.is_shielded
           displayName: Is Shielded
         invert: 1
-    - rid: 6781614068785742575
+    - rid: 6781614114428420954
       type: {class: ConstantConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:

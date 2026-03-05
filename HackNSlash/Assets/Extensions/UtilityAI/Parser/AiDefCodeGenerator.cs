@@ -80,23 +80,35 @@ namespace Extensions.UtilityAI.Parser
                 GeneratedAction ga = gen.Generate(actionNode, ctx);
                 if (ga?.Asset == null) continue;
 
-                // Assign consideration (generic — all action types share this).
+                // Build the consideration from the parsed node.
+                ConsiderationBases.Consideration builtConsideration = null;
                 if (actionNode.Consideration != null)
-                    ga.Asset.consideration = _considerationBuilder.Build(actionNode.Consideration);
+                    builtConsideration = _considerationBuilder.Build(actionNode.Consideration);
 
-                // Save the asset — overwrite if one already exists at this path.
+                // Save or update the asset.
                 string safeName = SanitiseName(ga.Name);
                 string assetPath = $"{outputDir}/{safeName}.asset";
 
                 var existing = AssetDatabase.LoadAssetAtPath<AIActionBase>(assetPath);
                 if (existing != null)
                 {
-                    // Copy all serialised data from the new instance onto the existing asset on disk.
-                    EditorUtility.CopySerialized(ga.Asset, existing);
+                    // Selective update: only overwrite what the .aidef file actually specifies.
+                    // Fields like attack data, hitbox references, etc. that are not in the DSL
+                    // are left untouched so manual inspector work is never wiped.
+                    if (builtConsideration != null)
+                        existing.consideration = builtConsideration;
+
+                    // Let the generator apply its own owned fields onto the existing asset.
+                    gen.ApplyToExisting(actionNode, ga.Asset, existing, ctx);
+
                     EditorUtility.SetDirty(existing);
+                    // Point ga.Asset to the existing so callers get the right reference.
+                    ga.Asset = existing;
                 }
                 else
                 {
+                    if (builtConsideration != null)
+                        ga.Asset.consideration = builtConsideration;
                     AssetDatabase.CreateAsset(ga.Asset, assetPath);
                 }
 

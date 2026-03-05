@@ -53,6 +53,7 @@ public sealed class EnemyAttackCodeGen : IActionCodeGen
 
 /** <summary>
  * Code generator for <c>EnemyIdle</c> action blocks.
+ * Supported DSL properties: duration (float), facePlayer (bool).
  * </summary>
  */
 public sealed class EnemyIdleCodeGen : IActionCodeGen
@@ -63,7 +64,26 @@ public sealed class EnemyIdleCodeGen : IActionCodeGen
     {
         var asset = ScriptableObject.CreateInstance<EnemyIdleAIAction>();
         asset.name = node.Name;
+        ApplyProperties(node, asset);
         return new GeneratedAction { Name = node.Name, Asset = asset };
+    }
+
+    public void ApplyToExisting(ActionDefNode node, AIActionBase freshAsset, AIActionBase existingAsset, CodeGenContext ctx)
+    {
+        if (existingAsset is not EnemyIdleAIAction existing) return;
+        ApplyProperties(node, existing);
+    }
+
+    private static void ApplyProperties(ActionDefNode node, EnemyIdleAIAction asset)
+    {
+        foreach (var prop in node.Properties)
+        {
+            switch (prop.Key.ToLowerInvariant())
+            {
+                case "duration"   when prop.Value is NumberValueNode n: asset.duration   = n.Value; break;
+                case "faceplayer" when prop.Value is BoolValueNode b:   asset.facePlayer = b.Value; break;
+            }
+        }
     }
 
     public string Serialise(AIActionBase action)
@@ -71,6 +91,8 @@ public sealed class EnemyIdleCodeGen : IActionCodeGen
         if (action is not EnemyIdleAIAction a) return string.Empty;
         var sb = new StringBuilder();
         sb.AppendLine($"action \"{a.name}\" : EnemyIdle {{");
+        sb.AppendLine($"  duration   = {a.duration}");
+        sb.AppendLine($"  facePlayer = {a.facePlayer.ToString().ToLower()}");
         if (a.consideration != null) sb.AppendLine(AiDefCodeGenerator.SerialiseConsideration(a.consideration));
         sb.AppendLine("}");
         return sb.ToString();
@@ -96,6 +118,18 @@ public sealed class EnemyStunnedCodeGen : IActionCodeGen
     {
         var asset = ScriptableObject.CreateInstance<EnemyStunnedAIAction>();
         asset.name = node.Name;
+        ApplyProperties(node, asset);
+        return new GeneratedAction { Name = node.Name, Asset = asset };
+    }
+
+    public void ApplyToExisting(ActionDefNode node, AIActionBase freshAsset, AIActionBase existingAsset, CodeGenContext ctx)
+    {
+        if (existingAsset is not EnemyStunnedAIAction existing) return;
+        ApplyProperties(node, existing);
+    }
+
+    private static void ApplyProperties(ActionDefNode node, EnemyStunnedAIAction asset)
+    {
         var props = BuildPropLookup(node);
         string exitStr = GetString(props, "exitCondition", "ShieldRestored").ToLowerInvariant();
         asset.exitCondition = exitStr switch
@@ -106,7 +140,6 @@ public sealed class EnemyStunnedCodeGen : IActionCodeGen
             _                => EnemyStunnedAIAction.ExitCondition.ShieldRestored
         };
         if (TryGetFloat(props, "duration", out float d)) asset.duration = d;
-        return new GeneratedAction { Name = node.Name, Asset = asset };
     }
 
     public string Serialise(AIActionBase action)

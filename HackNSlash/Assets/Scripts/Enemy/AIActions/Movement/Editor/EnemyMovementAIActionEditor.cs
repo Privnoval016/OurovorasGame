@@ -84,11 +84,6 @@ public class EnemyMovementAIActionEditor : Editor
         // ── Movement Strategy ───────────────────────────────────────────────
         Section("Movement Strategy", DrawStrategySection);
 
-        // ── Animation Override ──────────────────────────────────────────────
-        Section("Animation", () =>
-            DrawProp("animOverride", "Anim Override",
-                "Override EnemyAnimData for this action. Leave null to use the brain's own data."));
-
         // ── Stuck Detection ─────────────────────────────────────────────────
         _showStuck = EditorGUILayout.Foldout(_showStuck, "Stuck Detection", true, EditorStyles.foldoutHeader);
         if (_showStuck)
@@ -141,30 +136,32 @@ public class EnemyMovementAIActionEditor : Editor
             stratProp.managedReferenceValue = chosen == 0
                 ? null
                 : Activator.CreateInstance(_strategyTypes[chosen - 1]);
+            serializedObject.ApplyModifiedProperties();
+            serializedObject.Update();
+            // Refresh after type change so the iterator below sees new fields.
+            stratProp = serializedObject.FindProperty("strategy");
         }
 
-        // Draw only the serialized (public) child properties of the strategy — not
-        // private runtime fields. We walk children manually and stop at depth > 1.
-        if (stratProp.managedReferenceValue != null)
+        if (stratProp.managedReferenceValue == null) return;
+
+        EditorGUILayout.Space(4);
+
+        // Reflect the concrete type to find all serialized public instance fields.
+        // FindPropertyRelative is then used to get a stable SerializedProperty for each,
+        // avoiding all depth-arithmetic issues with managed-reference iterators.
+        var concreteType = stratProp.managedReferenceValue.GetType();
+        EditorGUI.indentLevel++;
+        foreach (var field in concreteType.GetFields(
+            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
         {
-            EditorGUILayout.Space(4);
-            EditorGUI.indentLevel++;
+            // Skip backing fields of auto-properties and compiler-generated fields.
+            if (field.Name.StartsWith("<", StringComparison.Ordinal)) continue;
 
-            // Copy the property and iterate one level deep only.
-            SerializedProperty it = stratProp.Copy();
-            SerializedProperty end = stratProp.GetEndProperty(false);
-            bool entered = it.NextVisible(true); // step into managed reference
-
-            while (entered && !SerializedProperty.EqualContents(it, end))
-            {
-                // Only draw direct children (depth == stratProp.depth + 2 for managed refs).
-                if (it.depth <= stratProp.depth + 2)
-                    EditorGUILayout.PropertyField(it, true);
-                entered = it.NextVisible(false); // siblings only, never recurse further
-            }
-
-            EditorGUI.indentLevel--;
+            var child = stratProp.FindPropertyRelative(field.Name);
+            if (child != null)
+                EditorGUILayout.PropertyField(child, true);
         }
+        EditorGUI.indentLevel--;
     }
 
     // ── Layout helpers ────────────────────────────────────────────────────────

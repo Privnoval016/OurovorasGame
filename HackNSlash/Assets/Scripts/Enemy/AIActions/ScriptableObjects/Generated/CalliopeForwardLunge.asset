@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CalliopeForwardLunge
   m_EditorClassIdentifier: 
   consideration:
-    rid: 6781614068785742605
+    rid: 6781614114428420927
   <AggroedAction>k__BackingField: 1
   attack:
     isEnabled: 0
@@ -22,8 +22,16 @@ MonoBehaviour:
     attackCooldown: 0
     isParryable: 0
     enemyAttack:
-      rid: -2
-    attackClips: []
+      rid: 6781614105522602916
+    attackClips:
+    - _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 7400000, guid: b664454b0674347b69ab8e5dc20f842c, type: 2}
+      _NormalizedStartTime: NaN
     animDelay: 0
     useRootMotion: 0
     exitConditions: 0
@@ -42,24 +50,27 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 6781614068785742605
+    - rid: 6781614105522602916
+      type: {class: DashLungeEnemyAttackStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        dashSpeed: 50
+        dashDuration: 0.4
+        lockDirectionOnDash: 1
+    - rid: 6781614114428420927
       type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
         allMustBeNonZero: 1
         first:
-          rid: 6781614068785742606
+          rid: 6781614114428420928
         rest:
-        - rid: 6781614068785742607
-        - rid: 6781614068785742608
-        - rid: 6781614068785742609
-        - rid: 6781614068785742610
-        - rid: 6781614068785742611
-        - rid: 6781614068785742612
-        operations: 000000000000000000000000000000000000000000000000
-    - rid: 6781614068785742606
+        - rid: 6781614114428420929
+        - rid: 6781614114428420930
+        - rid: 6781614114428420931
+        - rid: 6781614114428420932
+        - rid: 6781614114428420933
+        operations: 0000000000000000000000000000000000000000
+    - rid: 6781614114428420928
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -67,7 +78,7 @@ MonoBehaviour:
           internalId: bool.is_shielded
           displayName: Is Shielded
         invert: 0
-    - rid: 6781614068785742607
+    - rid: 6781614114428420929
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -75,7 +86,7 @@ MonoBehaviour:
           internalId: bool.is_staggered
           displayName: Is Staggered
         invert: 1
-    - rid: 6781614068785742608
+    - rid: 6781614114428420930
       type: {class: TargetExistsConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -83,7 +94,7 @@ MonoBehaviour:
           internalId: target.player
           displayName: Player
         invert: 0
-    - rid: 6781614068785742609
+    - rid: 6781614114428420931
       type: {class: CurveConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -103,70 +114,17 @@ MonoBehaviour:
             inWeight: 0
             outWeight: 0
           - serializedVersion: 3
-            time: 0.4
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 0.6
-            value: 0.7
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 0.9
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-    - rid: 6781614068785742610
-      type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
-        asm: Assembly-CSharp}
-      data:
-        contextKey:
-          internalId: float.time_since_last_action_norm
-          displayName: Time Since Last Action (norm)
-        comparison: 0
-        threshold: 0.6
-        scoreIfTrue: 1
-        scoreIfFalse: 0
-    - rid: 6781614068785742611
-      type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
-        asm: Assembly-CSharp}
-      data:
-        contextKey:
-          internalId: float.same_action_streak_norm
-          displayName: Same-Action Streak (norm)
-        comparison: 0
-        threshold: 0.7
-        scoreIfTrue: 0
-        scoreIfFalse: 1
-    - rid: 6781614068785742612
-      type: {class: CurveConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
-        asm: Assembly-CSharp}
-      data:
-        contextKey:
-          internalId: float.self_health_norm
-          displayName: Self Health (norm)
-        curve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
             time: 0.2
-            value: 1.2
+            value: 0.08
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.35
+            value: 0.45
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -175,7 +133,34 @@ MonoBehaviour:
             outWeight: 0
           - serializedVersion: 3
             time: 0.5
-            value: 1
+            value: 0.8
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.62
+            value: 0.72
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.75
+            value: 0.28
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.9
+            value: 0.04
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -184,7 +169,7 @@ MonoBehaviour:
             outWeight: 0
           - serializedVersion: 3
             time: 1
-            value: 0.8
+            value: 0
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -194,3 +179,25 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
+    - rid: 6781614114428420932
+      type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        contextKey:
+          internalId: float.time_since_last_action_norm
+          displayName: Time Since Last Action (norm)
+        comparison: 0
+        threshold: 0.45
+        scoreIfTrue: 1
+        scoreIfFalse: 0
+    - rid: 6781614114428420933
+      type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        contextKey:
+          internalId: float.same_action_streak_norm
+          displayName: Same-Action Streak (norm)
+        comparison: 0
+        threshold: 0.4
+        scoreIfTrue: 0
+        scoreIfFalse: 1

@@ -20,8 +20,9 @@ public class EnemyStateMachine : AIBrainUser
     public EnemyAIActionBase currentAction;
 
     [Header("Context Settings")]
-    [Tooltip("Normalise TimeSinceLastAction against this window (seconds).")]
-    public float actionCooldownWindow = 5f;
+    [Tooltip("Normalise TimeSinceLastAction against this window (seconds). " +
+             "e.g. window=2 means threshold 0.5 = 1s cooldown between actions.")]
+    public float actionCooldownWindow = 2f;
     [Tooltip("Normalise SameActionStreak against this cap.")]
     public int streakCap = 4;
 
@@ -155,8 +156,26 @@ public class EnemyStateMachine : AIBrainUser
 
     public override void ExecuteNewAction(AIActionBase action, EnemyContext context, float utility)
     {
+        // Only execute when the current action has finished (state returned to EnemyInitialState).
+        // This prevents the brain tick from interrupting a running movement action.
+        if (sc.IsState<EnemyActing>()) return;
+
         if (action is EnemyAIActionBase enemyAction)
+        {
+            // Only reset cooldown timer / streak for committed actions (attacks, stun, idle).
+            // Movement fill actions override ResetsActionTimer = false so attack cooldowns
+            // keep accumulating through orbit and close-dash phases.
+            if (enemyAction.ResetsActionTimer)
+            {
+                string starting = action.name;
+                _secondLastActionName = _lastActionName;
+                _sameActionStreak = starting == _lastActionName ? _sameActionStreak + 1 : 1;
+                _lastActionName = starting;
+                _timeSinceLastAction = 0f;
+            }
+
             sc.ChangeState(new EnemyActing(Instantiate(enemyAction), context));
+        }
     }
 
     #endregion
@@ -166,12 +185,6 @@ public class EnemyStateMachine : AIBrainUser
     protected virtual void HitStateAction(ElementEffect element, PlayerController pc, Attack a, Transform attackerTransform, int actionIndex = 0)
     {
         if (ts.pe.knockbackImmune) return;
-        if (sc.IsState<EnemyHit>())
-        {
-            // Re-entering hit while already in hit (e.g. combo hit): restart the state.
-            sc.ChangeState(new EnemyHit());
-            return;
-        }
         sc.ChangeState(new EnemyHit());
     }
 
@@ -229,8 +242,25 @@ public class EnemyStateMachine : AIBrainUser
     #region Movement Methods
 
     /** <summary>
-     * Move the enemy in <paramref name="direction"/> at the evaluated move speed.
-     * Safe to call every frame.
+     * Move the enemy toward <paramref name="destination"/> using A* path steering.
+     * Sets the nav destination and feeds the resulting steering direction into the motor.
+     * </summary>
+     */
+    public void MoveToDestination(Vector3 destination, float speedMultiplier = 1f)
+    {
+        if (Services.Get<CombatSystem>().EntitiesStopped) return;
+        if (!CanMove) return;
+
+        ts.nav.SetDestination(destination);
+        Vector3 dir = ts.nav.GetSteeringDirection();
+        if (dir == Vector3.zero) return;
+        moveDirection = dir;
+        ts.motor.Move(dir, speedMultiplier);
+    }
+
+    /** <summary>
+     * Move in a raw <paramref name="direction"/> (normalised XZ) without pathfinding.
+     * Used for short-range or direct movement primitives.
      * </summary>
      */
     public void MoveInDirection(Vector3 direction, float speedMultiplier = 1f)
@@ -242,27 +272,15 @@ public class EnemyStateMachine : AIBrainUser
         ts.motor.Move(direction, speedMultiplier);
     }
 
-    /** <summary>Move toward a world-space <paramref name="destination"/> using A* path steering.</summary> */
-    public void MoveToDestination(Vector3 destination, float speedMultiplier = 1f)
-    {
-        if (Services.Get<CombatSystem>().EntitiesStopped) return;
-        if (!CanMove) return;
-
-        ts.nav.SetDestination(destination);
-        Vector3 dir = ts.nav.GetSteeringDirection();
-        moveDirection = dir;
-        ts.motor.Move(dir, speedMultiplier);
-    }
-
     /** <summary>Strafe perpendicular to <paramref name="pivot"/> while facing it.</summary> */
     public void StrafeAround(Vector3 pivot, float sign = 1f, float speedMultiplier = 1f)
     {
         if (!CanMove) return;
-        ts.motor.Strafe(pivot, sign, speedMultiplier);
         moveDirection = ts.motor.CurrentMoveDirection;
+        ts.motor.Strafe(pivot, sign, speedMultiplier);
     }
 
-    /** <summary>Orbit <paramref name="center"/> at the configured circle radius.</summary> */
+    /** <summary>Orbit <paramref name="center"/> at <paramref name="angularSpeed"/> degrees/s.</summary> */
     public void OrbitAround(Vector3 center, float angularSpeed = 60f)
     {
         if (!CanMove) return;
@@ -270,7 +288,7 @@ public class EnemyStateMachine : AIBrainUser
         moveDirection = ts.motor.CurrentMoveDirection;
     }
 
-    /** <summary>Launch the enemy backward away from <paramref name="threatPosition"/>.</summary> */
+    /** <summary>Launch backward away from <paramref name="threatPosition"/>.</summary> */
     public void BackJump(Vector3 threatPosition)
     {
         if (!CanMove) return;
@@ -285,7 +303,7 @@ public class EnemyStateMachine : AIBrainUser
         moveDirection = ts.motor.CurrentMoveDirection;
     }
 
-    /** <summary>Charge straight toward <paramref name="target"/> ignoring pathfinding.</summary> */
+    /** <summary>Charge straight toward <paramref name="target"/>, bypassing pathfinding.</summary> */
     public void ChargeToward(Vector3 target, float speedMultiplier = 1f)
     {
         if (!CanMove) return;
@@ -293,7 +311,7 @@ public class EnemyStateMachine : AIBrainUser
         moveDirection = ts.motor.CurrentMoveDirection;
     }
 
-    /** <summary>Pick a random nearby position and move toward it. Returns the wander direction.</summary> */
+    /** <summary>Tick wander; returns the desired direction or zero when idle between targets.</summary> */
     public Vector3 Wander()
     {
         if (!CanMove) return Vector3.zero;
@@ -308,12 +326,14 @@ public class EnemyStateMachine : AIBrainUser
     /** <summary>Hard-stop all horizontal movement.</summary> */
     public void StopMovement() => ts.motor.Stop();
 
+    /** <summary>Rotate to face the current <see cref="moveDirection"/>.</summary> */
     public void TurnToLook()
     {
         if (moveDirection.sqrMagnitude < 0.0001f) return;
         ts.motor.RotateToward(moveDirection);
     }
 
+    /** <summary>Rotate to face a world-space <paramref name="position"/>.</summary> */
     public void TurnToPosition(Vector3 position)
     {
         ts.motor.FacePosition(position);
@@ -359,12 +379,16 @@ public class EnemyStateMachine : AIBrainUser
     {
         if (!value && currentAction != null)
         {
-            // Record action history for combo variety.
-            string finishing = currentAction.name;
-            _secondLastActionName = _lastActionName;
-            _sameActionStreak = finishing == _lastActionName ? _sameActionStreak + 1 : 1;
-            _lastActionName = finishing;
-            _timeSinceLastAction = 0f;
+            // Only record streak/history for committed actions (attacks, stun, idle).
+            // Movement fill actions (ResetsActionTimer=false) must not overwrite _lastActionName
+            // or the streak counter, otherwise Sweep's anti-spam gate misfires.
+            if (currentAction.ResetsActionTimer)
+            {
+                string finishing = currentAction.name;
+                _secondLastActionName = _lastActionName;
+                _sameActionStreak = finishing == _lastActionName ? _sameActionStreak + 1 : 1;
+                _lastActionName = finishing;
+            }
             currentAction = null;
         }
 

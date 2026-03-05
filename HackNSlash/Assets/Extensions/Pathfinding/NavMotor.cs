@@ -59,6 +59,14 @@ namespace Extensions.Pathfinding
         private float DecelForce => config != null ? config.decelerationForce : 40f;
         private float RotSpeed => config != null ? config.rotationSpeed : 360f;
 
+        [Header("Slope Probe")]
+        [Tooltip("Height above the agent's feet to start the downward ground-normal raycast.")]
+        [SerializeField] private float slopeProbeOriginOffset = 0.3f;
+        [Tooltip("Total downward ray length (originOffset + this = max bump height the probe sees).")]
+        [SerializeField] private float slopeProbeDistance = 0.5f;
+        [Tooltip("Surfaces steeper than this angle are treated as walls; movement direction is not projected onto them.")]
+        [SerializeField] private float slopeProbeMaxAngle = 60f;
+
         #endregion
 
         #region MonoBehaviour
@@ -105,8 +113,12 @@ namespace Extensions.Pathfinding
 
             CurrentMoveDirection = direction;
 
+            // Project along the actual ground surface so the rigidbody can ride over small bumps
+            // without the horizontal force stalling against the collision normal.
+            Vector3 slopeDir = ProjectOnGround(direction);
+
             float targetSpeed = MaxSpeed * Mathf.Clamp01(speedMultiplier);
-            Vector3 targetVelocity = direction * targetSpeed;
+            Vector3 targetVelocity = slopeDir * targetSpeed;
 
             Vector3 currentVelocityXZ = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
             Vector3 diff = targetVelocity - currentVelocityXZ;
@@ -116,6 +128,27 @@ namespace Extensions.Pathfinding
 
             if (faceDirection && direction.sqrMagnitude > 0.01f)
                 RotateToward(direction);
+        }
+
+        /** <summary>
+         * Returns <paramref name="direction"/> projected onto the ground surface below the agent.
+         * If the ground normal is too steep (> 60°) or no ground is found, returns the flat XZ
+         * direction unchanged so the motor doesn't try to drive up walls.
+         * </summary>
+         */
+        private Vector3 ProjectOnGround(Vector3 flatDirection)
+        {
+            Vector3 origin = transform.position + Vector3.up * slopeProbeOriginOffset;
+            if (!Physics.Raycast(origin, Vector3.down, out RaycastHit hit,
+                    slopeProbeOriginOffset + slopeProbeDistance,
+                    ~0, QueryTriggerInteraction.Ignore))
+                return flatDirection;
+
+            float angle = Vector3.Angle(hit.normal, Vector3.up);
+            if (angle > slopeProbeMaxAngle) return flatDirection;
+
+            Vector3 projected = Vector3.ProjectOnPlane(flatDirection, hit.normal).normalized;
+            return projected.sqrMagnitude > 0.01f ? projected : flatDirection;
         }
 
         /** <summary>
@@ -201,16 +234,32 @@ namespace Extensions.Pathfinding
          */
         public void Orbit(Vector3 center, float angularSpeed = 60f)
         {
-            OrbitAngle += angularSpeed * Time.deltaTime;
-            float rad = OrbitAngle * Mathf.Deg2Rad;
             float r = config != null ? config.circleRadius : 4f;
             float spring = config != null ? config.circleRadiusSpring : 3f;
+            OrbitInternal(center, angularSpeed, r, spring);
+        }
 
-            Vector3 desired = center + new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * r;
+        /** <summary>
+         * Orbit around <paramref name="center"/> at an explicit <paramref name="radius"/>,
+         * ignoring <see cref="NavConfig.circleRadius"/>. Use when an action needs a
+         * specific orbit distance regardless of the shared config.
+         * </summary>
+         */
+        public void Orbit(Vector3 center, float angularSpeed, float radius)
+        {
+            float spring = config != null ? config.circleRadiusSpring : 3f;
+            OrbitInternal(center, angularSpeed, radius, spring);
+        }
+
+        private void OrbitInternal(Vector3 center, float angularSpeed, float radius, float spring)
+        {
+            OrbitAngle += angularSpeed * Time.deltaTime;
+            float rad = OrbitAngle * Mathf.Deg2Rad;
+
+            Vector3 desired = center + new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * radius;
             Vector3 toDesired = desired - transform.position;
             toDesired.y = 0f;
 
-            // Spring toward the orbit ring.
             Vector3 steering = toDesired.normalized * spring;
             Move(steering.normalized, 1f, false);
             FacePosition(center);

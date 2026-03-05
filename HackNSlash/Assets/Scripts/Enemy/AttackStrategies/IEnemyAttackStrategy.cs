@@ -38,16 +38,17 @@ public abstract class IEnemyAttackStrategy
 
     private IEnumerator<float> LaunchClipAttacks()
     {
-        if (a.attack.attackClips.Length == 0) yield break;
-
         ts.ea.RootMotionEnabled(a.attack.useRootMotion);
-        
-        yield return Timing.WaitForSeconds(a.attack.animDelay);
-        
-        foreach (var clip in a.attack.attackClips)
+
+        if (a.attack.attackClips.Length > 0)
         {
-            ts.ea.PlayEnemyAnimation(clip);
-            yield return Timing.WaitForSeconds(clip.MaximumDuration);
+            yield return Timing.WaitForSeconds(a.attack.animDelay);
+
+            foreach (var clip in a.attack.attackClips)
+            {
+                ts.ea.PlayEnemyAnimation(clip);
+                yield return Timing.WaitForSeconds(clip.MaximumDuration);
+            }
         }
 
         if (a.attack.exitConditions == ExitConditions.AnimationEnd)
@@ -62,6 +63,8 @@ public abstract class IEnemyAttackStrategy
         action?.Invoke();
         ts.ea.RootMotionEnabled(false);
         ts.esm.SetIsAttacking(false);
+        // Pop EnemyActing so EnemyInitialState.OnResume fires and the brain re-evaluates.
+        ts.esm.sc.ResumePrevious();
     }
 
     protected VFXController CreateVFX(int index, TransformInfo start = default)

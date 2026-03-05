@@ -32,6 +32,20 @@ namespace Extensions.UtilityAI.Parser
         string ActionTypeKeyword { get; }
         GeneratedAction Generate(ActionDefNode node, CodeGenContext ctx);
         string Serialise(AIActionBase action);
+
+        /** <summary>
+         * Selectively apply DSL-owned fields from <paramref name="freshAsset"/> (the newly
+         * generated instance) onto <paramref name="existingAsset"/> (the asset already on disk).
+         * Only fields that the DSL actually specifies should be written here — everything else
+         * (attack data, hitbox references, etc.) must be left untouched so manual inspector
+         * work is never lost on reimport.
+         * The base interface provides a no-op default so existing generators compile unchanged.
+         * </summary>
+         */
+        void ApplyToExisting(ActionDefNode node, AIActionBase freshAsset, AIActionBase existingAsset, CodeGenContext ctx)
+        {
+            // Default: no-op. Consideration is already applied by the orchestrator.
+        }
     }
 
     // ── Consideration builder ────────────────────────────────────────────────────
