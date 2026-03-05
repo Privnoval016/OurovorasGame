@@ -44,8 +44,8 @@ MonoBehaviour:
       type: {class: RetreatStrategy, ns: , asm: Assembly-CSharp}
       data:
         speedMultiplier: 1.2
-        desiredDistance: 6.5
-        maxDuration: 2
+        desiredDistance: 12
+        maxDuration: 5
     - rid: 6781614115840590367
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}

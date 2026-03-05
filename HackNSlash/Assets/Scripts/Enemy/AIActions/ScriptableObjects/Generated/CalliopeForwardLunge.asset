@@ -32,7 +32,7 @@ MonoBehaviour:
         _Names: []
       _Clip: {fileID: 7400000, guid: b664454b0674347b69ab8e5dc20f842c, type: 2}
       _NormalizedStartTime: NaN
-    animDelay: 0
+    animDelay: 0.1
     useRootMotion: 0
     exitConditions: 0
     vfxInfos: []
@@ -55,6 +55,9 @@ MonoBehaviour:
       data:
         dashSpeed: 50
         dashDuration: 0.4
+        telegraphDuration: 0.5
+        numberOfDashes: 1
+        dashCooldown: 0.5
         lockDirectionOnDash: 1
     - rid: 6781614115840590331
       type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,

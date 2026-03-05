@@ -22,21 +22,6 @@ public class PhysicsEnemy : LockOnTarget
         [Tooltip("This enemy always takes knockback from attacks, regardless of shield state.")]
         AlwaysKnockback
     }
-
-    /**
-     * <summary>
-     * Defines when this enemy enters hit state.
-     * </summary>
-     */
-    public enum HitReactionMode
-    {
-        [Tooltip("This enemy only enters hit state when staggered (usually on parry).")]
-        StaggerOnly,
-        [Tooltip("This enemy enters hit state on every successful hit, even if not taking knockback.")]
-        AlwaysReact,
-        [Tooltip("This enemy only enters hit state when taking knockback or when staggered.")]
-        ReactAtKnockback,
-    }
     
     public event Action<ElementEffect, PlayerController, Attack, Transform, int> onHit = delegate { };
     public event Action<ElementEffect, PlayerController, Attack, Transform, int> onStagger = delegate { };
@@ -67,9 +52,6 @@ public class PhysicsEnemy : LockOnTarget
     [Tooltip("Determines how this enemy takes knockback from attacks.  Knockback is only applied if TakeKnockback is true.")]
     public KnockbackMode knockbackMode = KnockbackMode.AlwaysKnockback;
     
-    [Tooltip("Determines when the enemy enters hit state")]
-    public HitReactionMode hitReactionMode = HitReactionMode.ReactAtKnockback;
-
     public bool knockbackImmuneOverride = false;
 
     public bool TakeKnockback
@@ -90,31 +72,6 @@ public class PhysicsEnemy : LockOnTarget
                     break;
             }
             return takeKnockback;
-        }
-    }
-
-    /**
-     * <summary>
-     * Determines whether the enemy should enter hit state on a successful hit.
-     * If set to ReactAtKnockback, the enemy only enters hit state when taking knockback or when staggered.
-     * If set to StaggerOnly, the enemy only enters hit state when staggered (usually on parry).
-     * If set to AlwaysReact, the enemy enters hit state on every successful hit, even if not taking knockback.
-     * </summary>
-     *
-     * <param name="isHit">Whether the current hit is a successful hit (true) or a stagger/parry hit (false).</param>
-     */
-    public bool EnterHitState(bool isHit)
-    {
-        switch (hitReactionMode)
-        {
-            case HitReactionMode.StaggerOnly: // Only enter hit state on stagger/parry hits, not regular hits
-                return !isHit;
-            case HitReactionMode.AlwaysReact: // Enter hit state on every successful hit, even if not taking knockback
-                return true;
-            case HitReactionMode.ReactAtKnockback: // Only enter hit state when taking knockback or when staggered
-                return (isHit && TakeKnockback) || !isHit;
-            default:
-                return false;
         }
     }
 

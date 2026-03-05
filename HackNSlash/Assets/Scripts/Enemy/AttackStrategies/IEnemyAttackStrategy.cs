@@ -14,6 +14,8 @@ public abstract class IEnemyAttackStrategy
     protected EnemyAttackAIAction a;
     protected PlayerController pc;
     
+    protected abstract bool AutoPlayAttackClips { get; }
+    
     public void Execute(OnEnemyEvents onEnemyEvents, EnemyAttackAIAction attack)
     { 
         oee = onEnemyEvents;
@@ -26,7 +28,8 @@ public abstract class IEnemyAttackStrategy
         
         ts.esm.SetIsAttacking(true);
 
-        oee.RunSegmentCoroutine(LaunchClipAttacks());
+        if (AutoPlayAttackClips)
+            oee.RunSegmentCoroutine(LaunchClipAttacks());
         
         OnExecute();
     }
@@ -34,6 +37,11 @@ public abstract class IEnemyAttackStrategy
     protected virtual void OnExecute()
     {
         
+    }
+
+    protected void LaunchClipAttack(int index)
+    {
+        ts.ea.PlayEnemyAnimation(a.attack.attackClips[index]);
     }
 
     private IEnumerator<float> LaunchClipAttacks()

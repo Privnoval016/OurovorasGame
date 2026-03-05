@@ -8,6 +8,8 @@ using UnityEngine;
 public class SpawnVFXEnemyAttackStrategy : IEnemyAttackStrategy
 {
     public int VFXSpawnIndex;
+    
+    protected override bool AutoPlayAttackClips => true;
 
     protected override void OnExecute()
     {
