@@ -67,14 +67,20 @@ namespace Extensions.UtilityAI.Editor
         {
             EnsureTypes();
 
-            // Cache key = path + managed type name so the cache invalidates when the user picks a different type.
-            string cacheKey = property.propertyPath + "|" + (property.managedReferenceFullTypename ?? "null");
-            if (_heightCache.TryGetValue(cacheKey, out float cached))
-                return cached;
+            // Only cache leaf-node heights. CompositeConsideration child count changes
+            // dynamically so caching it causes stale heights and overlapping draws.
+            bool isComposite = property.managedReferenceValue is CompositeConsideration;
+            if (!isComposite)
+            {
+                string cacheKey = property.propertyPath + "|" + (property.managedReferenceFullTypename ?? "null");
+                if (_heightCache.TryGetValue(cacheKey, out float cached))
+                    return cached;
+                float h = ComputePropertyHeight(property);
+                _heightCache[cacheKey] = h;
+                return h;
+            }
 
-            float h = ComputePropertyHeight(property);
-            _heightCache[cacheKey] = h;
-            return h;
+            return ComputePropertyHeight(property);
         }
 
         private float ComputePropertyHeight(SerializedProperty property)

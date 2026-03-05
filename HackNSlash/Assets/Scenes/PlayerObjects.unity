@@ -43156,7 +43156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sourceFile: {fileID: 4900000, guid: 7646ee2c2aa24c13af92bcb68d679af6, type: 3}
   outputDirectory: Assets/Scripts/Enemy/AIActions/ScriptableObjects/Generated
-  lastImportResult: "\u2713 Imported 9 action(s) \u2192 Assets/Scripts/Enemy/AIActions/ScriptableObjects/Generated"
+  lastImportResult: "\u2713 Imported 10 action(s) \u2192 Assets/Scripts/Enemy/AIActions/ScriptableObjects/Generated"
   actionsToExport: []
   exportPath: Assets/Scripts/Enemy/AIActions/Generated/exported.aidef
   lastExportResult: 

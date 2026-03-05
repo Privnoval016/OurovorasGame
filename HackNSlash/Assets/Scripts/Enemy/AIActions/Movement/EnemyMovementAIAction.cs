@@ -22,6 +22,11 @@ public class EnemyMovementAIAction : EnemyAIActionBase
     // a movement action completes before an attack threshold is reached.
     public override bool ResetsActionTimer => false;
 
+    [Tooltip("When true, committing this movement action resets the consecutive melee burst counter. " +
+             "Set true for repositioning moves (Orbit, Retreat, Strafe). " +
+             "Set false for fill moves that occur within the melee phase (CloseDash).")]
+    public bool BreaksMeleeBurst = false;
+
     [Header("Stuck Detection")]
     [Min(0.2f)] public float stuckTimeout = 1.2f;
     [Min(0f)]   public float movingSpeedThreshold = 0.3f;

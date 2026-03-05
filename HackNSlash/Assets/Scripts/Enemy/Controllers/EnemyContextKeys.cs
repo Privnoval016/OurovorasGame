@@ -57,6 +57,16 @@ public static class EnemyContextKeys
     public static readonly ContextKey<float> SameActionStreakNorm =
         new("float.same_action_streak_norm", "Same-Action Streak (norm)", "Float");
 
+    /** <summary>
+     * Total number of consecutive attack actions fired (any attack type), normalised [0,1].
+     * Increments for every EnemyAttackAIAction committed regardless of attack name.
+     * Resets to 0 when any non-attack committed action fires (movement, idle, stun).
+     * Use this to trigger BackOff after a burst of close-range melee hits.
+     * </summary>
+     */
+    public static readonly ContextKey<float> ConsecutiveMeleeCountNorm =
+        new("float.consecutive_melee_count_norm", "Consecutive Melee Count (norm)", "Float");
+
     #endregion
 
     #region Bool Flags

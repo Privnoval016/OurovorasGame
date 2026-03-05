@@ -26,6 +26,9 @@ public class EnemyStateMachine : AIBrainUser
     [Tooltip("Normalise SameActionStreak against this cap.")]
     public int streakCap = 4;
 
+    [Tooltip("Normalise ConsecutiveMeleeCount against this cap. BackOff fires when count >= this value.")]
+    public int meleeBurstCap = 3;
+
     #endregion
 
     #region Inspector Components
@@ -60,6 +63,7 @@ public class EnemyStateMachine : AIBrainUser
     private string _secondLastActionName = string.Empty;
     private int _sameActionStreak = 0;
     private float _timeSinceLastAction = 0f;
+    private int _consecutiveMeleeCount = 0;
 
     #endregion
 
@@ -133,6 +137,7 @@ public class EnemyStateMachine : AIBrainUser
             (EnemyContextKeys.LastActionName,          _lastActionName),
             (EnemyContextKeys.SecondLastActionName,    _secondLastActionName),
             (EnemyContextKeys.SameActionStreak,        _sameActionStreak),
+            (EnemyContextKeys.ConsecutiveMeleeCountNorm, Mathf.Clamp01((float)_consecutiveMeleeCount / Mathf.Max(meleeBurstCap, 1))),
         };
     }
 
@@ -162,9 +167,6 @@ public class EnemyStateMachine : AIBrainUser
 
         if (action is EnemyAIActionBase enemyAction)
         {
-            // Only reset cooldown timer / streak for committed actions (attacks, stun, idle).
-            // Movement fill actions override ResetsActionTimer = false so attack cooldowns
-            // keep accumulating through orbit and close-dash phases.
             if (enemyAction.ResetsActionTimer)
             {
                 string starting = action.name;
@@ -172,6 +174,21 @@ public class EnemyStateMachine : AIBrainUser
                 _sameActionStreak = starting == _lastActionName ? _sameActionStreak + 1 : 1;
                 _lastActionName = starting;
                 _timeSinceLastAction = 0f;
+
+                // Increment melee burst for attacks; reset for stuns/idles.
+                if (enemyAction is EnemyAttackAIAction)
+                    _consecutiveMeleeCount++;
+                else
+                    _consecutiveMeleeCount = 0;
+            }
+            else
+            {
+                // Movement actions that reposition (BackOff, Orbit, Strafe) set
+                // BreaksMeleeBurst = true so the burst counter resets when she
+                // genuinely leaves the melee phase. Fill actions like CloseDash
+                // leave it false so the burst keeps building during the combo.
+                if (enemyAction is EnemyMovementAIAction moveAction && moveAction.BreaksMeleeBurst)
+                    _consecutiveMeleeCount = 0;
             }
 
             sc.ChangeState(new EnemyActing(Instantiate(enemyAction), context));

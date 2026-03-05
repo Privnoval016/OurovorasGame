@@ -392,7 +392,11 @@ namespace Extensions.Pathfinding
             Vector3 away = (transform.position - threatPosition);
             away.y = 0f;
             if (away.sqrMagnitude < 0.0001f) away = transform.forward;
-            Move(away.normalized, speedMultiplier);
+            // Move in the away direction but do NOT rotate to face away --
+            // faceDirection=false keeps the look separate. Then face the threat
+            // explicitly so the enemy always watches the player while retreating.
+            Move(away.normalized, speedMultiplier, false);
+            FacePosition(threatPosition);
         }
 
         #endregion

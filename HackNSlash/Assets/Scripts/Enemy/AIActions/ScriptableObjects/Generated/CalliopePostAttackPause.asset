@@ -13,26 +13,26 @@ MonoBehaviour:
   m_Name: CalliopePostAttackPause
   m_EditorClassIdentifier: 
   consideration:
-    rid: 6781614114428420916
+    rid: 6781614115840590348
   <AggroedAction>k__BackingField: 1
   duration: 0.3
   facePlayer: 1
   references:
     version: 2
     RefIds:
-    - rid: 6781614114428420916
+    - rid: 6781614115840590348
       type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
         allMustBeNonZero: 1
         first:
-          rid: 6781614114428420917
+          rid: 6781614115840590349
         rest:
-        - rid: 6781614114428420918
-        - rid: 6781614114428420919
-        - rid: 6781614114428420920
+        - rid: 6781614115840590350
+        - rid: 6781614115840590351
+        - rid: 6781614115840590352
         operations: 000000000000000000000000
-    - rid: 6781614114428420917
+    - rid: 6781614115840590349
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -40,7 +40,7 @@ MonoBehaviour:
           internalId: bool.is_shielded
           displayName: Is Shielded
         invert: 0
-    - rid: 6781614114428420918
+    - rid: 6781614115840590350
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -48,7 +48,7 @@ MonoBehaviour:
           internalId: bool.is_staggered
           displayName: Is Staggered
         invert: 1
-    - rid: 6781614114428420919
+    - rid: 6781614115840590351
       type: {class: CurveConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -68,7 +68,7 @@ MonoBehaviour:
             inWeight: 0
             outWeight: 0
           - serializedVersion: 3
-            time: 0.4
+            time: 0.45
             value: 1
             inSlope: 0
             outSlope: 0
@@ -77,7 +77,7 @@ MonoBehaviour:
             inWeight: 0
             outWeight: 0
           - serializedVersion: 3
-            time: 0.45
+            time: 0.5
             value: 0
             inSlope: 0
             outSlope: 0
@@ -97,14 +97,33 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-    - rid: 6781614114428420920
-      type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+    - rid: 6781614115840590352
+      type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        allMustBeNonZero: 0
+        first:
+          rid: 6781614115840590353
+        rest:
+        - rid: 6781614115840590354
+        operations: 02000000
+    - rid: 6781614115840590353
+      type: {class: StringMatchConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
         contextKey:
-          internalId: float.time_since_last_action_norm
-          displayName: Time Since Last Action (norm)
-        comparison: 1
-        threshold: 0.25
-        scoreIfTrue: 0.5
-        scoreIfFalse: 0
+          internalId: history.last_action_name
+          displayName: Last Action
+        matchValue: CalliopeSweepAttack
+        scoreIfMatch: 0.55
+        scoreIfNoMatch: 0
+    - rid: 6781614115840590354
+      type: {class: StringMatchConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        contextKey:
+          internalId: history.last_action_name
+          displayName: Last Action
+        matchValue: CalliopeOverheadStrike
+        scoreIfMatch: 0.55
+        scoreIfNoMatch: 0

@@ -198,6 +198,22 @@ Same action set, attack score multiplier rises to 1.2× from 1.0×. Attacks chai
 
 | File | Change |
 |---|---|
+| `NavMotor.cs` | Added `Orbit(Vector3, float, float)` overload with explicit radius. Slope probe fields serialized. |
+| `MovementStrategies.cs` | `OrbitStrategy.radiusOverride` added. |
+| `EnemyMovementCodeGen.cs` | Reads `radius` → `OrbitStrategy.radiusOverride`. |
+| `EnemyAIActionBase.cs` | Virtual `ResetsActionTimer` (default `true`). |
+| `EnemyMovementAIAction.cs` | Overrides `ResetsActionTimer = false`. |
+| `EnemyIdleAIAction.cs` | Added `duration`, `facePlayer`, self-termination via `ResumePrevious`. Overrides `ResetsActionTimer = false`. |
+| `EnemyIdleCodeGen.cs` | Parses and serialises `duration` / `facePlayer`. |
+| `EnemyStateMachine.ExecuteNewAction` | `EnemyActing` guard. Timer/streak reset only when `ResetsActionTimer=true`. |
+| `EnemyStateMachine.SetIsAttacking` | History (`_lastActionName`, streak) recorded only for `ResetsActionTimer=true` actions. |
+| `EnemyAttackAIAction.cs` | Faces player once at enter-time only; removed per-frame rotation that fought DashLunge. |
+| `PlayerMoving.Run` | `ProjectOnGround` slope fix. |
+| `PlayerStateMachine` | Serialized slope probe fields. |
+| `Calliope.aidef` | Full rewrite: 10 actions. PostAttackPause uses StringMatch (not broken timer window). OrbitFar score raised to 0.65, duration 2.0s, radius 6.5m to dominate mid-range. Lunge threshold raised to 0.75 (guarantees 1.1s orbit before committing). BackOff retreat added (fires at high timer + close range). Random [0.95-1.05] multiplier on Sweep/Overhead for natural variation. actionCooldownWindow updated to 1.5. |
+
+| File | Change |
+|---|---|
 | `NavMotor.cs` | Added `Orbit(Vector3, float, float)` overload with explicit radius. `Move()` calls `ProjectOnGround()` to project the steering direction onto the ground surface normal — rigidbody rides over small bumps. Slope probe fields are now serialized inspector fields (`slopeProbeOriginOffset`, `slopeProbeDistance`, `slopeProbeMaxAngle`). |
 | `MovementStrategies.cs` | Added `radiusOverride` to `OrbitStrategy`. When > 0 calls the new `NavMotor.Orbit` overload instead of the config-driven one. |
 | `EnemyMovementCodeGen.cs` | Parser reads `radius` property into `OrbitStrategy.radiusOverride`. Serialiser emits `radius` when non-zero. |

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CalliopeForwardLunge
   m_EditorClassIdentifier: 
   consideration:
-    rid: 6781614114428420927
+    rid: 6781614115840590331
   <AggroedAction>k__BackingField: 1
   attack:
     isEnabled: 0
@@ -56,21 +56,22 @@ MonoBehaviour:
         dashSpeed: 50
         dashDuration: 0.4
         lockDirectionOnDash: 1
-    - rid: 6781614114428420927
+    - rid: 6781614115840590331
       type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
         allMustBeNonZero: 1
         first:
-          rid: 6781614114428420928
+          rid: 6781614115840590332
         rest:
-        - rid: 6781614114428420929
-        - rid: 6781614114428420930
-        - rid: 6781614114428420931
-        - rid: 6781614114428420932
-        - rid: 6781614114428420933
-        operations: 0000000000000000000000000000000000000000
-    - rid: 6781614114428420928
+        - rid: 6781614115840590333
+        - rid: 6781614115840590334
+        - rid: 6781614115840590335
+        - rid: 6781614115840590336
+        - rid: 6781614115840590337
+        - rid: 6781614115840590338
+        operations: 000000000000000000000000000000000000000000000000
+    - rid: 6781614115840590332
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -78,7 +79,7 @@ MonoBehaviour:
           internalId: bool.is_shielded
           displayName: Is Shielded
         invert: 0
-    - rid: 6781614114428420929
+    - rid: 6781614115840590333
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -86,7 +87,7 @@ MonoBehaviour:
           internalId: bool.is_staggered
           displayName: Is Staggered
         invert: 1
-    - rid: 6781614114428420930
+    - rid: 6781614115840590334
       type: {class: TargetExistsConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -94,7 +95,7 @@ MonoBehaviour:
           internalId: target.player
           displayName: Player
         invert: 0
-    - rid: 6781614114428420931
+    - rid: 6781614115840590335
       type: {class: CurveConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -115,7 +116,7 @@ MonoBehaviour:
             outWeight: 0
           - serializedVersion: 3
             time: 0.2
-            value: 0.08
+            value: 0.05
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -124,7 +125,7 @@ MonoBehaviour:
             outWeight: 0
           - serializedVersion: 3
             time: 0.35
-            value: 0.45
+            value: 0.3
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -133,7 +134,7 @@ MonoBehaviour:
             outWeight: 0
           - serializedVersion: 3
             time: 0.5
-            value: 0.8
+            value: 0.68
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -141,7 +142,7 @@ MonoBehaviour:
             inWeight: 0
             outWeight: 0
           - serializedVersion: 3
-            time: 0.62
+            time: 0.55
             value: 0.72
             inSlope: 0
             outSlope: 0
@@ -150,8 +151,8 @@ MonoBehaviour:
             inWeight: 0
             outWeight: 0
           - serializedVersion: 3
-            time: 0.75
-            value: 0.28
+            time: 0.65
+            value: 0.68
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -159,8 +160,8 @@ MonoBehaviour:
             inWeight: 0
             outWeight: 0
           - serializedVersion: 3
-            time: 0.9
-            value: 0.04
+            time: 0.8
+            value: 0.2
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -179,7 +180,7 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-    - rid: 6781614114428420932
+    - rid: 6781614115840590336
       type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -187,10 +188,10 @@ MonoBehaviour:
           internalId: float.time_since_last_action_norm
           displayName: Time Since Last Action (norm)
         comparison: 0
-        threshold: 0.45
+        threshold: 0.75
         scoreIfTrue: 1
         scoreIfFalse: 0
-    - rid: 6781614114428420933
+    - rid: 6781614115840590337
       type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -198,6 +199,16 @@ MonoBehaviour:
           internalId: float.same_action_streak_norm
           displayName: Same-Action Streak (norm)
         comparison: 0
-        threshold: 0.4
+        threshold: 0.6
         scoreIfTrue: 0
         scoreIfFalse: 1
+    - rid: 6781614115840590338
+      type: {class: StringMatchConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        contextKey:
+          internalId: history.last_action_name
+          displayName: Last Action
+        matchValue: CalliopeBackOff
+        scoreIfMatch: 0
+        scoreIfNoMatch: 1

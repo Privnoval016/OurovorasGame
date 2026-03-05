@@ -60,11 +60,12 @@ public sealed class EnemyMovementCodeGen : IActionCodeGen
     private static void ApplyProperties(ActionDefNode node, EnemyMovementAIAction asset)
     {
         var props = BuildPropLookup(node);
-        if (TryGetFloat(props, "stuckTimeout",    out float st)) asset.stuckTimeout         = st;
+        if (TryGetFloat(props, "stuckTimeout",    out float st))  asset.stuckTimeout         = st;
         if (TryGetFloat(props, "speedThreshold",  out float spd)) asset.movingSpeedThreshold = spd;
-        if (TryGetFloat(props, "unstuckDist",     out float ud)) asset.unstuckStepDistance   = ud;
-        if (TryGetFloat(props, "unstuckDuration", out float uw)) asset.unstuckStepDuration   = uw;
-        if (TryGetFloat(props, "maxActionDur",    out float md)) asset.maxDuration           = md;
+        if (TryGetFloat(props, "unstuckDist",     out float ud))  asset.unstuckStepDistance  = ud;
+        if (TryGetFloat(props, "unstuckDuration", out float uw))  asset.unstuckStepDuration  = uw;
+        if (TryGetFloat(props, "maxActionDur",    out float md))  asset.maxDuration          = md;
+        if (TryGetBool(props,  "breaksMeleeBurst", out bool bmb)) asset.BreaksMeleeBurst     = bmb;
 
         // Build the strategy.
         string stratType = GetString(props, "strategy", "Chase").ToLowerInvariant();
@@ -136,11 +137,12 @@ public sealed class EnemyMovementCodeGen : IActionCodeGen
         if (action is not EnemyMovementAIAction m) return string.Empty;
         var sb = new StringBuilder();
         sb.AppendLine($"action \"{m.name}\" : EnemyMovement {{");
-        sb.AppendLine($"  stuckTimeout    = {m.stuckTimeout}");
-        sb.AppendLine($"  speedThreshold  = {m.movingSpeedThreshold}");
-        sb.AppendLine($"  unstuckDist     = {m.unstuckStepDistance}");
-        sb.AppendLine($"  unstuckDuration = {m.unstuckStepDuration}");
-        sb.AppendLine($"  maxActionDur    = {m.maxDuration}");
+        sb.AppendLine($"  stuckTimeout      = {m.stuckTimeout}");
+        sb.AppendLine($"  speedThreshold    = {m.movingSpeedThreshold}");
+        sb.AppendLine($"  unstuckDist       = {m.unstuckStepDistance}");
+        sb.AppendLine($"  unstuckDuration   = {m.unstuckStepDuration}");
+        sb.AppendLine($"  maxActionDur      = {m.maxDuration}");
+        sb.AppendLine($"  breaksMeleeBurst  = {m.BreaksMeleeBurst.ToString().ToLower()}");
 
         if (m.strategy != null) SerialiseStrategy(sb, m.strategy);
         if (m.consideration != null) sb.AppendLine(AiDefCodeGenerator.SerialiseConsideration(m.consideration));
@@ -224,6 +226,12 @@ public sealed class EnemyMovementCodeGen : IActionCodeGen
     {
         if (d.TryGetValue(key, out var v) && v is NumberValueNode n) { value = n.Value; return true; }
         value = 0; return false;
+    }
+
+    private static bool TryGetBool(System.Collections.Generic.Dictionary<string, ValueNode> d, string key, out bool value)
+    {
+        if (d.TryGetValue(key, out var v) && v is BoolValueNode b) { value = b.Value; return true; }
+        value = false; return false;
     }
 }
 
