@@ -95,31 +95,10 @@ public class PlayerController : KinematicBehaviour, IService
     {
         UpdateKinematicAttributes();
     }
-
-    private void LateUpdate()
-    {
-        AvoidColliderClipping();
-    }
-
+    
     #endregion
     
     #region Collision Methods
-    
-    public bool IgnoreCollision(Collider col, bool ignore)
-    {
-        if (col == null) return false;
-        foreach (CapsuleCollider c in allCols)
-        {
-            Physics.IgnoreCollision(c, col, ignore);
-        }
-        return true;
-    }
-    
-    public void AvoidColliderClipping()
-    {
-        // Body separation is handled by CharacterSeparationSystem.
-        // Slope correction is handled by SlopeHandler (both self-tick in FixedUpdate).
-    }
     
     public bool IgnoreAllCollisionsWithLayer(int? layer, bool ignore)
     {

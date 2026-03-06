@@ -104,6 +104,8 @@ public class DashLungeEnemyAttackStrategy : IEnemyAttackStrategy
                     ts.transform.rotation = Quaternion.LookRotation(dashDir);
                 }
             }
+            
+            ts.pe.IgnoreCollisionWithPlayer(pc, true);
 
             elapsed = 0f;
             while (elapsed < dashDuration)
@@ -126,6 +128,8 @@ public class DashLungeEnemyAttackStrategy : IEnemyAttackStrategy
 
                 yield return Timing.WaitForOneFrame;
             }
+            
+            ts.pe.IgnoreCollisionWithPlayer(pc, false);
 
             // Bleed off horizontal velocity so Calliope stops near the player.
             if (motor != null) motor.Brake();

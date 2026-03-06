@@ -299,6 +299,22 @@ public class PhysicsEnemy : LockOnTarget
         }
     }
 
+
+    public bool IgnoreCollisionWithPlayer(PlayerController player, bool ignore)
+    {
+        // ignore collider between this enemy and the player, and also ignoer the separation stuff
+
+        physicsBody.SetSeparationIgnored(player.physicsBody, ignore);
+        
+        foreach (var playerCol in player.allCols)
+        {
+            Physics.IgnoreCollision(playerCol, col);
+            // only ignores main hurtbox, not hitboxes so the player can take damage
+        }
+        
+        return true;
+    }
+
     #endregion
     
     #region LockOnTarget Methods
