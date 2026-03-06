@@ -118,9 +118,12 @@ public class EnemyMovementAIAction : EnemyAIActionBase
 
     private void FinishAction(EnemyContext context, EnemyStateMachine esm)
     {
-        // ResumePrevious pops EnemyActing, which calls EnemyActing.OnExit → _action.OnExit → strategy.OnExit.
-        // Do NOT call strategy.OnExit here directly to avoid a double-exit.
-        esm.sc.ResumePrevious();
+        // Defer the state pop to LateUpdate via EnemyActing.RequestFinish so that
+        // ResumePrevious is never called in the middle of OnUpdate, which would
+        // cause the ThinkTimer to fire a new action before the frame settles and
+        // intermittently leave the enemy stuck in idle.
+        if (esm.sc.GetCurrentState() is EnemyActing acting)
+            acting.RequestFinish();
     }
 
     #endregion

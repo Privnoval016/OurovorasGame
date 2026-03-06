@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: CalliopeIdleFallback
   m_EditorClassIdentifier: 
   consideration:
-    rid: 6781614115840590339
+    rid: 6781614135219061634
   <AggroedAction>k__BackingField: 1
   duration: 0
   facePlayer: 1
   references:
     version: 2
     RefIds:
-    - rid: 6781614115840590339
+    - rid: 6781614135219061634
       type: {class: ConstantConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:

@@ -153,13 +153,16 @@ action "CalliopeBackOff" : EnemyMovement {
 // ════════════════════════════════════════════════════════════════
 // 4. Orbit Far  (dominant mid-range -- post-BackOff repositioning)
 //
-//    Score 0.65 flat in the 0.55-0.80 band.
-//    Beats Lunge (0.72 max) ONLY when timer < 0.75.
-//    At timer = 0.75 (= 1.12 s) Lunge peaks at 0.72 < OrbitFar 0.65
-//    -- wait, that means orbit wins forever! No: at dist=0.65 timer=0.75,
-//    Lunge curve(0.65)=0.72 × 1.0 = 0.72 > OrbitFar 0.65. Lunge wins. ✓
-//    At dist=0.65 timer=0.40, Lunge timer gate returns 0. Orbit wins. ✓
-//    Guaranteed orbit window: 0 → 0.75 norm = 1.12 s minimum circle time.
+//    Curve now starts scoring at dist=0.25 so OrbitFar wins even when
+//    BackOff exits early (via maxDuration) before reaching 6.5 m.
+//    A last_movement_action_name stringmatch pushes score to 1.2
+//    immediately after BackOff, guaranteeing OrbitFar wins that tick
+//    over CloseDash (0.30) and attacks (blocked by timer).
+//    Once orbiting, the bonus disappears and normal scoring resumes.
+//
+//    Timer gate removed -- OrbitFar is a fill action that should always
+//    be available at mid range. Lunge's own timer gate (0.75) already
+//    controls when the transition from orbit to attack happens.
 //
 //    Inspector: set BreaksMeleeBurst = true on this action asset.
 // ════════════════════════════════════════════════════════════════
@@ -176,9 +179,20 @@ action "CalliopeOrbitFar" : EnemyMovement {
     rest [
       multiply: bool         { key = "bool.is_staggered"  invert = true },
       multiply: targetexists { key = "target.player" },
-      multiply: curve {
-        key    = "float.dist_to_player_norm"
-        points = [[0.0, 0.0], [0.40, 0.0], [0.55, 0.50], [0.65, 0.65], [0.80, 0.65], [0.90, 0.20], [1.0, 0.0]]
+      multiply: composite {
+        allMustBeNonZero = false
+        first curve {
+          key    = "float.dist_to_player_norm"
+          points = [[0.0, 0.0], [0.25, 0.30], [0.45, 0.55], [0.65, 0.65], [0.80, 0.65], [0.90, 0.20], [1.0, 0.0]]
+        }
+        rest [
+          add: stringmatch {
+            key       = "history.last_movement_action_name"
+            match     = "CalliopeBackOff"
+            ifmatch   = 1.2
+            ifnomatch = 0.0
+          }
+        ]
       }
     ]
   }
@@ -250,7 +264,7 @@ action "CalliopeForwardLunge" : EnemyAttack {
         iffalse    = 1.0
       },
       multiply: stringmatch {
-        key       = "history.last_action_name"
+        key       = "history.last_movement_action_name"
         match     = "CalliopeBackOff"
         ifmatch   = 0.0
         ifnomatch = 1.0

@@ -19,7 +19,8 @@ public class EnemyIdleAIAction : EnemyAIActionBase
         _elapsed = 0f;
         _target = context.GetTarget(EnemyContextKeys.Player);
         esm.Brake();
-        esm.ts.ea.PlayEnemyAnimation(esm.enemyAnimData.idleClip);
+        var idle = esm.enemyAnimData?.idleClip;
+        if (idle != null && idle.Clip != null) esm.ts.ea.PlayEnemyAnimation(idle);
     }
 
     protected override void OnEnemyUpdate(EnemyContext context, EnemyStateMachine esm)

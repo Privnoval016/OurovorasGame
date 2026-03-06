@@ -111,6 +111,15 @@ public static class EnemyContextKeys
     public static readonly ContextKey<int> SameActionStreak =
         new("history.same_action_streak", "Same-Action Streak", "History");
 
+    /** <summary>
+     * Asset name of the most recently committed movement action (regardless of ResetsActionTimer).
+     * Updated for every EnemyMovementAIAction that fires, unlike LastActionName which only
+     * updates for ResetsActionTimer=true actions. Use this to block Lunge after BackOff.
+     * </summary>
+     */
+    public static readonly ContextKey<string> LastMovementActionName =
+        new("history.last_movement_action_name", "Last Movement Action", "History");
+
     #endregion
 }
 

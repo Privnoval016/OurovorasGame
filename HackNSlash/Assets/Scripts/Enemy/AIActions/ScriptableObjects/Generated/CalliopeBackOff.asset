@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: CalliopeBackOff
   m_EditorClassIdentifier: 
   consideration:
-    rid: 6781614115840590365
+    rid: 6781614135219061660
   <AggroedAction>k__BackingField: 1
   strategy:
-    rid: 6781614115840590366
+    rid: 6781614135219061661
   BreaksMeleeBurst: 1
   stuckTimeout: 1.2
   movingSpeedThreshold: 0.3
@@ -26,27 +26,27 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 6781614115840590365
+    - rid: 6781614135219061660
       type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
         allMustBeNonZero: 1
         first:
-          rid: 6781614115840590367
+          rid: 6781614135219061662
         rest:
-        - rid: 6781614115840590368
-        - rid: 6781614115840590369
-        - rid: 6781614115840590370
-        - rid: 6781614115840590371
-        - rid: 6781614115840590372
+        - rid: 6781614135219061663
+        - rid: 6781614135219061664
+        - rid: 6781614135219061665
+        - rid: 6781614135219061666
+        - rid: 6781614135219061667
         operations: 0000000000000000000000000000000000000000
-    - rid: 6781614115840590366
+    - rid: 6781614135219061661
       type: {class: RetreatStrategy, ns: , asm: Assembly-CSharp}
       data:
-        speedMultiplier: 1.2
-        desiredDistance: 12
-        maxDuration: 5
-    - rid: 6781614115840590367
+        speedMultiplier: 1.775
+        desiredDistance: 15
+        maxDuration: 2
+    - rid: 6781614135219061662
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -54,7 +54,7 @@ MonoBehaviour:
           internalId: bool.is_shielded
           displayName: Is Shielded
         invert: 0
-    - rid: 6781614115840590368
+    - rid: 6781614135219061663
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -62,7 +62,7 @@ MonoBehaviour:
           internalId: bool.is_staggered
           displayName: Is Staggered
         invert: 1
-    - rid: 6781614115840590369
+    - rid: 6781614135219061664
       type: {class: TargetExistsConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -70,7 +70,7 @@ MonoBehaviour:
           internalId: target.player
           displayName: Player
         invert: 0
-    - rid: 6781614115840590370
+    - rid: 6781614135219061665
       type: {class: CurveConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -119,7 +119,7 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-    - rid: 6781614115840590371
+    - rid: 6781614135219061666
       type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -130,7 +130,7 @@ MonoBehaviour:
         threshold: 0.6
         scoreIfTrue: 1.5
         scoreIfFalse: 0
-    - rid: 6781614115840590372
+    - rid: 6781614135219061667
       type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:

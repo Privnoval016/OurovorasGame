@@ -64,6 +64,9 @@ public class EnemyStateMachine : AIBrainUser
     private int _sameActionStreak = 0;
     private float _timeSinceLastAction = 0f;
     private int _consecutiveMeleeCount = 0;
+    // Tracks the name of the most recent movement action regardless of ResetsActionTimer.
+    // Lets considerations like ForwardLunge block themselves after BackOff.
+    private string _lastMovementActionName = string.Empty;
 
     #endregion
 
@@ -91,6 +94,8 @@ public class EnemyStateMachine : AIBrainUser
     private void Update()
     {
         _timeSinceLastAction += Time.deltaTime;
+        
+        Debug.Log($"Current velocity: {ts.pe.rb.linearVelocity}, moveDirection: {moveDirection}, current ai action name: {CurrentActionName}");
     }
 
     #endregion
@@ -134,10 +139,11 @@ public class EnemyStateMachine : AIBrainUser
             (EnemyContextKeys.IsAggro,                 IsAttacking),
             (EnemyContextKeys.PlayerIsAttacking,       playerAttacking),
             (EnemyContextKeys.PlayerIsDodging,         playerDodging),
-            (EnemyContextKeys.LastActionName,          _lastActionName),
-            (EnemyContextKeys.SecondLastActionName,    _secondLastActionName),
-            (EnemyContextKeys.SameActionStreak,        _sameActionStreak),
-            (EnemyContextKeys.ConsecutiveMeleeCountNorm, Mathf.Clamp01((float)_consecutiveMeleeCount / Mathf.Max(meleeBurstCap, 1))),
+            (EnemyContextKeys.LastActionName,              _lastActionName),
+            (EnemyContextKeys.SecondLastActionName,        _secondLastActionName),
+            (EnemyContextKeys.SameActionStreak,            _sameActionStreak),
+            (EnemyContextKeys.ConsecutiveMeleeCountNorm,   Mathf.Clamp01((float)_consecutiveMeleeCount / Mathf.Max(meleeBurstCap, 1))),
+            (EnemyContextKeys.LastMovementActionName,      _lastMovementActionName),
         };
     }
 
@@ -183,12 +189,12 @@ public class EnemyStateMachine : AIBrainUser
             }
             else
             {
-                // Movement actions that reposition (BackOff, Orbit, Strafe) set
-                // BreaksMeleeBurst = true so the burst counter resets when she
-                // genuinely leaves the melee phase. Fill actions like CloseDash
-                // leave it false so the burst keeps building during the combo.
-                if (enemyAction is EnemyMovementAIAction moveAction && moveAction.BreaksMeleeBurst)
-                    _consecutiveMeleeCount = 0;
+                if (enemyAction is EnemyMovementAIAction moveAction)
+                {
+                    _lastMovementActionName = action.name;
+                    if (moveAction.BreaksMeleeBurst)
+                        _consecutiveMeleeCount = 0;
+                }
             }
 
             sc.ChangeState(new EnemyActing(Instantiate(enemyAction), context));
@@ -358,38 +364,6 @@ public class EnemyStateMachine : AIBrainUser
 
     #endregion
 
-    #region Check Methods
-
-    // public void CheckToFollowPlayer(float viewRadius, float viewAngle)
-    // {
-    //     if (sc.GetCurrentState() is EnemyHit) return;
-    //
-    //     Collider[] colliders = Physics.OverlapSphere(transform.position, viewRadius);
-    //
-    //     foreach (Collider c in colliders)
-    //     {
-    //         if ((c.transform.position - transform.position).IsInDirectionCone(transform.forward, viewAngle))
-    //         {
-    //             if (c.TryGetComponent(out PlayerController player))
-    //             {
-    //                 ts.pc = player;
-    //                 sc.ChangeState(new EnemyFollow());
-    //                 return;
-    //             }
-    //         }
-    //     }
-    // }
-    //
-    // public bool TargetInRange(Vector3 position, float distance, float viewAngle)
-    // {
-    //     if (Vector3.Distance(position, transform.position) > distance) return false;
-    //     if (!(position - transform.position).IsInDirectionCone(transform.forward, viewAngle)) return false;
-    //
-    //     return true;
-    // }
-
-    #endregion
-
     #region Attack Methods
     
     public void SetIsAttacking(bool value)
@@ -427,44 +401,6 @@ public class EnemyStateMachine : AIBrainUser
         AIBrain.UpdateContext();
         AIBrain.CalculateBestAction();
     }
-
-    // public EnemyAttackInfo CheckForAvailableAttack(PlayerController player)
-    // {
-    //     if (player == null) return null;
-    //     
-    //     if (sc.IsState<EnemyAttacking>()) return null;
-    //     
-    //     List<EnemyAttackInfo> availableAttacks = new();
-    //
-    //     foreach (var info in ts.attackConfig.infos)
-    //     {
-    //         if (!TargetInRange(player.transform.position, info.triggerInfo.distanceToTrigger,
-    //                 info.triggerInfo.angleToTrigger)) continue;
-    //         
-    //         availableAttacks.Add(info);
-    //     }
-    //     
-    //     if (availableAttacks.Count == 0) return null;
-    //
-    //     EnemyAttackInfo a = availableAttacks[0];
-    //
-    //     foreach (var info in availableAttacks)
-    //     {
-    //         if (info.triggerInfo.distanceToTrigger <= a.triggerInfo.distanceToTrigger) a = info;
-    //     }
-    //
-    //     return a;
-    // }
-
-    // public void CheckToAttack()
-    // {
-    //     var a = CheckForAvailableAttack(ts.pc);
-    //
-    //     if (a != null)
-    //     {
-    //         sc.Interrupt(new EnemyAttacking(a));
-    //     }
-    // }
 
     #endregion
 }

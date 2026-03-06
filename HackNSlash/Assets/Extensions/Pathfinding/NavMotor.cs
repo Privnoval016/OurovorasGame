@@ -53,6 +53,13 @@ namespace Extensions.Pathfinding
         private bool _hasWanderTarget;
         private Coroutine _backJumpRoutine;
 
+        // Desired move state set each Update, consumed once in FixedUpdate.
+        private Vector3 _pendingMoveDirection;
+        private float _pendingSpeedMultiplier;
+        private bool _pendingBrake;
+        private bool _pendingStop;
+        private bool _hasPendingMove;
+
         // Config fallbacks.
         private float MaxSpeed => config != null ? config.maxSpeed : 5f;
         private float AccelForce => config != null ? config.accelerationForce : 40f;
@@ -85,6 +92,37 @@ namespace Extensions.Pathfinding
                 _motionLockTimer -= Time.fixedDeltaTime;
                 if (_motionLockTimer <= 0f) _motionLocked = false;
             }
+
+            // Apply the movement request that was set during Update.
+            // Doing this here ensures AddForce is called exactly once per physics step,
+            // preventing force accumulation when Update runs faster than FixedUpdate.
+            if (_pendingStop)
+            {
+                Vector3 v = _rb.linearVelocity;
+                v.x = 0f; v.z = 0f;
+                _rb.linearVelocity = v;
+                CurrentMoveDirection = Vector3.zero;
+                _pendingStop = false;
+                _pendingBrake = false;
+                _hasPendingMove = false;
+                return;
+            }
+
+            if (_pendingBrake)
+            {
+                Vector3 xz = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
+                _rb.AddForce(-xz * DecelForce, ForceMode.Acceleration);
+                CurrentMoveDirection = Vector3.zero;
+                _pendingBrake = false;
+                _hasPendingMove = false;
+                return;
+            }
+
+            if (_hasPendingMove && !_motionLocked)
+            {
+                ApplyMoveForce(_pendingMoveDirection, _pendingSpeedMultiplier);
+                _hasPendingMove = false;
+            }
         }
 
         private void OnDisable()
@@ -112,12 +150,21 @@ namespace Extensions.Pathfinding
             if (direction.sqrMagnitude > 1f) direction.Normalize();
 
             CurrentMoveDirection = direction;
+            _pendingMoveDirection = direction;
+            _pendingSpeedMultiplier = speedMultiplier;
+            _hasPendingMove = true;
+            _pendingBrake = false;
+            _pendingStop = false;
 
-            // Project along the actual ground surface so the rigidbody can ride over small bumps
-            // without the horizontal force stalling against the collision normal.
+            if (faceDirection && direction.sqrMagnitude > 0.01f)
+                RotateToward(direction);
+        }
+
+        /** <summary>Applies the cached move request to the rigidbody. Called only from FixedUpdate.</summary> */
+        private void ApplyMoveForce(Vector3 direction, float speedMultiplier)
+        {
             Vector3 slopeDir = ProjectOnGround(direction);
-
-            float targetSpeed = MaxSpeed * Mathf.Clamp01(speedMultiplier);
+            float targetSpeed = MaxSpeed * Mathf.Clamp(speedMultiplier, 0f, 3f);
             Vector3 targetVelocity = slopeDir * targetSpeed;
 
             Vector3 currentVelocityXZ = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
@@ -125,9 +172,6 @@ namespace Extensions.Pathfinding
 
             float forceScale = direction.sqrMagnitude > 0.01f ? AccelForce : DecelForce;
             _rb.AddForce(diff * forceScale, ForceMode.Acceleration);
-
-            if (faceDirection && direction.sqrMagnitude > 0.01f)
-                RotateToward(direction);
         }
 
         /** <summary>
@@ -157,21 +201,17 @@ namespace Extensions.Pathfinding
          */
         public void Brake()
         {
-            Vector3 currentXZ = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
-            _rb.AddForce(-currentXZ * DecelForce, ForceMode.Acceleration);
+            _pendingBrake = true;
+            _pendingStop = false;
+            _hasPendingMove = false;
             CurrentMoveDirection = Vector3.zero;
         }
 
-        /** <summary>
-         * Immediately zero horizontal velocity (hard stop, no deceleration ramp).
-         * </summary>
-         */
         public void Stop()
         {
-            Vector3 v = _rb.linearVelocity;
-            v.x = 0f;
-            v.z = 0f;
-            _rb.linearVelocity = v;
+            _pendingStop = true;
+            _pendingBrake = false;
+            _hasPendingMove = false;
             CurrentMoveDirection = Vector3.zero;
         }
 
@@ -260,8 +300,19 @@ namespace Extensions.Pathfinding
             Vector3 toDesired = desired - transform.position;
             toDesired.y = 0f;
 
-            Vector3 steering = toDesired.normalized * spring;
-            Move(steering.normalized, 1f, false);
+            float dist = toDesired.magnitude;
+
+            // Guard: if already on the desired point there is nothing to steer toward.
+            if (dist < 0.01f)
+            {
+                FacePosition(center);
+                return;
+            }
+
+            // Speed scales with distance via the spring constant but is clamped [0,1]
+            // so the agent doesn't lurch across the map when far from the orbit circle.
+            float speedMult = Mathf.Clamp01(dist * spring / Mathf.Max(MaxSpeed, 0.1f));
+            Move(toDesired / dist, speedMult, false);
             FacePosition(center);
         }
 
@@ -316,13 +367,23 @@ namespace Extensions.Pathfinding
             if (away.sqrMagnitude < 0.0001f) away = -transform.forward;
             away.Normalize();
 
-            // Zero current velocity and apply jump impulse.
-            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x * 0f, 0f, _rb.linearVelocity.z * 0f);
+            // Zero current velocity, clear any pending move, then apply the jump impulse.
+            _rb.linearVelocity = Vector3.zero;
+            _hasPendingMove = false;
+            _pendingBrake = false;
+            _pendingStop = false;
             _rb.AddForce(new Vector3(away.x * hSpeed, vSpeed, away.z * hSpeed), ForceMode.VelocityChange);
 
             LockMotion(lockDur);
 
+            // Pause the PhysicsEnemy gravity for a short hang time so the arc looks
+            // intentional rather than immediately snapping downward.
+            var pe = GetComponent<PhysicsEnemy>();
+            pe?.PauseGravity(true);
+
             yield return new WaitForSeconds(lockDur);
+
+            pe?.PauseGravity(false, 0f);
             IsBackJumping = false;
         }
 

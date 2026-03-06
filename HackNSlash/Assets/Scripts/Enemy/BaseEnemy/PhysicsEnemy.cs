@@ -138,22 +138,35 @@ public class PhysicsEnemy : LockOnTarget
 
     public void CalculateGravity()
     {
-        if (pauseGravity || !physicsInteract) SetGravityScale(0);
-        else if (!IsGrounded && Mathf.Abs(rb.linearVelocity.y) < gravityData.jumpHangSpeedThreshold)
+        if (pauseGravity || !physicsInteract)
+        {
+            SetGravityScale(0);
+            return;
+        }
+
+        float vy = rb.linearVelocity.y;
+
+        // Jump hang: only reduce gravity near the apex when the multiplier is
+        // meaningful (> 0). A zero jumpHangGravityMult (default/crash-reset value)
+        // would completely kill gravity and must be treated as disabled.
+        bool hangActive = gravityData.jumpHangGravityMult > 0.01f
+                          && !IsGrounded
+                          && Mathf.Abs(vy) < gravityData.jumpHangSpeedThreshold;
+
+        if (hangActive)
         {
             SetGravityScale(gravityData.gravityScale * gravityData.jumpHangGravityMult);
         }
-        else if (rb.linearVelocity.y < 0)
+        else if (vy < 0f)
         {
-            //Higher gravity if falling
-            SetGravityScale(gravityData.gravityScale * gravityData.fallGravityMult);
-            //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
+            // Higher gravity while falling; fallGravityMult must be >= 1 so we never
+            // accidentally reduce gravity below normal while descending.
+            SetGravityScale(gravityData.gravityScale * Mathf.Max(1f, gravityData.fallGravityMult));
             rb.linearVelocity = new Vector3(rb.linearVelocity.x,
-                Mathf.Max(rb.linearVelocity.y, -gravityData.maxFallSpeed), rb.linearVelocity.z);
+                Mathf.Max(vy, -gravityData.maxFallSpeed), rb.linearVelocity.z);
         }
         else
         {
-            //Default gravity if standing on a platform or moving upwards
             SetGravityScale(gravityData.gravityScale);
         }
     }

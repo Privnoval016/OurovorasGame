@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: CalliopeStrafeReposition
   m_EditorClassIdentifier: 
   consideration:
-    rid: 6781614115840590340
+    rid: 6781614135219061635
   <AggroedAction>k__BackingField: 1
   strategy:
-    rid: 6781614115840590341
+    rid: 6781614135219061636
   BreaksMeleeBurst: 1
   stuckTimeout: 1.2
   movingSpeedThreshold: 0.3
@@ -26,27 +26,27 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 6781614115840590340
+    - rid: 6781614135219061635
       type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
         allMustBeNonZero: 1
         first:
-          rid: 6781614115840590342
+          rid: 6781614135219061637
         rest:
-        - rid: 6781614115840590343
-        - rid: 6781614115840590344
-        - rid: 6781614115840590345
-        - rid: 6781614115840590346
-        - rid: 6781614115840590347
+        - rid: 6781614135219061638
+        - rid: 6781614135219061639
+        - rid: 6781614135219061640
+        - rid: 6781614135219061641
+        - rid: 6781614135219061642
         operations: 0000000000000000000000000000000000000000
-    - rid: 6781614115840590341
+    - rid: 6781614135219061636
       type: {class: StrafeStrategy, ns: , asm: Assembly-CSharp}
       data:
         strafeSign: 1
         speedMultiplier: 0.8
         duration: 0.8
-    - rid: 6781614115840590342
+    - rid: 6781614135219061637
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -54,7 +54,7 @@ MonoBehaviour:
           internalId: bool.is_shielded
           displayName: Is Shielded
         invert: 0
-    - rid: 6781614115840590343
+    - rid: 6781614135219061638
       type: {class: BoolConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -62,7 +62,7 @@ MonoBehaviour:
           internalId: bool.is_staggered
           displayName: Is Staggered
         invert: 1
-    - rid: 6781614115840590344
+    - rid: 6781614135219061639
       type: {class: TargetExistsConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -70,7 +70,7 @@ MonoBehaviour:
           internalId: target.player
           displayName: Player
         invert: 0
-    - rid: 6781614115840590345
+    - rid: 6781614135219061640
       type: {class: CurveConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -137,7 +137,7 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-    - rid: 6781614115840590346
+    - rid: 6781614135219061641
       type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
@@ -148,7 +148,7 @@ MonoBehaviour:
         threshold: 0.8
         scoreIfTrue: 1
         scoreIfFalse: 0
-    - rid: 6781614115840590347
+    - rid: 6781614135219061642
       type: {class: ThresholdConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:

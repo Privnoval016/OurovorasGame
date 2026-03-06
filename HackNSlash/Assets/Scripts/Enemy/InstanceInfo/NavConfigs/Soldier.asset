@@ -18,7 +18,7 @@ MonoBehaviour:
   destinationChangeTolerance: 0.25
   stallTimeout: 1.5
   stallMoveThreshold: 0.15
-  maxSpeed: 12
+  maxSpeed: 8
   accelerationForce: 40
   decelerationForce: 40
   rotationSpeed: 360

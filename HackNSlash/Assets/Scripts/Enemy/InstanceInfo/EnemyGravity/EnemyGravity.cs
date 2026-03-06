@@ -21,10 +21,22 @@ public class EnemyGravity : ScriptableObject
     [Header("Collision")] 
     public float colliderBuffer = 0.3f;
     
-    //Unity Callback, called when the inspector updates
-    private void OnValidate()
+    private void RecalculateScale()
     {
-        //Calculate the rigidbody's gravity scale (ie: gravity strength relative to unity's gravity value, see project settings/Physics)
-        gravityScale = gravityStrength / Physics.gravity.y;
+        // gravityStrength is a positive designer-set downward force magnitude.
+        // globalGravity is negative (-9.81), so we divide by its absolute value to
+        // produce a positive gravityScale — matching PlayerData's convention.
+        // ApplyGravity does: globalGravity * gravityScale * Vector3.up, which resolves
+        // to a downward force when globalGravity < 0 and gravityScale > 0.
+        // Guard: if gravityStrength was reset to 0 (e.g. after a crash), fall back to
+        // 1.0 so the enemy always has gravity rather than floating indefinitely.
+        float absGravity = Mathf.Abs(Physics.gravity.y);
+        if (absGravity < 0.001f) absGravity = 9.81f;
+        gravityScale = gravityStrength > 0f ? gravityStrength / absGravity : 1f;
     }
+
+    private void OnEnable() => RecalculateScale();
+
+    //Unity Callback, called when the inspector updates
+    private void OnValidate() => RecalculateScale();
 }

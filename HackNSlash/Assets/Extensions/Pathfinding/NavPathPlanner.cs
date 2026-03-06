@@ -56,6 +56,7 @@ namespace Extensions.Pathfinding
         private Seeker _seeker;
         private int _waypointIndex;
         private float _repathTimer;
+        private bool _hasDestination;
 
         // Stall detection: track if the agent is stuck on a path that exists but isn't working.
         private Vector3 _lastStallCheckPosition;
@@ -97,7 +98,7 @@ namespace Extensions.Pathfinding
         private void Update()
         {
             // Only repath if we have a destination to navigate to.
-            if (Destination == Vector3.zero) return;
+            if (!_hasDestination) return;
 
             _repathTimer += Time.deltaTime;
             if (_repathTimer >= RepathRate && _seeker.IsDone())
@@ -142,16 +143,29 @@ namespace Extensions.Pathfinding
 
         /** <summary>
          * Begin navigating toward <paramref name="destination"/>.
-         * Issues an immediate path request; subsequent requests fire every
-         * <see cref="NavConfig.repathRate"/> seconds.
+         * Only resets state and triggers an immediate repath when the destination
+         * has moved by more than <see cref="NavConfig.destinationChangeTolerance"/>,
+         * preventing per-frame repath spam when called continuously from an AI update.
          * </summary>
          */
         public void SetDestination(Vector3 destination)
         {
+            float tolerance = config != null ? config.destinationChangeTolerance : 0.25f;
+            Vector3 delta = destination - Destination;
+            delta.y = 0f;
+
+            bool significantChange = delta.sqrMagnitude > tolerance * tolerance;
+
             Destination = destination;
-            ReachedDestination = false;
             PathFailed = false;
-            _repathTimer = RepathRate; // trigger immediate repath
+
+            if (significantChange)
+            {
+                ReachedDestination = false;
+                _repathTimer = RepathRate; // trigger repath on next Update tick
+            }
+
+            _hasDestination = true;
         }
 
         /** <summary>
@@ -163,6 +177,7 @@ namespace Extensions.Pathfinding
             _seeker.CancelCurrentPathRequest();
             ReleasePath();
             ReachedDestination = false;
+            _hasDestination = false;
         }
 
         /** <summary>

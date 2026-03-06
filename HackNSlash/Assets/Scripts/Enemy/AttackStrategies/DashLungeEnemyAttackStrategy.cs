@@ -69,8 +69,26 @@ public class DashLungeEnemyAttackStrategy : IEnemyAttackStrategy
             
             ts.pe.rb.linearVelocity = Vector3.zero;
             
-            // Wait until the commit frame to launch the dash, so it visually syncs with the animation.
-            yield return Timing.WaitForSeconds(telegraphDuration);
+            
+            // rotate toward the player during teh telegraph phrase
+            
+            float elapsed = 0f;
+            while (elapsed < telegraphDuration)
+            {
+                if (pc != null)
+                {
+                    Vector3 toPlayer = pc.transform.position - ts.transform.position;
+                    toPlayer.y = 0f;
+                    if (toPlayer.sqrMagnitude > 0.001f)
+                    {
+                        Quaternion targetRot = Quaternion.LookRotation(toPlayer.normalized);
+                        ts.transform.rotation = Quaternion.Slerp(ts.transform.rotation, targetRot, elapsed / telegraphDuration);
+                    }
+                }
+                
+                elapsed += Timing.DeltaTime;
+                yield return Timing.WaitForOneFrame;
+            }
 
             // Snapshot direction to player at commit frame.
             Vector3 dashDir = ts.transform.forward;
@@ -87,7 +105,7 @@ public class DashLungeEnemyAttackStrategy : IEnemyAttackStrategy
                 }
             }
 
-            float elapsed = 0f;
+            elapsed = 0f;
             while (elapsed < dashDuration)
             {
                 float dt = Timing.DeltaTime;

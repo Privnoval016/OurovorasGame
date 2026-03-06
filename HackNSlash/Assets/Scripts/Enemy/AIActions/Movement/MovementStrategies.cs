@@ -28,20 +28,30 @@ public class ChaseStrategy : IMovementStrategy
     {
         _target = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        var clip = animData?.WalkClip();
+        if (clip != null) esm.ts.ea.PlayEnemyAnimation(clip);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
     {
         if (_target == null)
         {
-            // Refresh if sensor finds the player again.
             _target = context.GetTarget(EnemyContextKeys.Player);
             return;
         }
 
         if (faceTarget) esm.TurnToPosition(_target.position);
         esm.MoveToDestination(_target.position, speedMultiplier);
+
+        // Scale walk animation playback rate to actual movement speed so feet don't slide.
+        var animData = esm.enemyAnimData;
+        if (animData != null && animData.walkSpeedParam != null)
+        {
+            Vector3 vel = esm.ts.pe.rb.linearVelocity;
+            float speed = new Vector3(vel.x, 0f, vel.z).magnitude;
+            float ratio = animData.walkSpeedReference > 0f ? speed / animData.walkSpeedReference : 1f;
+            esm.ts.ea.SetAnimancerParam(animData.walkSpeedParam, ratio);
+        }
     }
 
     public void OnExit(EnemyContext context, EnemyStateMachine esm)
@@ -83,7 +93,8 @@ public class StrafeStrategy : IMovementStrategy
         _elapsed = 0f;
         _target  = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        var clip = animData?.StrafeClip();
+        if (clip != null) esm.ts.ea.PlayEnemyAnimation(clip);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -91,7 +102,18 @@ public class StrafeStrategy : IMovementStrategy
         _elapsed += Time.deltaTime;
         if (_target == null) _target = context.GetTarget(EnemyContextKeys.Player);
         if (_target == null) return;
+
         esm.StrafeAround(_target.position, strafeSign, speedMultiplier);
+
+        // Drive the 2D blend tree parameters with the local-space strafe direction.
+        var animData = esm.enemyAnimData;
+        if (animData != null && animData.strafeMoveXParam != null && animData.strafeMoveZParam != null)
+        {
+            Vector3 worldMove = esm.ts.motor.CurrentMoveDirection;
+            Vector3 localMove = esm.transform.InverseTransformDirection(worldMove);
+            esm.ts.ea.SetAnimancerParam(animData.strafeMoveXParam, localMove.x);
+            esm.ts.ea.SetAnimancerParam(animData.strafeMoveZParam, localMove.z);
+        }
     }
 
     public void OnExit(EnemyContext context, EnemyStateMachine esm) => esm.Brake();
@@ -125,7 +147,8 @@ public class OrbitStrategy : IMovementStrategy
         _elapsed = 0f;
         _target  = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        var clip = animData?.OrbitClip();
+        if (clip != null) esm.ts.ea.PlayEnemyAnimation(clip);
         if (_target != null) esm.ts.motor.ResetOrbitAround(_target.position);
     }
 
@@ -139,6 +162,16 @@ public class OrbitStrategy : IMovementStrategy
             esm.ts.motor.Orbit(_target.position, angularSpeed, radiusOverride);
         else
             esm.OrbitAround(_target.position, angularSpeed);
+
+        // Drive strafe blend params using the local-space movement direction.
+        var animData = esm.enemyAnimData;
+        if (animData != null && animData.strafeMoveXParam != null && animData.strafeMoveZParam != null)
+        {
+            Vector3 worldMove = esm.ts.motor.CurrentMoveDirection;
+            Vector3 localMove = esm.transform.InverseTransformDirection(worldMove);
+            esm.ts.ea.SetAnimancerParam(animData.strafeMoveXParam, localMove.x);
+            esm.ts.ea.SetAnimancerParam(animData.strafeMoveZParam, localMove.z);
+        }
     }
 
     public void OnExit(EnemyContext context, EnemyStateMachine esm) => esm.Brake();
@@ -170,7 +203,8 @@ public class RetreatStrategy : IMovementStrategy
         _elapsed = 0f;
         _target  = context.GetTarget(EnemyContextKeys.Player);
         esm.ts.ea.RootMotionEnabled(false);
-        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        var clip = animData?.RetreatClip();
+        if (clip != null) esm.ts.ea.PlayEnemyAnimation(clip);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -178,7 +212,18 @@ public class RetreatStrategy : IMovementStrategy
         _elapsed += Time.deltaTime;
         if (_target == null) _target = context.GetTarget(EnemyContextKeys.Player);
         if (_target == null) return;
+
         esm.RetreatFrom(_target.position, speedMultiplier);
+
+        // Scale walk animation speed to actual movement speed.
+        var animData = esm.enemyAnimData;
+        if (animData != null && animData.walkSpeedParam != null)
+        {
+            Vector3 vel = esm.ts.pe.rb.linearVelocity;
+            float speed = new Vector3(vel.x, 0f, vel.z).magnitude;
+            float ratio = animData.walkSpeedReference > 0f ? speed / animData.walkSpeedReference : 1f;
+            esm.ts.ea.SetAnimancerParam(animData.walkSpeedParam, ratio);
+        }
     }
 
     public void OnExit(EnemyContext context, EnemyStateMachine esm) => esm.Brake();
@@ -250,7 +295,8 @@ public class WanderStrategy : IMovementStrategy
     {
         _elapsed = 0f;
         esm.ts.ea.RootMotionEnabled(false);
-        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        var clip = animData?.WalkClip();
+        if (clip != null) esm.ts.ea.PlayEnemyAnimation(clip);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm) { _elapsed += Time.deltaTime; esm.Wander(); }
@@ -281,7 +327,8 @@ public class IdleStrategy : IMovementStrategy
         _elapsed = 0f;
         _target  = context.GetTarget(EnemyContextKeys.Player);
         esm.Brake();
-        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.idleClip);
+        if (animData != null && animData.idleClip != null && animData.idleClip.Clip != null)
+            esm.ts.ea.PlayEnemyAnimation(animData.idleClip);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
@@ -299,6 +346,8 @@ public class IdleStrategy : IMovementStrategy
 /** <summary>
  * Charge straight at the player without following the A* path — for short-range
  * dashes and quick aggressive rushes.
+ * The direction toward the player is snapshotted at entry so the charge never
+ * reverses if the enemy overshoots past the target.
  * </summary>
  */
 [Serializable]
@@ -314,6 +363,8 @@ public class ChargeStrategy : IMovementStrategy
 
     private Transform _target;
     private float _elapsed;
+    // Direction is locked at entry so the charge never reverses if the enemy overshoots.
+    private Vector3 _lockedDir;
 
     public string DisplayName => "Charge";
 
@@ -321,16 +372,50 @@ public class ChargeStrategy : IMovementStrategy
     {
         _target  = context.GetTarget(EnemyContextKeys.Player);
         _elapsed = 0f;
+        _lockedDir = Vector3.zero;
+
+        // Snapshot direction immediately if the target is already known.
+        if (_target != null)
+        {
+            Vector3 toTarget = _target.position - esm.transform.position;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude > 0.0001f)
+                _lockedDir = toTarget.normalized;
+        }
+
         esm.ts.ea.RootMotionEnabled(false);
-        if (animData != null) esm.ts.ea.PlayEnemyAnimation(animData.walkCycle);
+        var clip = animData?.WalkClip();
+        if (clip != null) esm.ts.ea.PlayEnemyAnimation(clip);
     }
 
     public void OnUpdate(EnemyContext context, EnemyStateMachine esm)
     {
         _elapsed += Time.deltaTime;
+
         if (_target == null) _target = context.GetTarget(EnemyContextKeys.Player);
         if (_target == null) return;
-        esm.ChargeToward(_target.position, speedMultiplier);
+
+        // Lock direction on first valid frame if it wasn't set in OnEnter.
+        if (_lockedDir == Vector3.zero)
+        {
+            Vector3 toTarget = _target.position - esm.transform.position;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude > 0.0001f)
+                _lockedDir = toTarget.normalized;
+        }
+
+        if (_lockedDir == Vector3.zero) return;
+
+        // Check arrival before applying more force — if already within stopDistance, stop immediately.
+        Vector3 delta = _target.position - esm.transform.position;
+        delta.y = 0f;
+        if (delta.sqrMagnitude <= stopDistance * stopDistance)
+        {
+            esm.Brake();
+            return;
+        }
+
+        esm.MoveInDirection(_lockedDir, speedMultiplier);
     }
 
     public void OnExit(EnemyContext context, EnemyStateMachine esm) => esm.Brake();

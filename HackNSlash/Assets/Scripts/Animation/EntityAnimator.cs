@@ -31,6 +31,22 @@ public class EntityAnimator : MonoBehaviour
         else
             param.Value = value;
     }
+
+    /** <summary>
+     * Overload accepting a <see cref="StringAsset"/> directly so callers do not
+     * have to perform a ToString conversion. Null-safe — does nothing when
+     * <paramref name="paramName"/> is null (unassigned in the inspector).
+     * </summary>
+     */
+    public void SetAnimancerParam(StringAsset paramName, float value, bool damping = true)
+    {
+        if (paramName == null) return;
+        Parameter<float> param = animancer.Parameters.GetOrCreate<float>(paramName);
+        if (damping)
+            param.Value = EaseUtil.Damp(param.Value, value, 2f, Time.deltaTime);
+        else
+            param.Value = value;
+    }
     
     public AnimancerState PlayAnimation(AnimationClip clip, float fadeDuration = -1F, bool canInterrupt = true, FadeMode mode = FadeMode.FromStart)
     {
@@ -43,14 +59,29 @@ public class EntityAnimator : MonoBehaviour
         return currentAnimState;
     }
     
-    public AnimancerState PlayAnimation(TransitionAsset clip)
+    public AnimancerState PlayAnimation(TransitionAsset clip, bool forceRestart = false)
     {
+        if (forceRestart)
+        {
+            // Play with zero fade and FromStart so the state always begins at frame 0,
+            // even if it was already the current state.
+            currentAnimState = animancer.Play(clip, 0f, FadeMode.FromStart);
+            return currentAnimState;
+        }
         currentAnimState = animancer.Play(clip);
         return currentAnimState;
     }
-    
-    public AnimancerState PlayAnimation(ITransition clip)
+
+    public AnimancerState PlayAnimation(ITransition clip, bool forceRestart = false)
     {
+        if (forceRestart)
+        {
+            // Force a clean restart by playing with FromStart and a zero fade.
+            // This is the correct Animancer pattern for re-triggering an animation
+            // that may already be the current state.
+            currentAnimState = animancer.Play(clip, 0f, FadeMode.FromStart);
+            return currentAnimState;
+        }
         currentAnimState = animancer.Play(clip);
         return currentAnimState;
     }
@@ -85,33 +116,47 @@ public class EntityAnimator : MonoBehaviour
         animancer.Stop();
     }
     
-    protected void PlayEntityAnimation(Object currentAnim, Object nextAnim, Action onExit, bool playExit)
+    protected void PlayEntityAnimation(Object currentAnim, Object nextAnim, Action onExit, bool playExit, bool forceRestart = false)
     {
-        if (nextAnim == null)  return;
-        
+        if (nextAnim == null) return;
+
         playExit = playExit && currentAnim is Loop;
 
         if (playExit)
         {
-            Loop currentLoop = (Loop) currentAnim;
-		    
+            Loop currentLoop = (Loop)currentAnim;
             if (nextAnim is Loop nextLoop)
-            {
                 ExitTimeAnimation(currentLoop.EndClip, nextLoop.LoopClip, onExit);
-            }
             else
-            {
-                ExitTimeAnimation(currentLoop.EndClip, (ITransition) nextAnim, onExit);
-            }
+                ExitTimeAnimation(currentLoop.EndClip, (ITransition)nextAnim, onExit);
         }
         else if (nextAnim is Loop nextLoop)
         {
-            PlayAnimation(nextLoop.LoopClip).Events(this).OnEnd ??= () => onExit?.Invoke();
+            ITransition loopClip = nextLoop.LoopClip;
+            if (!IsPlayable(loopClip)) return;
+            PlayAnimation(loopClip, forceRestart).Events(this).OnEnd ??= () => onExit?.Invoke();
         }
         else
         {
-            PlayAnimation((ITransition) nextAnim).Events(this).OnEnd ??= () => onExit?.Invoke();
+            ITransition transition = (ITransition)nextAnim;
+            if (!IsPlayable(transition)) return;
+            PlayAnimation(transition, forceRestart).Events(this).OnEnd ??= () => onExit?.Invoke();
         }
+    }
+
+    /** <summary>
+     * Returns true when <paramref name="transition"/> is safe to hand to Animancer.
+     * A transition is considered unplayable when it is null, or when it is a
+     * <see cref="ClipTransition"/> whose <see cref="ClipTransition.Clip"/> has not
+     * been assigned in the inspector. This prevents the ArgumentException Animancer
+     * throws when trying to create a state from a null clip.
+     * </summary>
+     */
+    protected static bool IsPlayable(ITransition transition)
+    {
+        if (transition == null) return false;
+        if (transition is ClipTransition ct && ct.Clip == null) return false;
+        return true;
     }
 
     #endregion

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3004b0924e423574d9461c4b90100139, type: 3}
   m_Name: Default
   m_EditorClassIdentifier: 
-  gravityStrength: -75
+  gravityStrength: 75
   gravityScale: 7.6452594
   fallGravityMult: 1
   maxFallSpeed: 10

@@ -41,7 +41,7 @@ public abstract class IEnemyAttackStrategy
 
     protected void LaunchClipAttack(int index)
     {
-        ts.ea.PlayEnemyAnimation(a.attack.attackClips[index]);
+        ts.ea.PlayEnemyAnimation(a.attack.attackClips[index], forceRestart: true);
     }
 
     private IEnumerator<float> LaunchClipAttacks()
@@ -54,7 +54,7 @@ public abstract class IEnemyAttackStrategy
 
             foreach (var clip in a.attack.attackClips)
             {
-                ts.ea.PlayEnemyAnimation(clip);
+                ts.ea.PlayEnemyAnimation(clip, forceRestart: true);
                 yield return Timing.WaitForSeconds(clip.MaximumDuration);
             }
         }
