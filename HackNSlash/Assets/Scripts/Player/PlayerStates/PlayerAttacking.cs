@@ -5,8 +5,6 @@ using Animancer;
 using Extensions.Timers;
 using Extensions.Utils;
 using MEC;
-using Systems.Element;
-using Unity.VisualScripting.FullSerializer;
 
 public class PlayerAttacking : PlayerState
 {

@@ -11,8 +11,12 @@ public class ShieldComponent : DamageableComponentBase
     [SerializeField] private float shieldRegenDuration = 10f;
     public float CurrentShieldPercentage => maxShield > 0 ? currentShield / maxShield : 0f;
     
+    public bool IsShieldActive => currentShield > 0;
     private CountdownTimer shieldRegenTimer;
     private bool isRegenDelayActive;
+    
+    public event Action OnShieldBreak = delegate { };
+    public event Action OnShieldRestored = delegate { };
 
     /** <summary>Returns the current shield percentage [0,1]. Full shield = 1, broken = 0.</summary> */
     public override float Evaluate() => Mathf.Clamp01(CurrentShieldPercentage);
@@ -23,6 +27,7 @@ public class ShieldComponent : DamageableComponentBase
 
         if (currentShield <= 0 && (shieldRegenTimer == null || !shieldRegenTimer.IsRunning))
         {
+            OnShieldBreak.Invoke();
             BeginShieldRegen();
         }
         
@@ -66,6 +71,7 @@ public class ShieldComponent : DamageableComponentBase
     {
         isRegenDelayActive = false;
         currentShield = maxShield;
+        OnShieldRestored.Invoke();
         shieldRegenTimer = null; // Clear the timer reference since regen is complete
     }
 }

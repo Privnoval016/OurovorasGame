@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 1511014486338953177}
   - component: {fileID: 231912121654878464}
   - component: {fileID: 3999939093438644116}
+  - component: {fileID: 6194436538051554235}
   - component: {fileID: 7067694403718357953}
   - component: {fileID: 3152096520863319247}
   - component: {fileID: 4618841477546511580}
@@ -173,6 +174,7 @@ MonoBehaviour:
   esm: {fileID: 0}
   stats: {fileID: 0}
   onEnemyEvents: {fileID: 0}
+  elementColorChanger: {fileID: 0}
   animListener: {fileID: 6228328263659266617}
   damageableComponents:
   - {fileID: 1511014486338953177}
@@ -389,6 +391,55 @@ MonoBehaviour:
   wallAvoidFalloff: 1
   priority: 0.5
   debug: 0
+--- !u!114 &6194436538051554235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 84900140109158182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 956ec643a08b4e8c96b54104563f0a2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  elementUpdateInfos:
+  - elementChangeable:
+      rid: 6781614199945822400
+  - elementChangeable:
+      rid: 6781614199945822401
+  references:
+    version: 2
+    RefIds:
+    - rid: 6781614199945822400
+      type: {class: CrystalElementChangeable, ns: , asm: Assembly-CSharp}
+      data:
+        crystalMaterial: {fileID: 2100000, guid: e1090dd199ef3402f8ff894e8e86b0dd,
+          type: 2}
+        meshRenderers:
+        - {fileID: 1075950001673326696}
+        tweenDuration: 0.15
+    - rid: 6781614199945822401
+      type: {class: RimElementChangeable, ns: , asm: Assembly-CSharp}
+      data:
+        baseMaterial: {fileID: 2100000, guid: 96be15466d837452ead8620fa7ec3a69, type: 2}
+        shieldComponent: {fileID: 1511014486338953177}
+        meshRenderers:
+        - {fileID: 1466482393690679977}
+        - {fileID: 9206707314791553423}
+        shieldedProperties:
+          rimColor: {r: 0, g: 0, b: 0, a: 0}
+          rimAttenuation: 0.9
+          minRim: 0
+          maxRim: 0.4
+          rimOffset: {x: 0, y: 0, z: 0}
+        brokenProperties:
+          rimColor: {r: 1, g: 1, b: 1, a: 0}
+          rimAttenuation: 0.43
+          minRim: 0.75
+          maxRim: 1
+          rimOffset: {x: 0, y: 0, z: 0}
+        tweenDuration: 0.15
 --- !u!114 &7067694403718357953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -667,12 +718,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2563743658829007023}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.73362315, y: 0.0025771314, z: -0.0023980907, w: 0.6795474}
-  m_LocalPosition: {x: 0, y: 0.0016018358, z: 0.00013605726}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3985064451773842279}
+  m_Father: {fileID: 1652238382071223000}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4415721494363626836
 GameObject:
@@ -1886,6 +1937,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: -903288928397288694, guid: 66f3f94196fbe41a68a5f66d40bca843,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e1090dd199ef3402f8ff894e8e86b0dd, type: 2}
     - target: {fileID: -841050759675912264, guid: 66f3f94196fbe41a68a5f66d40bca843,
         type: 3}
       propertyPath: m_Layer
@@ -2159,7 +2215,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 5392390209365313541, guid: 66f3f94196fbe41a68a5f66d40bca843,
+    - targetCorrespondingSourceObject: {fileID: -1480070881545233990, guid: 66f3f94196fbe41a68a5f66d40bca843,
         type: 3}
       insertIndex: 0
       addedObject: {fileID: 2405631433889054082}
@@ -2185,6 +2241,24 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6942959695651766580}
   m_SourcePrefab: {fileID: 100100000, guid: 66f3f94196fbe41a68a5f66d40bca843, type: 3}
+--- !u!137 &1075950001673326696 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -903288928397288694, guid: 66f3f94196fbe41a68a5f66d40bca843,
+    type: 3}
+  m_PrefabInstance: {fileID: 9050077262019808098}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &1466482393690679977 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -1602814562895404597, guid: 66f3f94196fbe41a68a5f66d40bca843,
+    type: 3}
+  m_PrefabInstance: {fileID: 9050077262019808098}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1652238382071223000 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -1480070881545233990, guid: 66f3f94196fbe41a68a5f66d40bca843,
+    type: 3}
+  m_PrefabInstance: {fileID: 9050077262019808098}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2450415727169864673 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6888806815857526915, guid: 66f3f94196fbe41a68a5f66d40bca843,
@@ -2194,12 +2268,6 @@ Transform:
 --- !u!95 &3238863270383679219 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 66f3f94196fbe41a68a5f66d40bca843,
-    type: 3}
-  m_PrefabInstance: {fileID: 9050077262019808098}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &3985064451773842279 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5392390209365313541, guid: 66f3f94196fbe41a68a5f66d40bca843,
     type: 3}
   m_PrefabInstance: {fileID: 9050077262019808098}
   m_PrefabAsset: {fileID: 0}
@@ -2260,6 +2328,12 @@ MonoBehaviour:
 --- !u!4 &8796352710799174793 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 66f3f94196fbe41a68a5f66d40bca843,
+    type: 3}
+  m_PrefabInstance: {fileID: 9050077262019808098}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &9206707314791553423 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -9053186517523770643, guid: 66f3f94196fbe41a68a5f66d40bca843,
     type: 3}
   m_PrefabInstance: {fileID: 9050077262019808098}
   m_PrefabAsset: {fileID: 0}

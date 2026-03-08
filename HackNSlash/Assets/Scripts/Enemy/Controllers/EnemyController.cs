@@ -23,6 +23,8 @@ public class EnemyController : MonoBehaviour
     [HideInInspector] public EnemyStats stats;
 
     [HideInInspector] public OnEnemyEvents onEnemyEvents;
+    
+    [HideInInspector] public ElementColorChanger elementColorChanger;
 
     public EnemyAnimListener animListener;
     
@@ -48,6 +50,7 @@ public class EnemyController : MonoBehaviour
         onEnemyEvents = GetComponent<OnEnemyEvents>();
         esm = GetComponent<EnemyStateMachine>();
         stats = GetComponent<EnemyStats>();
+        elementColorChanger = GetComponent<ElementColorChanger>();
     
         animListener.ts = this;
     
@@ -65,6 +68,8 @@ public class EnemyController : MonoBehaviour
             if (component?.isActiveAndEnabled != true) continue; // skip null or disabled components
             stats.DamageableComponents.AddComponent(component);
         }
+        
+        elementColorChanger.Initialize(() => stats.currentElementEffect);
     }
 
     private void OnEnable()

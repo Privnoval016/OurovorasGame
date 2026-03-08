@@ -123,5 +123,11 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 4
+  crystalBaseColor: {r: 0.7, g: 0.45, b: 1, a: 0.38}
+  crystalBaseColorDark: {r: 0.1, g: 0.05, b: 0.25, a: 0.38}
+  crystalRimColor: {r: 2.5, g: 2, b: 0.1, a: 1}
+  crystalSubsurfaceColor: {r: 1.8, g: 0.4, b: 3, a: 1}
+  crystalSparkleColor: {r: 3, g: 3, b: 1, a: 1}
+  crystalEmissionColor: {r: 1.5, g: 0.8, b: 2.5, a: 1}
   weaponTrailMaterial: {fileID: 2100000, guid: 9a07a127cb207e0488db561e8f51a550, type: 2}
   elementAudioParam: {fileID: 11400000, guid: dd15862a61d744d0cb4527c74adb5225, type: 2}

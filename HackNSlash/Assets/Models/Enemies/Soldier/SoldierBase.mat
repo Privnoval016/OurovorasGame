@@ -271,7 +271,7 @@ Material:
     - _MaxGradientHeight: 0.75
     - _MaxInflate: 0.2
     - _MaxRim: 1
-    - _Metallic: 0.36
+    - _Metallic: 0.352
     - _MetallicMapOn: 1
     - _MinDistanceToFade: 0
     - _MinGradientHeight: 0
@@ -312,8 +312,8 @@ Material:
     - _ShakeBlend: 1
     - _ShakeSpeedMult: 1
     - _Shininess: 6.94
-    - _Smoothness: 0.91
-    - _SpecularAtten: 0.4
+    - _Smoothness: 0.838
+    - _SpecularAtten: 0.2
     - _SpecularModel: 2
     - _SpecularToonCutoff: 0.3
     - _SpecularToonSmoothness: 0.04
