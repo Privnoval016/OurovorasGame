@@ -211,6 +211,16 @@ namespace Extensions.UtilityAI
         [SerializeReference]
         public ConsiderationBases.Consideration consideration;
 
+        /**
+         * <summary>
+         * When <c>true</c> the brain may replace this action mid-execution if a higher-utility
+         * action is scored on the next think tick.
+         * Defaults to <c>false</c> — override to <c>true</c> for actions that are designed to
+         * be overridden by the brain (e.g. idle stalls, stun holds).
+         * </summary>
+         */
+        public virtual bool IsInterruptible => false;
+
         public float CalculateUtility(IContextBase context)
         {
             if (consideration == null) return 1f;

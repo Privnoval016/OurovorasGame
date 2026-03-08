@@ -34,6 +34,10 @@ public sealed class EnemyStunnedAIAction : EnemyAIActionBase
     [Tooltip("Optional animation to play on enter. Leave null to keep whatever is playing.")]
     public Animancer.ClipTransition stunClip;
 
+    // The stun is designed to be overridden by the brain the moment the exit condition
+    // clears (e.g. shield restored), so it must be interruptible.
+    public override bool IsInterruptible => true;
+
     private float _elapsed;
 
     protected override void OnEnemyEnter(EnemyContext context, EnemyStateMachine esm)

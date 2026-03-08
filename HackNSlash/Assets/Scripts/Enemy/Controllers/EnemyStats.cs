@@ -20,11 +20,6 @@ public class EnemyStats : MonoBehaviour, IDamageable
     public EvaluatedStats EvaluatedStats;
     [field: SerializeField] public float CurrentHealth { get; private set; }
 
-    [Header("Shield")]
-    [SerializeField] private float maxShield = 100f;
-    [SerializeField] private float currentShield = 0f;
-    public float CurrentShieldPercentage => maxShield > 0 ? currentShield / maxShield : 0f;
-
     public Entity<IDamageableComponent> DamageableComponents { get; } = new Entity<IDamageableComponent>();
 
     public ElementEffect currentElementEffect = ElementEffect.None;
@@ -38,8 +33,6 @@ public class EnemyStats : MonoBehaviour, IDamageable
 
         NumHealthBars = MaxHealthBars;
         
-        currentShield = maxShield;
-        DamageableComponents.AddComponent(new ShieldComponent(() => CurrentShieldPercentage));
         DamageableComponents.AddComponent(new ElementComponent(() => currentElementEffect));
     }
 
@@ -99,8 +92,8 @@ public class EnemyStats : MonoBehaviour, IDamageable
     
     public void ChangeShield(float amount)
     {
-        currentShield += amount;
-        currentShield = Mathf.Clamp(currentShield, 0, maxShield);
+        if (!DamageableComponents.TryGetComponent<ShieldComponent>(out var shieldComponent)) return;
+        shieldComponent.ChangeShield(amount);
     }
 
     #endregion

@@ -10,7 +10,9 @@ namespace Extensions.EntityComponent
         public void AddComponent<TComponent>(TComponent component) where TComponent : class, T
         {
             if (component == null) throw new ArgumentNullException(nameof(component));
-            _components[typeof(TComponent)] = component;
+            
+            Type mostSpecificType = component.GetType();
+            _components[mostSpecificType] = component; // assigns to most specific type
         }
         
         public void ReplaceComponent<TComponent>(TComponent component)

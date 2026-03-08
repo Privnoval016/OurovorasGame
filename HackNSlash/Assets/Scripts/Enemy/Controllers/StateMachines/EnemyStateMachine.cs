@@ -156,8 +156,8 @@ public class EnemyStateMachine : AIBrainUser
     {
         if (ts.stats == null) return false;
         var shield = ts.stats.DamageableComponents?.GetComponent<ShieldComponent>();
-        if (shield == null) return false;
-        return shield.CurrentShieldPercentage.Value > 0f;
+        if (shield == null) return true;
+        return shield.CurrentShieldPercentage > 0f;
     }
 
     public override List<AIActionBase> GetActions() => actions;
@@ -167,9 +167,9 @@ public class EnemyStateMachine : AIBrainUser
 
     public override void ExecuteNewAction(AIActionBase action, EnemyContext context, float utility)
     {
-        // Only execute when the current action has finished (state returned to EnemyInitialState).
-        // This prevents the brain tick from interrupting a running movement action.
-        if (sc.IsState<EnemyActing>()) return;
+        bool runningInterruptible = sc.IsState<EnemyActing>() && currentAction != null && currentAction.IsInterruptible;
+
+        if (sc.IsState<EnemyActing>() && !runningInterruptible) return;
 
         if (action is EnemyAIActionBase enemyAction)
         {

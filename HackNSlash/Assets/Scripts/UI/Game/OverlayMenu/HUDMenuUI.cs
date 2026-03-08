@@ -447,7 +447,7 @@ public class HUDMenuUI : MonoBehaviour, IService
             enemyHealthSliderBar.SetSliderValueInstant(healthPercentage);
 
             float shieldPercentage = currentLockOnTarget.damageable.DamageableComponents.TryGetComponent<ShieldComponent>(out var shield) 
-                ? shield.CurrentShieldPercentage : 0f;
+                ? shield.GetDisplayShieldPercentage() : 0f;
             
             enemyShieldSliderBar.SetSliderValueInstant(shieldPercentage);
             
@@ -474,7 +474,7 @@ public class HUDMenuUI : MonoBehaviour, IService
         enemyHealthSliderBar.TweenSliderValue(healthPercentage, 0.2f, 1f, 0.02f);
         
         float shieldPercentage = currentLockOnTarget.damageable.DamageableComponents.TryGetComponent<ShieldComponent>(out var shield) 
-            ? shield.CurrentShieldPercentage : 0f;
+            ? shield.GetDisplayShieldPercentage() : 0f;
         
         enemyShieldSliderBar.TweenSliderValue(shieldPercentage, 0.2f);
     }

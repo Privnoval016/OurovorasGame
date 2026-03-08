@@ -25,6 +25,8 @@ public class EnemyController : MonoBehaviour
     [HideInInspector] public OnEnemyEvents onEnemyEvents;
 
     public EnemyAnimListener animListener;
+    
+    public DamageableComponentBase[] damageableComponents;
 
     public EnemyHitbox[] attackHitboxes;
     
@@ -52,6 +54,16 @@ public class EnemyController : MonoBehaviour
         foreach (var hitbox in attackHitboxes)
         {
             hitbox.ts = this;
+        }
+    }
+
+    private void Start()
+    {
+        // doing this in start to ensure all components have had OnEnable called.
+        foreach (var component in damageableComponents)
+        {
+            if (component?.isActiveAndEnabled != true) continue; // skip null or disabled components
+            stats.DamageableComponents.AddComponent(component);
         }
     }
 
