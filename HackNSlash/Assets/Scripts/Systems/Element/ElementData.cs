@@ -13,21 +13,27 @@ public class ElementData : SerializedScriptableObject
 
     [Header("Element Colors")]
     [ColorUsage(true, false)]
+    [Tooltip("The main non-emissive color used for the element, applied to most element-dependent visuals")]
     public Color elementColor;
     [ColorUsage(true, false)]
+    [Tooltip("The non-emissive color used for the element when inactive, applied to element-dependent visuals when the element is not active")]
     public Color elementInactiveColor;
 
     [Header("VFX Colors")] 
     [ColorUsage(true, true)]
+    [Tooltip("Base emissive color used for VFX")]
     public Color vfxPureColor;
 
     [ColorUsage(true, true)]
+    [Tooltip("Bright emissive color used for VFX, typically for highlights and intense effects")]
     public Color vfxBrightColor;
 
     [ColorUsage(true, true)]
+    [Tooltip("Dark emissive color used for VFX, typically for shadows and less intense effects")]
     public Color vfxDarkColor;
 
     [GradientUsage(true)]
+    [Tooltip("Emissive gradient used for VFX, allowing for smooth color transitions in effects")]
     public Gradient vfxGradient;
 
     [Header("Crystal Colors")]

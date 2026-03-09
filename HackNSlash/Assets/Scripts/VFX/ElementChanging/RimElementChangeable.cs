@@ -61,7 +61,7 @@ public class RimElementChangeable : IElementChangeable
         if (isShieldBroken) return;
         var elementData = Services.Get<ElementSystem>().GetElementData(newElement);
         
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, elementData.vfxPureColor, tweenDuration);
+        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, elementData.elementColor, tweenDuration);
     }
 
     private void OnShieldBreak()
@@ -79,7 +79,7 @@ public class RimElementChangeable : IElementChangeable
         isShieldBroken = false;
         var elementData = Services.Get<ElementSystem>().GetElementData(currentElementEffect);
         
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, elementData.vfxPureColor, tweenDuration);
+        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, elementData.elementColor, tweenDuration);
         Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimAttenuation, shieldedProperties.rimAttenuation, tweenDuration);
         Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MinRim, shieldedProperties.minRim, tweenDuration);
         Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MaxRim, shieldedProperties.maxRim, tweenDuration);

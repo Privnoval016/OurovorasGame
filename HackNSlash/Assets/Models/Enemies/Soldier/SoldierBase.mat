@@ -255,7 +255,7 @@ Material:
     - _HueShift: 0
     - _HueShiftEnabled: 0
     - _HueShiftLM: 0
-    - _InflateBlend: 1
+    - _InflateBlend: 0.008
     - _IntersectionFadeFactor: 1
     - _IntersectionFadeOn: 0
     - _IntersectionGlowOn: 0
@@ -269,7 +269,7 @@ Material:
     - _MaxDistanceToFade: 100
     - _MaxFadeDistance: 250
     - _MaxGradientHeight: 0.75
-    - _MaxInflate: 0.2
+    - _MaxInflate: 0.19
     - _MaxRim: 1
     - _Metallic: 0.352
     - _MetallicMapOn: 1
@@ -340,12 +340,12 @@ Material:
     - _UseCustomTime: 0
     - _UseVerticalMask: 1
     - _VertexColorBlending: 1
-    - _VertexDistortionAmount: 0
+    - _VertexDistortionAmount: 0.02
     - _VertexDistortionOn: 0
     - _VertexInflate: 0
     - _VertexShakeOn: 0
     - _VoxelBlend: 1
-    - _VoxelSize: 100
+    - _VoxelSize: 48
     - _Voxelize: 0
     - _WaveAmount: 7
     - _WaveSpeed: 10
