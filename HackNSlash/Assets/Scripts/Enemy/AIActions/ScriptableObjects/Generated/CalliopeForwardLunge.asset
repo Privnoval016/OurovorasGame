@@ -18,9 +18,9 @@ MonoBehaviour:
   attack:
     isEnabled: 0
     element: 0
-    attackKnockback: {x: 0, y: 0}
-    attackCooldown: 0
-    isParryable: 0
+    attackKnockback: {x: 10, y: 0}
+    attackCooldown: 0.2
+    isParryable: 1
     enemyAttack:
       rid: 6781614105522602916
     attackClips:
@@ -39,7 +39,7 @@ MonoBehaviour:
   damageInfo:
     damageMultiplier: 1
   stats:
-    damage: 0
+    damage: 10
     statusEffectStacks: 0
     statusEffectDuration: 0
     shieldDamage: 10
@@ -64,7 +64,7 @@ MonoBehaviour:
       type: {class: CompositeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
         asm: Assembly-CSharp}
       data:
-        allMustBeNonZero: 1
+        allMustBeNonZero: 0
         first:
           rid: 6781614135219061627
         rest:

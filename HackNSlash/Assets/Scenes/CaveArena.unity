@@ -76064,10 +76064,65 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3861077427216475343, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+    - target: {fileID: 2224029434380935833, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
         type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0
+      propertyPath: m_Height
+      value: 3.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2224029434380935833, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_Radius
+      value: 0.32
+      objectReference: {fileID: 0}
+    - target: {fileID: 2312484052475272557, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: 'attackHitboxes.Array.data[1]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741246427071052719, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.00547
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741246427071052719, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741246427071052719, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741246427071052719, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741246427071052719, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741246427071052719, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741246427071052719, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741246427071052719, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6109882217762294822, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
+        type: 3}
+      propertyPath: m_Name
+      value: SpearHitbox
       objectReference: {fileID: 0}
     - target: {fileID: 6628130928383774214, guid: 95b806c72b5a94a04a6fbff2b6bcb7a3,
         type: 3}
@@ -97883,7 +97938,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1634276428}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.34743282, z: -0, w: 0.93770486}
+  m_LocalRotation: {x: -0, y: 0.36811164, z: -0, w: 0.9297816}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 0.99999994, z: 0.99999994}
   m_ConstrainProportionsScale: 0
@@ -98036,7 +98091,7 @@ WindZone:
   m_Enabled: 1
   m_Mode: 0
   m_Radius: 20
-  m_WindMain: 0.067442566
+  m_WindMain: 0.0427795
   m_WindTurbulence: 0.35
   m_WindPulseMagnitude: 0.2
   m_WindPulseFrequency: 0.05
