@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 80c34ac6388360545a40c80963ac66e2
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 260565
+  packageName: PBR 200 Premium Materials
+  packageVersion: 1.0
+  assetPath: Assets/AK Studio Art/PBR 200 Premium Materials/Settings/URP/UniversalRenderPipelineGlobalSettings.asset
+  uploadId: 620777
