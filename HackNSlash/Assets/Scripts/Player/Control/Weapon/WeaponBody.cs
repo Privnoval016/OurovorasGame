@@ -5,7 +5,7 @@ using Animancer;
 using Drakkar.GameUtils;
 using UnityEngine;
 
-public class WeaponBody : KinematicBehaviour, IContactDetector
+public class WeaponBody : KinematicBehaviour, IContactDetector, IVFXSpawnLocation
 {
     
     [Header("Weapon Control Info")]
@@ -229,6 +229,11 @@ public class WeaponBody : KinematicBehaviour, IContactDetector
         }
 
         return closestPoint;
+    }
+
+    public Transform GetSpawnTransform()
+    {
+        return transform;
     }
 
     private void OnTriggerEnter(Collider other)

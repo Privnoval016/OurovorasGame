@@ -1,42 +1,47 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using PrimeTween;
 
 [Serializable]
 public class RimElementChangeable : IElementChangeable
 {
+    
     [Header("Components")]
-    public Material baseMaterial;
+    public MaterialInfo[] materialInfos; // Array of materials and their target renderers
     public ShieldComponent shieldComponent;
-    public Renderer[] meshRenderers;
     [Header("Rim Material Properties")]
     public RimMaterialProperties shieldedProperties;
     public RimMaterialProperties brokenProperties;
     public float tweenDuration = 0.15f;
     
-    private Material newMaterialInstance;
+    private List<Material> newMaterialInstances = new List<Material>();
     private bool isShieldBroken = false;
     private ElementEffect currentElementEffect = ElementEffect.None;
     
     public override void Initialize()
     {
-        if (baseMaterial == null)
+        foreach (var materialInfo in materialInfos)
         {
-            Debug.LogError("RimElementChangeable: Base material is not assigned.");
-            return;
-        }
-        
-        newMaterialInstance = new Material(baseMaterial);
-
-        foreach (var meshRenderer in meshRenderers)
-        {
-            if (meshRenderer == null)
+            if (materialInfo.material == null)
             {
-                Debug.LogError("RimElementChangeable: One of the mesh renderers is not assigned.");
-                continue;
+                Debug.LogError("RimElementChangeable: Base material is not assigned.");
+                return;
             }
-            
-            meshRenderer.material = newMaterialInstance;
+
+            var newMaterialInstance = new Material(materialInfo.material);
+            newMaterialInstances.Add(newMaterialInstance);
+
+            foreach (var meshRenderer in materialInfo.targetRenderers)
+            {
+                if (meshRenderer == null)
+                {
+                    Debug.LogError("RimElementChangeable: One of the mesh renderers is not assigned.");
+                    continue;
+                }
+
+                meshRenderer.material = newMaterialInstance;
+            }
         }
 
         if (shieldComponent != null)
@@ -60,30 +65,50 @@ public class RimElementChangeable : IElementChangeable
         currentElementEffect = newElement;
         if (isShieldBroken) return;
         var elementData = Services.Get<ElementSystem>().GetElementData(newElement);
-        
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, elementData.elementColor, tweenDuration);
+
+        foreach (var newMaterialInstance in newMaterialInstances)
+        {
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, elementData.elementColor, tweenDuration);
+        }
     }
 
     private void OnShieldBreak()
     {
         isShieldBroken = true;
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, brokenProperties.rimColor, tweenDuration);
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimAttenuation, brokenProperties.rimAttenuation, tweenDuration);
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MinRim, brokenProperties.minRim, tweenDuration);
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MaxRim, brokenProperties.maxRim, tweenDuration);
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimOffset, brokenProperties.rimOffset, tweenDuration);
+
+        foreach (var newMaterialInstance in newMaterialInstances)
+        {
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, brokenProperties.rimColor,
+                tweenDuration);
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimAttenuation,
+                brokenProperties.rimAttenuation, tweenDuration);
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MinRim, brokenProperties.minRim,
+                tweenDuration);
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MaxRim, brokenProperties.maxRim,
+                tweenDuration);
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimOffset, brokenProperties.rimOffset,
+                tweenDuration);
+        }
     }
     
     private void OnShieldRestored()
     {
         isShieldBroken = false;
         var elementData = Services.Get<ElementSystem>().GetElementData(currentElementEffect);
-        
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, elementData.elementColor, tweenDuration);
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimAttenuation, shieldedProperties.rimAttenuation, tweenDuration);
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MinRim, shieldedProperties.minRim, tweenDuration);
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MaxRim, shieldedProperties.maxRim, tweenDuration);
-        Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimOffset, shieldedProperties.rimOffset, tweenDuration);
+
+        foreach (var newMaterialInstance in newMaterialInstances)
+        {
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimColor, elementData.elementColor,
+                tweenDuration);
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimAttenuation,
+                shieldedProperties.rimAttenuation, tweenDuration);
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MinRim, shieldedProperties.minRim,
+                tweenDuration);
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.MaxRim, shieldedProperties.maxRim,
+                tweenDuration);
+            Tween.MaterialProperty(newMaterialInstance, RimMaterialProperties.RimOffset, shieldedProperties.rimOffset,
+                tweenDuration);
+        }
     }
 
     [Serializable]

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class EnemyHitbox : MonoBehaviour
+public class EnemyHitbox : MonoBehaviour, IVFXSpawnLocation
 {
     public EnemyController ts;
     public bool activeHitbox = false;
@@ -18,5 +18,10 @@ public class EnemyHitbox : MonoBehaviour
             return action;
         
         return null;
+    }
+
+    public Transform GetSpawnTransform()
+    {
+        return transform;
     }
 }

@@ -69,6 +69,82 @@ public class VFXSystem : MonoBehaviour, IVFXSystem
     }
 
     #region VFX Invocation
+    
+    /**
+     * <summary>
+     * Plays a purely visual VFX triggered from an animation event, using the spawn locations of the hitboxes on the owner.
+     * </summary>
+     *
+     * <param name="owner">The object that owns the hitbox spawn locations to use for this VFX.</param>
+     * <param name="infos">The array of VFXSpawnInfo to use for this VFX.</param>
+     * <param name="hitboxIndex">The index of the hitbox spawn location to use.</param>
+     * <param name="vfxIndex">The index of the VFXSpawnInfo to use from the infos array.</param>
+     *
+     * <returns>The VFXController of the spawned VFX, or null if the VFX could not be spawned.</returns>
+     */
+    public VFXController PlayAnimationEventVFX(IVFXSpawnLocationOwner owner, VFXSpawnInfo[] infos, int hitboxIndex, int vfxIndex)
+    {
+        if (infos.Length <= vfxIndex)
+        {
+            Debug.LogWarning(
+                $"No VFXSpawnInfo found for VFX index {vfxIndex} on owner {owner}. VFX not spawned.");
+            return null;
+        }
+        
+        VFXSpawnInfo info = infos[vfxIndex];
+
+        Transform spawnTransform;
+        if (hitboxIndex >= 0) 
+        {
+            List<IVFXSpawnLocation> spawnLocations = owner.GetVFXSpawnLocations();
+
+            if (spawnLocations.Count <= hitboxIndex)
+            {
+                Debug.LogWarning(
+                    $"No spawn location found for hitbox index {hitboxIndex} on owner {owner}. VFX not spawned.");
+                return null;
+            }
+
+            IVFXSpawnLocation spawnLocation = spawnLocations[hitboxIndex];
+            spawnTransform = spawnLocation.GetSpawnTransform();
+        }
+        else
+        {
+            spawnTransform = owner.GetTransform(); // if hitbox index is -1, use the owner's transform as the spawn location
+        }
+        
+        // calculate position and rotation based on spawn transform and info
+        TransformInfo overrideTransform = new TransformInfo
+        {
+            Position = spawnTransform.position + info.spawnTransform.Position,
+            Rotation = info.spawnTransform.Rotation.eulerAngles != Vector3.zero
+                ? spawnTransform.rotation * info.spawnTransform.Rotation
+                : spawnTransform.rotation,
+            Scale = info.spawnTransform.Scale == Vector3.zero ? Vector3.one : info.spawnTransform.Scale
+        };
+        
+        GameObject vfxInstance = Instantiate(info.vfxAttack.vfxHitBox, overrideTransform.Position, overrideTransform.Rotation);
+        vfxInstance.transform.localScale = overrideTransform.Scale;
+        
+        if (!vfxInstance.TryGetComponent(out VFXController vfxController))
+        {
+            Debug.LogWarning($"VFX prefab {info.vfxAttack.vfxHitBox} does not have a VFXController component. VFX not spawned.");
+            Destroy(vfxInstance);
+            return null;
+        }
+        
+        vfxInstance.transform.SetParent(spawnTransform); // parent to the spawn transform so it moves with the hitbox if the hitbox moves during the animation
+        
+        ElementEffect element = ElementData.GetElementFromAttack(ElementEffect.None, null);
+        
+        var vfxActivators = GetVFXActivators(info, vfxController, Services.Get<ElementSystem>().GetElementData(element));
+        
+        vfxController.InitializeVFX(element, overrideTransform, info, vfxActivators, info.vfxAttack.canCollide);
+        
+        vfxController.EnableVFX();
+        
+        return vfxController;
+    }
 
     public VFXController SpawnHitStopVFX(ElementEffect e, PlayerController pc, Attack a, 
         int hitStopProfileIndex, TransformInfo overrideTransform)

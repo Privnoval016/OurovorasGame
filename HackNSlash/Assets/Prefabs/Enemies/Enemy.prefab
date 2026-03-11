@@ -422,11 +422,12 @@ MonoBehaviour:
     - rid: 6781614199945822401
       type: {class: RimElementChangeable, ns: , asm: Assembly-CSharp}
       data:
-        baseMaterial: {fileID: 2100000, guid: 96be15466d837452ead8620fa7ec3a69, type: 2}
+        materialInfos:
+        - material: {fileID: 2100000, guid: 96be15466d837452ead8620fa7ec3a69, type: 2}
+          targetRenderers:
+          - {fileID: 9206707314791553423}
+          - {fileID: 1466482393690679977}
         shieldComponent: {fileID: 1511014486338953177}
-        meshRenderers:
-        - {fileID: 1466482393690679977}
-        - {fileID: 9206707314791553423}
         shieldedProperties:
           rimColor: {r: 0, g: 0, b: 0, a: 0}
           rimAttenuation: 0.9

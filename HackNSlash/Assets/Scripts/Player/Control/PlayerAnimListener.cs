@@ -77,4 +77,22 @@ public class PlayerAnimListener : MonoBehaviour
     }
     
     
+    public void PlayVFX(int hitboxIndex = 0, float vfxIndex = 0)
+    {
+        int vfxIndexInt = Mathf.RoundToInt(vfxIndex); // using float so we can set it alongside hitbox index in the animation event
+        
+        // get vfxinfos from the current attack's vfx profile, using hitbox index and vfx index
+        PlayerAttack currentAttack = pc.psm.currentPlayerAttack;
+        
+        var vfxInfos = currentAttack?.vfxInfos;
+        if (vfxInfos == null || vfxIndexInt >= vfxInfos.Length)
+        {
+            Debug.LogWarning($"Trying to play VFX with invalid hitbox index {hitboxIndex} or vfx index {vfxIndexInt}");
+            return;
+        }
+        
+        
+        Services.Get<VFXSystem>().PlayAnimationEventVFX(pc, vfxInfos, hitboxIndex, vfxIndexInt);
+    }
+    
 }

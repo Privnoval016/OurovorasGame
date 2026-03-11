@@ -1,3 +1,6 @@
+using System;
+using UnityEngine;
+
 public abstract class IElementChangeable
 {
     public virtual void Initialize()
@@ -11,4 +14,11 @@ public abstract class IElementChangeable
     {
         // Optional cleanup logic for element changeables
     }
+}
+
+[Serializable]
+public struct MaterialInfo
+{
+    public Material material;
+    public Renderer[] targetRenderers;
 }

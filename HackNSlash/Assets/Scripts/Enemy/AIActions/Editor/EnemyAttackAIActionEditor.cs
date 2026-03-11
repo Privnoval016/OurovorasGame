@@ -66,7 +66,7 @@ public class EnemyAttackAIActionEditor : Editor
             DrawProp(k_AggroField, "Aggro Action",
                 "Marks the enemy as aware/aggro while this action runs.");
             DrawProp("stats", "Player Attack Stats",
-                "Optional stat override applied when this action is executed.", true);
+                "Optional stat override applied when this action is executed.");
             DrawProp("damageInfo", "Damage Info", children: true);
         });
 

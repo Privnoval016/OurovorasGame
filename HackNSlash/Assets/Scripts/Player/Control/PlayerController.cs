@@ -8,7 +8,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(StateController<PlayerState>))]
-public class PlayerController : KinematicBehaviour, IService
+public class PlayerController : KinematicBehaviour, IService, IVFXSpawnLocationOwner
 {
     #region State Machine
     [HideInInspector] public StateController<PlayerState> sc;
@@ -154,6 +154,23 @@ public class PlayerController : KinematicBehaviour, IService
         if (a != null) enemies.RemoveWhere(e => e.TookDamageThisAction(a));
         
         return enemies;
+    }
+    
+    #endregion
+    
+    #region IVFXSpawnLocationOwner Implementation
+
+    public List<IVFXSpawnLocation> GetVFXSpawnLocations()
+    {
+        return wc.activeWeapons
+            .Where(w => w != null)
+            .Cast<IVFXSpawnLocation>()
+            .ToList();
+    }
+
+    public Transform GetTransform()
+    {
+        return transform;
     }
     
     #endregion

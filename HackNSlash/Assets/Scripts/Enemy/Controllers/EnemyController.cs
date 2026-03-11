@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Extensions.EventBus;
 using Extensions.Pathfinding;
 using Unity.Entities;
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IVFXSpawnLocationOwner
 {
     [Header("Components")]
 
@@ -82,6 +84,20 @@ public class EnemyController : MonoBehaviour
         EntityManager.Instance.UnregisterEnemy(this);
     }
 
+    #endregion
+    
+    #region IVFXSpawnLocationOwner Implementation
+    
+    public List<IVFXSpawnLocation> GetVFXSpawnLocations()
+    {
+        return attackHitboxes.Cast<IVFXSpawnLocation>().ToList();
+    }
+
+    public Transform GetTransform()
+    {
+        return transform;
+    }
+    
     #endregion
 }
 
