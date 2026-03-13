@@ -7,17 +7,17 @@ TerrainLayer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Gaia_-20260228-203205_3
-  m_DiffuseTexture: {fileID: 2800000, guid: 27020d0084e70c64bb030fe883b1abd5, type: 3}
-  m_NormalMapTexture: {fileID: 2800000, guid: 09891065d729b4645b4cf672ef380fa8, type: 3}
-  m_MaskMapTexture: {fileID: 2800000, guid: 203beba0418ea2e419c412d588b5039e, type: 3}
+  m_DiffuseTexture: {fileID: 2800000, guid: 3eea10eccd610ba49b1810562f6813aa, type: 3}
+  m_NormalMapTexture: {fileID: 2800000, guid: 58a7dc3cfdf65b44da956b4d8e5dc556, type: 3}
+  m_MaskMapTexture: {fileID: 0}
   m_TileSize: {x: 2, y: 2}
   m_TileOffset: {x: 0, y: 0}
   m_Specular: {r: 0, g: 0, b: 0, a: 0}
   m_Metallic: 0
   m_Smoothness: 0
-  m_NormalScale: 1
+  m_NormalScale: 3.79
   m_DiffuseRemapMin: {x: 0, y: 0, z: 0, w: 0}
-  m_DiffuseRemapMax: {x: 0.5188679, y: 0.5188679, z: 0.5188679, w: 1}
+  m_DiffuseRemapMax: {x: 1, y: 1, z: 1, w: 1}
   m_MaskMapRemapMin: {x: 0, y: 0, z: 0, w: 0}
   m_MaskMapRemapMax: {x: 1, y: 1, z: 1, w: 1}
   m_SmoothnessSource: 1

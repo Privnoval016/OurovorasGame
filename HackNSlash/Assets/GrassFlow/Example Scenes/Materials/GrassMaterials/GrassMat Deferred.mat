@@ -2,21 +2,34 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GrassMat Deferred
-  m_Shader: {fileID: 4800000, guid: ea00a2421ba933643930178ff787b658, type: 3}
-  m_ShaderKeywords: ALPHALOCK_ON BAKED_DATA BILLBOARD GF_SELF_SHADOW GF_SPECULAR
-    GF_USE_DITHER GRASS_FORCES GRASS_RIPPLES MESH_NORMALS MESH_UVS
+  m_Shader: {fileID: 4800000, guid: 715e0ec3b18c949189bdf321524f0a6f, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - BAKED_DATA
+  - BILLBOARD
+  - GF_SELF_SHADOW
+  - GF_SPECULAR
+  - GF_USE_DITHER
+  - GRASS_FORCES
+  - GRASS_RIPPLES
+  - MESH_NORMALS
+  - MESH_UVS
+  m_InvalidKeywords:
+  - ALPHALOCK_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -81,11 +94,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - colorMap:
-        m_Texture: {fileID: 2800000, guid: 93637f1cd5963f240a3569f3f99be2f9, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - dhfParamMap:
-        m_Texture: {fileID: 2800000, guid: 6ad529de9ae702548b0c67e4939a00d8, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - terrainNormalMap:
@@ -96,6 +109,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - DISABLE_DECALS: 0
     - Depth_Pass: 1
@@ -112,11 +126,11 @@ Material:
     - MESH_NORMALS: 1
     - MESH_UVS: 1
     - No_Transparency: 0
-    - Pipe_Type: 0
+    - Pipe_Type: 1
     - Render_Path: 1
     - Render_Type: 0
     - Rendermode: 0
-    - VERSION: 22
+    - VERSION: 23
     - _ALPHA_TO_MASK: 0
     - _AO: 0
     - _BILLBOARD: 1
@@ -209,3 +223,4 @@ Material:
     - windDir2: {r: 0.5, g: 0.5, b: 1.2, a: 1}
     - windTint: {r: 1, g: 1, b: 0.92517304, a: 0.2}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

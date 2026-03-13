@@ -2,22 +2,40 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GrassMatMeshCards
-  m_Shader: {fileID: 4800000, guid: 00c9beae5a286d049affb24a6353b4bf, type: 3}
-  m_ShaderKeywords: ALPHALOCK_ON GF_NORMAL_MAP GF_PPLIGHTS GF_SELF_SHADOW GF_SPECULAR
-    GF_USE_DITHER GRASS_FORCES GRASS_RIPPLES MAP_COLOR MAP_PARAM MAP_TYPE MESH_NORMALS
-    MESH_UVS SEMI_TRANSPARENT
+  m_Shader: {fileID: 4800000, guid: 2500e3e0bae3f46d8827aa4baf4332bd, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - BAKED_DATA
+  - GF_NORMAL_MAP
+  - GF_PPLIGHTS
+  - GF_SELF_SHADOW
+  - GF_SPECULAR
+  - GF_USE_DITHER
+  - GRASS_FORCES
+  - GRASS_RIPPLES
+  - MAP_COLOR
+  - MAP_PARAM
+  - MAP_TYPE
+  - MESH_NORMALS
+  - MESH_UVS
+  - SEMI_TRANSPARENT
+  - _RECEIVE_SHADOWS_OFF
+  m_InvalidKeywords:
+  - ALPHALOCK_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2450
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -81,6 +99,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - DISABLE_DECALS: 0
     - Depth_Pass: 0
@@ -97,11 +116,11 @@ Material:
     - MESH_NORMALS: 1
     - MESH_UVS: 1
     - No_Transparency: 0
-    - Pipe_Type: 0
+    - Pipe_Type: 1
     - Render_Path: 0
     - Render_Type: 2
     - Rendermode: 0
-    - VERSION: 22
+    - VERSION: 23
     - _ALPHA_TO_MASK: 0
     - _AO: -0.1
     - _BILLBOARD: 0
@@ -125,6 +144,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _ReceiveShadows: 0
     - _Rendermode: 0
     - _SEMI_TRANSPARENT: 1
     - _SmoothnessTextureChannel: 0
@@ -195,3 +215,4 @@ Material:
     - windDir2: {r: 0.5, g: 0.5, b: 0.3, a: 1}
     - windTint: {r: 1.4980392, g: 1.4980392, b: 1.3882353, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

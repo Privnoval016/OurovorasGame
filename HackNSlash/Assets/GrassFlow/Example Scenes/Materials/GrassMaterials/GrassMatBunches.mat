@@ -2,21 +2,37 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GrassMatBunches
-  m_Shader: {fileID: 4800000, guid: bf7573711076847459a86c5a3346a39f, type: 3}
-  m_ShaderKeywords: ALPHALOCK_ON BAKED_DATA BUMPMAP GF_NORMAL_MAP GF_PPLIGHTS GF_SELF_SHADOW
-    GF_SPECULAR GF_USE_DITHER GRASS_FORCES GRASS_RIPPLES MESH_NORMALS MESH_UVS SEMI_TRANSPARENT
+  m_Shader: {fileID: 4800000, guid: 04b206582a00247128a432611507e5e7, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - BAKED_DATA
+  - GF_NORMAL_MAP
+  - GF_PPLIGHTS
+  - GF_SELF_SHADOW
+  - GF_SPECULAR
+  - GF_USE_DITHER
+  - GRASS_FORCES
+  - GRASS_RIPPLES
+  - MESH_NORMALS
+  - MESH_UVS
+  - SEMI_TRANSPARENT
+  m_InvalidKeywords:
+  - ALPHALOCK_ON
+  - BUMPMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -84,6 +100,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - DISABLE_DECALS: 0
     - Depth_Pass: 1
@@ -101,11 +118,11 @@ Material:
     - MESH_NORMALS: 1
     - MESH_UVS: 1
     - No_Transparency: 0
-    - Pipe_Type: 0
+    - Pipe_Type: 1
     - Render_Path: 0
     - Render_Type: 2
     - Rendermode: 0
-    - VERSION: 22
+    - VERSION: 23
     - _ALPHA_TO_MASK: 0
     - _AO: 0
     - _BILLBOARD: 0
@@ -129,6 +146,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _ReceiveShadows: 1
     - _Rendermode: 0
     - _SEMI_TRANSPARENT: 1
     - _SmoothnessTextureChannel: 0
@@ -201,3 +219,4 @@ Material:
     - windDir2: {r: 0.3, g: 0.2, b: -0.2, a: 1}
     - windTint: {r: 2, g: 2, b: 1.8509804, a: 0.4862745}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

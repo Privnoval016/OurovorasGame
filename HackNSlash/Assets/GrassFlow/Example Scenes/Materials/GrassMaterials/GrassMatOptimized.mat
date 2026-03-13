@@ -16,8 +16,6 @@ Material:
   - BILLBOARD
   - GF_SPECULAR
   - LOD_SCALING
-  - USE_MAPS_OVERRIDE
-  - _RECEIVE_SHADOWS_OFF
   m_InvalidKeywords:
   - ALPHALOCK_ON
   - SEMI_TRANSPARENT
@@ -141,7 +139,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _ReceiveShadows: 0
+    - _ReceiveShadows: 1
     - _Rendermode: 0
     - _SEMI_TRANSPARENT: 1
     - _SmoothnessTextureChannel: 0

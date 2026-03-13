@@ -523,6 +523,30 @@ MonoBehaviour:
   m_showLockSceneViewLoadingButton: 1
   m_terrainSceneStorage: {fileID: 11400000, guid: 31a24f290442541598c2ad13d2b03f0b,
     type: 2}
+--- !u!114 &122544794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cba17d399ab86974c8ef9551f6e8f8d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transformSettings:
+    translation: {x: 500, y: 200, z: 350}
+    scale: {x: 7.8125, y: 1, z: 7.8125}
+    rotation: {x: 0, y: 0, z: 0}
+    flipScaleX: 0
+    flipScaleY: 0
+    flipScaleZ: 0
+  domainSettings:
+    noiseTypeName: Perlin
+    fractalTypeName: Fbm
+    noiseTypeParams: 
+    fractalTypeParams: '{"warpOffsets":{"x":0.0,"y":0.0,"z":0.0,"w":0.0},"octavesMinMax":{"x":0.0,"y":16.0},"amplitudeMinMax":{"x":0.0,"y":1.0},"frequencyMinMax":{"x":0.0,"y":2.0},"lacunarityMinMax":{"x":0.0,"y":4.0},"persistenceMinMax":{"x":0.0,"y":1.0},"warpIterationsMinMax":{"x":0.0,"y":8.0},"warpStrengthMinMax":{"x":-2.0,"y":2.0},"octaves":8.0,"amplitude":0.7350000143051148,"frequency":1.0,"persistence":0.5,"lacunarity":1.559999942779541,"warpIterations":0.5899999737739563,"warpStrength":1.4600000381469727,"warpEnabled":true,"warpExpanded":true}'
 --- !u!1 &135278836
 GameObject:
   m_ObjectHideFlags: 0
@@ -890,30 +914,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 883823376}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &301217913
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cba17d399ab86974c8ef9551f6e8f8d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  transformSettings:
-    translation: {x: 500, y: 200, z: 350}
-    scale: {x: 7.8125, y: 1, z: 7.8125}
-    rotation: {x: 0, y: 0, z: 0}
-    flipScaleX: 0
-    flipScaleY: 0
-    flipScaleZ: 0
-  domainSettings:
-    noiseTypeName: Perlin
-    fractalTypeName: Fbm
-    noiseTypeParams: 
-    fractalTypeParams: '{"warpOffsets":{"x":0.0,"y":0.0,"z":0.0,"w":0.0},"octavesMinMax":{"x":0.0,"y":16.0},"amplitudeMinMax":{"x":0.0,"y":1.0},"frequencyMinMax":{"x":0.0,"y":2.0},"lacunarityMinMax":{"x":0.0,"y":4.0},"persistenceMinMax":{"x":0.0,"y":1.0},"warpIterationsMinMax":{"x":0.0,"y":8.0},"warpStrengthMinMax":{"x":-2.0,"y":2.0},"octaves":8.0,"amplitude":0.7350000143051148,"frequency":1.0,"persistence":0.5,"lacunarity":1.559999942779541,"warpIterations":0.5899999737739563,"warpStrength":1.4600000381469727,"warpEnabled":true,"warpExpanded":true}'
 --- !u!114 &365010337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18883,6 +18883,74 @@ Transform:
   - {fileID: 832575519}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &576053631
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1502870839071006728, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_Name
+      value: WindParticles
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 48.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.5107327
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.8597396
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -118.575005
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694342860174101299, guid: e1c14354b8de04132989c33192a3c2ff,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e1c14354b8de04132989c33192a3c2ff, type: 3}
 --- !u!114 &625665588
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32674,7 +32742,7 @@ MonoBehaviour:
       m_warpIterations: 0.59
       m_warpStrength: 1.46
       m_warpOffset: {x: 0, y: 0, z: 0, w: 0}
-    m_noiseSettings: {fileID: 301217913}
+    m_noiseSettings: {fileID: 122544794}
     m_noiseToolSettings:
       worldHeightRemap: {x: 0, y: 0}
       coordSpace: 0
@@ -45817,4 +45885,5 @@ SceneRoots:
   - {fileID: 797455023}
   - {fileID: 1617766811}
   - {fileID: 2018140006}
+  - {fileID: 576053631}
   - {fileID: 806390545}

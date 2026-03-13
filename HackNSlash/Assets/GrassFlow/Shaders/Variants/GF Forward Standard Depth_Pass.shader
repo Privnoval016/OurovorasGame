@@ -20,7 +20,7 @@ Shader "GrassFlow/Forward Standard Depth_Pass" {
 		[HDR]flatTint("Flatness Tint", Color) = (1,1,1, 0.15)
 		[HDR]altCol("Variation Color", Color) = (0,0,0,1)
 		variance("Variances (p,h,c,w)", Vector) = (0.4, 0.4, 0.4, 0.4)
-		[Toggle(_DISABLE_DECALS)]DISABLE_DECALS("_DISABLE_DECALS", Float) = 0
+	
 		_CollapseEnd("Grass Properties", Float) = 0
 
 
@@ -176,7 +176,7 @@ Shader "GrassFlow/Forward Standard Depth_Pass" {
 		[HideInInspector]Forward_Add("Forward_Add", Float) = 0
 		[HideInInspector]No_Transparency("No_Transparency", Float) = 0
 		[HideInInspector]Lower_Quality("Lower_Quality", Float) = 0
-		[HideInInspector]VERSION("VERSION", Float) = 20
+		[HideInInspector]VERSION("VERSION", Float) = 23
 	}
 
 	SubShader{

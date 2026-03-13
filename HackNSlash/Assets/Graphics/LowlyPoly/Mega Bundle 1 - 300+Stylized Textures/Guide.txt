@@ -1,0 +1,38 @@
+﻿Guide about Texture Collection.
+
+
+Folders:
+- Catalog - Preview renders in the pdf catalog view with easy searching and copy text option. 
+- Demoscene - 2 scenes with catalog and volume preview
+- Materials - materials are divided into categories for easy searching
+- Textures - all textures are in one folder
+
+
+Textures naming:
+Example - T_164_3_Wood_Basecolor
+T_ - means it's a texture
+164 - Nubmer of volume that this texture from
+3 - Texture number
+Wood - material category
+
+
+PBR Workflow:
+- ambient occlusion 
+- base color
+- height  
+- metallic
+- normal(Normal Map, OpenGL)
+- roughness 
+
+Textures Resolution - 2048*2048px
+
+
+Convert to URP/HDRP
+Please followe this video - https://www.youtube.com/watch?v=zQIosR0P-RE
+It's very easy, if you need any help, please pm in discord.
+
+
+LOWLYPOLY COMMUNITY:
+https://discord.gg/dm4VANd
+
+

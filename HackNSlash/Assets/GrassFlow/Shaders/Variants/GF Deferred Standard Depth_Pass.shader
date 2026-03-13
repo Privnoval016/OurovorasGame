@@ -20,7 +20,7 @@ Shader "GrassFlow/Deferred Standard Depth_Pass" {
 		[HDR]flatTint("Flatness Tint", Color) = (1,1,1, 0.15)
 		[HDR]altCol("Variation Color", Color) = (0,0,0,1)
 		variance("Variances (p,h,c,w)", Vector) = (0.4, 0.4, 0.4, 0.4)
-		[Toggle(_DISABLE_DECALS)]DISABLE_DECALS("_DISABLE_DECALS", Float) = 0
+	
 		_CollapseEnd("Grass Properties", Float) = 0
 
 
@@ -38,6 +38,13 @@ Shader "GrassFlow/Deferred Standard Depth_Pass" {
 
 
 	
+	[HideInInspector] _CollapseStart("Specular", Float) = 0
+	[Toggle(GF_SPECULAR)]_GF_SPECULAR("Enable Specular", Float) = 0
+	specSmooth("Smoothness", Float) = 0.16
+	specularMult("Specular Mult", Float) = 2
+	specHeight("Specular Height Adjust", Float) = 0.5
+	specTint("Specular Tint", Color) = (1,1,1,1)
+	_CollapseEnd("Specular", Float) = 0
 	
 		_Metallic("Metallic", Range(0, 1)) = 0
 		_Gloss("Specular", Range(0, 1)) = 0.0
@@ -169,7 +176,7 @@ Shader "GrassFlow/Deferred Standard Depth_Pass" {
 		[HideInInspector]Forward_Add("Forward_Add", Float) = 0
 		[HideInInspector]No_Transparency("No_Transparency", Float) = 0
 		[HideInInspector]Lower_Quality("Lower_Quality", Float) = 0
-		[HideInInspector]VERSION("VERSION", Float) = 20
+		[HideInInspector]VERSION("VERSION", Float) = 23
 	}
 
 	SubShader{
@@ -189,6 +196,7 @@ Shader "GrassFlow/Deferred Standard Depth_Pass" {
 
 		
 			Tags{ "LightMode" = "Deferred" }
+		
 		
 		
 
@@ -254,6 +262,8 @@ Shader "GrassFlow/Deferred Standard Depth_Pass" {
 		
 			#include "UnityCG.cginc"
 			#include "AutoLight.cginc"
+		
+		
 		
 		
 			#include "../GrassPrograms.cginc"
@@ -322,6 +332,8 @@ Shader "GrassFlow/Deferred Standard Depth_Pass" {
 			#include "AutoLight.cginc"
 		
 		
+		
+		
 			#include "../GrassPrograms.cginc"
 
 			ENDCG
@@ -381,6 +393,8 @@ Shader "GrassFlow/Deferred Standard Depth_Pass" {
 		
 			#include "UnityCG.cginc"
 			#include "AutoLight.cginc"
+		
+		
 		
 		
 			#include "../GrassPrograms.cginc"
