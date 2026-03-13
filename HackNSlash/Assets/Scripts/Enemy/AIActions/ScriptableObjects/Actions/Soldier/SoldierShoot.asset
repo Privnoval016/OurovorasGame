@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c188fc340d84d73b4f509ea57d0fae6, type: 3}
+  m_Name: SoldierShoot
+  m_EditorClassIdentifier: 
+  consideration:
+    rid: 6781614059416191296
+  <AggroedAction>k__BackingField: 1
+  attack:
+    isEnabled: 1
+    element: 1
+    attackKnockback: {x: 15, y: 0}
+    attackCooldown: 0
+    isParryable: 1
+    enemyAttack:
+      rid: 278943961285918928
+    attackClips:
+    - _FadeDuration: 0.25
+      _Speed: 1
+      _Events:
+        _NormalizedTimes: []
+        _Callbacks: []
+        _Names: []
+      _Clip: {fileID: 7400000, guid: 12bd2baaf317d484a88f1aecf849fe10, type: 2}
+      _NormalizedStartTime: 0
+    animDelay: 0
+    useRootMotion: 0
+    exitConditions: 0
+    vfxInfos:
+    - vfxAttack: {fileID: 11400000, guid: cfe375fdfad015a43859ac203c72f414, type: 2}
+      vfxPlayerActionIndex: 0
+      vfxEnemyActionIndex: 1
+      duration: 2
+      spawnDelay: 0
+      actionDelay: 0
+      spawnTarget: 0
+      parentToTarget: 0
+      spawnTransform:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        Scale: {x: 1, y: 1, z: 1}
+      applyParentPoseToPosition: 0
+  damageInfo:
+    damageMultiplier: 1
+  stats:
+    damage: 20
+    statusEffectStacks: 0
+    statusEffectDuration: 0
+    shieldDamage: 10
+    restoreCharge: 1
+    charge: 0
+    ultimateCharge: 8
+    baseStyleGain: 10
+  references:
+    version: 2
+    RefIds:
+    - rid: 278943961285918928
+      type: {class: SpawnVFXEnemyAttackStrategy, ns: , asm: Assembly-CSharp}
+      data:
+        VFXSpawnIndex: 0
+    - rid: 6781614059416191296
+      type: {class: InRangeConsideration, ns: Extensions.UtilityAI.ConsiderationBases,
+        asm: Assembly-CSharp}
+      data:
+        targetKey:
+          internalId: target.player
+          displayName: Player
+        maxDistance: 20
+        maxAngle: 360
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: -0.004166667
+            value: 0.95000005
+            inSlope: -0.00000044703486
+            outSlope: -0.00000044703486
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.6530612
+          - serializedVersion: 3
+            time: 0.2
+            value: 0.9983368
+            inSlope: -0.007618905
+            outSlope: -0.007618905
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.27083337
+            outWeight: 0.15624999
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0.00207901
+            outSlope: 0.00207901
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4

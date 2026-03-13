@@ -9,6 +9,7 @@ public class EnemyAttack
     [Header("General")] 
     public bool isEnabled;
     public ElementEffect element;
+    public bool isInterruptible = false;
     
     [Header("Attack Properties")]
     public Vector2 attackKnockback;

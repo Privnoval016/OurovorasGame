@@ -53,6 +53,8 @@ public class EnemyMovementAIAction : EnemyAIActionBase
 
     #region EnemyAIActionBase
 
+    public override bool IsInterruptible => strategy?.IsInterruptible ?? true;
+
     protected override void OnEnemyEnter(EnemyContext context, EnemyStateMachine esm)
     {
         _elapsed     = 0f;

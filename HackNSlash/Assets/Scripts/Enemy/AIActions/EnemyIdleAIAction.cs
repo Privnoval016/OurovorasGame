@@ -14,6 +14,8 @@ public class EnemyIdleAIAction : EnemyAIActionBase
     private float _elapsed;
     private Transform _target;
 
+    public override bool IsInterruptible { get; } = true;
+
     protected override void OnEnemyEnter(EnemyContext context, EnemyStateMachine esm)
     {
         _elapsed = 0f;

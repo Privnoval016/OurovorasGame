@@ -223,10 +223,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actions:
-  - {fileID: 11400000, guid: 756ebd88748ad456e97fea4372fc292b, type: 2}
   - {fileID: 11400000, guid: a87d4445694e649aab2d7ddf6bfb9352, type: 2}
   - {fileID: 11400000, guid: 3167ec802c51c4ffd8d30ce0d5cdbde9, type: 2}
-  - {fileID: 11400000, guid: 127769fa215fb40d2a50eed7bb8bc1c5, type: 2}
+  - {fileID: 11400000, guid: 71710e409cb8948c6971758f03c571d2, type: 2}
+  - {fileID: 11400000, guid: a375537d912ca463a8a36be8527dae85, type: 2}
   sensor: {fileID: 6229334532059045415}
   currentAction: {fileID: 0}
   actionCooldownWindow: 5

@@ -219,7 +219,7 @@ namespace Extensions.UtilityAI
          * be overridden by the brain (e.g. idle stalls, stun holds).
          * </summary>
          */
-        public virtual bool IsInterruptible => false;
+        public abstract bool IsInterruptible { get; }
 
         public float CalculateUtility(IContextBase context)
         {

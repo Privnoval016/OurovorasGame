@@ -13,5 +13,6 @@ public interface IMovementStrategy
     void OnUpdate(EnemyContext context, EnemyStateMachine esm);
     void OnExit(EnemyContext context, EnemyStateMachine esm);
     bool IsComplete(EnemyContext context, EnemyStateMachine esm);
+    bool IsInterruptible { get; }
     string DisplayName { get; }
 }

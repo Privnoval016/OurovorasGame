@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/GrassyTerrain.unity
+    guid: 4656d5e3f420a4a909c9e73e4e946e26
+  - enabled: 1
     path: Assets/Scenes/CaveArena.unity
     guid: 04d0dacea78c842aab4555ab73acd37a
   - enabled: 1

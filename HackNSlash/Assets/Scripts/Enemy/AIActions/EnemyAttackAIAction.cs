@@ -9,6 +9,8 @@ public class EnemyAttackAIAction : EnemyAIActionBase
     public EnemyAttackDamageInfo damageInfo;
     public PlayerAttackStats stats;
 
+    public override bool IsInterruptible  => attack.isInterruptible;
+
     protected override void OnEnemyEnter(EnemyContext context, EnemyStateMachine esm)
     {
         // Face the player once at the moment the attack begins.

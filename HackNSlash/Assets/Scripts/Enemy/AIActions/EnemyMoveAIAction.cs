@@ -14,6 +14,8 @@ public class EnemyMoveAIAction : EnemyAIActionBase
     [Tooltip("Speed multiplier applied to NavMotor.maxSpeed while chasing.")]
     [Range(0.1f, 2f)] public float speedMultiplier = 1f;
 
+    public override bool IsInterruptible { get; } = true;
+
     private Transform _target;
 
     protected override void OnEnemyEnter(EnemyContext context, EnemyStateMachine esm)

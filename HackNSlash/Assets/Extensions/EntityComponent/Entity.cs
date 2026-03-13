@@ -15,10 +15,6 @@ namespace Extensions.EntityComponent
             _components[mostSpecificType] = component; // assigns to most specific type
         }
         
-        public void ReplaceComponent<TComponent>(TComponent component)
-            where TComponent : class, T
-            => AddComponent(component);
-        
         public TComponent GetComponent<TComponent>() where TComponent : class, T
         {
             _components.TryGetValue(typeof(TComponent), out var comp);

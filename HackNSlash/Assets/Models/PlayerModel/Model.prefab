@@ -943,21 +943,21 @@ MonoBehaviour:
   serializeData2:
     initData:
       initVersion: 2
-      localHash: 29398
-      globalHash: 306654234
+      localHash: 30690
+      globalHash: -80940182
       clothType: 0
       clothTransformRecord:
         transform: {fileID: 677712842538841533}
         localPosition: {x: 0, y: 0, z: 0}
         localRotation: {x: 0, y: 0, z: 0, w: 1}
-        position: {x: 0, y: 0.09000003, z: 0}
+        position: {x: 89.3, y: 0.09000003, z: 95.5}
         rotation: {x: -0, y: -0, z: -0, w: 1}
         scale: {x: 2.0212, y: 2.0212, z: 2.0212}
         localToWorldMatrix:
           e00: 2.0212
           e01: 0
           e02: 0
-          e03: 0
+          e03: 89.3
           e10: 0
           e11: 2.0212
           e12: 0
@@ -965,24 +965,24 @@ MonoBehaviour:
           e20: 0
           e21: 0
           e22: 2.0212
-          e23: 0
+          e23: 95.5
           e30: 0
           e31: 0
           e32: 0
           e33: 1
         worldToLocalMatrix:
-          e00: 0.4947556
+          e00: 0.49475554
           e01: 0
           e02: 0
-          e03: 0
+          e03: -44.18167
           e10: 0
-          e11: 0.4947556
+          e11: 0.49475554
           e12: 0
           e13: -0.044527948
           e20: 0
           e21: 0
-          e22: 0.4947556
-          e23: 0
+          e22: 0.49475554
+          e23: -47.249153
           e30: 0
           e31: 0
           e32: 0
@@ -991,14 +991,14 @@ MonoBehaviour:
         transform: {fileID: 677712842538841533}
         localPosition: {x: 0, y: 0, z: 0}
         localRotation: {x: 0, y: 0, z: 0, w: 1}
-        position: {x: 0, y: 0.09000003, z: 0}
+        position: {x: 89.3, y: 0.09000003, z: 95.5}
         rotation: {x: -0, y: -0, z: -0, w: 1}
         scale: {x: 2.0212, y: 2.0212, z: 2.0212}
         localToWorldMatrix:
           e00: 2.0212
           e01: 0
           e02: 0
-          e03: 0
+          e03: 89.3
           e10: 0
           e11: 2.0212
           e12: 0
@@ -1006,24 +1006,24 @@ MonoBehaviour:
           e20: 0
           e21: 0
           e22: 2.0212
-          e23: 0
+          e23: 95.5
           e30: 0
           e31: 0
           e32: 0
           e33: 1
         worldToLocalMatrix:
-          e00: 0.4947556
+          e00: 0.49475554
           e01: 0
           e02: 0
-          e03: 0
+          e03: -44.18167
           e10: 0
-          e11: 0.4947556
+          e11: 0.49475554
           e12: 0
           e13: -0.044527948
           e20: 0
           e21: 0
-          e22: 0.4947556
-          e23: 0
+          e22: 0.49475554
+          e23: -47.249153
           e30: 0
           e31: 0
           e32: 0
@@ -1034,26 +1034,26 @@ MonoBehaviour:
         vertexCount: 1893
         hasSkinnedMesh: 1
         hasBoneWeight: 1
-        skinRootBoneIndex: 68
-        renderTransformIndex: 69
-        skinBoneCount: 68
-        transformCount: 70
+        skinRootBoneIndex: 391
+        renderTransformIndex: 392
+        skinBoneCount: 391
+        transformCount: 393
         useTransformCount: 3
-        useTransformIndexArray: 010000004400000045000000
+        useTransformIndexArray: 010000008701000088010000
         transformArray:
         - {fileID: 7823322162465120330}
-        - {fileID: 8274723876947979330}
+        - {fileID: 3900664683200620809}
         - {fileID: 1289579312028335931}
         transformPositions:
-        - x: 6.698958e-14
+        - x: 89.3
           y: 1.9346105
-          z: -0.100812934
-        - x: 0
+          z: 95.399185
+        - x: 89.3
+          y: 2.0692286
+          z: 95.4339
+        - x: 89.3
           y: 0.09000003
-          z: 0
-        - x: 0
-          y: 0.09000003
-          z: 0
+          z: 95.5
         transformRotations:
         - value:
             x: 0.12584093
@@ -1075,8 +1075,8 @@ MonoBehaviour:
           y: 0.0004987767
           z: 0.009126314
         - x: -0
-          y: 0
-          z: 0
+          y: 0.00032704195
+          z: 0.009792345
         - x: -0
           y: 0
           z: 0
@@ -1123,9 +1123,9 @@ MonoBehaviour:
             z: -0.000024094577
             w: 0
           c3:
-            x: 0
+            x: 89.3
             y: 0.09000003
-            z: 0
+            z: 95.5
             w: 1
         initRenderWorldtoLocal:
           c0:
@@ -1144,9 +1144,9 @@ MonoBehaviour:
             z: -5.897948e-10
             w: -0
           c3:
-            x: 0
-            y: 5.3081553e-11
-            z: -0.0004452803
+            x: -0.44181678
+            y: 0.4724917
+            z: -0.00044522397
             w: 1
         initRenderRotation:
           value:
@@ -8098,7 +8098,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   center: {x: 0, y: 0.46, z: 0.01}
-  size: {x: 0.179, y: 0.171, z: 1.177}
+  size: {x: 0.256, y: 0.171, z: 1.177}
   symmetryMode: 1
   symmetryTarget: {fileID: 0}
   direction: 1
@@ -8213,7 +8213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   center: {x: 0.02, y: 0.22, z: 0.02}
-  size: {x: 0.141, y: 0.204, z: 1.013}
+  size: {x: 0.156, y: 0.243, z: 1.013}
   symmetryMode: 1
   symmetryTarget: {fileID: 0}
   direction: 1
@@ -9943,7 +9943,8 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 4300000, guid: 4c2464ff322d6864dba5e99abcd73517, type: 2}
+      objectReference: {fileID: 4524207509537376650, guid: b1623575edb9d64469820e51c3e7baee,
+        type: 3}
     - target: {fileID: -1602814562895404597, guid: b1623575edb9d64469820e51c3e7baee,
         type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -9959,6 +9960,11 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: abd70593bbf32794babfad339e6aef2b, type: 2}
+    - target: {fileID: 2584794989316978126, guid: b1623575edb9d64469820e51c3e7baee,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 686b0353eb187474ab1976cd10381c59, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -10080,6 +10086,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 4847359810352398581}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &3900664683200620809 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -764281748965365252, guid: b1623575edb9d64469820e51c3e7baee,
+    type: 3}
+  m_PrefabInstance: {fileID: 4847359810352398581}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4750496509551718806 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -9031846494388391581, guid: b1623575edb9d64469820e51c3e7baee,
@@ -10165,12 +10177,6 @@ Transform:
 --- !u!4 &7823322162465120330 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3447309931397767359, guid: b1623575edb9d64469820e51c3e7baee,
-    type: 3}
-  m_PrefabInstance: {fileID: 4847359810352398581}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &8274723876947979330 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -5651751901618623305, guid: b1623575edb9d64469820e51c3e7baee,
     type: 3}
   m_PrefabInstance: {fileID: 4847359810352398581}
   m_PrefabAsset: {fileID: 0}
