@@ -82,7 +82,7 @@ public class VFXSystem : MonoBehaviour, IVFXSystem
      *
      * <returns>The VFXController of the spawned VFX, or null if the VFX could not be spawned.</returns>
      */
-    public VFXController PlayAnimationEventVFX(IVFXSpawnLocationOwner owner, VFXSpawnInfo[] infos, int hitboxIndex, int vfxIndex)
+    public VFXController PlayAnimationEventVFX(IVFXSpawnLocationOwner owner, VFXSpawnInfo[] infos, int hitboxIndex, int vfxIndex, ElementEffect element)
     {
         if (infos.Length <= vfxIndex)
         {
@@ -133,9 +133,7 @@ public class VFXSystem : MonoBehaviour, IVFXSystem
             return null;
         }
         
-        vfxInstance.transform.SetParent(spawnTransform); // parent to the spawn transform so it moves with the hitbox if the hitbox moves during the animation
-        
-        ElementEffect element = ElementData.GetElementFromAttack(ElementEffect.None, null);
+        vfxInstance.transform.SetParent(spawnTransform, true); // parent to the spawn transform so it moves with the hitbox if the hitbox moves during the animation
         
         var vfxActivators = GetVFXActivators(info, vfxController, Services.Get<ElementSystem>().GetElementData(element));
         

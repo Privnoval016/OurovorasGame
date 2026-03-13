@@ -90,6 +90,18 @@ public class ElementData : SerializedScriptableObject
 
         return element;
     }
+    
+    public static ElementEffect GetElementFromAttack(ElementEffect attackElement, EnemyController ec)
+    {
+        ElementEffect element = attackElement;
+
+        if (element == ElementEffect.MatchCurrent)
+        {
+            element = ec.stats.currentElementEffect;
+        }
+
+        return element;
+    }
 }
 
 

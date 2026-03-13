@@ -17,7 +17,8 @@ MonoBehaviour:
   <AggroedAction>k__BackingField: 1
   attack:
     isEnabled: 0
-    element: 0
+    element: 1
+    isInterruptible: 0
     attackKnockback: {x: 30, y: 0}
     attackCooldown: 0.5
     isParryable: 1
@@ -35,7 +36,20 @@ MonoBehaviour:
     animDelay: 0
     useRootMotion: 0
     exitConditions: 0
-    vfxInfos: []
+    vfxInfos:
+    - vfxAttack: {fileID: 11400000, guid: f51e58a5fd3a1a648ab7c30c718ef740, type: 2}
+      vfxPlayerActionIndex: 0
+      vfxEnemyActionIndex: 0
+      duration: 0.3
+      spawnDelay: 0
+      actionDelay: 0
+      spawnTarget: 0
+      parentToTarget: 0
+      spawnTransform:
+        Position: {x: 0, y: -2, z: 0}
+        Rotation: {x: 0, y: 0, z: 0.70710677, w: 0.70710677}
+        Scale: {x: 2, y: 2, z: 2}
+      applyParentPoseToPosition: 0
   damageInfo:
     damageMultiplier: 1
   stats:

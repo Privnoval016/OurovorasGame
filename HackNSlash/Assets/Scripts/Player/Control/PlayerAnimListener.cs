@@ -92,7 +92,7 @@ public class PlayerAnimListener : MonoBehaviour
         }
         
         
-        Services.Get<VFXSystem>().PlayAnimationEventVFX(pc, vfxInfos, hitboxIndex, vfxIndexInt);
+        Services.Get<VFXSystem>().PlayAnimationEventVFX(pc, vfxInfos, hitboxIndex, vfxIndexInt, ElementData.GetElementFromAttack(currentAttack.element, pc));
     }
     
 }

@@ -35,10 +35,8 @@ public class EnemyAnimListener : MonoBehaviour
     }
     
     
-    public void PlayVFX(int hitboxIndex = 0, float vfxIndex = 0)
+    public void PlayVFX(int hitboxIndex = 0)
     {
-        int vfxIndexInt = Mathf.RoundToInt(vfxIndex); // using float so we can set it alongside hitbox index in the animation event
-        
         // get vfxinfos from the current attack's vfx profile, using hitbox index and vfx index
         EnemyAIActionBase currentAction = ts.esm.currentAction;
         if (currentAction is not EnemyAttackAIAction attackAction)
@@ -48,13 +46,15 @@ public class EnemyAnimListener : MonoBehaviour
         }
         
         var vfxInfos = attackAction?.attack?.vfxInfos;
+        int vfxIndexInt = 0; // TODO: figure out how to set two parameters
         if (vfxInfos == null || vfxIndexInt >= vfxInfos.Length)
         {
             Debug.LogWarning($"Trying to play VFX with invalid hitbox index {hitboxIndex} or vfx index {vfxIndexInt}");
             return;
         }
         
+        ElementEffect element = ElementData.GetElementFromAttack(attackAction.attack.element, ts);
         
-        Services.Get<VFXSystem>().PlayAnimationEventVFX(ts, vfxInfos, hitboxIndex, vfxIndexInt);
+        Services.Get<VFXSystem>().PlayAnimationEventVFX(ts, vfxInfos, hitboxIndex, vfxIndexInt, element);
     }
 }
