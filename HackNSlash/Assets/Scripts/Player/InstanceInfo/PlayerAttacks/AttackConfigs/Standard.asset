@@ -75,6 +75,20 @@ MonoBehaviour:
       Data: 
   movingState: 1
   doubleJumpEnabled: 1
+  jumpVFXs:
+  - vfxAttack: {fileID: 11400000, guid: f5f939d6a8e3f4811a1ff4f396b715a2, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 0.3
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 1
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: -1, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
   dodgeCoolDown: 0.2
   comboResetTime: 0.7
   comboAttacks:

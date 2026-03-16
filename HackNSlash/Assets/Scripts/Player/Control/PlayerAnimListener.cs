@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using Extensions.EventBus;
 using Extensions.Utils;
+using MEC;
 using UnityEngine;
 
 public class PlayerAnimListener : MonoBehaviour
@@ -8,8 +11,17 @@ public class PlayerAnimListener : MonoBehaviour
 
     [Header("Slash")] public TransformInfo slashLocalTransform;
 
+    [Header("Particles")] 
+    public GameObject walkingDustParticles;
+    public float footstepDustDuration = 0.2f;
+
     private WeaponType lastWeaponType = WeaponType.SwordLeft;
-    
+
+    private void Start()
+    {
+        walkingDustParticles?.SetActive(false);
+    }
+
     public void PlaySwordLeftVFX(int vfxIndex = 0)
     {
         lastWeaponType = WeaponType.SwordLeft;
@@ -66,6 +78,8 @@ public class PlayerAnimListener : MonoBehaviour
     
     public void PlayFootstepSound()
     {
+        walkingDustParticles.SetActive(true);
+        this.RunSegmentCoroutine(ActivateDustParticle()).OnDestroy(() => walkingDustParticles?.SetActive(false));
         var effect = AudioLookupAtlas.Instance?.playerFootstepSound;
         
         if (effect == null)
@@ -76,6 +90,13 @@ public class PlayerAnimListener : MonoBehaviour
         EventBus<PlaySFXEvent>.Raise(new PlaySFXEvent(effect, pc.psm.groundCheckPoint, null, true));
     }
     
+    private IEnumerator<float> ActivateDustParticle()
+    {
+        if (walkingDustParticles == null) yield break;
+        walkingDustParticles.SetActive(true);
+        yield return Timing.WaitForSeconds(footstepDustDuration);
+        walkingDustParticles.SetActive(false);
+    }
     
     public void PlayVFX(int hitboxIndex = 0, float vfxIndex = 0)
     {

@@ -213,11 +213,11 @@ MonoBehaviour:
       _Callbacks: []
       _Names: []
     _Animations:
-    - {fileID: 7400000, guid: 90092ccaf85dcf7468839d87a385a8ae, type: 2}
-    - {fileID: 7400000, guid: d16295b2bbaf8774086d678a2bb60878, type: 2}
-    - {fileID: 7400000, guid: 72591187ef86dc44d8d16a4e412be5e0, type: 2}
-    - {fileID: 7400000, guid: f4578ec477557f746b013114361aac85, type: 2}
-    - {fileID: 7400000, guid: 10ad1bcbdd455bd4aa25742edb0e562c, type: 2}
+    - {fileID: 7400000, guid: 81c7531a948148e45b8bce0ff47f78a1, type: 2}
+    - {fileID: 7400000, guid: 54ca0cc385cbda54dbd5e1ea3a65928c, type: 2}
+    - {fileID: 7400000, guid: 1d60751bf5fb6434ca1ccd76df3335b9, type: 2}
+    - {fileID: 7400000, guid: 4ee19f9ffe7bfac4eaeb915a39c8892d, type: 2}
+    - {fileID: 7400000, guid: 8f517a03f09bfbb459a6b83cd2e67fa7, type: 2}
     _Speeds: []
     _SynchronizeChildren: 
     _Thresholds:
@@ -267,7 +267,8 @@ MonoBehaviour:
       _Names: []
     _Clip: {fileID: 7400000, guid: 24959077017189a4cb8c864c3c3222e8, type: 2}
     _NormalizedStartTime: NaN
-  nextState: 0
+  swapNextState: 0
+  swapWeapons: 
   ultClip:
     _FadeDuration: 0.25
     _Speed: 1

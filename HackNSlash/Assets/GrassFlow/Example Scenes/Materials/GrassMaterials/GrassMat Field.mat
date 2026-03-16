@@ -12,13 +12,13 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - BAKED_DATA
   - BILLBOARD
   - GF_SELF_SHADOW
   - GRASS_FORCES
   - GRASS_RIPPLES
   - MAP_PARAM
   - MESH_UVS
+  - _RECEIVE_SHADOWS_OFF
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
@@ -138,7 +138,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _ReceiveShadows: 1
+    - _ReceiveShadows: 0
     - _Rendermode: 0
     - _SEMI_TRANSPARENT: 0
     - _SmoothnessTextureChannel: 0
@@ -153,14 +153,14 @@ Material:
     - alphaLock: 0
     - alphaMult: 1
     - ambientCO: 0.1
-    - ambientCOShadow: 0.2
-    - bladeHeight: 2.5
+    - ambientCOShadow: 0.17
+    - bladeHeight: 3.13
     - bladeLateralCurve: 0
     - bladeOffset: 0
-    - bladeSharp: 0.3
+    - bladeSharp: 0.02
     - bladeStiffness: 0
     - bladeVerticalCurve: 0
-    - bladeWidth: 0.1
+    - bladeWidth: 0.16
     - blendNormal: 0
     - cellSize: 0.05
     - edgeLight: 0.5
@@ -186,16 +186,16 @@ Material:
     - variance: 0.3
     - widthLODscale: 0.05
     - windFlutter: 0.05
-    - windMult: 1
+    - windMult: 0.06
     m_Colors:
-    - _Color: {r: 0.31680638, g: 0.3679245, b: 0.08677466, a: 1}
+    - _Color: {r: 0.035555344, g: 0.16037738, b: 0.018912425, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LOD: {r: 130, g: 1.1, b: 0, a: 0}
     - _noiseScale: {r: 1, g: 1, b: 0.7, a: 0}
     - _noiseScale2: {r: 2, g: 2, b: 1, a: 1}
     - _noiseSpeed: {r: 1.5, g: 1, b: 0.35, a: 0}
     - _noiseSpeed2: {r: 2.5, g: 2, b: 1.35, a: 1}
-    - altCol: {r: 0.1, g: 0.08833333, b: 0, a: 1}
+    - altCol: {r: 0.039916348, g: 0.3679245, b: 0.123142265, a: 1}
     - flatTint: {r: 1, g: 1, b: 1, a: 0.34509805}
     - noiseScale: {r: 1, g: 1, b: 0.5, a: 0}
     - selfShadowScaleOffset: {r: 0.75, g: -0.75, b: 0.6, a: 0.05}

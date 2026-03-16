@@ -410,8 +410,8 @@ public class CameraController : MonoBehaviour
 
 public enum PlayerCamStates
 {
-    Free,
-    LockedOn,
-    FinisherCloseUp,
-    OverworldFocus
+    Free, // Default third-person follow camera with free rotation.
+    LockedOn, // When locked on, the camera focuses on both the player and targeted enemy, keeping them in frame with dynamic adjustments.
+    FinisherCloseUp, // A dynamic close-up used during finisher animations — focuses on the player and targeted enemy with dramatic framing.
+    OverworldFocus // For cutscenes and overworld exploration — focuses on the player with a more cinematic framing.
 }

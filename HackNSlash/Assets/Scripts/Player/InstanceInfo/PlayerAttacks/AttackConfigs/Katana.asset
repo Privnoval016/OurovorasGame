@@ -12,8 +12,83 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9511eb3e05fd744dd8935cc182356346, type: 3}
   m_Name: Katana
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects:
+    - {fileID: 11400000, guid: 9753dcf527576154792a1adbe3d57a67, type: 2}
+    - {fileID: 11400000, guid: 9578dd07a764770449c52140c54b27ae, type: 2}
+    - {fileID: 11400000, guid: 6393b264a7a2b5e4da6d7d1a8cf8cfe0, type: 2}
+    - {fileID: 11400000, guid: 34f95dfc6f45a5044a1974ef78be28fb, type: 2}
+    - {fileID: 11400000, guid: 03ec20722e27ae448a120c1dd88487e1, type: 2}
+    - {fileID: 11400000, guid: cbde3890a7b6d0c4aa9557842c8efed9, type: 2}
+    - {fileID: 11400000, guid: 773d9280e0cf4ed4882ed1fbb7af1e4c, type: 2}
+    - {fileID: 11400000, guid: 80aef43054668d74b83255a26517cee2, type: 2}
+    - {fileID: 11400000, guid: ec616182090914c40a1e4b2c24d9a3fa, type: 2}
+    - {fileID: 11400000, guid: b0506a6107a57df4da3cf1cb17161f19, type: 2}
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: allAttacks
+      Entry: 7
+      Data: 0|System.Collections.Generic.HashSet`1[[Attack, Assembly-CSharp]], System.Core
+    - Name: 
+      Entry: 12
+      Data: 10
+    - Name: 
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 2
+    - Name: 
+      Entry: 10
+      Data: 3
+    - Name: 
+      Entry: 10
+      Data: 4
+    - Name: 
+      Entry: 10
+      Data: 5
+    - Name: 
+      Entry: 10
+      Data: 6
+    - Name: 
+      Entry: 10
+      Data: 7
+    - Name: 
+      Entry: 10
+      Data: 8
+    - Name: 
+      Entry: 10
+      Data: 9
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
   movingState: 2
   doubleJumpEnabled: 1
+  jumpVFXs:
+  - vfxAttack: {fileID: 11400000, guid: f5f939d6a8e3f4811a1ff4f396b715a2, type: 2}
+    vfxPlayerActionIndex: 0
+    vfxEnemyActionIndex: 0
+    duration: 0.3
+    spawnDelay: 0
+    actionDelay: 0
+    spawnTarget: 1
+    parentToTarget: 0
+    spawnTransform:
+      Position: {x: 0, y: -1, z: 0}
+      Rotation: {x: 0, y: 0, z: 0, w: 0}
+      Scale: {x: 1, y: 1, z: 1}
+    applyParentPoseToPosition: 0
   dodgeCoolDown: 0.2
   comboResetTime: 0.7
   comboAttacks:

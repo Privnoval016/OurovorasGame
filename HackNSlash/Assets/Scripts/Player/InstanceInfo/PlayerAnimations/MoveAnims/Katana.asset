@@ -213,11 +213,11 @@ MonoBehaviour:
       _Callbacks: []
       _Names: []
     _Animations:
-    - {fileID: 7400000, guid: 81a755825fd732e45885d0be81cccc5b, type: 2}
-    - {fileID: 7400000, guid: c21de271681004a4594cbbb35f5685b0, type: 2}
-    - {fileID: 7400000, guid: ee19c8554de06b047974f8c7ed9c603a, type: 2}
-    - {fileID: 7400000, guid: 10646ef99cd9f944fb928bcee5677b8c, type: 2}
-    - {fileID: 7400000, guid: 94a956f3b59040940b80db2f42a9e916, type: 2}
+    - {fileID: 7400000, guid: 49b89cb7030cd664bbf5c74f91cc94c0, type: 2}
+    - {fileID: 7400000, guid: a2940525a0bb7ae4ebaa4c42eb6a5cbf, type: 2}
+    - {fileID: 7400000, guid: 9ea5e02c651bb694fb38d7582c0be823, type: 2}
+    - {fileID: 7400000, guid: 3246fe85bfa0f0e41beee1edbb5c3436, type: 2}
+    - {fileID: 7400000, guid: 2aad99e59cf054643a3abaae6de82160, type: 2}
     _Speeds: []
     _SynchronizeChildren: 
     _Thresholds:

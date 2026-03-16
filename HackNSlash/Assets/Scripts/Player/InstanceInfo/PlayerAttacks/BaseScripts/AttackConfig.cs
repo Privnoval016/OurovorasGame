@@ -18,6 +18,8 @@ public class AttackConfig : SerializedScriptableObject
     
     public bool doubleJumpEnabled;
 
+    public VFXSpawnInfo[] jumpVFXs;
+
     public float dodgeCoolDown = 1.2f;
     
     [Header("Combo Parameters")]

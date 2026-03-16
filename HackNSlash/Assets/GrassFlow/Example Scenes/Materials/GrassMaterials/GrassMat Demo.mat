@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GrassMat Demo
-  m_Shader: {fileID: 4800000, guid: bf7573711076847459a86c5a3346a39f, type: 3}
+  m_Shader: {fileID: 4800000, guid: 04b206582a00247128a432611507e5e7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -128,7 +128,7 @@ Material:
     - MESH_NORMALS: 1
     - MESH_UVS: 1
     - No_Transparency: 0
-    - Pipe_Type: 0
+    - Pipe_Type: 1
     - Render_Path: 0
     - Render_Type: 1
     - Rendermode: 0
@@ -156,6 +156,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _ReceiveShadows: 1
     - _Rendermode: 0
     - _SEMI_TRANSPARENT: 1
     - _SmoothnessTextureChannel: 0

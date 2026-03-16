@@ -448,6 +448,8 @@ public class PlayerStateMachine : MonoBehaviour
         if (attackData.doubleJumpEnabled && CanDoubleJump && KeyMap[KeyBind.South].action() && !isElementAttacking)
         {
             Debug.Log("Double Jump");
+            
+            Services.Get<VFXSystem>().PlayAnimationEventVFX(pc, attackData.jumpVFXs, -1, 0, ElementEffect.None);
 
             LastDoubleJumpTimer.Stop();
             isDoubleJumpUsed = true;

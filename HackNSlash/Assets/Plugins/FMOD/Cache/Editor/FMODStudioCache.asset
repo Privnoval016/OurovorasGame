@@ -43,7 +43,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Music.bank
   Name: Music
   StudioPath: bank:/Music
-  lastModified: 639050552556890209
+  lastModified: 639050444556890209
   FileSizes: []
   Exists: 1
 --- !u!114 &-4465862459565583231
@@ -61,7 +61,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/SFX.bank
   Name: SFX
   StudioPath: bank:/SFX
-  lastModified: 639050666212077172
+  lastModified: 639050558212077172
   FileSizes: []
   Exists: 1
 --- !u!114 &-2876638785520208707
@@ -106,7 +106,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Ambience.bank
   Name: Ambience
   StudioPath: bank:/Ambience
-  lastModified: 639048675354189288
+  lastModified: 639048567354189288
   FileSizes: []
   Exists: 1
 --- !u!114 &-1239575083438349422
@@ -124,7 +124,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Dialogue.bank
   Name: Dialogue
   StudioPath: bank:/Dialogue
-  lastModified: 639048675354206665
+  lastModified: 639048567354206665
   FileSizes: []
   Exists: 1
 --- !u!114 &-878153131351957432
@@ -202,7 +202,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: 5870138789013942014}
   cacheVersion: 131858
-  cacheTime: 639051543261546641
+  cacheTime: 639051435261546641
   SerializableEventsDict:
   - key: event:/Music/Exploration/Outside
     index: 0
@@ -343,7 +343,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Snapshots.bank
   Name: Snapshots
   StudioPath: bank:/Snapshots
-  lastModified: 639048675371634862
+  lastModified: 639048567371634862
   FileSizes: []
   Exists: 1
 --- !u!114 &4102841911134144687
@@ -416,7 +416,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639051543261541336
+  lastModified: 639051435261541336
   FileSizes: []
   Exists: 1
 --- !u!114 &5855865389922099453
@@ -463,7 +463,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639051543261546641
+  lastModified: 639051435261546641
   FileSizes:
   - Name: 
     Value: 1962
@@ -483,7 +483,7 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/Cutscenes.bank
   Name: Cutscenes
   StudioPath: bank:/Cutscenes
-  lastModified: 639048675354200748
+  lastModified: 639048567354200748
   FileSizes: []
   Exists: 1
 --- !u!114 &7492637304665409341
@@ -501,6 +501,6 @@ MonoBehaviour:
   Path: FMOD/HackNSlash/Build/Desktop/UI.bank
   Name: UI
   StudioPath: bank:/UI
-  lastModified: 639048675371637842
+  lastModified: 639048567371637842
   FileSizes: []
   Exists: 1

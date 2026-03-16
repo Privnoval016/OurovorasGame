@@ -19,6 +19,7 @@ public class VFXActivator : MonoBehaviour
     
     
     public VFXDelayInfo[] vfxs;
+    public ParticleSystem[] particles;
     public float totalDuration;
     private bool lifetimesSet = false;
 
@@ -39,6 +40,12 @@ public class VFXActivator : MonoBehaviour
         {
             vfx.effect.Stop();
             vfx.effect.gameObject.SetActive(false);
+        }
+        
+        foreach (var ps in particles)
+        {
+            ps.gameObject.SetActive(true);
+            ps.Stop();
         }
     }
     
@@ -108,6 +115,11 @@ public class VFXActivator : MonoBehaviour
         if (!lifetimesSet) SetEffectLifetimes(totalDuration);
         
         gameObject.SetActive(true);
+        
+        foreach (var ps in particles)
+        {
+            ps.Play(); // TODO: add support for particle delays if needed
+        }
         
         foreach (VFXDelayInfo vfx in vfxs)
         {

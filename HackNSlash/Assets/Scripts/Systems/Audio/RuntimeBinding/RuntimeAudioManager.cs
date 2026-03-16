@@ -18,7 +18,7 @@ public class RuntimeAudioManager : MonoBehaviour
 
     private void Start()
     {
-        EventBus<PlayMusicEvent>.Raise(new PlayMusicEvent(AudioLookupAtlas.Instance.explorationMusicEvent));
+        //EventBus<PlayMusicEvent>.Raise(new PlayMusicEvent(AudioLookupAtlas.Instance.explorationMusicEvent));
     }
 
     private void OnEnable()

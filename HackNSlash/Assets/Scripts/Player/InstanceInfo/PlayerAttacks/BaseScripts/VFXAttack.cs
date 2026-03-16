@@ -13,7 +13,8 @@ public enum VFXType
     Burst,
     Muzzle,
     WeaponEffect,
-    Impact
+    Impact,
+    BladeBeam
 }
 
 [CreateAssetMenu(menuName = "Player/VFXAttack")]
