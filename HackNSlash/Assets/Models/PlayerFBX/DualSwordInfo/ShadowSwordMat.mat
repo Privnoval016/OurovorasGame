@@ -12,6 +12,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _AFFECTED_BY_LIGHTMAPS_ON
   - _ALBEDOVERTEXCOLORMODE_REPLACE
   - _ALPHA_CUTOFF_ON
   - _CAST_SHADOWS_ON
@@ -193,7 +194,7 @@ Material:
     - _AOMapStrength: 1
     - _AddPrecomputedVelocity: 0
     - _AdvancedConfigurationEnabled: 0
-    - _AffectedByLightmaps: 0
+    - _AffectedByLightmaps: 1
     - _AlbedoVertexColorMode: 1
     - _AlbedoVertexColorOn: 0
     - _AlphaClip: 0

@@ -25,7 +25,6 @@ Material:
   - _HEIGHTGRADIENTPOSITIONSPACE_LOCAL
   - _LIGHTMODEL_TOON
   - _MATCAPBLENDMODE_MULTIPLY
-  - _METALLIC_MAP_ON
   - _NORMAL_MAP_ON
   - _OUTLINETYPE_FADEWITHDISTANCE
   - _RECEIVEDSHADOWSTYPE_STYLIZED
@@ -272,7 +271,7 @@ Material:
     - _MaxInflate: 0.19
     - _MaxRim: 1
     - _Metallic: 0.352
-    - _MetallicMapOn: 1
+    - _MetallicMapOn: 0
     - _MinDistanceToFade: 0
     - _MinGradientHeight: 0
     - _MinInflate: 0

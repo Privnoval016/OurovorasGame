@@ -272,7 +272,7 @@ Material:
     - _MaxInflate: 0.19
     - _MaxRim: 1
     - _Metallic: 0.352
-    - _MetallicMapOn: 1
+    - _MetallicMapOn: 0
     - _MinDistanceToFade: 0
     - _MinGradientHeight: 0
     - _MinInflate: 0
