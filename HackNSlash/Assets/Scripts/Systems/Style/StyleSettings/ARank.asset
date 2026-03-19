@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ARank
   m_EditorClassIdentifier: 
   level: 3
-  threshold: 300
-  decayRate: 8
+  threshold: 100
+  decayRate: 4
   penaltyRate: 1.5
   meterBackground: {fileID: 21300000, guid: 1b50e406efa0a5e429ea96dc630e472f, type: 3}
   meterOutline: {fileID: 21300000, guid: b4e64997ac5ba6646b6fc6b68f74d376, type: 3}

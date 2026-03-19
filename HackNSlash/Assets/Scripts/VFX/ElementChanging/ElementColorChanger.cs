@@ -36,10 +36,17 @@ public class ElementColorChanger : MonoBehaviour
         UpdateAllDependents();
     }
 
+    
     private void UpdateAllDependents()
     {
         foreach (var info in elementUpdateInfos)
             info.elementChangeable.UpdateElement(currentElement);
+    }
+
+    [Button]
+    public void ForceUpdateDependents()
+    {
+        UpdateAllDependents();
     }
 }
 

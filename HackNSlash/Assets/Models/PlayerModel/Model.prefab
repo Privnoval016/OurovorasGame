@@ -8741,6 +8741,8 @@ MonoBehaviour:
     Position: {x: 0, y: 0, z: 0}
     Rotation: {x: 0, y: 0, z: 0, w: 0}
     Scale: {x: 0.54627, y: 0.3316187, z: 0.54627}
+  walkingDustParticles: {fileID: 0}
+  footstepDustDuration: 0.2
 --- !u!1 &8168578941579737254
 GameObject:
   m_ObjectHideFlags: 0
@@ -10156,6 +10158,8 @@ MonoBehaviour:
     Position: {x: 0, y: 0, z: 0}
     Rotation: {x: 0, y: 0, z: 0, w: 0}
     Scale: {x: 0.54627, y: 0.3316187, z: 0.54627}
+  walkingDustParticles: {fileID: 0}
+  footstepDustDuration: 0.2
 --- !u!4 &5945226191512962543 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1280402904917067034, guid: b1623575edb9d64469820e51c3e7baee,

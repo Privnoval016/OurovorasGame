@@ -279,7 +279,7 @@ Material:
     - _MinInflate: 0
     - _MinRim: 0.679
     - _NearFade: 0
-    - _NormalInfluence: 0.5
+    - _NormalInfluence: 0.37
     - _NormalMapEnabled: 1
     - _NormalStrength: 0
     - _OutlineMode: 6
@@ -299,10 +299,10 @@ Material:
     - _RimAttenuation: 0.576
     - _RimLighting: 0
     - _RimLightingStage: 1
-    - _SSSAtten: 1
-    - _SSSFrontAtten: 0.374
-    - _SSSFrontPower: 5.05
-    - _SSSPower: 2.58
+    - _SSSAtten: 0.946
+    - _SSSFrontAtten: 0.354
+    - _SSSFrontPower: 4.8
+    - _SSSPower: 6.7
     - _ScaleWithCameraDistance: 0
     - _ScreenSpaceUVOn: 0
     - _ScrollTextureOn: 0

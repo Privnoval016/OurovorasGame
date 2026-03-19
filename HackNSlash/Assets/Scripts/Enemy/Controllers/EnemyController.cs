@@ -26,7 +26,7 @@ public class EnemyController : MonoBehaviour, IVFXSpawnLocationOwner
 
     [HideInInspector] public OnEnemyEvents onEnemyEvents;
     
-    [HideInInspector] public ElementColorChanger elementColorChanger;
+    public ElementColorChanger elementColorChanger;
 
     public EnemyAnimListener animListener;
     
@@ -52,13 +52,15 @@ public class EnemyController : MonoBehaviour, IVFXSpawnLocationOwner
         onEnemyEvents = GetComponent<OnEnemyEvents>();
         esm = GetComponent<EnemyStateMachine>();
         stats = GetComponent<EnemyStats>();
-        elementColorChanger = GetComponent<ElementColorChanger>();
+        elementColorChanger ??= GetComponent<ElementColorChanger>();
     
-        animListener.ts = this;
+        if (animListener != null) 
+            animListener.ts = this;
     
         foreach (var hitbox in attackHitboxes)
         {
-            hitbox.ts = this;
+            if ( hitbox != null)
+                hitbox.ts = this;
         }
     }
 

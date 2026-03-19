@@ -16,7 +16,7 @@ public class EntityAnimator : MonoBehaviour
 
     private void Awake()
     {
-        animancer.TryGetComponent(out rootMotion);
+        animancer?.TryGetComponent(out rootMotion);
     }
 
     #endregion

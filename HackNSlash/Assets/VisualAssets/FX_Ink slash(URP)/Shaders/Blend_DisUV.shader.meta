@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2966e76ad1b5b1741b232c49571cdc40
+timeCreated: 1542210495
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 294890
+  packageName: Ink slash Collection(URP)
+  packageVersion: 1.0
+  assetPath: Assets/FX_Ink slash(URP)/Shaders/Blend_DisUV.shader
+  uploadId: 688736

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c8aae236f38ebc046a9d529f91e72c57
+timeCreated: 1514691548
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 294890
+  packageName: Ink slash Collection(URP)
+  packageVersion: 1.0
+  assetPath: Assets/FX_Ink slash(URP)/Materials/ink_05-all.mat
+  uploadId: 688736

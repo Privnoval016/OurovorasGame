@@ -275,7 +275,7 @@ MonoBehaviour:
   active: 1
   _globalDensityMultiplier:
     m_OverrideState: 1
-    m_Value: 0.12
+    m_Value: 0.17
   _globalDensityThreshold:
     m_OverrideState: 1
     m_Value: 0
