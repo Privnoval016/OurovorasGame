@@ -1,0 +1,351 @@
+🧠 0. Top-Level Architecture (Clean Separation)
+Dialogue/
+│
+├── Data/              (pure data, no logic)
+├── Localization/      (text tables + formatting)
+├── Runtime/           (engine, execution)
+├── Scripting/         (conditions + expressions)
+├── Commands/          (game actions)
+├── Timeline/          (sequencing + scheduling)
+├── Presentation/      (UI + rendering)
+├── Integration/       (hooks into game systems)
+└── Editor/            (tools)
+🧩 1. DATA LAYER (Pure, Serializable, Type-Safe)
+🔑 Design Goals
+No logic
+Fully serializable
+Strong typing
+Engine-agnostic
+Core Graph Structure
+public sealed class DialogueGraph
+{
+    public readonly Dictionary<NodeId, DialogueNode> Nodes;
+    public readonly NodeId StartNode;
+}
+Strongly Typed IDs (IMPORTANT)
+
+Avoid strings everywhere:
+
+public readonly struct NodeId
+{
+    public readonly int Value;
+}
+
+Do this for:
+
+NodeId
+SpeakerId
+StyleId
+TextKey
+
+👉 Prevents bugs + improves performance
+
+Base Node
+public abstract class DialogueNode
+{
+    public NodeId Id;
+    public NodeId[] Next;
+}
+Line Node
+public sealed class LineNode : DialogueNode
+{
+    public TextKey Text;
+    public SpeakerId Speaker;
+    public StyleId Style;
+
+    public Condition[] Conditions;
+    public CommandData[] Commands;
+}
+Choice Node
+public sealed class ChoiceNode : DialogueNode
+{
+    public ChoiceOption[] Options;
+}
+
+public sealed class ChoiceOption
+{
+    public TextKey Text;
+    public NodeId Next;
+    public Condition[] Conditions;
+}
+❗ CommandData (TYPE SAFE, NO object)
+public abstract class CommandData {}
+
+public sealed class GiveItemCommandData : CommandData
+{
+    public ItemId Item;
+    public int Amount;
+}
+
+public sealed class PlayAnimationCommandData : CommandData
+{
+    public ActorId Actor;
+    public AnimationId Animation;
+}
+
+👉 Each command has its own class → compile-time safety
+
+🌍 2. LOCALIZATION LAYER
+Structure
+public sealed class LocalizationTable
+{
+    private readonly Dictionary<TextKey, LocalizedEntry> _entries;
+}
+
+public sealed class LocalizedEntry
+{
+    public readonly string English;
+    public readonly string Japanese;
+    public readonly string Korean;
+}
+Formatting Pipeline
+public interface ITextFormatter
+{
+    FormattedText Format(TextKey key, in DialogueContext ctx);
+}
+Formatted Output (NOT just string)
+public readonly struct FormattedText
+{
+    public readonly TextSegment[] Segments;
+}
+Segment (for styling)
+public readonly struct TextSegment
+{
+    public readonly string Text;
+    public readonly TextStyle Style;
+}
+Why this matters
+You can apply:
+colors
+animations
+per-word effects
+
+WITHOUT parsing strings at runtime
+
+🧠 3. STATE / BLACKBOARD SYSTEM
+Strongly Typed State Keys
+public readonly struct StateKey<T>
+{
+    public readonly int Id;
+}
+Blackboard
+public sealed class DialogueState
+{
+    private readonly Dictionary<int, int> _ints;
+    private readonly Dictionary<int, bool> _bools;
+    private readonly Dictionary<int, float> _floats;
+}
+
+👉 No object, no boxing
+
+Access
+public int Get(StateKey<int> key);
+public void Set(StateKey<int> key, int value);
+🧩 4. SCRIPTING / CONDITIONS
+Condition Interface
+public interface ICondition
+{
+    bool Evaluate(in DialogueContext ctx);
+}
+Example
+public sealed class GreaterThanCondition : ICondition
+{
+    public StateKey<int> Key;
+    public int Value;
+
+    public bool Evaluate(in DialogueContext ctx)
+        => ctx.State.Get(Key) > Value;
+}
+
+👉 No string parsing needed
+👉 Fully type-safe
+👉 JIT-friendly
+
+⚡ 5. COMMAND SYSTEM (GAME INTERACTION)
+Runtime Command Interface
+public interface IDialogueCommand
+{
+    void Execute(in DialogueContext ctx);
+}
+Factory (Data → Runtime)
+public interface ICommandFactory
+{
+    IDialogueCommand Create(CommandData data);
+}
+Example
+public sealed class GiveItemCommand : IDialogueCommand
+{
+    private readonly ItemId _item;
+    private readonly int _amount;
+
+    public void Execute(in DialogueContext ctx)
+    {
+        ctx.Inventory.Add(_item, _amount);
+    }
+}
+⏱️ 6. TIMELINE / SCHEDULER
+Core Scheduler
+public sealed class DialogueScheduler
+{
+    private readonly List<ScheduledCommand> _queue;
+
+    public void Update(float deltaTime);
+}
+Scheduled Command
+public readonly struct ScheduledCommand
+{
+    public readonly float Time;
+    public readonly IDialogueCommand Command;
+}
+Integration
+LineNode.Commands → scheduled or immediate
+🧠 7. RUNTIME ENGINE (THE CORE)
+Context Object (VERY IMPORTANT)
+public readonly struct DialogueContext
+{
+    public readonly DialogueState State;
+    public readonly IGameServices Services;
+}
+Engine
+public sealed class DialogueEngine
+{
+    private DialogueGraph _graph;
+    private NodeId _current;
+
+    public void Start(DialogueGraph graph);
+    public void Advance();
+}
+Flow
+Load Node
+ → Evaluate Conditions
+ → Execute Commands
+ → Send to Presentation
+ → Wait for input / auto
+ → Advance
+🎭 8. PRESENTATION LAYER (UI + GRAPHICS)
+Interface
+public interface IDialoguePresenter
+{
+    void ShowLine(FormattedText text, SpeakerId speaker, StyleId style);
+    void ShowChoices(ChoiceOption[] options);
+    void Hide();
+}
+Style System
+public sealed class DialogueStyle
+{
+    public LayoutConfig Layout;
+    public AnimationConfig Animation;
+    public BehaviorConfig Behavior;
+}
+Rendering Pipeline
+FormattedText
+ → TextMeshPro / custom renderer
+ → apply per-segment styles
+ → animate (typewriter, shake, etc.)
+Graphical Features
+
+You should support:
+
+Layout
+bottom (cutscene)
+left (combat)
+world-space (NPC bubble)
+Effects
+typewriter (per-character)
+wave / shake
+color gradients
+fade in/out
+emphasis scaling
+Portrait System
+public sealed class Portrait
+{
+    public Sprite Image;
+    public EmotionType Emotion;
+}
+🔗 9. INTEGRATION LAYER (HOOK INTO YOUR GAME)
+
+This is how dialogue talks to your systems.
+
+Central Interface
+public interface IGameServices
+{
+    IInventory Inventory { get; }
+    IQuestSystem Quests { get; }
+    ICombatSystem Combat { get; }
+    ICameraSystem Camera { get; }
+}
+Example Integration
+Inventory
+ctx.Services.Inventory.Add(item, amount);
+Combat
+ctx.Services.Combat.StartBattle(enemyId);
+Camera
+ctx.Services.Camera.Focus(actor);
+
+👉 Dialogue NEVER directly references concrete classes
+
+💾 10. SAVE SYSTEM
+Save Data
+public sealed class DialogueSaveData
+{
+    public NodeId CurrentNode;
+    public DialogueState State;
+}
+Requirements
+resume mid-dialogue
+restore variables
+restore choices
+⏩ 11. FLOW CONTROL
+Input Interface
+public interface IDialogueInput
+{
+    bool AdvancePressed();
+    int GetChoiceIndex();
+}
+Features
+skip typing
+fast forward
+auto-play
+🧪 12. DEBUGGING SYSTEM
+You NEED:
+- current node viewer
+- state inspector
+- condition results
+- command log
+🏗️ 13. HOW EVERYTHING CONNECTS
+[ DialogueGraph ]
+        ↓
+[ DialogueEngine ]
+        ↓
+[ Condition System ]
+        ↓
+[ Command Factory ]
+        ↓
+[ Scheduler ]
+        ↓
+[ Presenter ]
+        ↓
+[ UI / Graphics ]
+        ↓
+[ Player Input ]
+
+↘ integrates via ↙
+
+[ GameServices ]
+📁 14. PROJECT ORGANIZATION (IMPORTANT)
+Scripts/
+│
+├── Dialogue/
+│   ├── Data/
+│   ├── Runtime/
+│   ├── Commands/
+│   ├── Conditions/
+│   ├── Localization/
+│   ├── Presentation/
+│   └── Integration/
+⚠️ FINAL DESIGN RULES (DO NOT BREAK THESE)
+1. NO UI LOGIC IN ENGINE
+2. NO GAME LOGIC IN DATA
+3. NO STRINGS FOR CORE IDS
+4. NO object (use generics / structs)
+5. EVERYTHING GOES THROUGH INTERFACES
