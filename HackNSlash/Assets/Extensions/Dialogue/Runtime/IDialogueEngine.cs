@@ -63,6 +63,12 @@ namespace Extensions.Dialogue.Runtime
         /// Implementations handle their specific logic without switch statements.
         /// </summary>
         void Process(in DialogueContext context, IDialogueEngine engine, IDialoguePresenter presenter);
+
+        /// <summary>
+        /// Get a display name for this node in the editor.
+        /// Each node type provides its own display name without switch statements.
+        /// </summary>
+        string GetDisplayName(NodeId id);
     }
 }
 

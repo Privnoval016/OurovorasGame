@@ -16,6 +16,11 @@ namespace Extensions.Dialogue.Data
         /// Process this node polymorphically without switch statements.
         /// </summary>
         public abstract void Process(in Runtime.DialogueContext context, Runtime.IDialogueEngine engine, Runtime.IDialoguePresenter presenter);
+
+        /// <summary>
+        /// Get a display name for this node in the editor.
+        /// </summary>
+        public abstract string GetDisplayName(NodeId id);
     }
 
     /// <summary>
@@ -54,6 +59,8 @@ namespace Extensions.Dialogue.Data
             // Auto advance
             engine.AdvanceToNext();
         }
+
+        public override string GetDisplayName(NodeId id) => $"Line #{id.Value}";
     }
 
     /// <summary>
@@ -78,6 +85,8 @@ namespace Extensions.Dialogue.Data
                 engine.StopPlayback();
             }
         }
+
+        public override string GetDisplayName(NodeId id) => $"Choice #{id.Value}";
     }
 
     /// <summary>
@@ -89,37 +98,6 @@ namespace Extensions.Dialogue.Data
         [SerializeField] public TextKey TextKey;
         [SerializeField] public NodeId NextNode;
         [SerializeField] public string[] ConditionSerializedReferences = Array.Empty<string>();
-    }
-
-    /// <summary>
-    /// Root data structure for a complete dialogue graph.
-    /// </summary>
-    public sealed class DialogueGraph : UnityEngine.ScriptableObject
-    {
-        [SerializeField] public string GraphName;
-        [SerializeField] public NodeId StartNode;
-        [SerializeField] public DialogueNode[] Nodes = Array.Empty<DialogueNode>();
-
-        /// <summary>
-        /// Quickly lookup a node by its ID. Build this on runtime access.
-        /// </summary>
-        private System.Collections.Generic.Dictionary<int, DialogueNode> _nodeCache;
-
-        public DialogueNode GetNode(NodeId id)
-        {
-            _nodeCache ??= BuildNodeCache();
-            return _nodeCache.TryGetValue(id.Value, out var node) ? node : null;
-        }
-
-        private System.Collections.Generic.Dictionary<int, DialogueNode> BuildNodeCache()
-        {
-            var cache = new System.Collections.Generic.Dictionary<int, DialogueNode>();
-            foreach (var node in Nodes)
-            {
-                cache[node.Id.Value] = node;
-            }
-            return cache;
-        }
     }
 }
 
